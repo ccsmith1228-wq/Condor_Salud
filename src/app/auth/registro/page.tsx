@@ -109,7 +109,7 @@ export default function RegistroPage() {
         />
         <div className="relative z-10">
           <Link href="/" className="flex items-center gap-3 mb-12" aria-label="Ir al inicio">
-            <Image src="/logos/condor.png" alt="" width={40} height={40} className="rounded-full" />
+            <Image src="/logos/condor-transparent.svg" alt="" width={40} height={40} className="" />
             <div className="leading-none">
               <span className="text-[13px] font-bold tracking-[0.5px]">CÓNDOR</span>
               <br />
@@ -147,7 +147,7 @@ export default function RegistroPage() {
             className="lg:hidden flex items-center gap-2 mb-8"
             aria-label="Ir al inicio"
           >
-            <Image src="/logos/condor.png" alt="" width={36} height={36} className="rounded-full" />
+            <Image src="/logos/condor-transparent.svg" alt="" width={36} height={36} className="" />
             <div className="leading-none">
               <span className="text-[12px] font-bold tracking-[0.5px] text-ink">CÓNDOR</span>
               <br />

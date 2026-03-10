@@ -79,7 +79,7 @@ export default function FacturacionPage() {
       label: "Pendiente de cobro",
       value: formatCurrency(totals.totalPendiente),
       sub: `${facturas.filter((f) => ["presentada", "pendiente", "en_observacion"].includes(f.estado)).length} facturas`,
-      accent: "border-l-gold",
+      accent: "border-l-amber-400",
     },
     {
       label: "Rechazado",

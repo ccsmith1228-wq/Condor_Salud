@@ -18,7 +18,7 @@ export default function Navbar() {
       <nav className="sticky top-1 z-[99] bg-white border-b border-border px-6 lg:px-10 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3">
           <Image
-            src="/logos/condor.png"
+            src="/logos/condor-transparent.svg"
             alt="Cóndor Salud"
             width={36}
             height={36}
@@ -26,7 +26,9 @@ export default function Navbar() {
           />
           <div className="leading-none">
             <div className="font-bold text-lg text-celeste-dark tracking-[2px]">CÓNDOR</div>
-            <div className="text-[11px] font-bold text-gold tracking-[4px] -mt-0.5">S A L U D</div>
+            <div className="text-[11px] font-bold text-celeste tracking-[4px] -mt-0.5">
+              S A L U D
+            </div>
           </div>
         </Link>
 
@@ -64,7 +66,7 @@ export default function Navbar() {
           </Link>
           <Link
             href="/dashboard"
-            className="px-5 py-2 text-xs font-semibold text-white bg-gold hover:bg-gold-dark rounded-[4px] transition"
+            className="px-5 py-2 text-xs font-semibold text-white bg-celeste hover:bg-celeste-dark rounded-[4px] transition"
           >
             Demo
           </Link>
@@ -126,7 +128,7 @@ export default function Navbar() {
             <Link
               href="/dashboard"
               onClick={() => setOpen(false)}
-              className="px-5 py-2 text-xs font-semibold text-white bg-gold rounded-[4px] text-center"
+              className="px-5 py-2 text-xs font-semibold text-white bg-celeste rounded-[4px] text-center"
             >
               Demo
             </Link>

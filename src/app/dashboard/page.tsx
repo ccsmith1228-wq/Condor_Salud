@@ -29,7 +29,7 @@ const kpis = [
     value: "8.2%",
     change: "-3.1% vs. mes ant.",
     up: false,
-    accent: "border-l-gold",
+    accent: "border-l-amber-400",
     href: "/dashboard/rechazos",
   },
   {
@@ -230,7 +230,7 @@ export default function DashboardPage() {
               {[
                 {
                   href: "/dashboard/rechazos",
-                  color: "border-gold",
+                  color: "border-amber-400",
                   title: "5 rechazos IOMA nuevos",
                   sub: "Hace 2 horas · Error de código",
                 },
@@ -242,7 +242,7 @@ export default function DashboardPage() {
                 },
                 {
                   href: "/dashboard/nomenclador",
-                  color: "border-gold",
+                  color: "border-amber-400",
                   title: "Nomenclador SSS actualizado",
                   sub: "Ayer · 14 códigos modificados",
                 },
@@ -320,7 +320,7 @@ export default function DashboardPage() {
                       parseFloat(f.rechazo) > 10
                         ? "text-red-500"
                         : parseFloat(f.rechazo) > 5
-                          ? "text-gold"
+                          ? "text-amber-500"
                           : "text-green-600"
                     }`}
                   >
@@ -395,7 +395,7 @@ export default function DashboardPage() {
                   role="listitem"
                 >
                   <span
-                    className={`w-2 h-2 rounded-full ${a.sev === "alta" ? "bg-red-500" : "bg-gold"}`}
+                    className={`w-2 h-2 rounded-full ${a.sev === "alta" ? "bg-red-500" : "bg-amber-400"}`}
                     aria-label={`Severidad ${a.sev}`}
                   />
                   <span className="text-xs font-semibold text-ink flex-1">{a.tipo}</span>

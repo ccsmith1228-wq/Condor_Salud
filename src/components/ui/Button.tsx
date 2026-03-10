@@ -12,11 +12,12 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<Variant, string> = {
   primary: "bg-celeste-dark text-white hover:bg-celeste focus-visible:ring-celeste-dark",
-  secondary: "bg-celeste-pale text-celeste-dark hover:bg-celeste-light/30 focus-visible:ring-celeste",
+  secondary:
+    "bg-celeste-pale text-celeste-dark hover:bg-celeste-light/30 focus-visible:ring-celeste",
   outline: "border border-border text-ink hover:bg-surface focus-visible:ring-celeste",
   ghost: "text-ink-light hover:bg-surface hover:text-ink focus-visible:ring-celeste",
   danger: "bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500",
-  gold: "bg-gold text-white hover:bg-gold-dark focus-visible:ring-gold",
+  gold: "bg-celeste-dark text-white hover:bg-celeste focus-visible:ring-celeste-dark",
 };
 
 const sizeStyles: Record<Size, string> = {
@@ -51,8 +52,19 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             viewBox="0 0 24 24"
             aria-hidden="true"
           >
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+            />
           </svg>
         )}
         {children}

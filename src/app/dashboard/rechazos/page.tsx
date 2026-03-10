@@ -71,9 +71,9 @@ export default function RechazosPage() {
           </div>
           <div className="text-xs mt-1 text-ink-muted">{rechazos.length} rechazos</div>
         </div>
-        <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-gold">
+        <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-amber-400">
           <div className="text-xs text-ink-muted mb-1">Pendientes de gestión</div>
-          <div className="text-2xl font-bold text-gold">{stats.pendientes.length}</div>
+          <div className="text-2xl font-bold text-amber-600">{stats.pendientes.length}</div>
           <div className="text-xs mt-1 text-ink-muted">
             {formatCurrency(stats.pendientes.reduce((s, r) => s + r.monto, 0))}
           </div>
@@ -261,8 +261,8 @@ export default function RechazosPage() {
                   id={`rechazo-detail-${r.id}`}
                   className="mt-4 pt-4 border-t border-border-light"
                 >
-                  <div className="bg-gold-pale/30 rounded-lg p-4 mb-3">
-                    <div className="text-xs font-semibold text-gold-dark mb-1">
+                  <div className="bg-amber-50 rounded-lg p-4 mb-3">
+                    <div className="text-xs font-semibold text-amber-700 mb-1">
                       Motivo de rechazo
                     </div>
                     <div className="text-sm text-ink">{r.motivoDetalle}</div>

@@ -1,12 +1,26 @@
 import { cn } from "@/lib/utils";
 
 type Variant =
-  | "cobrada" | "presentada" | "rechazada" | "pendiente" | "en_observacion"
-  | "activo" | "inactivo"
-  | "confirmado" | "cancelado" | "atendido"
-  | "alta" | "media" | "baja"
-  | "reprocesado" | "descartado" | "revisado" | "resuelto"
-  | "celeste" | "gold" | "default";
+  | "cobrada"
+  | "presentada"
+  | "rechazada"
+  | "pendiente"
+  | "en_observacion"
+  | "activo"
+  | "inactivo"
+  | "confirmado"
+  | "cancelado"
+  | "atendido"
+  | "alta"
+  | "media"
+  | "baja"
+  | "reprocesado"
+  | "descartado"
+  | "revisado"
+  | "resuelto"
+  | "celeste"
+  | "gold"
+  | "default";
 
 const variantStyles: Record<Variant, string> = {
   cobrada: "bg-emerald-50 text-emerald-700 border-emerald-200",
@@ -27,7 +41,7 @@ const variantStyles: Record<Variant, string> = {
   revisado: "bg-amber-50 text-amber-700 border-amber-200",
   resuelto: "bg-emerald-50 text-emerald-700 border-emerald-200",
   celeste: "bg-celeste-pale text-celeste-dark border-celeste-light",
-  gold: "bg-gold-pale text-gold-dark border-gold",
+  gold: "bg-celeste-pale text-celeste-dark border-celeste-light",
   default: "bg-gray-100 text-gray-700 border-gray-200",
 };
 

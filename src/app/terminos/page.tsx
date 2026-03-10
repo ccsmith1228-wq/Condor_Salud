@@ -15,7 +15,7 @@ export default function TerminosPage() {
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2" aria-label="Ir al inicio">
             <Image
-              src="/logos/condor.png"
+              src="/logos/condor-transparent.svg"
               alt="Cóndor Salud"
               width={32}
               height={32}

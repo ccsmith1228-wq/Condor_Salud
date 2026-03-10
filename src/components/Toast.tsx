@@ -38,7 +38,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             className="pointer-events-auto bg-ink text-white text-xs font-semibold px-5 py-3 rounded-lg shadow-lg animate-toast flex items-center gap-2"
           >
             <svg
-              className="w-4 h-4 text-gold"
+              className="w-4 h-4 text-celeste-light"
               fill="none"
               stroke="currentColor"
               strokeWidth={2}

@@ -8,7 +8,7 @@ interface KPICardProps {
 
 const colorMap: Record<string, string> = {
   celeste: "border-l-celeste-dark",
-  gold: "border-l-gold",
+  gold: "border-l-celeste",
   red: "border-l-red-500",
   green: "border-l-emerald-500",
 };
@@ -29,7 +29,7 @@ export function KPICard({ kpi, className }: KPICardProps) {
       </p>
       <p className="text-2xl font-bold text-ink mt-1">{kpi.value}</p>
       <p
-        className={cn("text-xs font-medium mt-1", kpi.up ? "text-emerald-600" : "text-gold-dark")}
+        className={cn("text-xs font-medium mt-1", kpi.up ? "text-emerald-600" : "text-red-500")}
         aria-label={`Cambio: ${kpi.change}`}
       >
         <span className="inline-flex items-center gap-0.5">

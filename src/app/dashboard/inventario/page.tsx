@@ -199,7 +199,7 @@ const categorias = [
 ] as const;
 const estadoColors: Record<string, string> = {
   OK: "bg-green-50 text-green-700",
-  Bajo: "bg-gold-pale text-[#B8860B]",
+  Bajo: "bg-amber-50 text-amber-700",
   Crítico: "bg-red-50 text-red-600",
   Vencido: "bg-border-light text-ink-muted",
 };
@@ -294,7 +294,7 @@ export default function InventarioPage() {
         {[
           { label: "Ítems totales", value: inventario.length, color: "border-celeste" },
           { label: "Stock crítico", value: criticos, color: "border-red-400" },
-          { label: "Stock bajo", value: bajos, color: "border-gold" },
+          { label: "Stock bajo", value: bajos, color: "border-amber-400" },
           {
             label: "Valor inventario",
             value: `$${(valorTotal / 1000000).toFixed(1)}M`,

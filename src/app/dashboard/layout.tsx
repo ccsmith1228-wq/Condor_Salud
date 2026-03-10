@@ -136,31 +136,31 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-50 w-60 bg-ink flex flex-col shrink-0 transform transition-transform duration-200 ease-in-out ${
+        className={`fixed lg:static inset-y-0 left-0 z-50 w-60 bg-white border-r border-gray-200 flex flex-col shrink-0 transform transition-transform duration-200 ease-in-out ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
         role="navigation"
         aria-label="Navegación principal"
       >
         {/* Brand */}
-        <div className="px-5 py-5 border-b border-white/10 flex items-center justify-between">
+        <div className="px-5 py-5 border-b border-gray-100 flex items-center justify-between">
           <Link
             href="/"
             className="flex items-center gap-2.5"
             aria-label="Ir al inicio — Cóndor Salud"
           >
             <Image
-              src="/logos/condor.png"
+              src="/logos/condor-transparent.svg"
               alt="Cóndor Salud"
               width={36}
               height={36}
-              className="w-9 h-9 object-contain"
+              className="w-9 h-9"
             />
             <div>
-              <div className="font-bold text-sm text-celeste-light tracking-[2px] leading-none">
+              <div className="font-bold text-sm text-celeste-dark tracking-[2px] leading-none">
                 CÓNDOR
               </div>
-              <div className="text-[8px] font-bold text-gold tracking-[0.2em] leading-none">
+              <div className="text-[8px] font-bold text-celeste tracking-[0.2em] leading-none">
                 S A L U D
               </div>
             </div>
@@ -168,7 +168,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {/* Mobile close */}
           <button
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden p-1 text-white/60 hover:text-white transition"
+            className="lg:hidden p-1 text-gray-400 hover:text-gray-700 transition"
             aria-label="Cerrar menú"
           >
             <svg
@@ -199,7 +199,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             >
               {section.title && (
                 <div
-                  className="px-3 mb-2 text-[9px] font-bold tracking-[0.16em] text-white/25 uppercase"
+                  className="px-3 mb-2 text-[9px] font-bold tracking-[0.16em] text-gray-400 uppercase"
                   aria-hidden="true"
                 >
                   {section.title}
@@ -215,10 +215,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       key={item.href}
                       href={item.href}
                       aria-current={active ? "page" : undefined}
-                      className={`flex items-center gap-3 px-3 py-2 rounded text-[13px] transition ${
+                      className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] transition ${
                         active
-                          ? "bg-celeste-dark/20 text-white font-medium"
-                          : "text-ink-muted hover:text-white hover:bg-white/5"
+                          ? "bg-celeste-50 text-celeste-700 font-semibold"
+                          : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                       }`}
                     >
                       {(() => {
@@ -228,7 +228,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       <span className="flex-1">{item.label}</span>
                       {"badge" in item && item.badge ? (
                         <span
-                          className="bg-gold text-ink text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none"
+                          className="bg-red-100 text-red-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none"
                           aria-label={`${item.badge} notificaciones`}
                         >
                           {item.badge}
@@ -243,28 +243,28 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </nav>
 
         {/* Bottom user section */}
-        <div className="px-4 py-3 border-t border-white/10">
+        <div className="px-4 py-3 border-t border-gray-100">
           <Link href="/dashboard/configuracion/equipo" className="flex items-center gap-2.5 group">
             <div
-              className="w-8 h-8 rounded-full bg-celeste-dark/30 flex items-center justify-center text-celeste-light font-bold text-xs"
+              className="w-8 h-8 rounded-full bg-celeste-100 flex items-center justify-center text-celeste-700 font-bold text-xs"
               aria-hidden="true"
             >
               {initials}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-xs text-white/80 font-medium truncate group-hover:text-white transition">
+              <div className="text-xs text-gray-700 font-medium truncate group-hover:text-gray-900 transition">
                 {displayName}
               </div>
-              <div className="text-[10px] text-ink-muted/60 truncate">{displayClinic}</div>
+              <div className="text-[10px] text-gray-400 truncate">{displayClinic}</div>
             </div>
           </Link>
-          <div className="flex items-center gap-3 mt-3 pt-3 border-t border-white/10">
-            <Link href="/" className="text-[10px] text-ink-muted/60 hover:text-white transition">
+          <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-100">
+            <Link href="/" className="text-[10px] text-gray-400 hover:text-celeste-600 transition">
               Volver al sitio
             </Link>
             <button
               onClick={handleLogout}
-              className="text-[10px] text-ink-muted/60 hover:text-white transition ml-auto"
+              className="text-[10px] text-gray-400 hover:text-red-500 transition ml-auto"
             >
               Cerrar sesión
             </button>
@@ -332,7 +332,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 />
               </svg>
               <span
-                className="absolute -top-1 -right-1 w-4 h-4 bg-gold text-ink text-[8px] font-bold rounded-full flex items-center justify-center"
+                className="absolute -top-1 -right-1 w-4 h-4 bg-celeste-dark text-white text-[8px] font-bold rounded-full flex items-center justify-center"
                 aria-hidden="true"
               >
                 5

@@ -255,7 +255,7 @@ export default function PacienteDetailPage() {
                 {paciente.antecedentes.map((a) => (
                   <span
                     key={a}
-                    className="px-2 py-0.5 bg-gold-pale text-[#B8860B] text-[10px] font-bold rounded"
+                    className="px-2 py-0.5 bg-amber-50 text-amber-700 text-[10px] font-bold rounded"
                   >
                     {a}
                   </span>
@@ -302,7 +302,7 @@ export default function PacienteDetailPage() {
                 <td className="px-5 py-3 text-ink-light">{t.tipo}</td>
                 <td className="px-5 py-3 text-right">
                   <span
-                    className={`px-2 py-0.5 text-[10px] font-bold rounded ${t.estado === "Confirmado" ? "bg-green-50 text-green-700" : "bg-gold-pale text-[#B8860B]"}`}
+                    className={`px-2 py-0.5 text-[10px] font-bold rounded ${t.estado === "Confirmado" ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700"}`}
                   >
                     {t.estado}
                   </span>
@@ -393,7 +393,7 @@ export default function PacienteDetailPage() {
                 <td className="px-5 py-3 text-center text-ink-light">{f.facturas}</td>
                 <td className="px-5 py-3 text-right text-ink">{f.total}</td>
                 <td className="px-5 py-3 text-right text-green-600">{f.cobrado}</td>
-                <td className="px-5 py-3 text-right font-semibold text-gold">
+                <td className="px-5 py-3 text-right font-semibold text-celeste-dark">
                   {f.pendiente === "$0" ? "—" : f.pendiente}
                 </td>
               </tr>

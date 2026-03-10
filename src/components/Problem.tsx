@@ -7,7 +7,7 @@ const problems = [
   {
     title: "Obras Sociales",
     desc: "300+ financiadores con portales propios. Formatos AGFA, auditorías manuales.",
-    accent: "bg-gold",
+    accent: "bg-celeste-light",
   },
   {
     title: "Prepagas",
@@ -17,7 +17,7 @@ const problems = [
   {
     title: "PAMI",
     desc: "5.5M afiliados, nomenclador propio, tasa de rechazo 12–25%.",
-    accent: "bg-gold",
+    accent: "bg-celeste-light",
   },
 ];
 
@@ -25,7 +25,9 @@ export default function Problem() {
   return (
     <section id="problema" className="px-6 py-20 border-t border-border">
       <div className="max-w-[900px] mx-auto">
-        <p className="text-[11px] font-bold tracking-[2px] text-celeste uppercase mb-2.5">El problema</p>
+        <p className="text-[11px] font-bold tracking-[2px] text-celeste uppercase mb-2.5">
+          El problema
+        </p>
         <h2 className="text-[clamp(24px,3vw,36px)] font-bold text-ink mb-4 leading-[1.2]">
           El sistema de salud argentino no se habla entre sí
         </h2>

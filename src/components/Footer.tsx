@@ -9,10 +9,18 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-8 mb-8">
           {/* Brand */}
           <Link href="/" className="inline-flex items-center gap-2 group">
-            <Image src="/logos/condor.png" alt="Cóndor Salud" width={32} height={32} className="w-8 h-8 rounded-full" />
+            <Image
+              src="/logos/condor-transparent.svg"
+              alt="Cóndor Salud"
+              width={32}
+              height={32}
+              className="w-8 h-8"
+            />
             <div className="leading-none">
-              <span className="font-bold text-sm text-celeste-dark tracking-[2px] group-hover:text-celeste transition">CÓNDOR</span>{" "}
-              <span className="text-[9px] font-bold text-gold tracking-[4px]">S A L U D</span>
+              <span className="font-bold text-sm text-celeste-dark tracking-[2px] group-hover:text-celeste transition">
+                CÓNDOR
+              </span>{" "}
+              <span className="text-[9px] font-bold text-celeste tracking-[4px]">S A L U D</span>
             </div>
           </Link>
 
@@ -20,19 +28,54 @@ export default function Footer() {
           <div className="flex flex-wrap gap-12 text-[13px]">
             <div className="space-y-2">
               <p className="font-semibold text-ink text-xs uppercase tracking-wider">Producto</p>
-              <a href="#problema" className="block text-ink-light hover:text-celeste-dark transition">Problema</a>
-              <a href="#producto" className="block text-ink-light hover:text-celeste-dark transition">Solución</a>
-              <a href="#pricing" className="block text-ink-light hover:text-celeste-dark transition">Pricing</a>
+              <a
+                href="#problema"
+                className="block text-ink-light hover:text-celeste-dark transition"
+              >
+                Problema
+              </a>
+              <a
+                href="#producto"
+                className="block text-ink-light hover:text-celeste-dark transition"
+              >
+                Solución
+              </a>
+              <a
+                href="#pricing"
+                className="block text-ink-light hover:text-celeste-dark transition"
+              >
+                Pricing
+              </a>
             </div>
             <div className="space-y-2">
               <p className="font-semibold text-ink text-xs uppercase tracking-wider">Plataforma</p>
-              <Link href="/dashboard" className="block text-ink-light hover:text-celeste-dark transition">Demo</Link>
-              <a href="#waitlist" className="block text-ink-light hover:text-celeste-dark transition">Waitlist</a>
+              <Link
+                href="/dashboard"
+                className="block text-ink-light hover:text-celeste-dark transition"
+              >
+                Demo
+              </Link>
+              <a
+                href="#waitlist"
+                className="block text-ink-light hover:text-celeste-dark transition"
+              >
+                Waitlist
+              </a>
             </div>
             <div className="space-y-2">
               <p className="font-semibold text-ink text-xs uppercase tracking-wider">Cuenta</p>
-              <Link href="/auth/login" className="block text-ink-light hover:text-celeste-dark transition">Iniciar sesión</Link>
-              <Link href="/auth/registro" className="block text-ink-light hover:text-celeste-dark transition">Registrarse</Link>
+              <Link
+                href="/auth/login"
+                className="block text-ink-light hover:text-celeste-dark transition"
+              >
+                Iniciar sesión
+              </Link>
+              <Link
+                href="/auth/registro"
+                className="block text-ink-light hover:text-celeste-dark transition"
+              >
+                Registrarse
+              </Link>
             </div>
           </div>
         </div>
