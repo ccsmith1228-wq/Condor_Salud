@@ -40,11 +40,11 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-surface flex">
       {/* Left - Brand panel */}
-      <div className="hidden lg:flex lg:w-[45%] bg-ink text-white flex-col justify-between p-12 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-[45%] bg-gradient-to-br from-celeste-50 to-white flex-col justify-between p-12 relative overflow-hidden">
         <div
-          className="absolute inset-0 opacity-[0.03]"
+          className="absolute inset-0 opacity-[0.06]"
           style={{
-            backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
+            backgroundImage: "radial-gradient(circle at 1px 1px, #75AADB 1px, transparent 0)",
             backgroundSize: "32px 32px",
           }}
           aria-hidden="true"
@@ -53,19 +53,19 @@ export default function LoginPage() {
           <Link href="/" className="flex items-center gap-3 mb-12" aria-label="Ir al inicio">
             <Image src="/logos/condor-transparent.svg" alt="" width={40} height={40} className="" />
             <div className="leading-none">
-              <span className="text-[13px] font-bold tracking-[0.5px]">CÓNDOR</span>
+              <span className="text-[13px] font-bold tracking-[0.5px] text-ink">CÓNDOR</span>
               <br />
-              <span className="text-[9px] font-medium tracking-[4px] text-celeste-light">
+              <span className="text-[9px] font-medium tracking-[4px] text-celeste-dark">
                 S A L U D
               </span>
             </div>
           </Link>
-          <h1 className="text-3xl font-bold leading-tight mb-4">
+          <h1 className="text-3xl font-bold leading-tight mb-4 text-ink">
             Inteligencia financiera para
             <br />
-            la <em className="text-celeste not-italic">salud argentina</em>
+            la <em className="text-celeste-dark not-italic">salud argentina</em>
           </h1>
-          <p className="text-base text-white/60 leading-relaxed max-w-md">
+          <p className="text-base text-ink-light leading-relaxed max-w-md">
             Automatizá facturación, eliminá rechazos y protegé tus ingresos contra la inflación.
             Todo en una sola plataforma.
           </p>
@@ -77,8 +77,8 @@ export default function LoginPage() {
             { stat: "$2.4M", label: "Recupero promedio" },
           ].map((s) => (
             <div key={s.label}>
-              <p className="text-2xl font-bold text-celeste">{s.stat}</p>
-              <p className="text-xs text-white/50 mt-0.5">{s.label}</p>
+              <p className="text-2xl font-bold text-celeste-dark">{s.stat}</p>
+              <p className="text-xs text-ink-muted mt-0.5">{s.label}</p>
             </div>
           ))}
         </div>

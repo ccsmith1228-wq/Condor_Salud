@@ -98,11 +98,11 @@ export default function RegistroPage() {
   return (
     <div className="min-h-screen bg-surface flex">
       {/* Left brand panel */}
-      <div className="hidden lg:flex lg:w-[45%] bg-ink text-white flex-col justify-between p-12 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-[45%] bg-gradient-to-br from-celeste-50 to-white flex-col justify-between p-12 relative overflow-hidden">
         <div
-          className="absolute inset-0 opacity-[0.03]"
+          className="absolute inset-0 opacity-[0.06]"
           style={{
-            backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
+            backgroundImage: "radial-gradient(circle at 1px 1px, #75AADB 1px, transparent 0)",
             backgroundSize: "32px 32px",
           }}
           aria-hidden="true"
@@ -111,30 +111,30 @@ export default function RegistroPage() {
           <Link href="/" className="flex items-center gap-3 mb-12" aria-label="Ir al inicio">
             <Image src="/logos/condor-transparent.svg" alt="" width={40} height={40} className="" />
             <div className="leading-none">
-              <span className="text-[13px] font-bold tracking-[0.5px]">CÓNDOR</span>
+              <span className="text-[13px] font-bold tracking-[0.5px] text-ink">CÓNDOR</span>
               <br />
-              <span className="text-[9px] font-medium tracking-[4px] text-celeste-light">
+              <span className="text-[9px] font-medium tracking-[4px] text-celeste-dark">
                 S A L U D
               </span>
             </div>
           </Link>
-          <h1 className="text-3xl font-bold leading-tight mb-4">
+          <h1 className="text-3xl font-bold leading-tight mb-4 text-ink">
             Empezá a proteger tus
             <br />
-            <em className="text-gold not-italic">ingresos hoy</em>
+            <em className="text-amber-600 not-italic">ingresos hoy</em>
           </h1>
-          <p className="text-base text-white/60 leading-relaxed max-w-md">
+          <p className="text-base text-ink-light leading-relaxed max-w-md">
             Más de 120 clínicas en Argentina ya usan Cóndor Salud para automatizar su facturación y
             reducir rechazos.
           </p>
         </div>
         <div className="relative z-10">
-          <div className="bg-white/5 border border-white/10 rounded-lg p-5">
-            <p className="text-sm text-white/80 italic leading-relaxed">
+          <div className="bg-celeste-100/50 border border-celeste/20 rounded-lg p-5">
+            <p className="text-sm text-ink-light italic leading-relaxed">
               &ldquo;Desde que implementamos Cóndor, redujimos los rechazos de PAMI un 62% y
               cobramos 45 días antes.&rdquo;
             </p>
-            <p className="text-xs text-white/40 mt-3">— Dra. Fernández, Centro Médico Palermo</p>
+            <p className="text-xs text-ink-muted mt-3">— Dra. Fernández, Centro Médico Palermo</p>
           </div>
         </div>
       </div>

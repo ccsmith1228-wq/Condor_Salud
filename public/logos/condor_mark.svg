@@ -1,6 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
-  <circle cx="60" cy="60" r="60" fill="#1A1A1A"/>
-  <g transform="translate(60,58) scale(1.1)" fill="#A8CCE8">
+  <defs>
+    <linearGradient id="mbg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5B9BD5"/>
+      <stop offset="100%" stop-color="#3A6FA0"/>
+    </linearGradient>
+  </defs>
+  <circle cx="60" cy="60" r="60" fill="url(#mbg)"/>
+  <g transform="translate(60,58) scale(1.1)" fill="#FFFFFF">
     <ellipse cx="0" cy="2" rx="10" ry="6"/>
     <path d="M-6,-2 Q-20,-18 -38,-16 Q-34,-10 -24,-8 Q-18,-6 -8,0 Z"/>
     <path d="M6,-2 Q20,-18 38,-16 Q34,-10 24,-8 Q18,-6 8,0 Z"/>
@@ -13,5 +19,5 @@
     <ellipse cx="0" cy="-3" rx="6" ry="2.5" opacity="0.9"/>
     <path d="M-4,7 Q0,16 4,7 Q0,10 -4,7 Z"/>
   </g>
-  <circle cx="60" cy="52.5" r="1.2" fill="#1A1A1A"/>
+  <circle cx="60" cy="52.5" r="1.2" fill="#3A6FA0"/>
 </svg>

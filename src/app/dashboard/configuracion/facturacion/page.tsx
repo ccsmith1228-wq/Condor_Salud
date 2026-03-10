@@ -239,7 +239,7 @@ export default function FacturacionConfigPage() {
         </h3>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-8 bg-ink rounded flex items-center justify-center text-white text-[9px] font-bold">
+            <div className="w-12 h-8 bg-celeste-dark rounded flex items-center justify-center text-white text-[9px] font-bold">
               VISA
             </div>
             <div>
