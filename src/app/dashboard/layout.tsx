@@ -26,6 +26,10 @@ import {
   Settings,
   BookOpen,
   Wallet,
+  Pill,
+  Video,
+  UserSearch,
+  Stethoscope,
 } from "lucide-react";
 
 const navIcons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -45,6 +49,10 @@ const navIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   "/dashboard/configuracion": Settings,
   "/dashboard/wizard": BookOpen,
   "/dashboard/pagos": Wallet,
+  "/dashboard/farmacia": Pill,
+  "/dashboard/telemedicina": Video,
+  "/dashboard/directorio": UserSearch,
+  "/dashboard/triage": Stethoscope,
 };
 
 const navSections = [
@@ -74,6 +82,15 @@ const navSections = [
       { label: "Auditoria", href: "/dashboard/auditoria" },
       { label: "Nomenclador", href: "/dashboard/nomenclador" },
       { label: "Reportes", href: "/dashboard/reportes" },
+    ],
+  },
+  {
+    title: "SERVICIOS",
+    items: [
+      { label: "Farmacia Online", href: "/dashboard/farmacia" },
+      { label: "Telemedicina", href: "/dashboard/telemedicina" },
+      { label: "Directorio Medico", href: "/dashboard/directorio" },
+      { label: "Triage", href: "/dashboard/triage" },
     ],
   },
   {
