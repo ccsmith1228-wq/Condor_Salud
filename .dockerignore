@@ -1,0 +1,46 @@
+# Dependencies
+node_modules
+npm-debug.log*
+
+# Build artifacts
+.next
+out
+dist
+build
+
+# Version control
+.git
+.gitignore
+
+# Testing
+coverage
+playwright-report
+test-results
+e2e
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Documentation
+*.md
+LICENSE
+
+# Misc
+.husky
+.prettierrc
+.eslintrc.json
+vitest.config.ts
+playwright.config.ts

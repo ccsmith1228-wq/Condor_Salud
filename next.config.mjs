@@ -1,8 +1,14 @@
 import { withSentryConfig } from "@sentry/nextjs";
+import bundleAnalyzer from "@next/bundle-analyzer";
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   poweredByHeader: false,
+  output: process.env.DOCKER === "true" ? "standalone" : undefined,
   async headers() {
     return [
       {
@@ -57,6 +63,8 @@ const sentryConfig = {
   widenClientFileUpload: true,
 };
 
+const analyzed = withBundleAnalyzer(nextConfig);
+
 export default process.env.SENTRY_DSN
-  ? withSentryConfig(nextConfig, sentryConfig)
-  : nextConfig;
+  ? withSentryConfig(analyzed, sentryConfig)
+  : analyzed;
