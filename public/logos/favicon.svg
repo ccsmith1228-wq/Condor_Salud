@@ -1,4 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
   <rect width="32" height="32" rx="6" fill="#4A7FAF"/>
-  <text x="16" y="23" text-anchor="middle" font-family="Georgia, serif" font-weight="700" font-size="20" fill="#FFFFFF">C</text>
+  <g transform="translate(16,15.5) scale(0.28)" fill="#FFFFFF">
+    <ellipse cx="0" cy="2" rx="10" ry="6"/>
+    <path d="M-6,-2 Q-20,-18 -38,-16 Q-34,-10 -24,-8 Q-18,-6 -8,0 Z"/>
+    <path d="M6,-2 Q20,-18 38,-16 Q34,-10 24,-8 Q18,-6 8,0 Z"/>
+    <path d="M-24,-8 Q-30,-14 -40,-13 Q-36,-8 -26,-6 Z" opacity="0.85"/>
+    <path d="M24,-8 Q30,-14 40,-13 Q36,-8 26,-6 Z" opacity="0.85"/>
+    <ellipse cx="0" cy="-7" rx="4.5" ry="5"/>
+    <path d="M0,-9 L3,-12 L0,-10.5 L-3,-12 Z"/>
+    <ellipse cx="0" cy="-3" rx="6" ry="2.5" opacity="0.9"/>
+    <path d="M-4,7 Q0,16 4,7 Q0,10 -4,7 Z"/>
+  </g>
 </svg>

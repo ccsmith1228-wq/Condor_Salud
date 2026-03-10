@@ -1,4 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 40" width="200" height="40">
-  <text x="100" y="20" text-anchor="middle" font-family="Georgia, serif" font-weight="700" font-size="24" fill="#4A7FAF" letter-spacing="3">CÓNDOR</text>
-  <text x="100" y="36" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="700" font-size="10" fill="#F6B40E" letter-spacing="6">S A L U D</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80" width="200" height="80">
+  <defs>
+    <linearGradient id="sbg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5B9BD5"/>
+      <stop offset="100%" stop-color="#3A6FA0"/>
+    </linearGradient>
+  </defs>
+  <circle cx="100" cy="22" r="18" fill="url(#sbg)"/>
+  <g transform="translate(100,21) scale(0.32)" fill="#FFFFFF">
+    <ellipse cx="0" cy="2" rx="10" ry="6"/>
+    <path d="M-6,-2 Q-20,-18 -38,-16 Q-34,-10 -24,-8 Q-18,-6 -8,0 Z"/>
+    <path d="M6,-2 Q20,-18 38,-16 Q34,-10 24,-8 Q18,-6 8,0 Z"/>
+    <path d="M-24,-8 Q-30,-14 -40,-13 Q-36,-8 -26,-6 Z" opacity="0.85"/>
+    <path d="M-18,-6 Q-26,-12 -36,-12 Q-32,-7 -22,-4 Z" opacity="0.7"/>
+    <path d="M24,-8 Q30,-14 40,-13 Q36,-8 26,-6 Z" opacity="0.85"/>
+    <path d="M18,-6 Q26,-12 36,-12 Q32,-7 22,-4 Z" opacity="0.7"/>
+    <ellipse cx="0" cy="-7" rx="4.5" ry="5"/>
+    <path d="M0,-9 L3,-12 L0,-10.5 L-3,-12 Z"/>
+    <ellipse cx="0" cy="-3" rx="6" ry="2.5" opacity="0.9"/>
+    <path d="M-4,7 Q0,16 4,7 Q0,10 -4,7 Z"/>
+  </g>
+  <text x="100" y="56" text-anchor="middle" font-family="Georgia, serif" font-weight="700" font-size="20" fill="#4A7FAF" letter-spacing="3">CONDOR</text>
+  <text x="100" y="72" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="700" font-size="9" fill="#75AADB" letter-spacing="6">S A L U D</text>
 </svg>
