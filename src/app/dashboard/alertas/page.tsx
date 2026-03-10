@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useToast } from "@/components/Toast";
+import { useDemoAction } from "@/components/DemoModal";
 
 interface Alerta {
   id: string;
@@ -154,6 +155,7 @@ const prioridadColors: Record<string, string> = {
 
 export default function AlertasPage() {
   const { showToast } = useToast();
+  const { showDemo } = useDemoAction();
   const [catFilter, setCatFilter] = useState("Todas");
   const [soloNoLeidas, setSoloNoLeidas] = useState(false);
 
@@ -193,7 +195,7 @@ export default function AlertasPage() {
             {soloNoLeidas ? "Solo no leidas (activo)" : "Solo no leidas"}
           </button>
           <button
-            onClick={() => showToast("Marcar todas leídas — Próximamente")}
+            onClick={() => showDemo("Marcar todas leídas")}
             className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
           >
             Marcar todas leídas
@@ -269,7 +271,7 @@ export default function AlertasPage() {
                 </div>
               </div>
               <button
-                onClick={() => showToast("Descartar alerta — Próximamente")}
+                onClick={() => showDemo("Descartar alerta")}
                 className="text-ink-muted hover:text-ink text-xs p-1"
               >
                 <svg

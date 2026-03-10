@@ -5,6 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { ToastProvider } from "@/components/Toast";
+import { DemoModalProvider } from "@/components/DemoModal";
+import WhatsAppFloat from "@/components/WhatsAppFloat";
 import { SWRProvider } from "@/lib/swr";
 import { useAuth } from "@/lib/auth/context";
 import {
@@ -361,7 +363,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           tabIndex={-1}
         >
           <SWRProvider>
-            <ToastProvider>{children}</ToastProvider>
+            <ToastProvider>
+              <DemoModalProvider>
+                {children}
+                <WhatsAppFloat />
+              </DemoModalProvider>
+            </ToastProvider>
           </SWRProvider>
         </main>
       </div>

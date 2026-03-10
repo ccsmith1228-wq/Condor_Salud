@@ -1,9 +1,9 @@
 "use client";
 import Link from "next/link";
-import { useToast } from "@/components/Toast";
+import { useDemoAction } from "@/components/DemoModal";
 
 export default function FacturacionConfigPage() {
-  const { showToast } = useToast();
+  const { showDemo } = useDemoAction();
 
   return (
     <div className="space-y-5">
@@ -47,19 +47,19 @@ export default function FacturacionConfigPage() {
         </div>
         <div className="flex gap-2 mt-4 pt-4 border-t border-border">
           <button
-            onClick={() => showToast("Upgrade a Enterprise — Próximamente")}
+            onClick={() => showDemo("Upgrade a Enterprise")}
             className="px-4 py-2 text-sm font-semibold bg-gold text-white rounded-[4px] hover:bg-gold-dark transition"
           >
             Upgrade a Enterprise
           </button>
           <button
-            onClick={() => showToast("Cambiar plan — Próximamente")}
+            onClick={() => showDemo("Cambiar plan")}
             className="px-4 py-2 text-sm font-medium border border-border text-ink-light rounded-[4px] hover:border-celeste-dark hover:text-celeste-dark transition"
           >
             Cambiar plan
           </button>
           <button
-            onClick={() => showToast("Cancelar suscripción — Próximamente")}
+            onClick={() => showDemo("Cancelar suscripción")}
             className="px-4 py-2 text-sm font-medium text-red-600 hover:underline"
           >
             Cancelar suscripción
@@ -220,7 +220,7 @@ export default function FacturacionConfigPage() {
                 </td>
                 <td className="px-5 py-3 text-right">
                   <button
-                    onClick={() => showToast("Descargar comprobante — Próximamente")}
+                    onClick={() => showDemo("Descargar comprobante")}
                     className="text-xs text-celeste-dark font-medium hover:underline"
                   >
                     Descargar
@@ -248,7 +248,7 @@ export default function FacturacionConfigPage() {
             </div>
           </div>
           <button
-            onClick={() => showToast("Cambiar tarjeta — Próximamente")}
+            onClick={() => showDemo("Cambiar tarjeta")}
             className="px-3 py-1.5 text-xs font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
           >
             Cambiar tarjeta
@@ -280,7 +280,7 @@ export default function FacturacionConfigPage() {
           </div>
         </div>
         <button
-          onClick={() => showToast("Editar datos fiscales — Próximamente")}
+          onClick={() => showDemo("Editar datos fiscales")}
           className="mt-3 text-xs text-celeste-dark font-medium hover:underline"
         >
           Editar datos fiscales

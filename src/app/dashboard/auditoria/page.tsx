@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useToast } from "@/components/Toast";
+import { useDemoAction } from "@/components/DemoModal";
 
 interface AuditItem {
   id: string;
@@ -162,6 +163,7 @@ const estadoColors: Record<string, string> = {
 
 export default function AuditoriaPage() {
   const { showToast } = useToast();
+  const { showDemo } = useDemoAction();
   const [sevFilter, setSevFilter] = useState("Todos");
   const [estadoFilter, setEstadoFilter] = useState("Todos");
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -190,13 +192,13 @@ export default function AuditoriaPage() {
         </div>
         <div className="flex gap-2">
           <button
-            onClick={() => showToast("Ejecutar auditoría — Próximamente")}
+            onClick={() => showDemo("Ejecutar auditoría automática")}
             className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
           >
             Ejecutar auditoría
           </button>
           <button
-            onClick={() => showToast("Aprobar seleccionados — Próximamente")}
+            onClick={() => showDemo("Aprobar seleccionados")}
             className="px-4 py-2 text-sm font-semibold bg-green-600 text-white rounded-[4px] hover:bg-green-700 transition"
           >
             Aprobar seleccionados
@@ -341,13 +343,13 @@ export default function AuditoriaPage() {
                     {a.estado === "Pendiente" && (
                       <>
                         <button
-                          onClick={() => showToast("Marcar corregido — Próximamente")}
+                          onClick={() => showDemo("Marcar corregido")}
                           className="px-3 py-1.5 text-xs font-semibold bg-green-600 text-white rounded-[4px] hover:bg-green-700 transition"
                         >
                           Marcar corregido
                         </button>
                         <button
-                          onClick={() => showToast("Ignorar observación — Próximamente")}
+                          onClick={() => showDemo("Ignorar observación")}
                           className="px-3 py-1.5 text-xs font-medium border border-border text-ink-muted rounded-[4px] hover:border-red-300 hover:text-red-600 transition"
                         >
                           Ignorar

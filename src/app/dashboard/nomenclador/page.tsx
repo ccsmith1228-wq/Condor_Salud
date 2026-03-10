@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useToast } from "@/components/Toast";
+import { useDemoAction } from "@/components/DemoModal";
 
 interface Prestacion {
   codigo: string;
@@ -219,6 +220,7 @@ const capitulos = ["Todos", ...Array.from(new Set(nomenclador.map((p) => p.capit
 
 export default function NomencladorPage() {
   const { showToast } = useToast();
+  const { showDemo } = useDemoAction();
   const [search, setSearch] = useState("");
   const [capFilter, setCapFilter] = useState("Todos");
   const [comparar, setComparar] = useState(false);
@@ -247,7 +249,7 @@ export default function NomencladorPage() {
             {comparar ? "Comparar financiadores (activo)" : "Comparar financiadores"}
           </button>
           <button
-            onClick={() => showToast("Exportar Excel — Próximamente")}
+            onClick={() => showDemo("Exportar nomenclador a Excel")}
             className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
           >
             Exportar Excel

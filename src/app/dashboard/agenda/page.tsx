@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useToast } from "@/components/Toast";
+import { useDemoAction } from "@/components/DemoModal";
 
 const diasSemana = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 const horas = [
@@ -253,6 +254,7 @@ const estadoColor: Record<string, string> = {
 
 export default function AgendaPage() {
   const { showToast } = useToast();
+  const { showDemo } = useDemoAction();
   const [vista, setVista] = useState<"semana" | "lista">("semana");
   const [profFilter, setProfFilter] = useState(0);
 
@@ -297,7 +299,7 @@ export default function AgendaPage() {
             Lista
           </button>
           <button
-            onClick={() => showToast("Nuevo turno — Próximamente")}
+            onClick={() => showDemo("Nuevo turno")}
             className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
           >
             + Nuevo turno

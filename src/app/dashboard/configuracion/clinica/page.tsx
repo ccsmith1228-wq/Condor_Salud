@@ -1,9 +1,9 @@
 "use client";
 import Link from "next/link";
-import { useToast } from "@/components/Toast";
+import { useDemoAction } from "@/components/DemoModal";
 
 export default function ClinicaConfigPage() {
-  const { showToast } = useToast();
+  const { showDemo } = useDemoAction();
 
   return (
     <div className="space-y-5">
@@ -45,7 +45,7 @@ export default function ClinicaConfigPage() {
             </div>
           ))}
           <button
-            onClick={() => showToast("Editar información — Próximamente")}
+            onClick={() => showDemo("Editar información de la clínica")}
             className="text-xs text-celeste-dark font-medium hover:underline mt-2"
           >
             Editar información
@@ -74,7 +74,7 @@ export default function ClinicaConfigPage() {
             </div>
           ))}
           <button
-            onClick={() => showToast("Editar contacto — Próximamente")}
+            onClick={() => showDemo("Editar contacto")}
             className="text-xs text-celeste-dark font-medium hover:underline mt-2"
           >
             Editar contacto
@@ -104,7 +104,7 @@ export default function ClinicaConfigPage() {
             ))}
           </div>
           <button
-            onClick={() => showToast("Agregar especialidad — Próximamente")}
+            onClick={() => showDemo("Agregar especialidad")}
             className="text-xs text-celeste-dark font-medium hover:underline mt-3 block"
           >
             + Agregar especialidad

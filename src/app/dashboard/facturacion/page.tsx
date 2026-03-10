@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import type { FacturaEstado } from "@/lib/types";
 import { useToast } from "@/components/Toast";
+import { useDemoAction } from "@/components/DemoModal";
 import { Card, CardContent, StatusBadge, PageHeader, Select, Button } from "@/components/ui";
 import { formatCurrency } from "@/lib/utils";
 import { useFacturas } from "@/hooks/use-data";
@@ -35,6 +36,7 @@ const estadosFilter = [
 
 export default function FacturacionPage() {
   const { showToast } = useToast();
+  const { showDemo } = useDemoAction();
   const { data: facturas = [], isLoading } = useFacturas();
   const [filtroFinanciador, setFiltroFinanciador] = useState("Todos");
   const [filtroEstado, setFiltroEstado] = useState("todos");
@@ -96,9 +98,7 @@ export default function FacturacionPage() {
         title="Facturación"
         description="Gestión de facturas por financiador"
         breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Facturación" }]}
-        actions={
-          <Button onClick={() => showToast("Nueva factura — Próximamente")}>Nueva factura</Button>
-        }
+        actions={<Button onClick={() => showDemo("Nueva factura")}>Nueva factura</Button>}
       />
 
       {/* KPI summary */}
@@ -199,7 +199,7 @@ export default function FacturacionPage() {
                   </td>
                   <td className="px-5 py-3 text-center">
                     <button
-                      onClick={() => showToast(`Detalle de ${f.numero} — Próximamente`)}
+                      onClick={() => showDemo(`Detalle de factura ${f.numero}`)}
                       className="text-[10px] text-celeste-dark font-medium hover:underline"
                       aria-label={`Ver detalle de factura ${f.numero}`}
                     >

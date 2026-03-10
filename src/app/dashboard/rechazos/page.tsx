@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import type { RechazoMotivo } from "@/lib/types";
 import { useToast } from "@/components/Toast";
+import { useDemoAction } from "@/components/DemoModal";
 import { Card, CardContent, StatusBadge, PageHeader, Select, Button } from "@/components/ui";
 import { formatCurrency } from "@/lib/utils";
 import { useRechazos } from "@/hooks/use-data";
@@ -19,6 +20,7 @@ const motivoLabels: Record<RechazoMotivo, string> = {
 
 export default function RechazosPage() {
   const { showToast } = useToast();
+  const { showDemo } = useDemoAction();
   const { data: rechazos = [], isLoading } = useRechazos();
   const [filtroFinanciador, setFiltroFinanciador] = useState("Todos");
   const [filtroEstado, setFiltroEstado] = useState("todos");
@@ -271,7 +273,7 @@ export default function RechazosPage() {
                     {r.reprocesable && r.estado === "pendiente" && (
                       <Button
                         size="sm"
-                        onClick={() => showToast(`Reprocesando ${r.facturaNumero}...`)}
+                        onClick={() => showDemo(`Reprocesar factura ${r.facturaNumero}`)}
                       >
                         Reprocesar
                       </Button>
@@ -280,7 +282,7 @@ export default function RechazosPage() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => showToast(`Descartando ${r.facturaNumero}...`)}
+                        onClick={() => showDemo(`Descartar factura ${r.facturaNumero}`)}
                       >
                         Descartar
                       </Button>
@@ -288,7 +290,7 @@ export default function RechazosPage() {
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => showToast(`Detalle de ${r.facturaNumero}`)}
+                      onClick={() => showDemo(`Ver factura original ${r.facturaNumero}`)}
                     >
                       Ver factura original
                     </Button>

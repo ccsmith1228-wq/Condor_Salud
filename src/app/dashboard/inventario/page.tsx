@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useToast } from "@/components/Toast";
+import { useDemoAction } from "@/components/DemoModal";
 
 interface Item {
   id: string;
@@ -244,6 +245,7 @@ const movimientos = [
 
 export default function InventarioPage() {
   const { showToast } = useToast();
+  const { showDemo } = useDemoAction();
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState("Todos");
   const [estadoFilter, setEstadoFilter] = useState("Todos");
@@ -275,13 +277,13 @@ export default function InventarioPage() {
         </div>
         <div className="flex gap-2">
           <button
-            onClick={() => showToast("Exportar inventario — Próximamente")}
+            onClick={() => showDemo("Exportar inventario")}
             className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
           >
             Exportar
           </button>
           <button
-            onClick={() => showToast("Registrar ingreso — Próximamente")}
+            onClick={() => showDemo("Registrar ingreso de stock")}
             className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
           >
             + Registrar ingreso

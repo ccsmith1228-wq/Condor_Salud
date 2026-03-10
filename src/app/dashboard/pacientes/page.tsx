@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useToast } from "@/components/Toast";
+import { useDemoAction } from "@/components/DemoModal";
 import { Card, CardContent, StatusBadge, PageHeader, Input, Select, Button } from "@/components/ui";
 
 const pacientes = [
@@ -202,6 +203,7 @@ const financiadores = [
 
 export default function PacientesPage() {
   const { showToast } = useToast();
+  const { showDemo } = useDemoAction();
   const [search, setSearch] = useState("");
   const [filtroFinanciador, setFiltroFinanciador] = useState("Todos");
   const [filtroEstado, setFiltroEstado] = useState("Todos");
@@ -223,11 +225,7 @@ export default function PacientesPage() {
         title="Pacientes"
         description={`${pacientes.length} pacientes registrados`}
         breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Pacientes" }]}
-        actions={
-          <Button onClick={() => showToast("Nuevo paciente — Próximamente")}>
-            + Nuevo paciente
-          </Button>
-        }
+        actions={<Button onClick={() => showDemo("Nuevo paciente")}>+ Nuevo paciente</Button>}
       />
 
       {/* Filters */}
