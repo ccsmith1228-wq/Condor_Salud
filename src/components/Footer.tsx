@@ -10,17 +10,15 @@ export default function Footer() {
           {/* Brand */}
           <Link href="/" className="inline-flex items-center gap-2 group">
             <Image
-              src="/logos/condor-transparent.svg"
+              src="/condor.png"
               alt="Cóndor Salud"
               width={32}
               height={32}
-              className="w-8 h-8"
+              className="h-8 w-auto object-contain"
             />
-            <div className="leading-none">
-              <span className="font-bold text-sm text-celeste-dark tracking-[2px] group-hover:text-celeste transition">
-                CÓNDOR
-              </span>{" "}
-              <span className="text-[9px] font-bold text-celeste tracking-[4px]">S A L U D</span>
+            <div className="font-display font-bold text-lg">
+              <span className="text-celeste-dark group-hover:text-celeste transition">CÓNDOR </span>
+              <span className="text-gold">SALUD</span>
             </div>
           </Link>
 

@@ -18,17 +18,15 @@ export default function Navbar() {
       <nav className="sticky top-1 z-[99] bg-white border-b border-border px-6 lg:px-10 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3">
           <Image
-            src="/logos/condor-transparent.svg"
+            src="/condor.png"
             alt="Cóndor Salud"
-            width={36}
-            height={36}
-            className="w-9 h-9 object-contain"
+            width={40}
+            height={40}
+            className="w-10 h-10 object-contain"
           />
-          <div className="leading-none">
-            <div className="font-bold text-lg text-celeste-dark tracking-[2px]">CÓNDOR</div>
-            <div className="text-[11px] font-bold text-celeste tracking-[4px] -mt-0.5">
-              S A L U D
-            </div>
+          <div className="font-display font-bold text-xl">
+            <span className="text-celeste-dark">CÓNDOR </span>
+            <span className="text-gold">SALUD</span>
           </div>
         </Link>
 

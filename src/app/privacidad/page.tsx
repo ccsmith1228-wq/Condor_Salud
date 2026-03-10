@@ -15,13 +15,16 @@ export default function PrivacidadPage() {
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2" aria-label="Ir al inicio">
             <Image
-              src="/logos/condor-transparent.svg"
+              src="/condor.png"
               alt="Cóndor Salud"
               width={32}
               height={32}
-              className="w-8 h-8 object-contain"
+              className="h-8 w-auto object-contain"
             />
-            <span className="font-bold text-sm text-celeste-dark tracking-[2px]">CÓNDOR SALUD</span>
+            <span className="font-display font-bold text-lg">
+              <span className="text-celeste-dark">CÓNDOR </span>
+              <span className="text-gold">SALUD</span>
+            </span>
           </Link>
           <Link href="/" className="text-xs text-celeste-dark hover:underline">
             Volver al inicio

@@ -51,13 +51,16 @@ export default function LoginPage() {
         />
         <div className="relative z-10">
           <Link href="/" className="flex items-center gap-3 mb-12" aria-label="Ir al inicio">
-            <Image src="/logos/condor-transparent.svg" alt="" width={40} height={40} className="" />
-            <div className="leading-none">
-              <span className="text-[13px] font-bold tracking-[0.5px] text-ink">CÓNDOR</span>
-              <br />
-              <span className="text-[9px] font-medium tracking-[4px] text-celeste-dark">
-                S A L U D
-              </span>
+            <Image
+              src="/condor.png"
+              alt="Cóndor Salud"
+              width={40}
+              height={40}
+              className="w-10 h-10 object-contain"
+            />
+            <div className="font-display font-bold text-xl">
+              <span className="text-celeste-dark">CÓNDOR </span>
+              <span className="text-gold">SALUD</span>
             </div>
           </Link>
           <h1 className="text-3xl font-bold leading-tight mb-4 text-ink">
@@ -92,13 +95,16 @@ export default function LoginPage() {
             className="lg:hidden flex items-center gap-2 mb-8"
             aria-label="Ir al inicio"
           >
-            <Image src="/logos/condor-transparent.svg" alt="" width={36} height={36} className="" />
-            <div className="leading-none">
-              <span className="text-[12px] font-bold tracking-[0.5px] text-ink">CÓNDOR</span>
-              <br />
-              <span className="text-[8px] font-medium tracking-[4px] text-celeste-dark">
-                S A L U D
-              </span>
+            <Image
+              src="/condor.png"
+              alt="Cóndor Salud"
+              width={36}
+              height={36}
+              className="w-9 h-9 object-contain"
+            />
+            <div className="font-display font-bold text-lg">
+              <span className="text-celeste-dark">CÓNDOR </span>
+              <span className="text-gold">SALUD</span>
             </div>
           </Link>
 

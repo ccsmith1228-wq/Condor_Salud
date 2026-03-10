@@ -7,14 +7,12 @@ export const metadata: Metadata = {
     default: "Cóndor Salud — Volá más alto",
     template: "%s | Cóndor Salud",
   },
-  description: "Plataforma unificada de inteligencia para el sistema de salud argentino. PAMI, obras sociales, prepagas en un solo dashboard.",
+  description:
+    "Plataforma unificada de inteligencia para el sistema de salud argentino. PAMI, obras sociales, prepagas en un solo dashboard.",
   metadataBase: new URL("https://condor-salud.vercel.app"),
   icons: {
-    icon: [
-      { url: "/logos/favicon.svg", type: "image/svg+xml" },
-      { url: "/logos/favicon-32.png", sizes: "32x32", type: "image/png" },
-    ],
-    apple: "/logos/apple-touch-icon-180.png",
+    icon: [{ url: "/favicon.png", sizes: "32x32", type: "image/png" }],
+    apple: "/apple-touch-icon.png",
   },
   openGraph: {
     title: "Cóndor Salud — Volá más alto",

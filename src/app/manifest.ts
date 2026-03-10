@@ -13,8 +13,8 @@ export default function manifest(): MetadataRoute.Manifest {
     dir: "ltr",
     categories: ["medical", "business", "productivity"],
     icons: [
-      { src: "/logos/favicon-32.png", sizes: "32x32", type: "image/png" },
-      { src: "/logos/apple-touch-icon-180.png", sizes: "180x180", type: "image/png" },
+      { src: "/favicon.png", sizes: "32x32", type: "image/png" },
+      { src: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
     ],
   };
 }
