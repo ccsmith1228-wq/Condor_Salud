@@ -274,14 +274,14 @@ e2e/accessibility.spec.ts              # E2E a11y
 ### Data Flow
 
 ```
-Page Component → SWR Hook → Data Service → [Supabase | Demo Data]
+Page Component -> SWR Hook -> Data Service -> [Supabase | Demo Data]
 ```
 
 ### Error Handling
 
-1. **Error boundaries** (`error.tsx`) catch rendering errors → Sentry
-2. **API routes** use try/catch → structured logging → error response
-3. **Forms** use Zod validation → field-level error messages
+1. **Error boundaries** (`error.tsx`) catch rendering errors -> Sentry
+2. **API routes** use try/catch -> structured logging -> error response
+3. **Forms** use Zod validation -> field-level error messages
 
 ### Logging
 
@@ -301,4 +301,4 @@ Page Component → SWR Hook → Data Service → [Supabase | Demo Data]
 
 ## Questions?
 
-Open an issue or reach out to the maintainers. ¡Bienvenido al equipo! 🦅
+Open an issue or reach out to the maintainers. ¡Bienvenido al equipo!

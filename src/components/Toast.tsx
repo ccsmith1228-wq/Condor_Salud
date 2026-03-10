@@ -37,7 +37,19 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             key={toast.id}
             className="pointer-events-auto bg-ink text-white text-xs font-semibold px-5 py-3 rounded-lg shadow-lg animate-toast flex items-center gap-2"
           >
-            <span className="text-gold text-sm">⚡</span>
+            <svg
+              className="w-4 h-4 text-gold"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z"
+              />
+            </svg>
             {toast.message}
           </div>
         ))}

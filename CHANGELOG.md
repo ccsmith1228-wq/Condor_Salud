@@ -42,7 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reusable UI component library (15 components: Button, Card, Input, Select, StatusBadge, etc.)
 - Vitest unit testing (56 tests: utils, validations, data services)
 - Playwright E2E testing (8 smoke tests)
-- GitHub Actions CI pipeline (lint → typecheck → test → build → e2e)
+- GitHub Actions CI pipeline (lint -> typecheck -> test -> build -> e2e)
 - SEO: `robots.txt`, `sitemap.xml`, `manifest.webmanifest`, enhanced meta tags
 - Legal pages: Política de Privacidad and Términos de Servicio (Argentina/Ley 25.326)
 - Error boundaries + loading skeletons for all routes (14 sub-route loading files)

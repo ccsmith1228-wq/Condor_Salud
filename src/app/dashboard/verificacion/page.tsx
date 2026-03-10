@@ -37,7 +37,9 @@ export default function VerificacionPage() {
     <div className="space-y-5">
       <div>
         <h1 className="text-2xl font-bold text-ink">Verificación de Cobertura</h1>
-        <p className="text-sm text-ink-muted mt-1">Consultá cobertura en tiempo real por DNI o CUIL</p>
+        <p className="text-sm text-ink-muted mt-1">
+          Consultá cobertura en tiempo real por DNI o CUIL
+        </p>
       </div>
 
       {/* Search */}
@@ -62,20 +64,46 @@ export default function VerificacionPage() {
 
       {/* Result */}
       {result && (
-        <div className={`border rounded-lg p-6 ${
-          result.status === "activo" ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"
-        }`}>
+        <div
+          className={`border rounded-lg p-6 ${
+            result.status === "activo" ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"
+          }`}
+        >
           <div className="flex items-center gap-3 mb-4">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-lg font-bold ${
-              result.status === "activo" ? "bg-green-500" : "bg-red-500"
-            }`}>
-              {result.status === "activo" ? "✓" : "✗"}
+            <div
+              className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-lg font-bold ${
+                result.status === "activo" ? "bg-green-500" : "bg-red-500"
+              }`}
+            >
+              {result.status === "activo" ? (
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2.5}
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+              ) : (
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2.5}
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              )}
             </div>
             <div>
               <div className="font-bold text-ink">{result.nombre}</div>
-              <div className={`text-sm font-semibold ${
-                result.status === "activo" ? "text-green-700" : "text-red-700"
-              }`}>
+              <div
+                className={`text-sm font-semibold ${
+                  result.status === "activo" ? "text-green-700" : "text-red-700"
+                }`}
+              >
                 {result.status === "activo" ? "Cobertura activa" : "Sin cobertura"}
               </div>
             </div>
@@ -129,9 +157,11 @@ export default function VerificacionPage() {
                 <td className="px-5 py-3 text-ink-light">{v.d}</td>
                 <td className="px-5 py-3 text-ink-light">{v.f}</td>
                 <td className="px-5 py-3">
-                  <span className={`text-xs font-semibold px-2 py-0.5 rounded ${
-                    v.s === "activo" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-                  }`}>
+                  <span
+                    className={`text-xs font-semibold px-2 py-0.5 rounded ${
+                      v.s === "activo" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                    }`}
+                  >
                     {v.s}
                   </span>
                 </td>

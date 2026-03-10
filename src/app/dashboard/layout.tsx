@@ -7,40 +7,76 @@ import { usePathname, useRouter } from "next/navigation";
 import { ToastProvider } from "@/components/Toast";
 import { SWRProvider } from "@/lib/swr";
 import { useAuth } from "@/lib/auth/context";
+import {
+  LayoutDashboard,
+  Users,
+  Calendar,
+  Search,
+  Package,
+  FileText,
+  AlertTriangle,
+  Building2,
+  TrendingUp,
+  Shield,
+  Tag,
+  ClipboardList,
+  Bell,
+  Settings,
+  BookOpen,
+} from "lucide-react";
+
+const navIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+  "/dashboard": LayoutDashboard,
+  "/dashboard/pacientes": Users,
+  "/dashboard/agenda": Calendar,
+  "/dashboard/verificacion": Search,
+  "/dashboard/inventario": Package,
+  "/dashboard/facturacion": FileText,
+  "/dashboard/rechazos": AlertTriangle,
+  "/dashboard/financiadores": Building2,
+  "/dashboard/inflacion": TrendingUp,
+  "/dashboard/auditoria": Shield,
+  "/dashboard/nomenclador": Tag,
+  "/dashboard/reportes": ClipboardList,
+  "/dashboard/alertas": Bell,
+  "/dashboard/configuracion": Settings,
+  "/dashboard/wizard": BookOpen,
+};
 
 const navSections = [
-  { title: null, items: [{ label: "Dashboard", href: "/dashboard", icon: "📊" }] },
+  { title: null, items: [{ label: "Dashboard", href: "/dashboard" }] },
   {
-    title: "GESTIÓN CLÍNICA",
+    title: "GESTION CLINICA",
     items: [
-      { label: "Pacientes", href: "/dashboard/pacientes", icon: "👥" },
-      { label: "Agenda", href: "/dashboard/agenda", icon: "📅" },
-      { label: "Verificación", href: "/dashboard/verificacion", icon: "🔍" },
-      { label: "Inventario", href: "/dashboard/inventario", icon: "📦" },
+      { label: "Pacientes", href: "/dashboard/pacientes" },
+      { label: "Agenda", href: "/dashboard/agenda" },
+      { label: "Verificacion", href: "/dashboard/verificacion" },
+      { label: "Inventario", href: "/dashboard/inventario" },
     ],
   },
   {
     title: "FINANZAS",
     items: [
-      { label: "Facturación", href: "/dashboard/facturacion", icon: "📄" },
-      { label: "Rechazos", href: "/dashboard/rechazos", icon: "⚠️" },
-      { label: "Financiadores", href: "/dashboard/financiadores", icon: "🏛️" },
-      { label: "Inflación", href: "/dashboard/inflacion", icon: "📈" },
+      { label: "Facturacion", href: "/dashboard/facturacion" },
+      { label: "Rechazos", href: "/dashboard/rechazos" },
+      { label: "Financiadores", href: "/dashboard/financiadores" },
+      { label: "Inflacion", href: "/dashboard/inflacion" },
     ],
   },
   {
     title: "INTELIGENCIA",
     items: [
-      { label: "Auditoría", href: "/dashboard/auditoria", icon: "🛡️" },
-      { label: "Nomenclador", href: "/dashboard/nomenclador", icon: "🏷️" },
-      { label: "Reportes", href: "/dashboard/reportes", icon: "📋" },
+      { label: "Auditoria", href: "/dashboard/auditoria" },
+      { label: "Nomenclador", href: "/dashboard/nomenclador" },
+      { label: "Reportes", href: "/dashboard/reportes" },
     ],
   },
   {
     title: "SISTEMA",
     items: [
-      { label: "Alertas", href: "/dashboard/alertas", icon: "🔔", badge: 5 },
-      { label: "Configuración", href: "/dashboard/configuracion", icon: "⚙️" },
+      { label: "Alertas", href: "/dashboard/alertas", badge: 5 },
+      { label: "Configuracion", href: "/dashboard/configuracion" },
+      { label: "Recorrido Guiado", href: "/dashboard/wizard" },
     ],
   },
 ];
@@ -185,9 +221,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                           : "text-ink-muted hover:text-white hover:bg-white/5"
                       }`}
                     >
-                      <span className="text-sm w-5 text-center" aria-hidden="true">
-                        {item.icon}
-                      </span>
+                      {(() => {
+                        const IconComp = navIcons[item.href];
+                        return IconComp ? <IconComp className="w-4 h-4" /> : null;
+                      })()}
                       <span className="flex-1">{item.label}</span>
                       {"badge" in item && item.badge ? (
                         <span
@@ -223,7 +260,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </Link>
           <div className="flex items-center gap-3 mt-3 pt-3 border-t border-white/10">
             <Link href="/" className="text-[10px] text-ink-muted/60 hover:text-white transition">
-              ← Volver al sitio
+              Volver al sitio
             </Link>
             <button
               onClick={handleLogout}

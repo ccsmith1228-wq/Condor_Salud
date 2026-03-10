@@ -29,13 +29,25 @@ export function KPICard({ kpi, className }: KPICardProps) {
       </p>
       <p className="text-2xl font-bold text-ink mt-1">{kpi.value}</p>
       <p
-        className={cn(
-          "text-xs font-medium mt-1",
-          kpi.up ? "text-emerald-600" : "text-gold-dark",
-        )}
+        className={cn("text-xs font-medium mt-1", kpi.up ? "text-emerald-600" : "text-gold-dark")}
         aria-label={`Cambio: ${kpi.change}`}
       >
-        {kpi.up ? "↑" : "↓"} {kpi.change}
+        <span className="inline-flex items-center gap-0.5">
+          <svg
+            className="w-3 h-3"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2.5}
+            viewBox="0 0 24 24"
+          >
+            {kpi.up ? (
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+            ) : (
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+            )}
+          </svg>
+          {kpi.change}
+        </span>
       </p>
     </article>
   );

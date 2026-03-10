@@ -22,34 +22,34 @@ Only these colors may be used. No exceptions. No other blues, greens, reds, or p
 
 ### Primary Colors (Argentine Flag)
 
-| Name | Hex | Tailwind Class | Usage |
-|------|-----|---------------|-------|
-| Celeste | `#75AADB` | `celeste` | Primary brand color, buttons, links, active states |
-| Celeste Dark | `#4A7FAF` | `celeste-dark` | Headlines, primary CTA, hover states |
-| Celeste Light | `#A8CCE8` | `celeste-light` | Secondary text on dark bg, subtle accents |
-| Celeste Pale | `#E4F0F9` | `celeste-pale` | Backgrounds, highlighted rows, feature cards |
-| Gold (Sol de Mayo) | `#F6B40E` | `gold` | Accent, secondary CTA, warnings, "SALUD" text |
-| Gold Pale | `#FEF5DC` | `gold-pale` | Warning backgrounds, callout boxes |
+| Name               | Hex       | Tailwind Class  | Usage                                              |
+| ------------------ | --------- | --------------- | -------------------------------------------------- |
+| Celeste            | `#75AADB` | `celeste`       | Primary brand color, buttons, links, active states |
+| Celeste Dark       | `#4A7FAF` | `celeste-dark`  | Headlines, primary CTA, hover states               |
+| Celeste Light      | `#A8CCE8` | `celeste-light` | Secondary text on dark bg, subtle accents          |
+| Celeste Pale       | `#E4F0F9` | `celeste-pale`  | Backgrounds, highlighted rows, feature cards       |
+| Gold (Sol de Mayo) | `#F6B40E` | `gold`          | Accent, secondary CTA, warnings, "SALUD" text      |
+| Gold Pale          | `#FEF5DC` | `gold-pale`     | Warning backgrounds, callout boxes                 |
 
 ### Neutral Colors
 
-| Name | Hex | Tailwind Class | Usage |
-|------|-----|---------------|-------|
-| Ink | `#1A1A1A` | `ink` | Primary text, dark backgrounds (sidebar, footer) |
-| Ink Light | `#666666` | `ink-light` | Body text, descriptions |
-| Ink Muted | `#999999` | `ink-muted` | Captions, timestamps, placeholder text |
-| Border | `#D4E4F0` | `border` | Borders, dividers, table lines |
-| Border Light | `#E8F0F6` | `border-light` | Subtle dividers, alternating row backgrounds |
-| White | `#FFFFFF` | `white` | Page backgrounds, cards |
-| Off-white | `#F8FAFB` | — | Dashboard content area background, alternating table rows |
+| Name         | Hex       | Tailwind Class | Usage                                                     |
+| ------------ | --------- | -------------- | --------------------------------------------------------- |
+| Ink          | `#1A1A1A` | `ink`          | Primary text, dark backgrounds (sidebar, footer)          |
+| Ink Light    | `#666666` | `ink-light`    | Body text, descriptions                                   |
+| Ink Muted    | `#999999` | `ink-muted`    | Captions, timestamps, placeholder text                    |
+| Border       | `#D4E4F0` | `border`       | Borders, dividers, table lines                            |
+| Border Light | `#E8F0F6` | `border-light` | Subtle dividers, alternating row backgrounds              |
+| White        | `#FFFFFF` | `white`        | Page backgrounds, cards                                   |
+| Off-white    | `#F8FAFB` | —              | Dashboard content area background, alternating table rows |
 
 ### Semantic Colors (use sparingly, only for data)
 
-| Purpose | Hex | Usage |
-|---------|-----|-------|
-| Success/Low rejection | `#16A34A` (green-600) | Rejection rates <5%, positive changes |
-| Danger/High rejection | `#DC2626` (red-600) | Rejection rates >10%, overdue items |
-| Warning | Use `gold` | Rejection rates 5-10%, approaching deadlines |
+| Purpose               | Hex                   | Usage                                        |
+| --------------------- | --------------------- | -------------------------------------------- |
+| Success/Low rejection | `#16A34A` (green-600) | Rejection rates <5%, positive changes        |
+| Danger/High rejection | `#DC2626` (red-600)   | Rejection rates >10%, overdue items          |
+| Warning               | Use `gold`            | Rejection rates 5-10%, approaching deadlines |
 
 **NEVER USE:** Purple, teal, orange (except gold), pink, or any color not listed above.
 
@@ -74,18 +74,18 @@ fontFamily: {
 
 ### Scale
 
-| Element | Font | Size | Weight | Color |
-|---------|------|------|--------|-------|
-| Page title (h1) | Georgia | text-2xl (24px) | font-bold | ink |
-| Section kicker | System | text-xs (12px) | font-bold tracking-widest uppercase | celeste |
-| Section title (h2) | Georgia | text-3xl md:text-4xl | font-bold | ink |
-| Card title | System | text-sm (14px) | font-bold | ink |
-| Body text | System | text-sm (14px) | font-normal | ink-light |
-| Caption/label | System | text-xs (12px) | font-normal | ink-muted |
-| KPI number | Georgia | text-2xl–3xl | font-bold | celeste-dark or gold |
-| Table data | System | text-sm | font-normal | ink-light |
-| Button | System | text-sm | font-semibold | white (on dark bg) |
-| Nav link | System | text-sm | font-medium | ink-light |
+| Element            | Font    | Size                 | Weight                              | Color                |
+| ------------------ | ------- | -------------------- | ----------------------------------- | -------------------- |
+| Page title (h1)    | Georgia | text-2xl (24px)      | font-bold                           | ink                  |
+| Section kicker     | System  | text-xs (12px)       | font-bold tracking-widest uppercase | celeste              |
+| Section title (h2) | Georgia | text-3xl md:text-4xl | font-bold                           | ink                  |
+| Card title         | System  | text-sm (14px)       | font-bold                           | ink                  |
+| Body text          | System  | text-sm (14px)       | font-normal                         | ink-light            |
+| Caption/label      | System  | text-xs (12px)       | font-normal                         | ink-muted            |
+| KPI number         | Georgia | text-2xl–3xl         | font-bold                           | celeste-dark or gold |
+| Table data         | System  | text-sm              | font-normal                         | ink-light            |
+| Button             | System  | text-sm              | font-semibold                       | white (on dark bg)   |
+| Nav link           | System  | text-sm              | font-medium                         | ink-light            |
 
 ---
 
@@ -94,13 +94,14 @@ fontFamily: {
 ### Wordmark (text-only, used everywhere)
 
 ```
-CÓNDOR     ← Georgia, bold, celeste-dark (#4A7FAF), tracking-wide
-S A L U D  ← System UI, bold, gold (#F6B40E), tracking-[0.25em], smaller
+CÓNDOR     <- Georgia, bold, celeste-dark (#4A7FAF), tracking-wide
+S A L U D  <- System UI, bold, gold (#F6B40E), tracking-[0.25em], smaller
 ```
 
 ### Logo Mark (sidebar, nav, favicon)
 
 Circle with "C" inside:
+
 - Background: `ink` (#1A1A1A)
 - Text: `celeste-light` (#A8CCE8)
 - Size: 36px (nav), 32px (sidebar)
@@ -109,6 +110,7 @@ Circle with "C" inside:
 ### Flag Stripe
 
 Always present at the very top of every page:
+
 ```html
 <div className="h-1 flex sticky top-0 z-50">
   <div className="flex-1 bg-celeste" />
@@ -116,6 +118,7 @@ Always present at the very top of every page:
   <div className="flex-1 bg-celeste" />
 </div>
 ```
+
 Height: 4px (h-1). Sticky. Highest z-index. Three equal bands: celeste / white / celeste.
 
 ---
@@ -142,6 +145,7 @@ Height: 4px (h-1). Sticky. Highest z-index. Three equal bands: celeste / white /
 ```
 
 **Rules:**
+
 - Border-radius: `rounded` (4px). Never `rounded-full` on buttons.
 - Padding: `px-6 py-3` standard, `px-5 py-2` compact (nav).
 - Always include `transition` for hover states.
@@ -151,7 +155,7 @@ Height: 4px (h-1). Sticky. Highest z-index. Three equal bands: celeste / white /
 
 ```tsx
 <div className="border border-border hover:shadow-md transition">
-  <div className="h-1 bg-celeste" />  {/* or bg-gold, alternating */}
+  <div className="h-1 bg-celeste" /> {/* or bg-gold, alternating */}
   <div className="p-5">
     <h3 className="font-bold text-sm text-ink mb-2">Title</h3>
     <p className="text-[13px] text-ink-light leading-relaxed">Description</p>
@@ -160,6 +164,7 @@ Height: 4px (h-1). Sticky. Highest z-index. Three equal bands: celeste / white /
 ```
 
 **Rules:**
+
 - Border: 1px `border-border`
 - No background color (white by default)
 - Top accent bar: 4px, alternating celeste/gold
@@ -192,6 +197,7 @@ Height: 4px (h-1). Sticky. Highest z-index. Three equal bands: celeste / white /
 ```
 
 **Rules:**
+
 - Headers: `bg-[#F8FAFB]`, `text-xs`, `text-ink-muted`, `font-medium`
 - Row border: `border-t border-border-light`
 - Hover: `hover:bg-celeste-pale/30`
@@ -204,9 +210,7 @@ Height: 4px (h-1). Sticky. Highest z-index. Three equal bands: celeste / white /
 ```tsx
 <section className="px-6 py-20 border-t border-border">
   <div className="max-w-4xl mx-auto">
-    <p className="text-xs font-bold tracking-widest text-celeste uppercase mb-2">
-      Kicker text
-    </p>
+    <p className="text-xs font-bold tracking-widest text-celeste uppercase mb-2">Kicker text</p>
     <h2 className="text-3xl md:text-4xl font-display font-bold text-ink mb-4 leading-tight">
       Section Title <span className="text-celeste-dark">Highlighted Part</span>
     </h2>
@@ -216,6 +220,7 @@ Height: 4px (h-1). Sticky. Highest z-index. Three equal bands: celeste / white /
 ```
 
 **Rules:**
+
 - Max-width: `max-w-4xl` (896px) for marketing pages
 - Padding: `px-6 py-20` for sections
 - Border-top between sections: `border-t border-border`
@@ -235,7 +240,7 @@ Height: 4px (h-1). Sticky. Highest z-index. Three equal bands: celeste / white /
 [Footer — white bg, centered brand + copy]
 ```
 
-### Dashboard Pages (/dashboard/*)
+### Dashboard Pages (/dashboard/\*)
 
 ```
 [Sidebar — w-60, bg-ink, fixed left]
@@ -248,6 +253,7 @@ Height: 4px (h-1). Sticky. Highest z-index. Three equal bands: celeste / white /
 ```
 
 **Dashboard rules:**
+
 - Sidebar width: `w-60` (240px)
 - Sidebar bg: `ink` (#1A1A1A)
 - Active nav item: `bg-celeste-dark/20 text-white`
@@ -262,33 +268,33 @@ Height: 4px (h-1). Sticky. Highest z-index. Three equal bands: celeste / white /
 
 Use Tailwind's default spacing scale. Key values:
 
-| Token | Pixels | Usage |
-|-------|--------|-------|
-| p-5 | 20px | Card padding |
-| p-6 | 24px | Dashboard content padding, section horizontal padding |
-| py-20 | 80px | Section vertical padding (marketing) |
-| gap-4 | 16px | Card grid gaps |
-| gap-3 | 12px | Button groups, form elements |
-| mb-2 | 8px | Kicker to title |
-| mb-4 | 16px | Title to content |
-| mt-10 | 40px | Content to grid |
+| Token | Pixels | Usage                                                 |
+| ----- | ------ | ----------------------------------------------------- |
+| p-5   | 20px   | Card padding                                          |
+| p-6   | 24px   | Dashboard content padding, section horizontal padding |
+| py-20 | 80px   | Section vertical padding (marketing)                  |
+| gap-4 | 16px   | Card grid gaps                                        |
+| gap-3 | 12px   | Button groups, form elements                          |
+| mb-2  | 8px    | Kicker to title                                       |
+| mb-4  | 16px   | Title to content                                      |
+| mt-10 | 40px   | Content to grid                                       |
 
 ---
 
 ## 8. TECH STACK
 
-| Layer | Technology | Notes |
-|-------|-----------|-------|
-| Framework | Next.js 14 (App Router) | Use `src/` directory, `@/*` import alias |
-| Language | TypeScript | Strict mode. Always type props and state. |
-| Styling | Tailwind CSS 3 | Custom colors in tailwind.config.ts. No CSS modules. No styled-components. |
-| Database | Supabase (PostgreSQL) | For waitlist, clinics, users, billing data |
-| Auth | Supabase Auth | Email + password + TOTP 2FA |
-| Deploy | Vercel | Auto-deploy from `main` branch |
-| State | React hooks | useState, useReducer. No Redux. No Zustand unless justified. |
-| Forms | Native React | No form libraries unless complexity demands it |
-| Charts | Recharts | For dashboard visualizations |
-| API clients | Custom fetch wrappers | In `src/lib/` — one file per external API (pami.ts, afip.ts, etc.) |
+| Layer       | Technology              | Notes                                                                      |
+| ----------- | ----------------------- | -------------------------------------------------------------------------- |
+| Framework   | Next.js 14 (App Router) | Use `src/` directory, `@/*` import alias                                   |
+| Language    | TypeScript              | Strict mode. Always type props and state.                                  |
+| Styling     | Tailwind CSS 3          | Custom colors in tailwind.config.ts. No CSS modules. No styled-components. |
+| Database    | Supabase (PostgreSQL)   | For waitlist, clinics, users, billing data                                 |
+| Auth        | Supabase Auth           | Email + password + TOTP 2FA                                                |
+| Deploy      | Vercel                  | Auto-deploy from `main` branch                                             |
+| State       | React hooks             | useState, useReducer. No Redux. No Zustand unless justified.               |
+| Forms       | Native React            | No form libraries unless complexity demands it                             |
+| Charts      | Recharts                | For dashboard visualizations                                               |
+| API clients | Custom fetch wrappers   | In `src/lib/` — one file per external API (pami.ts, afip.ts, etc.)         |
 
 ### File Structure
 
@@ -349,7 +355,7 @@ src/
 
 ```typescript
 // Always type function parameters and return types for lib functions
-export async function verificarCobertura(dni: string): Promise<VerificacionResult> { }
+export async function verificarCobertura(dni: string): Promise<VerificacionResult> {}
 
 // Use interfaces for objects, types for unions
 interface Clinic {
@@ -366,10 +372,10 @@ type FinanciadorType = "os" | "prepaga" | "pami";
 
 ```typescript
 // Always use default exports for page components
-export default function DashboardPage() { }
+export default function DashboardPage() {}
 
 // Named exports for shared components
-export function KPICard({ label, value, change }: KPICardProps) { }
+export function KPICard({ label, value, change }: KPICardProps) {}
 
 // "use client" only when needed (useState, useEffect, event handlers)
 // Server components by default
@@ -397,37 +403,38 @@ const [result, setResult] = useState<VerificacionResult | null>(null);
 
 Use these exact terms in UI, never anglicize:
 
-| Term | Meaning | Where Used |
-|------|---------|-----------|
-| Financiador | Insurance/payer entity | Dashboard, tables, filters |
-| Obra social (OS) | Union-based health insurance | Financiador type label |
-| Prepaga | Private health insurance | Financiador type label |
-| PAMI | National retiree health system | Financiador name |
-| Nomenclador SSS | Official procedure code catalog | Billing, code lookups |
-| Prestación | Medical service/procedure | Billing line items |
-| Rechazo | Rejected claim/bill | Rejection management |
-| Observación | Claim under review (PAMI specific) | PAMI rejections |
-| Liquidación | Settlement/payment batch | Payment tracking |
-| Padrón | Registry of affiliated patients | Verification |
-| CUIL | Argentine tax/social security ID | Patient lookup |
-| DNI | National ID number | Patient lookup |
-| AFIP / ARCA | Tax authority (billing) | Invoicing |
-| CAE | Electronic authorization code (invoice) | AFIP billing |
-| Factura | Invoice | Billing module |
-| Turno | Appointment | Scheduling |
+| Term             | Meaning                                 | Where Used                 |
+| ---------------- | --------------------------------------- | -------------------------- |
+| Financiador      | Insurance/payer entity                  | Dashboard, tables, filters |
+| Obra social (OS) | Union-based health insurance            | Financiador type label     |
+| Prepaga          | Private health insurance                | Financiador type label     |
+| PAMI             | National retiree health system          | Financiador name           |
+| Nomenclador SSS  | Official procedure code catalog         | Billing, code lookups      |
+| Prestación       | Medical service/procedure               | Billing line items         |
+| Rechazo          | Rejected claim/bill                     | Rejection management       |
+| Observación      | Claim under review (PAMI specific)      | PAMI rejections            |
+| Liquidación      | Settlement/payment batch                | Payment tracking           |
+| Padrón           | Registry of affiliated patients         | Verification               |
+| CUIL             | Argentine tax/social security ID        | Patient lookup             |
+| DNI              | National ID number                      | Patient lookup             |
+| AFIP / ARCA      | Tax authority (billing)                 | Invoicing                  |
+| CAE              | Electronic authorization code (invoice) | AFIP billing               |
+| Factura          | Invoice                                 | Billing module             |
+| Turno            | Appointment                             | Scheduling                 |
 
 ---
 
 ## 11. PRICING (always display in ARS)
 
-| Tier | Monthly Price | Display Format |
-|------|-------------|---------------|
-| Starter | $70.000 ARS/mes | Use period as thousands separator (Argentine format) |
-| Growth | $210.000 ARS/mes | Featured tier (celeste border + celeste-pale bg) |
-| Scale | $560.000 ARS/mes | |
-| Enterprise | A convenir | "contrato anual" |
+| Tier       | Monthly Price    | Display Format                                       |
+| ---------- | ---------------- | ---------------------------------------------------- |
+| Starter    | $70.000 ARS/mes  | Use period as thousands separator (Argentine format) |
+| Growth     | $210.000 ARS/mes | Featured tier (celeste border + celeste-pale bg)     |
+| Scale      | $560.000 ARS/mes |                                                      |
+| Enterprise | A convenir       | "contrato anual"                                     |
 
 **Rules:**
+
 - Always show prices in Argentine pesos
 - Use period as thousands separator ($70.000 not $70,000)
 - Always note "ajuste mensual IPC" (monthly inflation adjustment)
@@ -437,22 +444,22 @@ Use these exact terms in UI, never anglicize:
 
 ## 12. DO NOT
 
-- ❌ Use colors outside the palette
-- ❌ Use fonts other than Georgia (display) and system-ui (body)
-- ❌ Use rounded-full on anything except the logo mark circle
-- ❌ Use shadows except hover states on cards
-- ❌ Use gradients anywhere
-- ❌ Use emojis in production UI
-- ❌ Use English in the user-facing product (except technical terms like "dashboard")
-- ❌ Use "tú" — always "vos" (Argentine Spanish)
-- ❌ Use CSS modules, styled-components, or Sass
-- ❌ Use Redux, Zustand, or external state management
-- ❌ Create components without TypeScript types
-- ❌ Use `any` type — always define proper types
-- ❌ Put business logic in components — extract to `lib/`
-- ❌ Use USD in the product UI
-- ❌ Use comma as thousands separator (use period: $70.000)
-- ❌ Hard-code data that should come from API/database
+- [x] Use colors outside the palette
+- [x] Use fonts other than Georgia (display) and system-ui (body)
+- [x] Use rounded-full on anything except the logo mark circle
+- [x] Use shadows except hover states on cards
+- [x] Use gradients anywhere
+- [x] Use emojis in production UI
+- [x] Use English in the user-facing product (except technical terms like "dashboard")
+- [x] Use "tú" — always "vos" (Argentine Spanish)
+- [x] Use CSS modules, styled-components, or Sass
+- [x] Use Redux, Zustand, or external state management
+- [x] Create components without TypeScript types
+- [x] Use `any` type — always define proper types
+- [x] Put business logic in components — extract to `lib/`
+- [x] Use USD in the product UI
+- [x] Use comma as thousands separator (use period: $70.000)
+- [x] Hard-code data that should come from API/database
 
 ---
 
@@ -499,4 +506,4 @@ export default config;
 
 ---
 
-*CÓNDOR SALUD · Brand Kit v1.0 · March 2026 · Confidencial*
+_CÓNDOR SALUD · Brand Kit v1.0 · March 2026 · Confidencial_

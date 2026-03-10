@@ -14,10 +14,18 @@ export default function TerminosPage() {
       <header className="border-b border-border">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2" aria-label="Ir al inicio">
-            <Image src="/logos/condor.png" alt="Cóndor Salud" width={32} height={32} className="w-8 h-8 object-contain" />
+            <Image
+              src="/logos/condor.png"
+              alt="Cóndor Salud"
+              width={32}
+              height={32}
+              className="w-8 h-8 object-contain"
+            />
             <span className="font-bold text-sm text-celeste-dark tracking-[2px]">CÓNDOR SALUD</span>
           </Link>
-          <Link href="/" className="text-xs text-celeste-dark hover:underline">← Volver al inicio</Link>
+          <Link href="/" className="text-xs text-celeste-dark hover:underline">
+            Volver al inicio
+          </Link>
         </div>
       </header>
 
@@ -28,12 +36,19 @@ export default function TerminosPage() {
         <div className="prose prose-sm max-w-none text-ink-light space-y-6">
           <section>
             <h2 className="text-lg font-bold text-ink mt-8 mb-3">1. Aceptación de los Términos</h2>
-            <p>Al acceder y utilizar Cóndor Salud (&quot;la Plataforma&quot;), usted acepta estos Términos de Servicio en su totalidad. Si no está de acuerdo con alguna parte de estos términos, no debe utilizar la Plataforma.</p>
+            <p>
+              Al acceder y utilizar Cóndor Salud (&quot;la Plataforma&quot;), usted acepta estos
+              Términos de Servicio en su totalidad. Si no está de acuerdo con alguna parte de estos
+              términos, no debe utilizar la Plataforma.
+            </p>
           </section>
 
           <section>
             <h2 className="text-lg font-bold text-ink mt-8 mb-3">2. Descripción del Servicio</h2>
-            <p>Cóndor Salud es una plataforma SaaS de gestión integral para clínicas y centros médicos en Argentina. Los servicios incluyen:</p>
+            <p>
+              Cóndor Salud es una plataforma SaaS de gestión integral para clínicas y centros
+              médicos en Argentina. Los servicios incluyen:
+            </p>
             <ul className="list-disc pl-6 space-y-1 mt-2">
               <li>Gestión de facturación electrónica a financiadores.</li>
               <li>Seguimiento de cobros y rechazos.</li>
@@ -82,7 +97,11 @@ export default function TerminosPage() {
 
           <section>
             <h2 className="text-lg font-bold text-ink mt-8 mb-3">6. Propiedad Intelectual</h2>
-            <p>La Plataforma, su código fuente, diseño, marca y contenido son propiedad de Cóndor Salud S.A. Los datos ingresados por la clínica son propiedad de la clínica. Al utilizar la Plataforma, no se transfiere ningún derecho de propiedad intelectual.</p>
+            <p>
+              La Plataforma, su código fuente, diseño, marca y contenido son propiedad de Cóndor
+              Salud S.A. Los datos ingresados por la clínica son propiedad de la clínica. Al
+              utilizar la Plataforma, no se transfiere ningún derecho de propiedad intelectual.
+            </p>
           </section>
 
           <section>
@@ -91,12 +110,16 @@ export default function TerminosPage() {
               <li>Nos esforzamos por mantener una disponibilidad del 99.9%.</li>
               <li>Se realizarán mantenimientos programados con aviso previo de 48 horas.</li>
               <li>En caso de interrupciones no programadas, se notificará a los usuarios.</li>
-              <li>Las compensaciones por incumplimiento del SLA se detallan en el plan Enterprise.</li>
+              <li>
+                Las compensaciones por incumplimiento del SLA se detallan en el plan Enterprise.
+              </li>
             </ul>
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-ink mt-8 mb-3">8. Limitación de Responsabilidad</h2>
+            <h2 className="text-lg font-bold text-ink mt-8 mb-3">
+              8. Limitación de Responsabilidad
+            </h2>
             <p>Cóndor Salud no será responsable por:</p>
             <ul className="list-disc pl-6 space-y-1 mt-2">
               <li>Errores en la facturación derivados de datos ingresados incorrectamente.</li>
@@ -104,7 +127,10 @@ export default function TerminosPage() {
               <li>Pérdidas derivadas de interrupciones del servicio por causa de fuerza mayor.</li>
               <li>Decisiones tomadas en base a la información mostrada en la Plataforma.</li>
             </ul>
-            <p className="mt-2">La responsabilidad máxima de Cóndor Salud está limitada al monto pagado por el servicio en los últimos 12 meses.</p>
+            <p className="mt-2">
+              La responsabilidad máxima de Cóndor Salud está limitada al monto pagado por el
+              servicio en los últimos 12 meses.
+            </p>
           </section>
 
           <section>
@@ -119,14 +145,20 @@ export default function TerminosPage() {
 
           <section>
             <h2 className="text-lg font-bold text-ink mt-8 mb-3">10. Legislación Aplicable</h2>
-            <p>Estos Términos se rigen por las leyes de la República Argentina. Para cualquier controversia, las partes se someten a la jurisdicción de los Tribunales Ordinarios de la Ciudad Autónoma de Buenos Aires.</p>
+            <p>
+              Estos Términos se rigen por las leyes de la República Argentina. Para cualquier
+              controversia, las partes se someten a la jurisdicción de los Tribunales Ordinarios de
+              la Ciudad Autónoma de Buenos Aires.
+            </p>
           </section>
 
           <section>
             <h2 className="text-lg font-bold text-ink mt-8 mb-3">11. Contacto</h2>
             <p>Para consultas sobre estos Términos:</p>
             <ul className="list-disc pl-6 space-y-1 mt-2">
-              <li>Email: <strong>legal@condorsalud.com</strong></li>
+              <li>
+                Email: <strong>legal@condorsalud.com</strong>
+              </li>
               <li>Dirección: Av. Corrientes 1234, Piso 8, CABA, Argentina</li>
             </ul>
           </section>
@@ -137,8 +169,12 @@ export default function TerminosPage() {
         <div className="max-w-4xl mx-auto px-6 py-6 flex items-center justify-between text-xs text-ink-muted">
           <span>© {new Date().getFullYear()} Cóndor Salud. Todos los derechos reservados.</span>
           <div className="flex gap-4">
-            <Link href="/privacidad" className="hover:text-celeste-dark">Política de Privacidad</Link>
-            <Link href="/" className="hover:text-celeste-dark">Inicio</Link>
+            <Link href="/privacidad" className="hover:text-celeste-dark">
+              Política de Privacidad
+            </Link>
+            <Link href="/" className="hover:text-celeste-dark">
+              Inicio
+            </Link>
           </div>
         </div>
       </footer>

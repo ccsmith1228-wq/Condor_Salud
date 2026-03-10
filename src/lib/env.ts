@@ -3,9 +3,7 @@ import { z } from "zod";
 // ─── Server-side Environment Variables ───────────────────────
 // These are only available on the server (Node.js runtime).
 const serverSchema = z.object({
-  NODE_ENV: z
-    .enum(["development", "production", "test"])
-    .default("development"),
+  NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
 
   // ── Supabase ────────────────────────────────────────────────
   NEXT_PUBLIC_SUPABASE_URL: z
@@ -37,30 +35,16 @@ const serverSchema = z.object({
   SWISS_MEDICAL_CLIENT_SECRET: z.string().optional(),
 
   // ── App ─────────────────────────────────────────────────────
-  NEXT_PUBLIC_APP_URL: z
-    .string()
-    .url()
-    .default("http://localhost:3000"),
-  LOG_LEVEL: z
-    .enum(["fatal", "error", "warn", "info", "debug", "trace"])
-    .default("info"),
+  NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
+  LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).default("info"),
 });
 
 // ─── Client-side Environment Variables ───────────────────────
 // Only NEXT_PUBLIC_* variables are available in the browser.
 const clientSchema = z.object({
-  NEXT_PUBLIC_SUPABASE_URL: z
-    .string()
-    .url()
-    .default("https://placeholder.supabase.co"),
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: z
-    .string()
-    .min(1)
-    .default("placeholder-key"),
-  NEXT_PUBLIC_APP_URL: z
-    .string()
-    .url()
-    .default("http://localhost:3000"),
+  NEXT_PUBLIC_SUPABASE_URL: z.string().url().default("https://placeholder.supabase.co"),
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1).default("placeholder-key"),
+  NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
 });
 
 // ─── Type exports ────────────────────────────────────────────
@@ -75,12 +59,10 @@ function validateServerEnv(): ServerEnv {
 
   if (!result.success) {
     const formatted = result.error.issues
-      .map((issue) => `  ✗ ${issue.path.join(".")}: ${issue.message}`)
+      .map((issue) => `  [x] ${issue.path.join(".")}: ${issue.message}`)
       .join("\n");
 
-    console.error(
-      `\n❌ Invalid server environment variables:\n${formatted}\n`,
-    );
+    console.error(`\n[ERROR] Invalid server environment variables:\n${formatted}\n`);
 
     // In production, fail hard. In development, warn but continue.
     if (process.env.NODE_ENV === "production") {
@@ -98,17 +80,13 @@ function validateClientEnv(): ClientEnv {
   // Only expose NEXT_PUBLIC_ vars
   if (typeof window !== "undefined") {
     // In browser: access env vars embedded by Next.js at build time
-    clientVars.NEXT_PUBLIC_SUPABASE_URL =
-      process.env.NEXT_PUBLIC_SUPABASE_URL;
-    clientVars.NEXT_PUBLIC_SUPABASE_ANON_KEY =
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    clientVars.NEXT_PUBLIC_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    clientVars.NEXT_PUBLIC_SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     clientVars.NEXT_PUBLIC_APP_URL = process.env.NEXT_PUBLIC_APP_URL;
   } else {
     // On server: can read directly
-    clientVars.NEXT_PUBLIC_SUPABASE_URL =
-      process.env.NEXT_PUBLIC_SUPABASE_URL;
-    clientVars.NEXT_PUBLIC_SUPABASE_ANON_KEY =
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    clientVars.NEXT_PUBLIC_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    clientVars.NEXT_PUBLIC_SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     clientVars.NEXT_PUBLIC_APP_URL = process.env.NEXT_PUBLIC_APP_URL;
   }
 
@@ -116,12 +94,10 @@ function validateClientEnv(): ClientEnv {
 
   if (!result.success) {
     const formatted = result.error.issues
-      .map((issue) => `  ✗ ${issue.path.join(".")}: ${issue.message}`)
+      .map((issue) => `  [x] ${issue.path.join(".")}: ${issue.message}`)
       .join("\n");
 
-    console.error(
-      `\n❌ Invalid client environment variables:\n${formatted}\n`,
-    );
+    console.error(`\n[ERROR] Invalid client environment variables:\n${formatted}\n`);
   }
 
   return (result.success ? result.data : clientSchema.parse({})) as ClientEnv;
@@ -132,9 +108,7 @@ function validateClientEnv(): ClientEnv {
 
 /** Server environment — use in API routes, server components, middleware */
 export const serverEnv: ServerEnv =
-  typeof window === "undefined"
-    ? validateServerEnv()
-    : ({} as ServerEnv); // Never access serverEnv in browser
+  typeof window === "undefined" ? validateServerEnv() : ({} as ServerEnv); // Never access serverEnv in browser
 
 /** Client environment — safe to use anywhere */
 export const clientEnv: ClientEnv = validateClientEnv();
@@ -143,9 +117,7 @@ export const clientEnv: ClientEnv = validateClientEnv();
 export function isSupabaseConfigured(): boolean {
   const url = clientEnv.NEXT_PUBLIC_SUPABASE_URL;
   return (
-    !!url &&
-    url !== "https://placeholder.supabase.co" &&
-    url !== "https://your-project.supabase.co"
+    !!url && url !== "https://placeholder.supabase.co" && url !== "https://your-project.supabase.co"
   );
 }
 
