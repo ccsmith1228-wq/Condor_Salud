@@ -63,6 +63,12 @@ export default function Navbar() {
             Probá gratis
           </Link>
           <Link
+            href="/paciente"
+            className="px-5 py-2 text-xs font-semibold text-celeste-dark border border-celeste rounded-[4px] hover:bg-celeste-pale transition"
+          >
+            Portal Paciente
+          </Link>
+          <Link
             href="/dashboard"
             className="px-5 py-2 text-xs font-semibold text-white bg-celeste hover:bg-celeste-dark rounded-[4px] transition"
           >
@@ -133,6 +139,13 @@ export default function Navbar() {
               className="px-5 py-2 text-xs font-semibold text-celeste-dark border border-celeste-dark rounded-[4px] text-center"
             >
               Iniciar sesión
+            </Link>
+            <Link
+              href="/paciente"
+              onClick={() => setOpen(false)}
+              className="px-5 py-2 text-xs font-semibold text-celeste-dark border border-celeste rounded-[4px] text-center"
+            >
+              Portal Paciente
             </Link>
             <Link
               href="/dashboard"

@@ -1,0 +1,415 @@
+"use client";
+
+import { useState } from "react";
+import {
+  Search,
+  MapPin,
+  Star,
+  Calendar,
+  Clock,
+  Video,
+  Phone,
+  Filter,
+  Heart,
+  ChevronDown,
+  User,
+  Award,
+  Building,
+} from "lucide-react";
+
+/* ── types ────────────────────────────────────────────── */
+interface Doctor {
+  id: number;
+  name: string;
+  specialty: string;
+  subspecialty?: string;
+  rating: number;
+  reviews: number;
+  location: string;
+  address: string;
+  availableToday: boolean;
+  teleconsulta: boolean;
+  photo?: string;
+  education: string;
+  insurance: string[];
+  nextSlot: string;
+}
+
+/* ── demo data ────────────────────────────────────────── */
+const doctors: Doctor[] = [
+  {
+    id: 1,
+    name: "Dra. Laura Méndez",
+    specialty: "Clínica Médica",
+    rating: 4.9,
+    reviews: 234,
+    location: "Belgrano",
+    address: "Av. Cabildo 2040, CABA",
+    availableToday: true,
+    teleconsulta: true,
+    education: "UBA - Hospital Italiano",
+    insurance: ["OSDE", "Swiss Medical", "Galeno"],
+    nextSlot: "Hoy 14:30",
+  },
+  {
+    id: 2,
+    name: "Dr. Carlos Ruiz",
+    specialty: "Cardiología",
+    subspecialty: "Ecocardiografía",
+    rating: 4.8,
+    reviews: 189,
+    location: "Palermo",
+    address: "Av. Santa Fe 3200, CABA",
+    availableToday: false,
+    teleconsulta: true,
+    education: "UBA - Fundación Favaloro",
+    insurance: ["OSDE", "Medifé", "Omint"],
+    nextSlot: "Mié 15:00",
+  },
+  {
+    id: 3,
+    name: "Dra. Sofía Peralta",
+    specialty: "Dermatología",
+    subspecialty: "Dermatología estética",
+    rating: 4.7,
+    reviews: 156,
+    location: "Palermo",
+    address: "Gorriti 4800, CABA",
+    availableToday: true,
+    teleconsulta: false,
+    education: "Hospital de Clínicas",
+    insurance: ["OSDE", "Swiss Medical"],
+    nextSlot: "Hoy 16:00",
+  },
+  {
+    id: 4,
+    name: "Dr. Martín Rodríguez",
+    specialty: "Clínica Médica",
+    rating: 4.6,
+    reviews: 312,
+    location: "Belgrano",
+    address: "Av. del Libertador 5800, CABA",
+    availableToday: true,
+    teleconsulta: true,
+    education: "UBA - Hospital Austral",
+    insurance: ["OSDE", "Galeno", "Medifé", "Swiss Medical"],
+    nextSlot: "Hoy 11:00",
+  },
+  {
+    id: 5,
+    name: "Dra. Ana Torres",
+    specialty: "Ginecología",
+    subspecialty: "Obstetricia",
+    rating: 4.9,
+    reviews: 278,
+    location: "Recoleta",
+    address: "Av. Callao 1234, CABA",
+    availableToday: false,
+    teleconsulta: true,
+    education: "UBA - Hospital Británico",
+    insurance: ["OSDE", "Swiss Medical", "Omint"],
+    nextSlot: "Vie 10:30",
+  },
+  {
+    id: 6,
+    name: "Dr. Luis Herrera",
+    specialty: "Traumatología",
+    subspecialty: "Medicina deportiva",
+    rating: 4.5,
+    reviews: 98,
+    location: "Belgrano",
+    address: "Av. Cabildo 1500, CABA",
+    availableToday: false,
+    teleconsulta: false,
+    education: "UBA - Hospital Italiano",
+    insurance: ["OSDE", "Galeno"],
+    nextSlot: "Lun 09:00",
+  },
+  {
+    id: 7,
+    name: "Dr. Pablo Sánchez",
+    specialty: "Dermatología",
+    rating: 4.8,
+    reviews: 145,
+    location: "Microcentro",
+    address: "Av. Corrientes 800, CABA",
+    availableToday: true,
+    teleconsulta: true,
+    education: "Hospital de Clínicas",
+    insurance: ["OSDE", "Swiss Medical", "Medifé"],
+    nextSlot: "Hoy 17:00",
+  },
+  {
+    id: 8,
+    name: "Dra. Valentina Castro",
+    specialty: "Pediatría",
+    rating: 4.9,
+    reviews: 412,
+    location: "Caballito",
+    address: "Av. Rivadavia 5200, CABA",
+    availableToday: true,
+    teleconsulta: true,
+    education: "Hospital Garrahan",
+    insurance: ["OSDE", "Swiss Medical", "Galeno", "Omint"],
+    nextSlot: "Hoy 15:30",
+  },
+];
+
+const specialties = [
+  "Todas",
+  "Clínica Médica",
+  "Cardiología",
+  "Dermatología",
+  "Ginecología",
+  "Traumatología",
+  "Pediatría",
+];
+const locations = ["Todas", "Belgrano", "Palermo", "Recoleta", "Microcentro", "Caballito"];
+
+export default function MedicosPage() {
+  const [search, setSearch] = useState("");
+  const [specialty, setSpecialty] = useState("Todas");
+  const [location, setLocation] = useState("Todas");
+  const [teleconsultaOnly, setTeleconsultaOnly] = useState(false);
+  const [availableOnly, setAvailableOnly] = useState(false);
+  const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
+
+  const filtered = doctors.filter((d) => {
+    if (
+      search &&
+      !d.name.toLowerCase().includes(search.toLowerCase()) &&
+      !d.specialty.toLowerCase().includes(search.toLowerCase())
+    )
+      return false;
+    if (specialty !== "Todas" && d.specialty !== specialty) return false;
+    if (location !== "Todas" && d.location !== location) return false;
+    if (teleconsultaOnly && !d.teleconsulta) return false;
+    if (availableOnly && !d.availableToday) return false;
+    return true;
+  });
+
+  return (
+    <div className="max-w-5xl mx-auto space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-display font-bold text-ink">Buscar Médico</h1>
+        <p className="text-sm text-ink-muted mt-0.5">Encontrá el profesional ideal para vos</p>
+      </div>
+
+      {/* Search & filters */}
+      <div className="bg-white rounded-2xl border border-border-light p-4 space-y-3">
+        <div className="relative">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-ink-300" />
+          <input
+            type="text"
+            placeholder="Buscar por nombre o especialidad..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-9 pr-4 py-2.5 border border-border-light rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark"
+          />
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <select
+            value={specialty}
+            onChange={(e) => setSpecialty(e.target.value)}
+            className="border border-border-light rounded-lg px-3 py-1.5 text-sm text-ink-500 focus:outline-none focus:ring-2 focus:ring-celeste-200"
+          >
+            {specialties.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+          <select
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            className="border border-border-light rounded-lg px-3 py-1.5 text-sm text-ink-500 focus:outline-none focus:ring-2 focus:ring-celeste-200"
+          >
+            {locations.map((l) => (
+              <option key={l} value={l}>
+                {l}
+              </option>
+            ))}
+          </select>
+          <label className="flex items-center gap-1.5 text-xs text-ink-500 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={teleconsultaOnly}
+              onChange={(e) => setTeleconsultaOnly(e.target.checked)}
+              className="rounded border-border-light text-celeste-dark focus:ring-celeste-200"
+            />
+            Teleconsulta
+          </label>
+          <label className="flex items-center gap-1.5 text-xs text-ink-500 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={availableOnly}
+              onChange={(e) => setAvailableOnly(e.target.checked)}
+              className="rounded border-border-light text-celeste-dark focus:ring-celeste-200"
+            />
+            Disponible hoy
+          </label>
+          <span className="text-xs text-ink-muted ml-auto">{filtered.length} profesionales</span>
+        </div>
+      </div>
+
+      {/* Results */}
+      <div className="space-y-3">
+        {filtered.map((doctor) => (
+          <div
+            key={doctor.id}
+            className="bg-white rounded-2xl border border-border-light p-5 hover:shadow-md transition"
+          >
+            <div className="flex flex-col sm:flex-row gap-4">
+              {/* Avatar */}
+              <div className="w-14 h-14 rounded-2xl bg-celeste-50 flex items-center justify-center shrink-0">
+                <User className="w-7 h-7 text-celeste-dark" />
+              </div>
+
+              {/* Info */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h3 className="text-base font-bold text-ink">{doctor.name}</h3>
+                    <p className="text-sm text-ink-muted">
+                      {doctor.specialty}
+                      {doctor.subspecialty && (
+                        <span className="text-ink-300"> · {doctor.subspecialty}</span>
+                      )}
+                    </p>
+                  </div>
+                  <button className="p-2 text-ink-200 hover:text-rose-500 transition shrink-0">
+                    <Heart className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs text-ink-muted">
+                  <span className="flex items-center gap-1">
+                    <Star className="w-3 h-3 text-gold fill-gold" />
+                    <span className="font-semibold text-ink">{doctor.rating}</span>({doctor.reviews}{" "}
+                    opiniones)
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <MapPin className="w-3 h-3" />
+                    {doctor.location}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Award className="w-3 h-3" />
+                    {doctor.education}
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 mt-2">
+                  {doctor.teleconsulta && (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full">
+                      <Video className="w-3 h-3" /> Teleconsulta
+                    </span>
+                  )}
+                  {doctor.availableToday && (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-celeste-50 text-celeste-dark px-2 py-0.5 rounded-full">
+                      <Clock className="w-3 h-3" /> Disponible hoy
+                    </span>
+                  )}
+                  {doctor.insurance.slice(0, 3).map((ins) => (
+                    <span
+                      key={ins}
+                      className="text-[11px] bg-ink-50 text-ink-400 px-2 py-0.5 rounded-full"
+                    >
+                      {ins}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="flex items-center gap-3 mt-3">
+                  <span className="text-xs text-ink-muted flex items-center gap-1">
+                    <Calendar className="w-3 h-3" />
+                    Próximo turno:{" "}
+                    <span className="font-semibold text-celeste-dark">{doctor.nextSlot}</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-2 mt-4 pt-3 border-t border-border-light">
+              <button
+                onClick={() => setSelectedDoctor(doctor)}
+                className="flex-1 text-sm font-medium text-celeste-dark bg-celeste-50 hover:bg-celeste-100 py-2 rounded-xl transition"
+              >
+                Ver perfil
+              </button>
+              <button className="flex-1 text-sm font-semibold text-white bg-celeste-dark hover:bg-celeste-700 py-2 rounded-xl transition">
+                Sacar turno
+              </button>
+              {doctor.teleconsulta && (
+                <button className="text-sm font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-4 py-2 rounded-xl transition flex items-center gap-1">
+                  <Video className="w-3.5 h-3.5" />
+                  Virtual
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+        {filtered.length === 0 && (
+          <div className="bg-white rounded-2xl border border-border-light px-5 py-12 text-center text-sm text-ink-muted">
+            No se encontraron profesionales con esos filtros
+          </div>
+        )}
+      </div>
+
+      {/* Doctor detail modal */}
+      {selectedDoctor && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl max-w-lg w-full shadow-xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="w-16 h-16 rounded-2xl bg-celeste-50 flex items-center justify-center shrink-0">
+                  <User className="w-8 h-8 text-celeste-dark" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-ink">{selectedDoctor.name}</h2>
+                  <p className="text-sm text-ink-muted">{selectedDoctor.specialty}</p>
+                  {selectedDoctor.subspecialty && (
+                    <p className="text-xs text-ink-300">{selectedDoctor.subspecialty}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-3 text-sm">
+                <div className="flex items-center gap-2 text-ink-muted">
+                  <Star className="w-4 h-4 text-gold fill-gold" />
+                  <span className="font-semibold text-ink">{selectedDoctor.rating}</span> —{" "}
+                  {selectedDoctor.reviews} opiniones
+                </div>
+                <div className="flex items-start gap-2 text-ink-muted">
+                  <MapPin className="w-4 h-4 mt-0.5 shrink-0" />
+                  {selectedDoctor.address}
+                </div>
+                <div className="flex items-center gap-2 text-ink-muted">
+                  <Award className="w-4 h-4 shrink-0" />
+                  {selectedDoctor.education}
+                </div>
+                <div className="flex items-start gap-2 text-ink-muted">
+                  <Building className="w-4 h-4 mt-0.5 shrink-0" />
+                  Obras sociales: {selectedDoctor.insurance.join(", ")}
+                </div>
+              </div>
+
+              <div className="flex gap-2 mt-6">
+                <button
+                  onClick={() => setSelectedDoctor(null)}
+                  className="flex-1 border border-border-light text-ink-500 text-sm font-medium py-2.5 rounded-xl hover:bg-ink-50 transition"
+                >
+                  Cerrar
+                </button>
+                <button className="flex-1 bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold py-2.5 rounded-xl transition">
+                  Sacar turno
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
