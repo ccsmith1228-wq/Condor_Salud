@@ -143,7 +143,7 @@ const categoriaColors: Record<string, string> = {
   Aranceles: "bg-celeste-100 text-celeste-700",
   Sistema: "bg-gray-100 text-gray-600",
   Vencimientos: "bg-gold-100 text-gold-700",
-  Inventario: "bg-orange-100 text-orange-700",
+  Inventario: "bg-amber-100 text-amber-700",
 };
 
 const prioridadColors: Record<string, string> = {

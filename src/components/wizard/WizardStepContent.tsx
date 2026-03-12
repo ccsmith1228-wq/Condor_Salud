@@ -9,7 +9,7 @@ export function WizardStepContent() {
   return (
     <div className="flex-1 overflow-y-auto px-8 py-6">
       {/* Summary card */}
-      <div className="mb-8 rounded-2xl border border-celeste-100 bg-gradient-to-br from-celeste-50/60 to-white p-6 shadow-sm">
+      <div className="mb-8 rounded-2xl border border-celeste-100 bg-celeste-50/60 p-6 shadow-sm">
         <p className="text-base leading-relaxed text-gray-700">{step.summary}</p>
         <Link
           href={step.route}
@@ -90,7 +90,7 @@ export function WizardStepContent() {
       {/* Pro Tip */}
       {step.proTip && (
         <section className="mb-6">
-          <div className="rounded-xl border border-celeste-200 bg-gradient-to-br from-celeste-50 to-white p-5 shadow-sm">
+          <div className="rounded-xl border border-celeste-200 bg-celeste-50 p-5 shadow-sm">
             <div className="mb-1 flex items-center gap-2">
               <svg
                 className="w-5 h-5 text-celeste-500"

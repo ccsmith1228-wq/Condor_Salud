@@ -19,6 +19,7 @@ import {
   CheckCircle2,
   AlertCircle,
 } from "lucide-react";
+import { useToast } from "@/components/Toast";
 
 /* ── types ────────────────────────────────────────────── */
 type View = "list" | "waiting" | "call";
@@ -79,6 +80,7 @@ const tips = [
 ];
 
 export default function TeleconsultaPage() {
+  const { showToast } = useToast();
   const [view, setView] = useState<View>("list");
   const [micOn, setMicOn] = useState(true);
   const [camOn, setCamOn] = useState(true);
@@ -149,7 +151,10 @@ export default function TeleconsultaPage() {
           >
             {camOn ? <Video className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
           </button>
-          <button className="w-12 h-12 rounded-full bg-white/10 text-white hover:bg-white/20 flex items-center justify-center transition">
+          <button
+            onClick={() => showToast("Chat en consulta disponible próximamente")}
+            className="w-12 h-12 rounded-full bg-white/10 text-white hover:bg-white/20 flex items-center justify-center transition"
+          >
             <MessageSquare className="w-5 h-5" />
           </button>
           <button
@@ -227,7 +232,7 @@ export default function TeleconsultaPage() {
           </button>
           <button
             onClick={handleStartCall}
-            className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold py-3 rounded-xl transition"
+            className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold py-3 rounded-[4px] transition"
           >
             Ingresar a la consulta
           </button>
@@ -294,7 +299,7 @@ export default function TeleconsultaPage() {
               </div>
               <button
                 onClick={() => handleJoin(apt)}
-                className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition shrink-0"
+                className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-4 py-2 rounded-[4px] transition shrink-0"
               >
                 <Video className="w-4 h-4" />
                 Ingresar

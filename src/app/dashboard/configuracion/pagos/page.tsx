@@ -227,8 +227,8 @@ const estadoColor: Record<string, string> = {
 
 const cardIcon: Record<string, string> = {
   Visa: "text-blue-600",
-  Mastercard: "text-orange-500",
-  Amex: "text-indigo-500",
+  Mastercard: "text-amber-500",
+  Amex: "text-celeste-dark",
   "CBU/Alias": "text-emerald-600",
   MercadoPago: "text-[#009EE3]",
 };

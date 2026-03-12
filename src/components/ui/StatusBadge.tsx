@@ -27,7 +27,7 @@ const variantStyles: Record<Variant, string> = {
   presentada: "bg-celeste-pale text-celeste-dark border-celeste-light",
   rechazada: "bg-red-50 text-red-700 border-red-200",
   pendiente: "bg-amber-50 text-amber-700 border-amber-200",
-  en_observacion: "bg-orange-50 text-orange-700 border-orange-200",
+  en_observacion: "bg-amber-50 text-amber-700 border-amber-200",
   activo: "bg-emerald-50 text-emerald-700 border-emerald-200",
   inactivo: "bg-gray-100 text-gray-500 border-gray-200",
   confirmado: "bg-celeste-pale text-celeste-dark border-celeste-light",

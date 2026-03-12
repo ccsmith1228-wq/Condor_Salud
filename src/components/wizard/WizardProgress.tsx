@@ -29,7 +29,7 @@ export function WizardProgress() {
       {/* Progress bar */}
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-celeste-400 to-celeste-600 transition-all duration-500 ease-out"
+          className="h-full rounded-full bg-celeste-dark transition-all duration-500 ease-out"
           style={{ width: `${progress}%` }}
           role="progressbar"
           aria-valuenow={currentStep + 1}

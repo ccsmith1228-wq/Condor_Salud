@@ -19,6 +19,7 @@ import {
   AlertCircle,
   Eye,
 } from "lucide-react";
+import { useToast } from "@/components/Toast";
 
 /* ── types ────────────────────────────────────────────── */
 type Tab = "todo" | "consultas" | "laboratorio" | "imagenes" | "recetas";
@@ -127,15 +128,16 @@ const events: MedicalEvent[] = [
 
 const typeMap: Record<EventType, { label: string; icon: any; color: string }> = {
   consulta: { label: "Consulta", icon: Stethoscope, color: "bg-celeste-50 text-celeste-dark" },
-  laboratorio: { label: "Laboratorio", icon: TestTubes, color: "bg-purple-50 text-purple-600" },
+  laboratorio: { label: "Laboratorio", icon: TestTubes, color: "bg-celeste-50 text-celeste-dark" },
   imagen: { label: "Imagen", icon: ImageIcon, color: "bg-emerald-50 text-emerald-600" },
   receta: { label: "Receta", icon: Pill, color: "bg-amber-50 text-amber-600" },
-  vacuna: { label: "Vacuna", icon: Syringe, color: "bg-rose-50 text-rose-600" },
+  vacuna: { label: "Vacuna", icon: Syringe, color: "bg-red-50 text-red-600" },
   internacion: { label: "Internación", icon: Heart, color: "bg-red-50 text-red-600" },
 };
 
 /* ── component ────────────────────────────────────────── */
 export default function HistoriaPage() {
+  const { showToast } = useToast();
   const [tab, setTab] = useState<Tab>("todo");
   const [search, setSearch] = useState("");
   const [expandedId, setExpandedId] = useState<number | null>(null);
@@ -184,7 +186,7 @@ export default function HistoriaPage() {
           {
             label: "Laboratorio",
             count: events.filter((e) => e.type === "laboratorio").length,
-            color: "text-purple-600",
+            color: "text-celeste-dark",
           },
           {
             label: "Imágenes",
@@ -308,7 +310,8 @@ export default function HistoriaPage() {
                             {event.attachments.map((att) => (
                               <button
                                 key={att.name}
-                                className="flex items-center gap-2 text-xs text-celeste-dark bg-celeste-50 hover:bg-celeste-100 px-3 py-1.5 rounded-lg transition"
+                                onClick={() => showToast(`Descargando ${att.name}…`)}
+                                className="flex items-center gap-2 text-xs text-celeste-dark bg-celeste-50 hover:bg-celeste-100 px-3 py-1.5 rounded-[4px] transition"
                               >
                                 <Download className="w-3 h-3" />
                                 {att.name}

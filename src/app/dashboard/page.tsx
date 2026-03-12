@@ -90,7 +90,7 @@ export default function DashboardPage() {
     <div className="space-y-5">
       {/* Wizard onboarding banner */}
       {showWizardBanner && (
-        <div className="relative bg-gradient-to-r from-celeste-50 to-white border border-celeste-200 rounded-xl p-5 overflow-hidden">
+        <div className="relative bg-celeste-50 border border-celeste-200 rounded-xl p-5 overflow-hidden">
           <button
             onClick={() => setShowWizardBanner(false)}
             className="absolute top-3 right-3 text-celeste-400 hover:text-celeste-700 transition"

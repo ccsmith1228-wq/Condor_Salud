@@ -73,7 +73,7 @@ const quickActions = [
     label: "Chequear síntomas",
     href: "/paciente/sintomas",
     icon: Activity,
-    color: "bg-rose-50 text-rose-600",
+    color: "bg-red-50 text-red-600",
   },
 ];
 
@@ -111,7 +111,7 @@ export default function PatientDashboard() {
         </div>
         <Link
           href="/paciente/turnos"
-          className="inline-flex items-center gap-2 bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition shrink-0"
+          className="inline-flex items-center gap-2 bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold px-5 py-2.5 rounded-[4px] transition shrink-0"
         >
           <Calendar className="w-4 h-4" />
           Sacar turno
@@ -216,7 +216,7 @@ export default function PatientDashboard() {
         </div>
 
         {/* Coverage card */}
-        <div className="bg-gradient-to-br from-celeste-dark to-celeste-600 rounded-2xl p-5 text-white flex flex-col justify-between min-h-[200px]">
+        <div className="bg-celeste-dark rounded-2xl p-5 text-white flex flex-col justify-between min-h-[200px]">
           <div>
             <Shield className="w-8 h-8 mb-3 opacity-90" />
             <p className="text-xs font-medium opacity-80">Mi obra social</p>
@@ -238,7 +238,7 @@ export default function PatientDashboard() {
         <div className="bg-white rounded-2xl border border-border-light">
           <div className="px-5 py-4 border-b border-border-light">
             <h2 className="text-sm font-bold text-ink flex items-center gap-2">
-              <Heart className="w-4 h-4 text-rose-500" />
+              <Heart className="w-4 h-4 text-red-500" />
               Últimos controles
             </h2>
           </div>

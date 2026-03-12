@@ -16,6 +16,7 @@ import {
   Award,
   Building,
 } from "lucide-react";
+import { useToast } from "@/components/Toast";
 
 /* ── types ────────────────────────────────────────────── */
 interface Doctor {
@@ -167,6 +168,7 @@ const specialties = [
 const locations = ["Todas", "Belgrano", "Palermo", "Recoleta", "Microcentro", "Caballito"];
 
 export default function MedicosPage() {
+  const { showToast } = useToast();
   const [search, setSearch] = useState("");
   const [specialty, setSpecialty] = useState("Todas");
   const [location, setLocation] = useState("Todas");
@@ -278,7 +280,10 @@ export default function MedicosPage() {
                       )}
                     </p>
                   </div>
-                  <button className="p-2 text-ink-200 hover:text-rose-500 transition shrink-0">
+                  <button
+                    onClick={() => showToast(`${doctor.name} agregado a favoritos`)}
+                    className="p-2 text-ink-200 hover:text-red-500 transition shrink-0"
+                  >
                     <Heart className="w-4 h-4" />
                   </button>
                 </div>
@@ -334,15 +339,21 @@ export default function MedicosPage() {
             <div className="flex gap-2 mt-4 pt-3 border-t border-border-light">
               <button
                 onClick={() => setSelectedDoctor(doctor)}
-                className="flex-1 text-sm font-medium text-celeste-dark bg-celeste-50 hover:bg-celeste-100 py-2 rounded-xl transition"
+                className="flex-1 text-sm font-medium text-celeste-dark bg-celeste-50 hover:bg-celeste-100 py-2 rounded-[4px] transition"
               >
                 Ver perfil
               </button>
-              <button className="flex-1 text-sm font-semibold text-white bg-celeste-dark hover:bg-celeste-700 py-2 rounded-xl transition">
+              <button
+                onClick={() => showToast("Reserva de turno disponible próximamente")}
+                className="flex-1 text-sm font-semibold text-white bg-celeste-dark hover:bg-celeste-700 py-2 rounded-[4px] transition"
+              >
                 Sacar turno
               </button>
               {doctor.teleconsulta && (
-                <button className="text-sm font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-4 py-2 rounded-xl transition flex items-center gap-1">
+                <button
+                  onClick={() => showToast("Teleconsulta disponible próximamente")}
+                  className="text-sm font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-4 py-2 rounded-[4px] transition flex items-center gap-1"
+                >
                   <Video className="w-3.5 h-3.5" />
                   Virtual
                 </button>
@@ -402,7 +413,13 @@ export default function MedicosPage() {
                 >
                   Cerrar
                 </button>
-                <button className="flex-1 bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold py-2.5 rounded-xl transition">
+                <button
+                  onClick={() => {
+                    showToast("Reserva de turno disponible próximamente");
+                    setSelectedDoctor(null);
+                  }}
+                  className="flex-1 bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold py-2.5 rounded-[4px] transition"
+                >
                   Sacar turno
                 </button>
               </div>

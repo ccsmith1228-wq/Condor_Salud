@@ -9,6 +9,7 @@ import {
   Bell,
   MessageSquare,
   Wallet,
+  AlarmClock,
 } from "lucide-react";
 
 const sectionIcons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -20,6 +21,7 @@ const sectionIcons: Record<string, React.ComponentType<{ className?: string }>> 
   Notificaciones: Bell,
   "WhatsApp Turnos": MessageSquare,
   "Pagos y Cobros": Wallet,
+  Recordatorios: AlarmClock,
 };
 
 const sections = [
@@ -70,6 +72,12 @@ const sections = [
     desc: "MercadoPago, métodos de pago guardados, cobro automático de copagos.",
     href: "/dashboard/configuracion/pagos",
     badge: "MercadoPago",
+  },
+  {
+    title: "Recordatorios",
+    desc: "Configuración de recordatorios automáticos para pacientes y equipo médico.",
+    href: "/dashboard/configuracion/recordatorios",
+    badge: null,
   },
 ];
 

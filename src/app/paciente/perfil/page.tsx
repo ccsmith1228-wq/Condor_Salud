@@ -21,6 +21,7 @@ import {
   Droplets,
   Pill,
 } from "lucide-react";
+import { useToast } from "@/components/Toast";
 
 /* ── types ────────────────────────────────────────────── */
 interface PatientProfile {
@@ -67,6 +68,7 @@ const initialProfile: PatientProfile = {
 type Section = "personal" | "medical" | "settings";
 
 export default function PerfilPage() {
+  const { showToast } = useToast();
   const [profile] = useState<PatientProfile>(initialProfile);
   const [section, setSection] = useState<Section>("personal");
   const [editing, setEditing] = useState(false);
@@ -189,7 +191,7 @@ export default function PerfilPage() {
             <div className="px-5 py-4">
               <button
                 onClick={() => setEditing(false)}
-                className="inline-flex items-center gap-2 bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition"
+                className="inline-flex items-center gap-2 bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold px-5 py-2.5 rounded-[4px] transition"
               >
                 <Save className="w-4 h-4" />
                 Guardar cambios
@@ -218,7 +220,10 @@ export default function PerfilPage() {
                 </span>
               ))}
               {editing && (
-                <button className="text-sm bg-ink-50 text-ink-400 px-3 py-1 rounded-full hover:bg-ink-100 transition">
+                <button
+                  onClick={() => showToast("Agregar alergia disponible próximamente")}
+                  className="text-sm bg-ink-50 text-ink-400 px-3 py-1 rounded-full hover:bg-ink-100 transition"
+                >
                   + Agregar
                 </button>
               )}
@@ -228,14 +233,14 @@ export default function PerfilPage() {
           {/* Chronic conditions */}
           <div className="bg-white rounded-2xl border border-border-light p-5">
             <h3 className="text-sm font-bold text-ink flex items-center gap-2 mb-3">
-              <Heart className="w-4 h-4 text-rose-500" />
+              <Heart className="w-4 h-4 text-red-500" />
               Condiciones crónicas
             </h3>
             <div className="flex flex-wrap gap-2">
               {profile.chronicConditions.map((c) => (
                 <span
                   key={c}
-                  className="text-sm bg-rose-50 text-rose-700 px-3 py-1 rounded-full font-medium"
+                  className="text-sm bg-red-50 text-red-700 px-3 py-1 rounded-full font-medium"
                 >
                   {c}
                 </span>
@@ -345,6 +350,7 @@ export default function PerfilPage() {
               ].map((item) => (
                 <button
                   key={item.label}
+                  onClick={() => showToast(`${item.label}: disponible próximamente`)}
                   className="flex items-center justify-between w-full px-5 py-3.5 hover:bg-surface/30 transition"
                 >
                   <div className="text-left">
@@ -363,7 +369,10 @@ export default function PerfilPage() {
             <p className="text-xs text-ink-muted mb-3">
               Eliminar tu cuenta borrará todos tus datos de forma permanente.
             </p>
-            <button className="text-sm font-medium text-red-600 border border-red-200 px-4 py-2 rounded-xl hover:bg-red-50 transition">
+            <button
+              onClick={() => showToast("Eliminación de cuenta: contactar soporte")}
+              className="text-sm font-medium text-red-600 border border-red-200 px-4 py-2 rounded-[4px] hover:bg-red-50 transition"
+            >
               Eliminar cuenta
             </button>
           </div>

@@ -17,6 +17,7 @@ import {
   Baby,
   Brain,
 } from "lucide-react";
+import { useToast } from "@/components/Toast";
 
 /* ── demo data ────────────────────────────────────────── */
 const planInfo = {
@@ -118,6 +119,8 @@ const documents = [
 ];
 
 export default function CoberturaPage() {
+  const { showToast } = useToast();
+
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       {/* Header */}
@@ -127,7 +130,7 @@ export default function CoberturaPage() {
       </div>
 
       {/* Plan card */}
-      <div className="bg-gradient-to-br from-celeste-dark to-celeste-600 rounded-2xl p-6 text-white">
+      <div className="bg-celeste-dark rounded-2xl p-6 text-white">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-3">
@@ -224,11 +227,12 @@ export default function CoberturaPage() {
             {documents.map((doc) => (
               <button
                 key={doc.name}
+                onClick={() => showToast(`Descargando ${doc.name}…`)}
                 className="flex items-center justify-between px-5 py-3 w-full hover:bg-surface/50 transition"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center">
-                    <FileText className="w-4 h-4 text-rose-500" />
+                  <div className="w-8 h-8 rounded-lg bg-celeste-50 flex items-center justify-center">
+                    <FileText className="w-4 h-4 text-celeste-dark" />
                   </div>
                   <div className="text-left">
                     <p className="text-sm text-ink">{doc.name}</p>

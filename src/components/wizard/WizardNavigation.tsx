@@ -67,7 +67,7 @@ export function WizardNavigation() {
         {isLast ? (
           <Link
             href="/dashboard"
-            className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-celeste-500 to-celeste-600 px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-celeste-200 transition-all hover:from-celeste-600 hover:to-celeste-700 hover:shadow-lg"
+            className="flex items-center gap-2 rounded-[4px] bg-celeste-dark px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-celeste-700"
           >
             <span>Finalizar recorrido</span>
             <svg
@@ -83,7 +83,7 @@ export function WizardNavigation() {
         ) : (
           <button
             onClick={next}
-            className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-celeste-500 to-celeste-600 px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-celeste-200 transition-all hover:from-celeste-600 hover:to-celeste-700 hover:shadow-lg active:shadow-sm"
+            className="flex items-center gap-2 rounded-[4px] bg-celeste-dark px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-celeste-700 active:bg-celeste-800"
             aria-label="Siguiente paso"
           >
             <span className="hidden sm:inline">{WIZARD_STEPS[currentStep + 1].title}</span>

@@ -54,7 +54,7 @@ const config: Config = {
         border: { DEFAULT: "#D4E4F0", light: "#E8F0F6" },
       },
       fontFamily: {
-        display: ['"DM Sans"', "sans-serif"],
+        display: ["Georgia", "'Times New Roman'", "serif"],
         body: ['"DM Sans"', "sans-serif"],
       },
     },

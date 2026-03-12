@@ -16,6 +16,7 @@ import {
   ShoppingCart,
   Calendar,
 } from "lucide-react";
+import { useToast } from "@/components/Toast";
 
 /* ── types ────────────────────────────────────────────── */
 type Tab = "activos" | "historial" | "pedidos";
@@ -160,6 +161,7 @@ function OrderStatusBadge({ status }: { status: Order["status"] }) {
 }
 
 export default function MedicamentosPage() {
+  const { showToast } = useToast();
   const [tab, setTab] = useState<Tab>("activos");
   const [search, setSearch] = useState("");
 
@@ -177,7 +179,10 @@ export default function MedicamentosPage() {
           <h1 className="text-2xl font-display font-bold text-ink">Mis Medicamentos</h1>
           <p className="text-sm text-ink-muted mt-0.5">Recetas, pedidos y seguimiento</p>
         </div>
-        <button className="inline-flex items-center gap-2 bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition shrink-0">
+        <button
+          onClick={() => showToast("Pedido de medicamentos disponible próximamente")}
+          className="inline-flex items-center gap-2 bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold px-5 py-2.5 rounded-[4px] transition shrink-0"
+        >
           <ShoppingCart className="w-4 h-4" />
           Pedir medicamentos
         </button>
@@ -289,7 +294,10 @@ export default function MedicamentosPage() {
                         <span className="text-ink font-medium">Copago: {med.copay}</span>
                       </div>
                       {med.refillable && (
-                        <button className="flex items-center gap-1 text-xs font-medium text-celeste-dark hover:text-celeste-700 transition">
+                        <button
+                          onClick={() => showToast("Renovación de receta enviada a tu médico")}
+                          className="flex items-center gap-1 text-xs font-medium text-celeste-dark hover:text-celeste-700 transition"
+                        >
                           <RefreshCw className="w-3 h-3" />
                           Renovar receta
                         </button>

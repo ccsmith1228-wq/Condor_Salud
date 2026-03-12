@@ -22,6 +22,7 @@ import {
   MessageSquare,
   Shield,
 } from "lucide-react";
+import { useToast } from "@/components/Toast";
 
 /* ── types ────────────────────────────────────────────── */
 type Step = "select" | "details" | "result";
@@ -230,6 +231,7 @@ function getTriageResult(
 
 /* ── component ────────────────────────────────────────── */
 export default function SintomasPage() {
+  const { showToast } = useToast();
   const [step, setStep] = useState<Step>("select");
   const [selectedPart, setSelectedPart] = useState<BodyPart | null>(null);
   const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
@@ -394,7 +396,7 @@ export default function SintomasPage() {
             <button
               onClick={handleSubmit}
               disabled={selectedSymptoms.length === 0}
-              className="w-full bg-celeste-dark hover:bg-celeste-700 disabled:bg-ink-100 disabled:text-ink-300 text-white text-sm font-semibold py-3 rounded-xl transition"
+              className="w-full bg-celeste-dark hover:bg-celeste-700 disabled:bg-ink-100 disabled:text-ink-300 text-white text-sm font-semibold py-3 rounded-[4px] transition"
             >
               Evaluar síntomas
             </button>
@@ -469,7 +471,10 @@ export default function SintomasPage() {
               </h3>
               <p className="text-sm text-ink-500">{result.doctorType}</p>
               <p className="text-xs text-ink-muted mt-1">Consultá: {result.shouldSeek}</p>
-              <button className="mt-3 text-sm font-semibold text-celeste-dark hover:text-celeste-700 flex items-center gap-1 transition">
+              <button
+                onClick={() => showToast("Redirigiendo a búsqueda de médicos…")}
+                className="mt-3 text-sm font-semibold text-celeste-dark hover:text-celeste-700 flex items-center gap-1 transition"
+              >
                 Buscar médico <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -528,18 +533,24 @@ export default function SintomasPage() {
 
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-3">
-            <button className="flex-1 inline-flex items-center justify-center gap-2 bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold py-3 rounded-xl transition">
+            <button
+              onClick={() => showToast("Reserva de turno disponible próximamente")}
+              className="flex-1 inline-flex items-center justify-center gap-2 bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold py-3 rounded-[4px] transition"
+            >
               <Calendar className="w-4 h-4" />
               Sacar turno ahora
             </button>
-            <button className="flex-1 inline-flex items-center justify-center gap-2 border border-border-light text-ink-500 text-sm font-medium py-3 rounded-xl hover:bg-ink-50 transition">
+            <button
+              onClick={() => showToast("Abriendo chat con Cora…")}
+              className="flex-1 inline-flex items-center justify-center gap-2 border border-border-light text-ink-500 text-sm font-medium py-3 rounded-[4px] hover:bg-ink-50 transition"
+            >
               <MessageSquare className="w-4 h-4" />
               Hablar con Cora
             </button>
             {result.severity === "urgente" && (
               <a
                 href="tel:107"
-                className="flex-1 inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold py-3 rounded-xl transition"
+                className="flex-1 inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold py-3 rounded-[4px] transition"
               >
                 <Phone className="w-4 h-4" />
                 Llamar al 107

@@ -98,7 +98,7 @@ export default function RegistroPage() {
   return (
     <div className="min-h-screen bg-surface flex">
       {/* Left brand panel */}
-      <div className="hidden lg:flex lg:w-[45%] bg-gradient-to-br from-celeste-50 to-white flex-col justify-between p-12 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-[45%] bg-celeste-50 flex-col justify-between p-12 relative overflow-hidden">
         <div
           className="absolute inset-0 opacity-[0.06]"
           style={{

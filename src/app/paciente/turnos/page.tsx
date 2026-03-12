@@ -15,6 +15,7 @@ import {
   Check,
   User,
 } from "lucide-react";
+import { useToast } from "@/components/Toast";
 
 /* ── types ────────────────────────────────────────────── */
 type Tab = "proximos" | "historial";
@@ -139,6 +140,7 @@ function StatusBadge({ status }: { status: AppointmentStatus }) {
 
 /* ── component ────────────────────────────────────────── */
 export default function TurnosPage() {
+  const { showToast } = useToast();
   const [tab, setTab] = useState<Tab>("proximos");
   const [showBooking, setShowBooking] = useState(false);
   const [bookingStep, setBookingStep] = useState(1);
@@ -169,7 +171,7 @@ export default function TurnosPage() {
         </div>
         <button
           onClick={() => setShowBooking(true)}
-          className="inline-flex items-center gap-2 bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition shrink-0"
+          className="inline-flex items-center gap-2 bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold px-5 py-2.5 rounded-[4px] transition shrink-0"
         >
           <Plus className="w-4 h-4" />
           Nuevo turno
@@ -242,11 +244,19 @@ export default function TurnosPage() {
             {(apt.status === "confirmado" || apt.status === "pendiente") && (
               <div className="flex gap-2 shrink-0">
                 {apt.type === "teleconsulta" && (
-                  <button className="text-xs font-medium bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-100 transition">
+                  <button
+                    onClick={() =>
+                      showToast("La teleconsulta se habilitará minutos antes del turno")
+                    }
+                    className="text-xs font-medium bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-[4px] hover:bg-emerald-100 transition"
+                  >
                     Unirse
                   </button>
                 )}
-                <button className="text-xs font-medium bg-red-50 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-100 transition">
+                <button
+                  onClick={() => showToast("Función de cancelación disponible próximamente")}
+                  className="text-xs font-medium bg-red-50 text-red-600 px-3 py-1.5 rounded-[4px] hover:bg-red-100 transition"
+                >
                   Cancelar
                 </button>
               </div>
@@ -401,7 +411,7 @@ export default function TurnosPage() {
                   </div>
                   <button
                     onClick={resetBooking}
-                    className="w-full bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold py-3 rounded-xl transition"
+                    className="w-full bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold py-3 rounded-[4px] transition"
                   >
                     Confirmar turno
                   </button>
