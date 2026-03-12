@@ -61,7 +61,7 @@ const quickActions = [
     label: "Teleconsulta",
     href: "/paciente/teleconsulta",
     icon: Video,
-    color: "bg-emerald-50 text-emerald-600",
+    color: "bg-success-50 text-success-600",
   },
   {
     label: "Mis medicamentos",
@@ -91,7 +91,7 @@ function getGreeting(): string {
 }
 
 function TrendIcon({ trend }: { trend: string }) {
-  if (trend === "down") return <TrendingUp className="w-3.5 h-3.5 text-emerald-500 rotate-180" />;
+  if (trend === "down") return <TrendingUp className="w-3.5 h-3.5 text-success-500 rotate-180" />;
   if (trend === "up") return <TrendingUp className="w-3.5 h-3.5 text-amber-500" />;
   return <div className="w-3.5 h-3.5 rounded-full bg-celeste-100" />;
 }
@@ -184,11 +184,11 @@ export default function PatientDashboard() {
                 <div className="flex items-center gap-3 min-w-0">
                   <div
                     className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
-                      apt.type === "teleconsulta" ? "bg-emerald-50" : "bg-celeste-50"
+                      apt.type === "teleconsulta" ? "bg-success-50" : "bg-celeste-50"
                     }`}
                   >
                     {apt.type === "teleconsulta" ? (
-                      <Video className="w-4 h-4 text-emerald-600" />
+                      <Video className="w-4 h-4 text-success-600" />
                     ) : (
                       <Calendar className="w-4 h-4 text-celeste-dark" />
                     )}
@@ -282,7 +282,7 @@ export default function PatientDashboard() {
                     className={`text-xs font-medium px-2 py-0.5 rounded-full ${
                       med.remaining <= 7
                         ? "bg-amber-50 text-amber-700"
-                        : "bg-emerald-50 text-emerald-700"
+                        : "bg-success-50 text-success-700"
                     }`}
                   >
                     {med.remaining} días

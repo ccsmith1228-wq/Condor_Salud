@@ -144,7 +144,7 @@ const orders: Order[] = [
 
 function OrderStatusBadge({ status }: { status: Order["status"] }) {
   const map = {
-    entregado: { label: "Entregado", cls: "bg-emerald-50 text-emerald-700", icon: CheckCircle2 },
+    entregado: { label: "Entregado", cls: "bg-success-50 text-success-700", icon: CheckCircle2 },
     "en-camino": { label: "En camino", cls: "bg-celeste-50 text-celeste-dark", icon: Truck },
     preparando: { label: "Preparando", cls: "bg-amber-50 text-amber-700", icon: Package },
     cancelado: { label: "Cancelado", cls: "bg-red-50 text-red-600", icon: AlertTriangle },
@@ -284,7 +284,7 @@ export default function MedicamentosPage() {
                         className={`text-xs font-medium px-2 py-0.5 rounded-full ${
                           med.remaining <= 7
                             ? "bg-amber-50 text-amber-700"
-                            : "bg-emerald-50 text-emerald-700"
+                            : "bg-success-50 text-success-700"
                         }`}
                       >
                         {med.remaining} días restantes

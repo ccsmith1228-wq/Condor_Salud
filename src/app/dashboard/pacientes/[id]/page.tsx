@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { useDemoAction } from "@/components/DemoModal";
 
 const paciente = {
   id: "P001",
@@ -112,6 +113,7 @@ const facturacion = [
 ];
 
 export default function PacienteDetailPage() {
+  const { showDemo } = useDemoAction();
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
@@ -155,7 +157,12 @@ export default function PacienteDetailPage() {
             >
               Agendar turno
             </Link>
-            <button className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition">
+            <button
+              onClick={() =>
+                showDemo("Editar paciente: " + paciente.apellido + ", " + paciente.nombre)
+              }
+              className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
+            >
               Editar paciente
             </button>
           </div>

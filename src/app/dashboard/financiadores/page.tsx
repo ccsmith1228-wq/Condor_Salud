@@ -1,3 +1,8 @@
+"use client";
+
+import { useState } from "react";
+import { useDemoAction } from "@/components/DemoModal";
+import { Download, Filter, Search, Mail } from "lucide-react";
 import type { Financiador, FinanciadorType } from "@/lib/types";
 
 const financiadores: (Financiador & { contacto: string; ultimaLiquidacion: string })[] = [
@@ -97,8 +102,10 @@ const financiadores: (Financiador & { contacto: string; ultimaLiquidacion: strin
 const typeLabels: Record<FinanciadorType, { label: string; bg: string; text: string }> = {
   pami: { label: "PAMI", bg: "bg-celeste-pale", text: "text-celeste-dark" },
   os: { label: "Obra Social", bg: "bg-celeste-pale", text: "text-celeste-dark" },
-  prepaga: { label: "Prepaga", bg: "bg-green-100", text: "text-green-700" },
+  prepaga: { label: "Prepaga", bg: "bg-success-100", text: "text-success-700" },
 };
+
+type TypeFilter = "Todos" | FinanciadorType;
 
 function formatMonto(n: number): string {
   return "$" + n.toLocaleString("es-AR");
@@ -109,23 +116,80 @@ function formatPorcentaje(facturado: number, cobrado: number): number {
 }
 
 export default function FinanciadoresPage() {
-  const totalFacturado = financiadores.reduce((s, f) => s + f.facturado, 0);
-  const totalCobrado = financiadores.reduce((s, f) => s + f.cobrado, 0);
+  const { showDemo } = useDemoAction();
+  const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>("Todos");
+
+  const filtered = financiadores.filter((f) => {
+    if (typeFilter !== "Todos" && f.type !== typeFilter) return false;
+    if (search && !f.name.toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  });
+
+  const totalFacturado = filtered.reduce((s, f) => s + f.facturado, 0);
+  const totalCobrado = filtered.reduce((s, f) => s + f.cobrado, 0);
   const promedioRechazo =
-    Math.round((financiadores.reduce((s, f) => s + f.tasaRechazo, 0) / financiadores.length) * 10) /
-    10;
-  const promedioDias = Math.round(
-    financiadores.reduce((s, f) => s + f.diasPromedioPago, 0) / financiadores.length,
-  );
+    filtered.length > 0
+      ? Math.round((filtered.reduce((s, f) => s + f.tasaRechazo, 0) / filtered.length) * 10) / 10
+      : 0;
+  const promedioDias =
+    filtered.length > 0
+      ? Math.round(filtered.reduce((s, f) => s + f.diasPromedioPago, 0) / filtered.length)
+      : 0;
 
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-ink">Financiadores</h1>
-        <p className="text-sm text-ink-muted mt-1">
-          Rendimiento y análisis comparativo por financiador
-        </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-ink">Financiadores</h1>
+          <p className="text-sm text-ink-muted mt-1">
+            Rendimiento y análisis comparativo por financiador
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => showDemo("Exportar comparativo de financiadores PDF")}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Exportar PDF
+          </button>
+          <button
+            onClick={() => showDemo("Exportar datos de financiadores Excel")}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Excel
+          </button>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-wrap gap-3">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-ink-muted" />
+          <input
+            type="text"
+            placeholder="Buscar financiador..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9 pr-3 py-1.5 text-xs border border-border rounded-[4px] outline-none focus:border-celeste-dark transition bg-white text-ink w-52"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <Filter className="w-3.5 h-3.5 text-ink-muted" />
+          <select
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value as TypeFilter)}
+            className="text-xs border border-border rounded-[4px] px-2 py-1.5 outline-none focus:border-celeste-dark bg-white text-ink"
+          >
+            <option value="Todos">Todos los tipos</option>
+            <option value="pami">PAMI</option>
+            <option value="os">Obra Social</option>
+            <option value="prepaga">Prepaga</option>
+          </select>
+        </div>
       </div>
 
       {/* Global KPIs */}
@@ -133,21 +197,19 @@ export default function FinanciadoresPage() {
         <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-celeste">
           <div className="text-xs text-ink-muted mb-1">Total facturado</div>
           <div className="text-2xl font-bold text-celeste-dark">{formatMonto(totalFacturado)}</div>
-          <div className="text-xs mt-1 text-ink-muted">
-            {financiadores.length} financiadores activos
-          </div>
+          <div className="text-xs mt-1 text-ink-muted">{filtered.length} financiadores</div>
         </div>
-        <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-green-400">
+        <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-success-400">
           <div className="text-xs text-ink-muted mb-1">Total cobrado</div>
-          <div className="text-2xl font-bold text-green-600">{formatMonto(totalCobrado)}</div>
-          <div className="text-xs mt-1 text-green-600">
-            {formatPorcentaje(totalFacturado, totalCobrado)}% del facturado
+          <div className="text-2xl font-bold text-success-600">{formatMonto(totalCobrado)}</div>
+          <div className="text-xs mt-1 text-success-600">
+            {totalFacturado > 0 ? formatPorcentaje(totalFacturado, totalCobrado) : 0}% del facturado
           </div>
         </div>
         <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-celeste">
           <div className="text-xs text-ink-muted mb-1">Rechazo promedio</div>
           <div
-            className={`text-2xl font-bold ${promedioRechazo > 10 ? "text-red-600" : promedioRechazo > 5 ? "text-amber-500" : "text-green-600"}`}
+            className={`text-2xl font-bold ${promedioRechazo > 10 ? "text-red-600" : promedioRechazo > 5 ? "text-amber-500" : "text-success-600"}`}
           >
             {promedioRechazo}%
           </div>
@@ -166,7 +228,7 @@ export default function FinanciadoresPage() {
 
       {/* Financiador cards */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {financiadores.map((f) => {
+        {filtered.map((f) => {
           const tipo = typeLabels[f.type];
           const porcentajeCobro = formatPorcentaje(f.facturado, f.cobrado);
           return (
@@ -191,8 +253,6 @@ export default function FinanciadoresPage() {
                     <div className="text-[10px] text-ink-muted">facturado</div>
                   </div>
                 </div>
-
-                {/* Progress bar */}
                 <div className="mb-3">
                   <div className="flex items-center justify-between text-xs mb-1">
                     <span className="text-ink-muted">Cobrado</span>
@@ -200,17 +260,15 @@ export default function FinanciadoresPage() {
                   </div>
                   <div className="w-full bg-border-light rounded-full h-2">
                     <div
-                      className={`h-2 rounded-full ${porcentajeCobro >= 90 ? "bg-green-500" : porcentajeCobro >= 70 ? "bg-celeste" : "bg-celeste-light"}`}
+                      className={`h-2 rounded-full ${porcentajeCobro >= 90 ? "bg-success-500" : porcentajeCobro >= 70 ? "bg-celeste" : "bg-celeste-light"}`}
                       style={{ width: `${porcentajeCobro}%` }}
                     />
                   </div>
                 </div>
-
-                {/* Stats grid */}
                 <div className="grid grid-cols-3 gap-2 pt-3 border-t border-border-light">
                   <div className="text-center">
                     <div
-                      className={`text-sm font-bold ${f.tasaRechazo > 10 ? "text-red-600" : f.tasaRechazo > 5 ? "text-amber-500" : "text-green-600"}`}
+                      className={`text-sm font-bold ${f.tasaRechazo > 10 ? "text-red-600" : f.tasaRechazo > 5 ? "text-amber-500" : "text-success-600"}`}
                     >
                       {f.tasaRechazo}%
                     </div>
@@ -229,6 +287,21 @@ export default function FinanciadoresPage() {
                     <div className="text-[10px] text-ink-muted">Pendientes</div>
                   </div>
                 </div>
+                <div className="mt-3 pt-3 border-t border-border-light flex gap-2">
+                  <button
+                    onClick={() => showDemo(`Ver detalle completo de ${f.name}`)}
+                    className="flex-1 text-xs font-semibold text-celeste-dark hover:underline text-center"
+                  >
+                    Ver detalle
+                  </button>
+                  <button
+                    onClick={() => showDemo(`Enviar reclamo a ${f.name} (${f.contacto})`)}
+                    className="flex items-center gap-1 text-xs text-ink-muted hover:text-celeste-dark transition"
+                  >
+                    <Mail className="w-3 h-3" />
+                    Contactar
+                  </button>
+                </div>
               </div>
             </div>
           );
@@ -237,8 +310,14 @@ export default function FinanciadoresPage() {
 
       {/* Comparison table */}
       <div className="bg-white border border-border rounded-lg overflow-hidden">
-        <div className="px-5 py-4 border-b border-border">
+        <div className="px-5 py-4 border-b border-border flex items-center justify-between">
           <div className="text-xs text-ink-muted">Comparativo detallado</div>
+          <button
+            onClick={() => showDemo("Exportar comparativo CSV")}
+            className="text-xs text-celeste-dark font-medium hover:underline flex items-center gap-1"
+          >
+            <Download className="w-3 h-3" /> CSV
+          </button>
         </div>
         <table className="w-full text-sm">
           <thead>
@@ -255,7 +334,7 @@ export default function FinanciadoresPage() {
             </tr>
           </thead>
           <tbody>
-            {financiadores.map((f) => {
+            {filtered.map((f) => {
               const tipo = typeLabels[f.type];
               return (
                 <tr
@@ -278,20 +357,12 @@ export default function FinanciadoresPage() {
                     {formatPorcentaje(f.facturado, f.cobrado)}%
                   </td>
                   <td
-                    className={`px-5 py-3 text-right font-semibold ${
-                      f.tasaRechazo > 10
-                        ? "text-red-600"
-                        : f.tasaRechazo > 5
-                          ? "text-amber-500"
-                          : "text-green-600"
-                    }`}
+                    className={`px-5 py-3 text-right font-semibold ${f.tasaRechazo > 10 ? "text-red-600" : f.tasaRechazo > 5 ? "text-amber-500" : "text-success-600"}`}
                   >
                     {f.tasaRechazo}%
                   </td>
                   <td
-                    className={`px-5 py-3 text-right ${
-                      f.diasPromedioPago > 60 ? "text-red-600 font-semibold" : "text-ink-light"
-                    }`}
+                    className={`px-5 py-3 text-right ${f.diasPromedioPago > 60 ? "text-red-600 font-semibold" : "text-ink-light"}`}
                   >
                     {f.diasPromedioPago}
                   </td>

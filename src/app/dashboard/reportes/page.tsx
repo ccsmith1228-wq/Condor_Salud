@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useDemoAction } from "@/components/DemoModal";
 import {
   BarChart3,
   XCircle,
@@ -168,6 +169,7 @@ const historialGeneraciones = [
 ];
 
 export default function ReportesPage() {
+  const { showDemo } = useDemoAction();
   const [catFilter, setCatFilter] = useState("Todos");
   const [dateRange, setDateRange] = useState("Marzo 2026");
 
@@ -195,7 +197,10 @@ export default function ReportesPage() {
             <option>Q1 2026</option>
             <option>2025 Anual</option>
           </select>
-          <button className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition">
+          <button
+            onClick={() => showDemo(`Generar todos los reportes — ${dateRange}`)}
+            className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
+          >
             Generar todos
           </button>
         </div>
@@ -237,10 +242,16 @@ export default function ReportesPage() {
               <span>Último: {r.ultimaGen}</span>
             </div>
             <div className="flex gap-2">
-              <button className="flex-1 px-3 py-2 text-xs font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition">
+              <button
+                onClick={() => showDemo(`Generar PDF: ${r.nombre}`)}
+                className="flex-1 px-3 py-2 text-xs font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
+              >
                 Generar PDF
               </button>
-              <button className="flex-1 px-3 py-2 text-xs font-semibold border border-border text-ink-light rounded-[4px] hover:border-celeste-dark hover:text-celeste-dark transition">
+              <button
+                onClick={() => showDemo(`Exportar Excel: ${r.nombre}`)}
+                className="flex-1 px-3 py-2 text-xs font-semibold border border-border text-ink-light rounded-[4px] hover:border-celeste-dark hover:text-celeste-dark transition"
+              >
                 Excel
               </button>
               <Link
@@ -294,7 +305,10 @@ export default function ReportesPage() {
                   </span>
                 </td>
                 <td className="px-5 py-3 text-right">
-                  <button className="text-xs text-celeste-dark font-medium hover:underline">
+                  <button
+                    onClick={() => showDemo(`Descargar ${h.reporte} (${h.formato})`)}
+                    className="text-xs text-celeste-dark font-medium hover:underline"
+                  >
                     Descargar
                   </button>
                 </td>

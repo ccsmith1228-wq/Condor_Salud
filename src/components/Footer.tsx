@@ -38,12 +38,12 @@ export default function Footer() {
               >
                 Solución
               </a>
-              <a
-                href="#pricing"
+              <Link
+                href="/planes"
                 className="block text-ink-light hover:text-celeste-dark transition"
               >
-                Pricing
-              </a>
+                Planes
+              </Link>
             </div>
             <div className="space-y-2">
               <p className="font-semibold text-ink text-xs uppercase tracking-wider">Plataforma</p>
@@ -52,6 +52,12 @@ export default function Footer() {
                 className="block text-ink-light hover:text-celeste-dark transition"
               >
                 Demo
+              </Link>
+              <Link
+                href="/paciente"
+                className="block text-ink-light hover:text-celeste-dark transition"
+              >
+                Portal Paciente
               </Link>
               <a
                 href="#waitlist"
@@ -73,6 +79,21 @@ export default function Footer() {
                 className="block text-ink-light hover:text-celeste-dark transition"
               >
                 Registrarse
+              </Link>
+            </div>
+            <div className="space-y-2">
+              <p className="font-semibold text-ink text-xs uppercase tracking-wider">Legal</p>
+              <Link
+                href="/privacidad"
+                className="block text-ink-light hover:text-celeste-dark transition"
+              >
+                Privacidad
+              </Link>
+              <Link
+                href="/terminos"
+                className="block text-ink-light hover:text-celeste-dark transition"
+              >
+                Términos
               </Link>
             </div>
           </div>

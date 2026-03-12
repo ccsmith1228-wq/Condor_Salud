@@ -69,7 +69,8 @@ type Section = "personal" | "medical" | "settings";
 
 export default function PerfilPage() {
   const { showToast } = useToast();
-  const [profile] = useState<PatientProfile>(initialProfile);
+  const [profile, setProfile] = useState<PatientProfile>(initialProfile);
+  const [editProfile, setEditProfile] = useState<PatientProfile>(initialProfile);
   const [section, setSection] = useState<Section>("personal");
   const [editing, setEditing] = useState(false);
 
@@ -110,7 +111,14 @@ export default function PerfilPage() {
             </div>
           </div>
           <button
-            onClick={() => setEditing(!editing)}
+            onClick={() => {
+              if (editing) {
+                setEditProfile(profile);
+              } else {
+                setEditProfile(profile);
+              }
+              setEditing(!editing);
+            }}
             className="flex items-center gap-2 text-sm font-medium text-celeste-dark hover:text-celeste-700 bg-celeste-50 px-3 py-1.5 rounded-lg transition"
           >
             <Edit3 className="w-3.5 h-3.5" />
@@ -177,7 +185,38 @@ export default function PerfilPage() {
                   {editing ? (
                     <input
                       type="text"
-                      defaultValue={item.value}
+                      value={
+                        item.label === "Nombre completo"
+                          ? editProfile.name
+                          : item.label === "Email"
+                            ? editProfile.email
+                            : item.label === "Tel\u00e9fono"
+                              ? editProfile.phone
+                              : item.label === "DNI"
+                                ? editProfile.dni
+                                : item.label === "Fecha de nacimiento"
+                                  ? editProfile.birthDate
+                                  : item.label === "G\u00e9nero"
+                                    ? editProfile.gender
+                                    : item.label === "Direcci\u00f3n"
+                                      ? `${editProfile.address}, ${editProfile.city}`
+                                      : item.label === "Obra social"
+                                        ? `${editProfile.insurance} ${editProfile.plan} \u2014 N\u00b0 ${editProfile.memberId}`
+                                        : `${editProfile.emergencyContact} \u2014 ${editProfile.emergencyPhone}`
+                      }
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setEditProfile((prev) => {
+                          if (item.label === "Nombre completo") return { ...prev, name: val };
+                          if (item.label === "Email") return { ...prev, email: val };
+                          if (item.label === "Tel\u00e9fono") return { ...prev, phone: val };
+                          if (item.label === "DNI") return { ...prev, dni: val };
+                          if (item.label === "Fecha de nacimiento")
+                            return { ...prev, birthDate: val };
+                          if (item.label === "G\u00e9nero") return { ...prev, gender: val };
+                          return prev;
+                        });
+                      }}
                       className="w-full text-sm text-ink border-b border-celeste-200 focus:border-celeste-dark outline-none pb-0.5 mt-0.5 bg-transparent"
                     />
                   ) : (
@@ -190,7 +229,11 @@ export default function PerfilPage() {
           {editing && (
             <div className="px-5 py-4">
               <button
-                onClick={() => setEditing(false)}
+                onClick={() => {
+                  setProfile(editProfile);
+                  setEditing(false);
+                  showToast("Cambios guardados correctamente");
+                }}
                 className="inline-flex items-center gap-2 bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold px-5 py-2.5 rounded-[4px] transition"
               >
                 <Save className="w-4 h-4" />

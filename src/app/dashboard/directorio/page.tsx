@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useDemoAction } from "@/components/DemoModal";
+import { ExternalLink } from "lucide-react";
 import { useDoctors, useDirectorioKPIs } from "@/lib/hooks/useModules";
 import {
   specialties as specialtiesData,
@@ -85,7 +86,7 @@ export default function DirectorioPage() {
           label: "Turnos hoy",
           value: String(kpis.availableToday),
           change: "Disponibles",
-          color: "text-green-600",
+          color: "text-success-600",
         },
         {
           label: "Rating promedio",
@@ -107,7 +108,7 @@ export default function DirectorioPage() {
           change: "Cobertura total",
           color: "text-celeste-dark",
         },
-        { label: "Turnos hoy", value: "89", change: "12 teleconsulta", color: "text-green-600" },
+        { label: "Turnos hoy", value: "89", change: "12 teleconsulta", color: "text-success-600" },
         { label: "Rating promedio", value: "4.7", change: "849 reviews", color: "text-gold" },
       ];
 
@@ -238,21 +239,31 @@ export default function DirectorioPage() {
                 </div>
                 <div className="flex items-center justify-between mt-3 pt-3 border-t border-border-light">
                   <span
-                    className={`text-xs font-medium ${doc.available ? "text-green-600" : "text-ink-muted"}`}
+                    className={`text-xs font-medium ${doc.available ? "text-success-600" : "text-ink-muted"}`}
                   >
                     {doc.available ? `Próximo: ${doc.nextSlot}` : "Sin disponibilidad"}
                   </span>
-                  <button
-                    onClick={() => showDemo(`Reservar turno con ${doc.name}`)}
-                    className={`px-4 py-1.5 text-xs font-semibold rounded transition ${
-                      doc.available
-                        ? "bg-celeste-dark text-white hover:bg-celeste"
-                        : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    }`}
-                    disabled={!doc.available}
-                  >
-                    Reservar
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={`https://www.topdoctors.com.ar/buscar?q=${encodeURIComponent(doc.name)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1.5 text-xs font-medium text-celeste-dark border border-celeste-dark/30 rounded hover:bg-celeste-pale transition flex items-center gap-1"
+                    >
+                      <ExternalLink className="w-3 h-3" /> TopDoctors
+                    </a>
+                    <button
+                      onClick={() => showDemo(`Reservar turno con ${doc.name}`)}
+                      className={`px-4 py-1.5 text-xs font-semibold rounded transition ${
+                        doc.available
+                          ? "bg-celeste-dark text-white hover:bg-celeste"
+                          : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      }`}
+                      disabled={!doc.available}
+                    >
+                      Reservar
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -315,7 +326,7 @@ export default function DirectorioPage() {
                               onClick={() =>
                                 showDemo(`Ver ${slots} turnos disponibles — ${doc.name}`)
                               }
-                              className="text-xs font-medium text-green-600 hover:text-green-700 transition"
+                              className="text-xs font-medium text-success-600 hover:text-success-700 transition"
                             >
                               {slots} turnos
                             </button>
@@ -428,7 +439,9 @@ export default function DirectorioPage() {
                   </div>
                   <div>
                     <p className="text-[10px] text-ink-muted">Próximo turno</p>
-                    <p className="text-sm font-medium text-green-600">{selectedDoctor.nextSlot}</p>
+                    <p className="text-sm font-medium text-success-600">
+                      {selectedDoctor.nextSlot}
+                    </p>
                   </div>
                 </div>
 
@@ -488,6 +501,15 @@ export default function DirectorioPage() {
                 >
                   Reservar turno
                 </button>
+                <a
+                  href={`https://www.topdoctors.com.ar/buscar?q=${encodeURIComponent(selectedDoctor.name)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-flex items-center gap-1.5 text-sm text-celeste-dark hover:underline"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  Ver perfil en TopDoctors.com.ar
+                </a>
               </div>
             </div>
           )}
@@ -674,7 +696,7 @@ export default function DirectorioPage() {
                     </div>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-xs font-medium text-green-600 mb-2">{doc.nextSlot}</p>
+                    <p className="text-xs font-medium text-success-600 mb-2">{doc.nextSlot}</p>
                     <button
                       onClick={() =>
                         showDemo(`Reservar turno con ${doc.name} por ${selectedSymptom}`)

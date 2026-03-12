@@ -129,7 +129,7 @@ const timeSlots = [
 /* ── status badge ─────────────────────────────────────── */
 function StatusBadge({ status }: { status: AppointmentStatus }) {
   const map: Record<AppointmentStatus, { label: string; cls: string }> = {
-    confirmado: { label: "Confirmado", cls: "bg-emerald-50 text-emerald-700" },
+    confirmado: { label: "Confirmado", cls: "bg-success-50 text-success-700" },
     pendiente: { label: "Pendiente", cls: "bg-amber-50 text-amber-700" },
     cancelado: { label: "Cancelado", cls: "bg-red-50 text-red-600" },
     completado: { label: "Completado", cls: "bg-ink-50 text-ink-400" },
@@ -207,11 +207,11 @@ export default function TurnosPage() {
           >
             <div
               className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                apt.type === "teleconsulta" ? "bg-emerald-50" : "bg-celeste-50"
+                apt.type === "teleconsulta" ? "bg-success-50" : "bg-celeste-50"
               }`}
             >
               {apt.type === "teleconsulta" ? (
-                <Video className="w-5 h-5 text-emerald-600" />
+                <Video className="w-5 h-5 text-success-600" />
               ) : (
                 <Calendar className="w-5 h-5 text-celeste-dark" />
               )}
@@ -248,7 +248,7 @@ export default function TurnosPage() {
                     onClick={() =>
                       showToast("La teleconsulta se habilitará minutos antes del turno")
                     }
-                    className="text-xs font-medium bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-[4px] hover:bg-emerald-100 transition"
+                    className="text-xs font-medium bg-success-50 text-success-700 px-3 py-1.5 rounded-[4px] hover:bg-success-100 transition"
                   >
                     Unirse
                   </button>
@@ -292,7 +292,7 @@ export default function TurnosPage() {
                   <div
                     className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold ${
                       bookingStep > i + 1
-                        ? "bg-emerald-100 text-emerald-700"
+                        ? "bg-success-100 text-success-700"
                         : bookingStep === i + 1
                           ? "bg-celeste-dark text-white"
                           : "bg-ink-50 text-ink-300"

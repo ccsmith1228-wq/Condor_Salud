@@ -229,7 +229,7 @@ const cardIcon: Record<string, string> = {
   Visa: "text-blue-600",
   Mastercard: "text-amber-500",
   Amex: "text-celeste-dark",
-  "CBU/Alias": "text-emerald-600",
+  "CBU/Alias": "text-success-600",
   MercadoPago: "text-[#009EE3]",
 };
 
@@ -682,19 +682,31 @@ export default function PagosConfigPage() {
           <div className="px-5 py-3 bg-[#F8FAFB] border-t border-border flex items-center justify-between">
             <p className="text-[10px] text-ink-muted">Mostrando 10 de 47 transacciones</p>
             <div className="flex gap-1">
-              <button className="px-2.5 py-1 text-[10px] font-medium border border-border rounded hover:border-celeste-dark transition">
+              <button
+                onClick={() => showDemo("Página anterior de transacciones")}
+                className="px-2.5 py-1 text-[10px] font-medium border border-border rounded hover:border-celeste-dark transition"
+              >
                 Anterior
               </button>
               <button className="px-2.5 py-1 text-[10px] font-medium bg-celeste-dark text-white rounded">
                 1
               </button>
-              <button className="px-2.5 py-1 text-[10px] font-medium border border-border rounded hover:border-celeste-dark transition">
+              <button
+                onClick={() => showDemo("Ver página 2 de transacciones")}
+                className="px-2.5 py-1 text-[10px] font-medium border border-border rounded hover:border-celeste-dark transition"
+              >
                 2
               </button>
-              <button className="px-2.5 py-1 text-[10px] font-medium border border-border rounded hover:border-celeste-dark transition">
+              <button
+                onClick={() => showDemo("Ver página 3 de transacciones")}
+                className="px-2.5 py-1 text-[10px] font-medium border border-border rounded hover:border-celeste-dark transition"
+              >
                 3
               </button>
-              <button className="px-2.5 py-1 text-[10px] font-medium border border-border rounded hover:border-celeste-dark transition">
+              <button
+                onClick={() => showDemo("Siguiente página de transacciones")}
+                className="px-2.5 py-1 text-[10px] font-medium border border-border rounded hover:border-celeste-dark transition"
+              >
                 Siguiente
               </button>
             </div>

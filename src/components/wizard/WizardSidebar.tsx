@@ -56,7 +56,7 @@ export function WizardSidebar() {
                         <span className="h-2.5 w-2.5 rounded-full bg-celeste-500 ring-4 ring-celeste-100" />
                       ) : isCompleted ? (
                         <svg
-                          className="h-4 w-4 text-emerald-500"
+                          className="h-4 w-4 text-success-500"
                           fill="none"
                           stroke="currentColor"
                           strokeWidth={2.5}

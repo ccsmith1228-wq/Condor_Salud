@@ -232,7 +232,7 @@ export default function TeleconsultaPage() {
           </button>
           <button
             onClick={handleStartCall}
-            className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold py-3 rounded-[4px] transition"
+            className="flex-1 bg-success-600 hover:bg-success-700 text-white text-sm font-semibold py-3 rounded-[4px] transition"
           >
             Ingresar a la consulta
           </button>
@@ -273,15 +273,15 @@ export default function TeleconsultaPage() {
       <div className="bg-white rounded-2xl border border-border-light">
         <div className="px-5 py-4 border-b border-border-light">
           <h2 className="text-sm font-bold text-ink flex items-center gap-2">
-            <Video className="w-4 h-4 text-emerald-600" />
+            <Video className="w-4 h-4 text-success-600" />
             Teleconsultas programadas
           </h2>
         </div>
         <div className="divide-y divide-border-light">
           {upcoming.map((apt) => (
             <div key={apt.id} className="flex flex-col sm:flex-row sm:items-center gap-3 px-5 py-4">
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
-                <Video className="w-5 h-5 text-emerald-600" />
+              <div className="w-10 h-10 rounded-xl bg-success-50 flex items-center justify-center shrink-0">
+                <Video className="w-5 h-5 text-success-600" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-ink">{apt.doctor}</p>
@@ -299,7 +299,7 @@ export default function TeleconsultaPage() {
               </div>
               <button
                 onClick={() => handleJoin(apt)}
-                className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-4 py-2 rounded-[4px] transition shrink-0"
+                className="inline-flex items-center gap-2 bg-success-600 hover:bg-success-700 text-white text-sm font-semibold px-4 py-2 rounded-[4px] transition shrink-0"
               >
                 <Video className="w-4 h-4" />
                 Ingresar

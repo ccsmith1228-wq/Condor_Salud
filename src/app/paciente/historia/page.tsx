@@ -129,7 +129,7 @@ const events: MedicalEvent[] = [
 const typeMap: Record<EventType, { label: string; icon: any; color: string }> = {
   consulta: { label: "Consulta", icon: Stethoscope, color: "bg-celeste-50 text-celeste-dark" },
   laboratorio: { label: "Laboratorio", icon: TestTubes, color: "bg-celeste-50 text-celeste-dark" },
-  imagen: { label: "Imagen", icon: ImageIcon, color: "bg-emerald-50 text-emerald-600" },
+  imagen: { label: "Imagen", icon: ImageIcon, color: "bg-success-50 text-success-600" },
   receta: { label: "Receta", icon: Pill, color: "bg-amber-50 text-amber-600" },
   vacuna: { label: "Vacuna", icon: Syringe, color: "bg-red-50 text-red-600" },
   internacion: { label: "Internación", icon: Heart, color: "bg-red-50 text-red-600" },
@@ -191,7 +191,7 @@ export default function HistoriaPage() {
           {
             label: "Imágenes",
             count: events.filter((e) => e.type === "imagen").length,
-            color: "text-emerald-600",
+            color: "text-success-600",
           },
           {
             label: "Recetas",

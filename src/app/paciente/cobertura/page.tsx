@@ -178,7 +178,7 @@ export default function CoberturaPage() {
                   <p className="text-xs text-ink-muted">{item.copay}</p>
                 </div>
                 <div className="shrink-0">
-                  <span className="text-sm font-bold text-emerald-600">{item.coverage}</span>
+                  <span className="text-sm font-bold text-success-600">{item.coverage}</span>
                 </div>
               </div>
             );
@@ -205,7 +205,7 @@ export default function CoberturaPage() {
                 <div className="flex items-center gap-2 shrink-0 ml-3">
                   <span className="text-sm font-medium text-ink">{claim.amount}</span>
                   {claim.status === "aprobado" ? (
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-success-500" />
                   ) : (
                     <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
                   )}

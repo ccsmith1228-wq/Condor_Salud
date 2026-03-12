@@ -422,7 +422,7 @@ export default function SintomasPage() {
                 ? "bg-red-50 border-2 border-red-300"
                 : result.severity === "moderado"
                   ? "bg-amber-50 border border-amber-200"
-                  : "bg-emerald-50 border border-emerald-200"
+                  : "bg-success-50 border border-success-200"
             }`}
           >
             <div className="flex items-start gap-3">
@@ -433,7 +433,7 @@ export default function SintomasPage() {
                 <Activity className="w-6 h-6 text-amber-600 shrink-0" />
               )}
               {result.severity === "leve" && (
-                <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0" />
+                <CheckCircle2 className="w-6 h-6 text-success-600 shrink-0" />
               )}
               <div>
                 <h2
@@ -442,7 +442,7 @@ export default function SintomasPage() {
                       ? "text-red-800"
                       : result.severity === "moderado"
                         ? "text-amber-800"
-                        : "text-emerald-800"
+                        : "text-success-800"
                   }`}
                 >
                   {result.title}
@@ -453,7 +453,7 @@ export default function SintomasPage() {
                       ? "text-red-700"
                       : result.severity === "moderado"
                         ? "text-amber-700"
-                        : "text-emerald-700"
+                        : "text-success-700"
                   }`}
                 >
                   {result.recommendation}
@@ -504,7 +504,7 @@ export default function SintomasPage() {
                 <ul className="space-y-1.5">
                   {result.homeRemedies.map((r) => (
                     <li key={r} className="text-sm text-ink-500 flex items-start gap-2">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mt-0.5 shrink-0" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-success-500 mt-0.5 shrink-0" />
                       {r}
                     </li>
                   ))}

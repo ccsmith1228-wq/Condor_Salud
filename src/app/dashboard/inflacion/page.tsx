@@ -1,6 +1,11 @@
+"use client";
+
+import { useState } from "react";
+import { useDemoAction } from "@/components/DemoModal";
+import { Download, Filter, TrendingDown, Calendar, BarChart3, AlertTriangle } from "lucide-react";
 import type { InflacionMes } from "@/lib/types";
 
-const meses: InflacionMes[] = [
+const allMeses: InflacionMes[] = [
   {
     mes: "Oct 2025",
     ipc: 3.5,
@@ -77,11 +82,24 @@ const financiadoresInflacion = [
   },
 ];
 
+type Period = "3m" | "6m";
+type FinFilter = "Todos" | string;
+
 function formatMonto(n: number): string {
   return "$" + n.toLocaleString("es-AR");
 }
 
 export default function InflacionPage() {
+  const { showDemo } = useDemoAction();
+  const [period, setPeriod] = useState<Period>("6m");
+  const [finFilter, setFinFilter] = useState<FinFilter>("Todos");
+
+  const meses = period === "3m" ? allMeses.slice(-3) : allMeses;
+  const filteredFinanciadores =
+    finFilter === "Todos"
+      ? financiadoresInflacion
+      : financiadoresInflacion.filter((f) => f.name === finFilter);
+
   const totalPerdida = meses.reduce((s, m) => s + m.perdidaReal, 0);
   const totalCobrado = meses.reduce((s, m) => s + m.cobrado, 0);
   const ipcPromedio = Math.round((meses.reduce((s, m) => s + m.ipc, 0) / meses.length) * 10) / 10;
@@ -92,34 +110,81 @@ export default function InflacionPage() {
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-ink">Tracker de Inflación</h1>
-        <p className="text-sm text-ink-muted mt-1">
-          Impacto real de la inflación en tus cobros por demora de pago
-        </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-ink">Tracker de Inflación</h1>
+          <p className="text-sm text-ink-muted mt-1">
+            Impacto real de la inflación en tus cobros por demora de pago
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <div className="flex border border-border rounded-[4px] overflow-hidden">
+            {(["3m", "6m"] as Period[]).map((p) => (
+              <button
+                key={p}
+                onClick={() => setPeriod(p)}
+                className={`px-3 py-1.5 text-xs font-medium transition ${
+                  period === p
+                    ? "bg-celeste-dark text-white"
+                    : "bg-white text-ink-light hover:text-ink"
+                }`}
+              >
+                {p === "3m" ? "3 meses" : "6 meses"}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() => showDemo("Exportar reporte de inflación PDF")}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Exportar PDF
+          </button>
+          <button
+            onClick={() => showDemo("Exportar datos de inflación Excel")}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Excel
+          </button>
+        </div>
       </div>
 
       {/* KPI summary */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-red-400">
-          <div className="text-xs text-ink-muted mb-1">Pérdida total (6 meses)</div>
+          <div className="flex items-center gap-1.5 text-xs text-ink-muted mb-1">
+            <TrendingDown className="w-3.5 h-3.5" />
+            Pérdida total ({period === "3m" ? "3" : "6"} meses)
+          </div>
           <div className="text-2xl font-bold text-red-600">{formatMonto(totalPerdida)}</div>
           <div className="text-xs mt-1 text-red-600">
             {Math.round((totalPerdida / totalCobrado) * 100 * 10) / 10}% del cobrado
           </div>
         </div>
         <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-celeste">
-          <div className="text-xs text-ink-muted mb-1">IPC promedio mensual</div>
+          <div className="flex items-center gap-1.5 text-xs text-ink-muted mb-1">
+            <BarChart3 className="w-3.5 h-3.5" />
+            IPC promedio mensual
+          </div>
           <div className="text-2xl font-bold text-celeste-dark">{ipcPromedio}%</div>
-          <div className="text-xs mt-1 text-ink-muted">Últimos 6 meses</div>
+          <div className="text-xs mt-1 text-ink-muted">
+            Últimos {period === "3m" ? "3" : "6"} meses
+          </div>
         </div>
         <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-celeste">
-          <div className="text-xs text-ink-muted mb-1">Días demora promedio</div>
+          <div className="flex items-center gap-1.5 text-xs text-ink-muted mb-1">
+            <Calendar className="w-3.5 h-3.5" />
+            Días demora promedio
+          </div>
           <div className="text-2xl font-bold text-celeste-dark">{diasPromedio}</div>
           <div className="text-xs mt-1 text-ink-muted">Promedio todos los financiadores</div>
         </div>
         <div className="bg-white border border-border rounded-lg p-5 border-l-[3px] border-l-celeste">
-          <div className="text-xs text-ink-muted mb-1">Pérdida por día de demora</div>
+          <div className="flex items-center gap-1.5 text-xs text-ink-muted mb-1">
+            <AlertTriangle className="w-3.5 h-3.5" />
+            Pérdida por día de demora
+          </div>
           <div className="text-2xl font-bold text-celeste-dark">0.11%</div>
           <div className="text-xs mt-1 text-ink-muted">Valor estimado actual</div>
         </div>
@@ -127,10 +192,9 @@ export default function InflacionPage() {
 
       {/* Chart + Explanation */}
       <div className="grid lg:grid-cols-3 gap-4">
-        {/* Chart */}
         <div className="lg:col-span-2 bg-white border border-border rounded-lg p-5">
           <div className="text-xs text-ink-muted mb-4">
-            Pérdida real por inflación — últimos 6 meses
+            Pérdida real por inflación — últimos {period === "3m" ? "3" : "6"} meses
           </div>
           <div className="h-52 flex items-end gap-3 px-4">
             {meses.map((m, i) => {
@@ -155,8 +219,6 @@ export default function InflacionPage() {
             </span>
           </div>
         </div>
-
-        {/* Explanation card */}
         <div className="bg-white border border-border rounded-lg p-5">
           <div className="text-xs text-ink-muted mb-3">Cómo calculamos la pérdida</div>
           <div className="space-y-3">
@@ -188,8 +250,14 @@ export default function InflacionPage() {
 
       {/* Per-month detail table */}
       <div className="bg-white border border-border rounded-lg overflow-hidden">
-        <div className="px-5 py-4 border-b border-border">
+        <div className="px-5 py-4 border-b border-border flex items-center justify-between">
           <div className="text-xs text-ink-muted">Detalle mensual</div>
+          <button
+            onClick={() => showDemo("Exportar detalle mensual CSV")}
+            className="text-xs text-celeste-dark font-medium hover:underline flex items-center gap-1"
+          >
+            <Download className="w-3 h-3" /> CSV
+          </button>
         </div>
         <table className="w-full text-sm">
           <thead>
@@ -222,13 +290,7 @@ export default function InflacionPage() {
                   {formatMonto(m.perdidaReal)}
                 </td>
                 <td
-                  className={`px-5 py-3 text-right font-semibold ${
-                    m.perdidaPorcentaje > 8
-                      ? "text-red-600"
-                      : m.perdidaPorcentaje > 6
-                        ? "text-amber-500"
-                        : "text-green-600"
-                  }`}
+                  className={`px-5 py-3 text-right font-semibold ${m.perdidaPorcentaje > 8 ? "text-red-600" : m.perdidaPorcentaje > 6 ? "text-amber-500" : "text-success-600"}`}
                 >
                   {m.perdidaPorcentaje}%
                 </td>
@@ -240,9 +302,22 @@ export default function InflacionPage() {
 
       {/* Per-financiador inflation impact */}
       <div className="bg-white border border-border rounded-lg overflow-hidden">
-        <div className="px-5 py-4 border-b border-border">
+        <div className="px-5 py-4 border-b border-border flex items-center justify-between">
           <div className="text-xs text-ink-muted">
             Impacto por financiador — cuánto perdés por la demora de cada uno
+          </div>
+          <div className="flex items-center gap-2">
+            <Filter className="w-3.5 h-3.5 text-ink-muted" />
+            <select
+              value={finFilter}
+              onChange={(e) => setFinFilter(e.target.value)}
+              className="text-xs border border-border rounded-[4px] px-2 py-1 outline-none focus:border-celeste-dark bg-white text-ink"
+            >
+              <option>Todos</option>
+              {financiadoresInflacion.map((f) => (
+                <option key={f.name}>{f.name}</option>
+              ))}
+            </select>
           </div>
         </div>
         <table className="w-full text-sm">
@@ -257,7 +332,7 @@ export default function InflacionPage() {
             </tr>
           </thead>
           <tbody>
-            {financiadoresInflacion.map((f) => {
+            {filteredFinanciadores.map((f) => {
               const perdidaEstimada = Math.round(f.montoAfectado * (f.perdidaTotal / 100));
               return (
                 <tr
@@ -266,21 +341,13 @@ export default function InflacionPage() {
                 >
                   <td className="px-5 py-3 font-semibold text-ink">{f.name}</td>
                   <td
-                    className={`px-5 py-3 text-right ${
-                      f.diasPromedio > 60 ? "text-red-600 font-semibold" : "text-ink-light"
-                    }`}
+                    className={`px-5 py-3 text-right ${f.diasPromedio > 60 ? "text-red-600 font-semibold" : "text-ink-light"}`}
                   >
                     {f.diasPromedio}
                   </td>
                   <td className="px-5 py-3 text-right text-ink-light">{f.perdidaPorDia}%</td>
                   <td
-                    className={`px-5 py-3 text-right font-semibold ${
-                      f.perdidaTotal > 7
-                        ? "text-red-600"
-                        : f.perdidaTotal > 4
-                          ? "text-amber-500"
-                          : "text-green-600"
-                    }`}
+                    className={`px-5 py-3 text-right font-semibold ${f.perdidaTotal > 7 ? "text-red-600" : f.perdidaTotal > 4 ? "text-amber-500" : "text-success-600"}`}
                   >
                     {f.perdidaTotal}%
                   </td>
