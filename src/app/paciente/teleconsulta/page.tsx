@@ -152,7 +152,12 @@ export default function TeleconsultaPage() {
             {camOn ? <Video className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
           </button>
           <button
-            onClick={() => showToast("Chat en consulta disponible próximamente")}
+            onClick={() => {
+              const chatBtn = document.querySelector(
+                '[aria-label="Abrir asistente virtual"]',
+              ) as HTMLButtonElement;
+              if (chatBtn) chatBtn.click();
+            }}
             className="w-12 h-12 rounded-full bg-white/10 text-white hover:bg-white/20 flex items-center justify-center transition"
           >
             <MessageSquare className="w-5 h-5" />

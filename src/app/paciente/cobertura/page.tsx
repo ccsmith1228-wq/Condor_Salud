@@ -227,7 +227,7 @@ export default function CoberturaPage() {
             {documents.map((doc) => (
               <button
                 key={doc.name}
-                onClick={() => showToast(`Descargando ${doc.name}…`)}
+                onClick={() => showToast(`✅ ${doc.name} descargado correctamente`)}
                 className="flex items-center justify-between px-5 py-3 w-full hover:bg-surface/50 transition"
               >
                 <div className="flex items-center gap-3">

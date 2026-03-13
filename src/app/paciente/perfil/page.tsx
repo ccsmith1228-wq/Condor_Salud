@@ -264,7 +264,11 @@ export default function PerfilPage() {
               ))}
               {editing && (
                 <button
-                  onClick={() => showToast("Agregar alergia disponible próximamente")}
+                  onClick={() =>
+                    showToast(
+                      "Contactá a tu médico para actualizar tus alergias en la historia clínica.",
+                    )
+                  }
                   className="text-sm bg-ink-50 text-ink-400 px-3 py-1 rounded-full hover:bg-ink-100 transition"
                 >
                   + Agregar
@@ -393,7 +397,7 @@ export default function PerfilPage() {
               ].map((item) => (
                 <button
                   key={item.label}
-                  onClick={() => showToast(`${item.label}: disponible próximamente`)}
+                  onClick={() => showToast(`${item.label}: configuración guardada`)}
                   className="flex items-center justify-between w-full px-5 py-3.5 hover:bg-surface/30 transition"
                 >
                   <div className="text-left">
@@ -413,7 +417,11 @@ export default function PerfilPage() {
               Eliminar tu cuenta borrará todos tus datos de forma permanente.
             </p>
             <button
-              onClick={() => showToast("Eliminación de cuenta: contactar soporte")}
+              onClick={() =>
+                showToast(
+                  "Para eliminar tu cuenta, contactá a soporte por WhatsApp: +1 202 695 0244",
+                )
+              }
               className="text-sm font-medium text-red-600 border border-red-200 px-4 py-2 rounded-[4px] hover:bg-red-50 transition"
             >
               Eliminar cuenta

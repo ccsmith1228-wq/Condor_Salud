@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Activity,
   AlertTriangle,
@@ -232,6 +233,7 @@ function getTriageResult(
 /* ── component ────────────────────────────────────────── */
 export default function SintomasPage() {
   const { showToast } = useToast();
+  const router = useRouter();
   const [step, setStep] = useState<Step>("select");
   const [selectedPart, setSelectedPart] = useState<BodyPart | null>(null);
   const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
@@ -472,7 +474,7 @@ export default function SintomasPage() {
               <p className="text-sm text-ink-500">{result.doctorType}</p>
               <p className="text-xs text-ink-muted mt-1">Consultá: {result.shouldSeek}</p>
               <button
-                onClick={() => showToast("Redirigiendo a búsqueda de médicos…")}
+                onClick={() => router.push("/paciente/medicos")}
                 className="mt-3 text-sm font-semibold text-celeste-dark hover:text-celeste-700 flex items-center gap-1 transition"
               >
                 Buscar médico <ChevronRight className="w-3.5 h-3.5" />
@@ -534,14 +536,20 @@ export default function SintomasPage() {
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-3">
             <button
-              onClick={() => showToast("Reserva de turno disponible próximamente")}
+              onClick={() => router.push("/paciente/turnos")}
               className="flex-1 inline-flex items-center justify-center gap-2 bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold py-3 rounded-[4px] transition"
             >
               <Calendar className="w-4 h-4" />
               Sacar turno ahora
             </button>
             <button
-              onClick={() => showToast("Abriendo chat con Cora…")}
+              onClick={() => {
+                // Open the Cora chatbot by clicking its floating bubble
+                const chatBtn = document.querySelector(
+                  '[aria-label="Abrir asistente virtual"]',
+                ) as HTMLButtonElement;
+                if (chatBtn) chatBtn.click();
+              }}
               className="flex-1 inline-flex items-center justify-center gap-2 border border-border-light text-ink-500 text-sm font-medium py-3 rounded-[4px] hover:bg-ink-50 transition"
             >
               <MessageSquare className="w-4 h-4" />

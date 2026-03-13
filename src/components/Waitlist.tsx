@@ -30,13 +30,13 @@ export default function Waitlist() {
   };
 
   return (
-    <section id="waitlist" className="px-6 py-20 bg-ink">
+    <section id="waitlist" className="px-6 py-20 bg-celeste-pale/30 border-t border-border">
       <div className="max-w-[800px] mx-auto">
         <div className="text-center mb-10">
-          <p className="text-[11px] font-bold tracking-[2px] text-celeste-light uppercase mb-2.5">
+          <p className="text-[11px] font-bold tracking-[2px] text-celeste uppercase mb-2.5">
             Acceso anticipado
           </p>
-          <h2 className="text-[clamp(24px,3vw,36px)] font-bold text-white mb-4 leading-[1.2]">
+          <h2 className="text-[clamp(24px,3vw,36px)] font-bold text-ink mb-4 leading-[1.2]">
             Sumate al waitlist y sé de los primeros
           </h2>
           <p className="text-[15px] text-ink-muted leading-[1.7] max-w-[520px] mx-auto">
@@ -49,19 +49,19 @@ export default function Waitlist() {
         <div className="flex flex-wrap justify-center gap-6 mb-8">
           {benefits.map((b) => (
             <div key={b.text} className="flex items-center gap-2">
-              <b.icon className="w-4 h-4 text-celeste-light" />
-              <span className="text-xs text-celeste-light/80 font-medium">{b.text}</span>
+              <b.icon className="w-4 h-4 text-celeste-dark" />
+              <span className="text-xs text-ink-muted font-medium">{b.text}</span>
             </div>
           ))}
         </div>
 
         {/* Form */}
         {submitted ? (
-          <div className="bg-celeste-dark/20 border border-celeste/30 rounded-xl px-6 py-6 text-center">
-            <div className="w-12 h-12 rounded-full bg-celeste-dark/30 flex items-center justify-center mx-auto mb-3">
-              <Check className="w-6 h-6 text-celeste-light" />
+          <div className="bg-celeste-pale border border-celeste/30 rounded-xl px-6 py-6 text-center">
+            <div className="w-12 h-12 rounded-full bg-celeste-dark/20 flex items-center justify-center mx-auto mb-3">
+              <Check className="w-6 h-6 text-celeste-dark" />
             </div>
-            <p className="text-celeste-light font-semibold text-lg">¡Listo! Estás en la lista.</p>
+            <p className="text-celeste-dark font-semibold text-lg">¡Listo! Estás en la lista.</p>
             <p className="text-sm text-ink-muted mt-2">
               Te contactamos dentro de 48 horas para coordinar el onboarding de tu clínica.
             </p>
@@ -75,7 +75,7 @@ export default function Waitlist() {
         ) : (
           <form
             onSubmit={handleSubmit}
-            className="bg-[#111] border border-[#222] rounded-xl p-6 space-y-3"
+            className="bg-white border border-border rounded-xl p-6 space-y-3 shadow-sm"
           >
             <div className="grid sm:grid-cols-2 gap-3">
               <input
@@ -83,7 +83,7 @@ export default function Waitlist() {
                 placeholder="Tu nombre"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-3.5 bg-[#1A1A1A] border border-[#333] text-white text-sm rounded focus:outline-none focus:border-celeste placeholder:text-ink-muted"
+                className="w-full px-4 py-3.5 bg-surface border border-border text-ink text-sm rounded focus:outline-none focus:border-celeste placeholder:text-ink-muted"
               />
               <input
                 type="email"
@@ -91,22 +91,22 @@ export default function Waitlist() {
                 placeholder="tu@clinica.com.ar"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3.5 bg-[#1A1A1A] border border-[#333] text-white text-sm rounded focus:outline-none focus:border-celeste placeholder:text-ink-muted"
+                className="w-full px-4 py-3.5 bg-surface border border-border text-ink text-sm rounded focus:outline-none focus:border-celeste placeholder:text-ink-muted"
               />
             </div>
             <button
               type="submit"
-              className="w-full px-7 py-3.5 bg-gold text-ink font-bold text-sm rounded hover:bg-[#E5A50D] transition"
+              className="w-full px-7 py-3.5 bg-celeste-dark text-white font-bold text-sm rounded hover:bg-celeste transition"
             >
               Quiero acceso anticipado
             </button>
             <p className="text-[10px] text-ink-muted text-center">
               Al registrarte aceptás nuestros{" "}
-              <Link href="/terminos" className="text-celeste-light/60 underline">
+              <Link href="/terminos" className="text-celeste-dark underline">
                 Términos
               </Link>{" "}
               y{" "}
-              <Link href="/privacidad" className="text-celeste-light/60 underline">
+              <Link href="/privacidad" className="text-celeste-dark underline">
                 Política de Privacidad
               </Link>
             </p>

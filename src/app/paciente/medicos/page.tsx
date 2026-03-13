@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Search,
   MapPin,
@@ -170,6 +171,7 @@ const locations = ["Todas", "Belgrano", "Palermo", "Recoleta", "Microcentro", "C
 
 export default function MedicosPage() {
   const { showToast } = useToast();
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [specialty, setSpecialty] = useState("Todas");
   const [location, setLocation] = useState("Todas");
@@ -354,14 +356,14 @@ export default function MedicosPage() {
                 Ver perfil
               </button>
               <button
-                onClick={() => showToast("Reserva de turno disponible próximamente")}
+                onClick={() => router.push("/paciente/turnos")}
                 className="flex-1 text-sm font-semibold text-white bg-celeste-dark hover:bg-celeste-700 py-2 rounded-[4px] transition"
               >
                 Sacar turno
               </button>
               {doctor.teleconsulta && (
                 <button
-                  onClick={() => showToast("Teleconsulta disponible próximamente")}
+                  onClick={() => router.push("/paciente/teleconsulta")}
                   className="text-sm font-medium text-success-700 bg-success-50 hover:bg-success-100 px-4 py-2 rounded-[4px] transition flex items-center gap-1"
                 >
                   <Video className="w-3.5 h-3.5" />
@@ -434,8 +436,8 @@ export default function MedicosPage() {
                 </button>
                 <button
                   onClick={() => {
-                    showToast("Reserva de turno disponible próximamente");
                     setSelectedDoctor(null);
+                    router.push("/paciente/turnos");
                   }}
                   className="flex-1 bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold py-2.5 rounded-[4px] transition"
                 >

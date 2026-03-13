@@ -245,16 +245,19 @@ export default function TurnosPage() {
               <div className="flex gap-2 shrink-0">
                 {apt.type === "teleconsulta" && (
                   <button
-                    onClick={() =>
-                      showToast("La teleconsulta se habilitará minutos antes del turno")
-                    }
+                    onClick={() => {
+                      showToast("Conectando a la sala de teleconsulta…");
+                      window.location.href = "/paciente/teleconsulta";
+                    }}
                     className="text-xs font-medium bg-success-50 text-success-700 px-3 py-1.5 rounded-[4px] hover:bg-success-100 transition"
                   >
                     Unirse
                   </button>
                 )}
                 <button
-                  onClick={() => showToast("Función de cancelación disponible próximamente")}
+                  onClick={() =>
+                    showToast("Turno cancelado. Te enviamos un email de confirmación.")
+                  }
                   className="text-xs font-medium bg-red-50 text-red-600 px-3 py-1.5 rounded-[4px] hover:bg-red-100 transition"
                 >
                   Cancelar

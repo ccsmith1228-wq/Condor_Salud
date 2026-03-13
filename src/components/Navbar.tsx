@@ -32,24 +32,24 @@ export default function Navbar() {
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-6">
-          <a
-            href="#problema"
+          <Link
+            href="/#problema"
             className="text-[13px] font-medium text-ink-light hover:text-celeste-dark transition"
           >
             Problema
-          </a>
-          <a
-            href="#producto"
+          </Link>
+          <Link
+            href="/#producto"
             className="text-[13px] font-medium text-ink-light hover:text-celeste-dark transition"
           >
             Producto
-          </a>
-          <a
-            href="#pricing"
+          </Link>
+          <Link
+            href="/#pricing"
             className="text-[13px] font-medium text-ink-light hover:text-celeste-dark transition"
           >
             Pricing
-          </a>
+          </Link>
           <Link
             href="/planes"
             className="text-[13px] font-medium text-ink-light hover:text-celeste-dark transition"
@@ -111,27 +111,27 @@ export default function Navbar() {
         {/* Mobile menu */}
         {open && (
           <div className="absolute top-full left-0 right-0 bg-white border-b border-border p-6 flex flex-col gap-4 md:hidden">
-            <a
-              href="#problema"
+            <Link
+              href="/#problema"
               onClick={() => setOpen(false)}
               className="text-[13px] font-medium text-ink-light"
             >
               Problema
-            </a>
-            <a
-              href="#producto"
+            </Link>
+            <Link
+              href="/#producto"
               onClick={() => setOpen(false)}
               className="text-[13px] font-medium text-ink-light"
             >
               Producto
-            </a>
-            <a
-              href="#pricing"
+            </Link>
+            <Link
+              href="/#pricing"
               onClick={() => setOpen(false)}
               className="text-[13px] font-medium text-ink-light"
             >
               Pricing
-            </a>
+            </Link>
             <Link
               href="/planes"
               onClick={() => setOpen(false)}
@@ -139,13 +139,13 @@ export default function Navbar() {
             >
               Planes
             </Link>
-            <a
-              href="#waitlist"
+            <Link
+              href="/#waitlist"
               onClick={() => setOpen(false)}
               className="px-5 py-2 text-xs font-semibold text-white bg-celeste-dark rounded-[4px] text-center"
             >
               Sumate al waitlist
-            </a>
+            </Link>
             <Link
               href="/auth/login"
               onClick={() => setOpen(false)}

@@ -8,13 +8,16 @@ export default function Hero() {
     <section className="px-6 pt-16 pb-20 max-w-[1000px] mx-auto">
       {/* Announcement banner */}
       <div className="flex justify-center mb-8">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-celeste-pale border border-celeste/20 rounded-full text-xs">
+        <Link
+          href="/dashboard/configuracion/integraciones"
+          className="inline-flex items-center gap-2 px-4 py-1.5 bg-celeste-pale border border-celeste/20 rounded-full text-xs hover:bg-celeste-100 hover:border-celeste/40 transition"
+        >
           <span className="w-2 h-2 bg-celeste-dark rounded-full animate-pulse" />
           <span className="text-ink-light">
             Nuevo: Integración con Google Calendar y TopDoctors.com.ar
           </span>
           <ArrowRight className="w-3 h-3 text-celeste-dark" />
-        </div>
+        </Link>
       </div>
 
       <div className="text-center">

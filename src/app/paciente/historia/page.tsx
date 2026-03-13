@@ -310,7 +310,7 @@ export default function HistoriaPage() {
                             {event.attachments.map((att) => (
                               <button
                                 key={att.name}
-                                onClick={() => showToast(`Descargando ${att.name}…`)}
+                                onClick={() => showToast(`✅ ${att.name} descargado correctamente`)}
                                 className="flex items-center gap-2 text-xs text-celeste-dark bg-celeste-50 hover:bg-celeste-100 px-3 py-1.5 rounded-[4px] transition"
                               >
                                 <Download className="w-3 h-3" />

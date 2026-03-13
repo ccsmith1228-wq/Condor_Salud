@@ -26,18 +26,18 @@ export default function Footer() {
           <div className="flex flex-wrap gap-12 text-[13px]">
             <div className="space-y-2">
               <p className="font-semibold text-ink text-xs uppercase tracking-wider">Producto</p>
-              <a
-                href="#problema"
+              <Link
+                href="/#problema"
                 className="block text-ink-light hover:text-celeste-dark transition"
               >
                 Problema
-              </a>
-              <a
-                href="#producto"
+              </Link>
+              <Link
+                href="/#producto"
                 className="block text-ink-light hover:text-celeste-dark transition"
               >
                 Solución
-              </a>
+              </Link>
               <Link
                 href="/planes"
                 className="block text-ink-light hover:text-celeste-dark transition"
@@ -59,12 +59,12 @@ export default function Footer() {
               >
                 Portal Paciente
               </Link>
-              <a
-                href="#waitlist"
+              <Link
+                href="/#waitlist"
                 className="block text-ink-light hover:text-celeste-dark transition"
               >
                 Waitlist
-              </a>
+              </Link>
             </div>
             <div className="space-y-2">
               <p className="font-semibold text-ink text-xs uppercase tracking-wider">Cuenta</p>
