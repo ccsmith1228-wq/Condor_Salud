@@ -5,6 +5,7 @@ import Problem from "@/components/Problem";
 import Features from "@/components/Features";
 import HowItWorks from "@/components/HowItWorks";
 import Integrations from "@/components/Integrations";
+import Security from "@/components/Security";
 import Testimonials from "@/components/Testimonials";
 import Pricing from "@/components/Pricing";
 import FAQ from "@/components/FAQ";
@@ -24,6 +25,7 @@ export default function Home() {
         <Features />
         <HowItWorks />
         <Integrations />
+        <Security />
         <Testimonials />
         <Pricing />
         <FAQ />
