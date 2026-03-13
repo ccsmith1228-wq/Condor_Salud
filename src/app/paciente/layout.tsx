@@ -6,6 +6,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { ToastProvider } from "@/components/Toast";
 import { SWRProvider } from "@/lib/swr";
+import { usePatientName } from "@/lib/hooks/usePatientName";
 
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import {
@@ -36,18 +37,19 @@ const navItems = [
   { label: "Mi Perfil", href: "/paciente/perfil", icon: User },
 ];
 
-// Mock patient
-const DEMO_PATIENT = {
-  name: "María Gómez",
-  initials: "MG",
-  insurance: "OSDE 310",
-  memberId: "08-29384756-3",
-};
+// Demo insurance info (mocked)
+const DEMO_INSURANCE = "OSDE 310";
+const DEMO_MEMBER_ID = "08-29384756-3";
 
 export default function PatientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { name, setName, initials, needsName, loaded } = usePatientName();
+  const [nameInput, setNameInput] = useState("");
+
+  const displayName = name || "Paciente";
+  const displayInitials = initials;
 
   useEffect(() => {
     setSidebarOpen(false);
@@ -118,11 +120,11 @@ export default function PatientLayout({ children }: { children: React.ReactNode 
         <div className="px-4 py-4 border-b border-border-light">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-celeste-100 flex items-center justify-center text-celeste-dark font-bold text-sm">
-              {DEMO_PATIENT.initials}
+              {displayInitials}
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-ink truncate">{DEMO_PATIENT.name}</p>
-              <p className="text-[11px] text-ink-muted truncate">{DEMO_PATIENT.insurance}</p>
+              <p className="text-sm font-semibold text-ink truncate">{displayName}</p>
+              <p className="text-[11px] text-ink-muted truncate">{DEMO_INSURANCE}</p>
             </div>
           </div>
         </div>
@@ -189,12 +191,12 @@ export default function PatientLayout({ children }: { children: React.ReactNode 
           <div className="hidden sm:block text-sm text-ink-muted">Portal del Paciente</div>
 
           <div className="flex items-center gap-3 ml-auto">
-            <span className="text-xs text-ink-muted hidden sm:inline">{DEMO_PATIENT.name}</span>
+            <span className="text-xs text-ink-muted hidden sm:inline">{displayName}</span>
             <Link
               href="/paciente/perfil"
               className="w-8 h-8 rounded-full bg-celeste-100 flex items-center justify-center text-celeste-dark font-bold text-xs hover:ring-2 hover:ring-celeste-200 transition"
             >
-              {DEMO_PATIENT.initials}
+              {displayInitials}
             </Link>
           </div>
         </header>
@@ -208,6 +210,48 @@ export default function PatientLayout({ children }: { children: React.ReactNode 
       </div>
 
       <WhatsAppFloat />
+
+      {/* Name prompt modal — shown once when no name cookie exists */}
+      {loaded && needsName && (
+        <div className="fixed inset-0 bg-black/40 z-[200] flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 animate-chatOpen">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-celeste-100 flex items-center justify-center">
+                <User className="w-5 h-5 text-celeste-dark" />
+              </div>
+              <div>
+                <h2 className="text-lg font-display font-bold text-ink">¡Bienvenido/a!</h2>
+                <p className="text-xs text-ink-muted">Portal del Paciente — Cóndor Salud</p>
+              </div>
+            </div>
+            <p className="text-sm text-ink-light mb-4">
+              ¿Cómo te llamás? Vamos a personalizar tu portal.
+            </p>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (nameInput.trim()) setName(nameInput.trim());
+              }}
+            >
+              <input
+                type="text"
+                value={nameInput}
+                onChange={(e) => setNameInput(e.target.value)}
+                placeholder="Tu nombre completo"
+                autoFocus
+                className="w-full px-4 py-3 border border-border rounded-xl text-sm focus:outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste/20"
+              />
+              <button
+                type="submit"
+                disabled={!nameInput.trim()}
+                className="w-full mt-3 px-4 py-3 bg-celeste-dark text-white text-sm font-semibold rounded-xl hover:bg-celeste transition disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Continuar
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

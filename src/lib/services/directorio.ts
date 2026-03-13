@@ -319,9 +319,13 @@ export async function verifyPatientCoverage(
 
 export async function getDirectorioKPIs() {
   const doctors = await getDoctors();
+  const availableToday = doctors.filter(
+    (d) => d.available && d.nextSlot.toLowerCase().startsWith("hoy"),
+  ).length;
   return {
-    activeDoctors: doctors.length,
-    specialtiesCount: new Set(doctors.map((d) => d.specialty)).size,
+    totalDoctors: doctors.length,
+    totalSpecialties: new Set(doctors.map((d) => d.specialty)).size,
+    availableToday,
     avgRating: (doctors.reduce((sum, d) => sum + d.rating, 0) / doctors.length).toFixed(1),
     totalReviews: doctors.reduce((sum, d) => sum + d.reviews, 0),
   };

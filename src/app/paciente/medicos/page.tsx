@@ -19,6 +19,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
+import { getTopDoctorsSearchUrl, getTopDoctorsBookingUrl } from "@/lib/topdoctors";
 
 /* ── types ────────────────────────────────────────────── */
 interface Doctor {
@@ -306,7 +307,7 @@ export default function MedicosPage() {
                     {doctor.education}
                   </span>
                   <a
-                    href={`https://www.topdoctors.com.ar/buscar?q=${encodeURIComponent(doctor.name)}`}
+                    href={getTopDoctorsSearchUrl(doctor.name)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-1 text-celeste-dark hover:underline"
@@ -355,12 +356,14 @@ export default function MedicosPage() {
               >
                 Ver perfil
               </button>
-              <button
-                onClick={() => router.push("/paciente/turnos")}
-                className="flex-1 text-sm font-semibold text-white bg-celeste-dark hover:bg-celeste-700 py-2 rounded-[4px] transition"
+              <a
+                href={getTopDoctorsBookingUrl(doctor.specialty, doctor.name)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 text-sm font-semibold text-white bg-celeste-dark hover:bg-celeste-700 py-2 rounded-[4px] transition text-center"
               >
                 Sacar turno
-              </button>
+              </a>
               {doctor.teleconsulta && (
                 <button
                   onClick={() => router.push("/paciente/teleconsulta")}
@@ -417,7 +420,7 @@ export default function MedicosPage() {
                   Obras sociales: {selectedDoctor.insurance.join(", ")}
                 </div>
                 <a
-                  href={`https://www.topdoctors.com.ar/buscar?q=${encodeURIComponent(selectedDoctor.name)}`}
+                  href={getTopDoctorsSearchUrl(selectedDoctor.name)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-celeste-dark hover:underline text-sm"
@@ -434,15 +437,14 @@ export default function MedicosPage() {
                 >
                   Cerrar
                 </button>
-                <button
-                  onClick={() => {
-                    setSelectedDoctor(null);
-                    router.push("/paciente/turnos");
-                  }}
-                  className="flex-1 bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold py-2.5 rounded-[4px] transition"
+                <a
+                  href={getTopDoctorsBookingUrl(selectedDoctor.specialty, selectedDoctor.name)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold py-2.5 rounded-[4px] transition text-center"
                 >
-                  Sacar turno
-                </button>
+                  Sacar turno vía TopDoctors
+                </a>
               </div>
             </div>
           </div>

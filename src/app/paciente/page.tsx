@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { usePatientName } from "@/lib/hooks/usePatientName";
 import {
   Heart,
   Calendar,
@@ -98,6 +99,7 @@ function TrendIcon({ trend }: { trend: string }) {
 
 /* ── component ────────────────────────────────────────── */
 export default function PatientDashboard() {
+  const { firstName } = usePatientName();
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Greeting */}
@@ -105,7 +107,7 @@ export default function PatientDashboard() {
         <div>
           <h1 className="text-2xl font-display font-bold text-ink flex items-center gap-2">
             <Sun className="w-6 h-6 text-gold" />
-            {getGreeting()}, María
+            {getGreeting()}, {firstName || "Paciente"}
           </h1>
           <p className="text-sm text-ink-muted mt-0.5">Acá tenés un resumen de tu salud</p>
         </div>

@@ -10,6 +10,11 @@ import {
   locationOptions,
   symptomToSpecialty,
 } from "@/lib/services/directorio";
+import {
+  getTopDoctorsSearchUrl,
+  getTopDoctorsBookingUrl,
+  getTopDoctorsSpecialtyUrl,
+} from "@/lib/topdoctors";
 
 const specialties = ["Todas", ...specialtiesData];
 const financiadores = ["Todos", ...financiadoresOptions];
@@ -141,6 +146,19 @@ export default function DirectorioPage() {
         ))}
       </div>
 
+      {/* TopDoctors attribution */}
+      <div className="flex items-center gap-2 text-[11px] text-ink-muted">
+        <span>Turnos y perfiles profesionales vía</span>
+        <a
+          href="https://www.topdoctors.com.ar"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-semibold text-celeste-dark hover:underline inline-flex items-center gap-0.5"
+        >
+          TopDoctors.com.ar <ExternalLink className="w-3 h-3" />
+        </a>
+      </div>
+
       {/* Tabs */}
       <div className="flex gap-1 border-b border-border">
         {tabs.map((t) => (
@@ -245,24 +263,25 @@ export default function DirectorioPage() {
                   </span>
                   <div className="flex items-center gap-2">
                     <a
-                      href={`https://www.topdoctors.com.ar/buscar?q=${encodeURIComponent(doc.name)}`}
+                      href={getTopDoctorsSearchUrl(doc.name)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="px-3 py-1.5 text-xs font-medium text-celeste-dark border border-celeste-dark/30 rounded hover:bg-celeste-pale transition flex items-center gap-1"
                     >
                       <ExternalLink className="w-3 h-3" /> TopDoctors
                     </a>
-                    <button
-                      onClick={() => showDemo(`Reservar turno con ${doc.name}`)}
-                      className={`px-4 py-1.5 text-xs font-semibold rounded transition ${
+                    <a
+                      href={getTopDoctorsBookingUrl(doc.specialty, doc.name)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`px-4 py-1.5 text-xs font-semibold rounded transition inline-block text-center ${
                         doc.available
                           ? "bg-celeste-dark text-white hover:bg-celeste"
-                          : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                          : "bg-gray-100 text-gray-400 pointer-events-none"
                       }`}
-                      disabled={!doc.available}
                     >
                       Reservar
-                    </button>
+                    </a>
                   </div>
                 </div>
               </div>
@@ -495,14 +514,16 @@ export default function DirectorioPage() {
                   ))}
                 </div>
 
-                <button
-                  onClick={() => showDemo(`Reservar turno con ${selectedDoctor.name}`)}
-                  className="mt-6 px-6 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
-                >
-                  Reservar turno
-                </button>
                 <a
-                  href={`https://www.topdoctors.com.ar/buscar?q=${encodeURIComponent(selectedDoctor.name)}`}
+                  href={getTopDoctorsBookingUrl(selectedDoctor.specialty, selectedDoctor.name)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-6 inline-block px-6 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition text-center"
+                >
+                  Reservar turno vía TopDoctors
+                </a>
+                <a
+                  href={getTopDoctorsSearchUrl(selectedDoctor.name)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-3 inline-flex items-center gap-1.5 text-sm text-celeste-dark hover:underline"
@@ -697,14 +718,14 @@ export default function DirectorioPage() {
                   </div>
                   <div className="text-right shrink-0">
                     <p className="text-xs font-medium text-success-600 mb-2">{doc.nextSlot}</p>
-                    <button
-                      onClick={() =>
-                        showDemo(`Reservar turno con ${doc.name} por ${selectedSymptom}`)
-                      }
-                      className="px-4 py-2 text-xs font-semibold bg-celeste-dark text-white rounded hover:bg-celeste transition"
+                    <a
+                      href={getTopDoctorsBookingUrl(doc.specialty, doc.name)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 py-2 text-xs font-semibold bg-celeste-dark text-white rounded hover:bg-celeste transition inline-block text-center"
                     >
                       Reservar
-                    </button>
+                    </a>
                   </div>
                 </div>
               ))}

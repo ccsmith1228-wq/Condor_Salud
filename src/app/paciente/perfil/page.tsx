@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   User,
   Mail,
@@ -22,6 +22,7 @@ import {
   Pill,
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
+import { usePatientName } from "@/lib/hooks/usePatientName";
 
 /* ── types ────────────────────────────────────────────── */
 interface PatientProfile {
@@ -46,8 +47,8 @@ interface PatientProfile {
 
 /* ── demo data ────────────────────────────────────────── */
 const initialProfile: PatientProfile = {
-  name: "María Gómez",
-  email: "maria.gomez@email.com",
+  name: "", // will be set from cookie
+  email: "paciente@email.com",
   phone: "+54 11 5555-1234",
   dni: "29.384.756",
   birthDate: "1985-06-15",
@@ -69,10 +70,23 @@ type Section = "personal" | "medical" | "settings";
 
 export default function PerfilPage() {
   const { showToast } = useToast();
-  const [profile, setProfile] = useState<PatientProfile>(initialProfile);
-  const [editProfile, setEditProfile] = useState<PatientProfile>(initialProfile);
+  const { name: cookieName, setName: setCookieName, initials } = usePatientName();
+
+  // Seed profile name from cookie
+  const seededProfile = { ...initialProfile, name: cookieName || "Paciente" };
+  const [profile, setProfile] = useState<PatientProfile>(seededProfile);
+  const [editProfile, setEditProfile] = useState<PatientProfile>(seededProfile);
   const [section, setSection] = useState<Section>("personal");
   const [editing, setEditing] = useState(false);
+
+  // Keep profile in sync when cookie loads
+  useEffect(() => {
+    if (cookieName && profile.name !== cookieName) {
+      setProfile((p) => ({ ...p, name: cookieName }));
+      setEditProfile((p) => ({ ...p, name: cookieName }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cookieName]);
 
   // Settings
   const [notifications, setNotifications] = useState({
@@ -94,7 +108,7 @@ export default function PerfilPage() {
       <div className="bg-white rounded-2xl border border-border-light p-5">
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-2xl bg-celeste-100 flex items-center justify-center text-celeste-dark text-2xl font-bold">
-            MG
+            {initials}
           </div>
           <div className="flex-1">
             <h2 className="text-lg font-bold text-ink">{profile.name}</h2>
@@ -231,6 +245,10 @@ export default function PerfilPage() {
               <button
                 onClick={() => {
                   setProfile(editProfile);
+                  // Sync name change back to cookie
+                  if (editProfile.name && editProfile.name !== cookieName) {
+                    setCookieName(editProfile.name);
+                  }
                   setEditing(false);
                   showToast("Cambios guardados correctamente");
                 }}
