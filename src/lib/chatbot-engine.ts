@@ -1789,7 +1789,24 @@ export function processMessage(
   }
 }
 
-export function getWelcomeMessage(): ChatMessage {
+export function getWelcomeMessage(lang?: string): ChatMessage {
+  if (lang && lang.startsWith("en")) {
+    return {
+      id: "welcome",
+      role: "bot",
+      timestamp: Date.now(),
+      text: "Hi! I'm Cora, your health assistant.\n\nTell me what's going on and I'll help you find the right doctor and what you can get at the pharmacy to feel better.\n\nIf you share your location (📍 below), I'll find doctors, pharmacies, and emergency rooms near you with directions.\n\nHow can I help you?",
+      quickReplies: [
+        { label: "I'm not feeling well", value: "I'm not feeling well" },
+        { label: "Book an appointment", value: "I want to book an appointment" },
+        { label: "Find nearby", value: "Find a doctor near me" },
+        { label: "Check my coverage", value: "I want to check my insurance coverage" },
+        { label: "Talk to a doctor now", value: "I want a telemedicine consultation" },
+        { label: "How does it work?", value: "How does Cóndor Salud work?" },
+      ],
+    };
+  }
+
   return {
     id: "welcome",
     role: "bot",
@@ -1822,12 +1839,20 @@ export function detectEmergency(message: string): boolean {
   // Also catch explicit emergency language
   const lower = message.toLowerCase();
   const emergencyPatterns = [
+    // Spanish patterns
     /(?:infarto|paro\s+card[ií]aco|ataque\s+(?:al\s+)?coraz[oó]n)/,
     /(?:no\s+(?:puedo|puede)\s+respirar|se\s+(?:desmay[oó]|desplom[oó]))/,
     /(?:convulsi[oó]n|convulsiona|inconsciente|no\s+reacciona)/,
     /(?:acv|derrame\s+cerebral|no\s+(?:puede|puedo)\s+(?:hablar|mover))/,
     /(?:se\s+est[aá]\s+muriendo|se\s+muere|me\s+muero)/,
     /(?:sobredosis|intoxicaci[oó]n\s+grave|envenenamiento)/,
+    // English patterns
+    /(?:heart\s+attack|cardiac\s+arrest|chest\s+pain)/,
+    /(?:can'?t\s+breathe|(?:not|isn'?t|can'?t)\s+breathing|passed?\s+out|fainted)/,
+    /(?:seizure|convulsion|unconscious|not\s+responding|unresponsive)/,
+    /(?:stroke|can'?t\s+(?:speak|move|feel))/,
+    /(?:(?:he|she|they|i)'?(?:s|m|re)\s+dying|going\s+to\s+die)/,
+    /(?:overdose|severe\s+poisoning|anaphyla)/,
   ];
   return emergencyPatterns.some((p) => p.test(lower));
 }

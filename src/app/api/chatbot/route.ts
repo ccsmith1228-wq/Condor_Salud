@@ -8,14 +8,24 @@ export async function POST(req: NextRequest) {
   const limited = checkRateLimit(req, "chatbot", { limit: 20, windowSec: 60 });
   if (limited) return limited;
 
+  let lang: string | undefined;
+
   try {
     const body = await req.json();
-    const { message, lat, lng, history } = body as {
+    const {
+      message,
+      lat,
+      lng,
+      history,
+      lang: bodyLang,
+    } = body as {
       message?: string;
       lat?: number;
       lng?: number;
       history?: { role: "user" | "assistant"; content: string }[];
+      lang?: string;
     };
+    lang = bodyLang;
 
     if (!message || typeof message !== "string") {
       return NextResponse.json({ error: "Message is required" }, { status: 400 });
@@ -52,7 +62,7 @@ export async function POST(req: NextRequest) {
       // Truncate history to last 10 messages to control token usage
       const trimmedHistory = (history ?? []).slice(-10);
 
-      const aiResponse = await askClaude(cleanMessage, trimmedHistory, coords);
+      const aiResponse = await askClaude(cleanMessage, trimmedHistory, coords, lang);
 
       if (aiResponse) {
         return NextResponse.json({
@@ -82,16 +92,24 @@ export async function POST(req: NextRequest) {
     });
   } catch (err) {
     logger.error({ err, route: "chatbot" }, "Chatbot processing error");
+    const isEn = typeof lang === "string" && lang.startsWith("en");
     return NextResponse.json(
       {
         id: `bot-${Date.now()}`,
         role: "bot",
         timestamp: Date.now(),
-        text: "Disculpá, ocurrió un error procesando tu consulta. ¿Podrías intentar de nuevo?",
-        quickReplies: [
-          { label: "Reintentar", value: "Hola" },
-          { label: "Hablar con alguien", value: "Quiero hablar con un agente" },
-        ],
+        text: isEn
+          ? "Sorry, something went wrong processing your request. Could you try again?"
+          : "Disculpá, ocurrió un error procesando tu consulta. ¿Podrías intentar de nuevo?",
+        quickReplies: isEn
+          ? [
+              { label: "Try again", value: "Hello" },
+              { label: "Talk to someone", value: "I want to speak with an agent" },
+            ]
+          : [
+              { label: "Reintentar", value: "Hola" },
+              { label: "Hablar con alguien", value: "Quiero hablar con un agente" },
+            ],
       },
       { status: 200 },
     );
