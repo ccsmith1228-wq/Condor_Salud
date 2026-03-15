@@ -90,8 +90,8 @@ button {
    scrollbar-width/color: Firefox 64+, Chrome 121+
    -webkit-scrollbar fallback below covers Safari & older Chrome */
 .scrollbar-thin {
-  scrollbar-width: thin; /* stylelint-disable-line */
-  scrollbar-color: #d4e4f0 transparent; /* stylelint-disable-line */
+  scrollbar-width: thin; /* stylelint-disable-line -- webkit-scrollbar fallback provides compatibility */
+  scrollbar-color: #d4e4f0 transparent; /* stylelint-disable-line compat-api/css -- webkit-scrollbar fallback provides compatibility */
   /* @supports not used - webkit fallback provides compatibility */
 }
 .scrollbar-thin::-webkit-scrollbar {
