@@ -8,7 +8,8 @@ export async function POST(req: NextRequest) {
   if (limited) return limited;
 
   try {
-    const { message } = await req.json();
+    const body = await req.json();
+    const { message, lat, lng } = body as { message?: string; lat?: number; lng?: number };
 
     if (!message || typeof message !== "string") {
       return NextResponse.json({ error: "Message is required" }, { status: 400 });
@@ -17,11 +18,22 @@ export async function POST(req: NextRequest) {
     // Sanitize user input
     const cleanMessage = sanitize(message, 2000);
 
+    // Build optional coordinates (validated)
+    const coords =
+      typeof lat === "number" &&
+      typeof lng === "number" &&
+      lat >= -90 &&
+      lat <= 90 &&
+      lng >= -180 &&
+      lng <= 180
+        ? { lat, lng }
+        : null;
+
     // Simulate a brief thinking delay (200-600ms) for natural feel
     const delay = 200 + Math.random() * 400;
     await new Promise((resolve) => setTimeout(resolve, delay));
 
-    const response = processMessage(cleanMessage);
+    const response = processMessage(cleanMessage, coords);
 
     return NextResponse.json({
       id: `bot-${Date.now()}`,

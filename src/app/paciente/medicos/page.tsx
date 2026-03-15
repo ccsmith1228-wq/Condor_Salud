@@ -17,9 +17,12 @@ import {
   Award,
   Building,
   ExternalLink,
+  Navigation,
+  Loader2,
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
 import { getTopDoctorsSearchUrl, getTopDoctorsBookingUrl } from "@/lib/topdoctors";
+import { useGeolocation, type GeoCoords } from "@/lib/hooks/useGeolocation";
 
 /* ── types ────────────────────────────────────────────── */
 interface Doctor {
@@ -31,12 +34,30 @@ interface Doctor {
   reviews: number;
   location: string;
   address: string;
+  lat: number;
+  lng: number;
   availableToday: boolean;
   teleconsulta: boolean;
   photo?: string;
   education: string;
   insurance: string[];
   nextSlot: string;
+}
+
+/* ── haversine distance helper ────────────────────────── */
+function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function formatDistance(km: number): string {
+  if (km < 1) return `${Math.round(km * 1000)} m`;
+  return `${km.toFixed(1)} km`;
 }
 
 /* ── demo data ────────────────────────────────────────── */
@@ -49,6 +70,8 @@ const doctors: Doctor[] = [
     reviews: 234,
     location: "Belgrano",
     address: "Av. Cabildo 2040, CABA",
+    lat: -34.5605,
+    lng: -58.4563,
     availableToday: true,
     teleconsulta: true,
     education: "UBA - Hospital Italiano",
@@ -64,6 +87,8 @@ const doctors: Doctor[] = [
     reviews: 189,
     location: "Palermo",
     address: "Av. Santa Fe 3200, CABA",
+    lat: -34.5875,
+    lng: -58.4096,
     availableToday: false,
     teleconsulta: true,
     education: "UBA - Fundación Favaloro",
@@ -79,6 +104,8 @@ const doctors: Doctor[] = [
     reviews: 156,
     location: "Palermo",
     address: "Gorriti 4800, CABA",
+    lat: -34.588,
+    lng: -58.428,
     availableToday: true,
     teleconsulta: false,
     education: "Hospital de Clínicas",
@@ -93,6 +120,8 @@ const doctors: Doctor[] = [
     reviews: 312,
     location: "Belgrano",
     address: "Av. del Libertador 5800, CABA",
+    lat: -34.556,
+    lng: -58.452,
     availableToday: true,
     teleconsulta: true,
     education: "UBA - Hospital Austral",
@@ -108,6 +137,8 @@ const doctors: Doctor[] = [
     reviews: 278,
     location: "Recoleta",
     address: "Av. Callao 1234, CABA",
+    lat: -34.595,
+    lng: -58.396,
     availableToday: false,
     teleconsulta: true,
     education: "UBA - Hospital Británico",
@@ -123,6 +154,8 @@ const doctors: Doctor[] = [
     reviews: 98,
     location: "Belgrano",
     address: "Av. Cabildo 1500, CABA",
+    lat: -34.564,
+    lng: -58.453,
     availableToday: false,
     teleconsulta: false,
     education: "UBA - Hospital Italiano",
@@ -137,6 +170,8 @@ const doctors: Doctor[] = [
     reviews: 145,
     location: "Microcentro",
     address: "Av. Corrientes 800, CABA",
+    lat: -34.6041,
+    lng: -58.3816,
     availableToday: true,
     teleconsulta: true,
     education: "Hospital de Clínicas",
@@ -151,6 +186,8 @@ const doctors: Doctor[] = [
     reviews: 412,
     location: "Caballito",
     address: "Av. Rivadavia 5200, CABA",
+    lat: -34.6186,
+    lng: -58.4381,
     availableToday: true,
     teleconsulta: true,
     education: "Hospital Garrahan",
@@ -178,21 +215,38 @@ export default function MedicosPage() {
   const [location, setLocation] = useState("Todas");
   const [teleconsultaOnly, setTeleconsultaOnly] = useState(false);
   const [availableOnly, setAvailableOnly] = useState(false);
+  const [sortByDistance, setSortByDistance] = useState(false);
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
+  const geo = useGeolocation({ lazy: true });
 
-  const filtered = doctors.filter((d) => {
-    if (
-      search &&
-      !d.name.toLowerCase().includes(search.toLowerCase()) &&
-      !d.specialty.toLowerCase().includes(search.toLowerCase())
-    )
-      return false;
-    if (specialty !== "Todas" && d.specialty !== specialty) return false;
-    if (location !== "Todas" && d.location !== location) return false;
-    if (teleconsultaOnly && !d.teleconsulta) return false;
-    if (availableOnly && !d.availableToday) return false;
-    return true;
-  });
+  // Compute distances when geolocation is available
+  const doctorsWithDistance = doctors.map((d) => ({
+    ...d,
+    distanceKm: geo.coords
+      ? Math.round(haversineKm(geo.coords.latitude, geo.coords.longitude, d.lat, d.lng) * 10) / 10
+      : (null as number | null),
+  }));
+
+  const filtered = doctorsWithDistance
+    .filter((d) => {
+      if (
+        search &&
+        !d.name.toLowerCase().includes(search.toLowerCase()) &&
+        !d.specialty.toLowerCase().includes(search.toLowerCase())
+      )
+        return false;
+      if (specialty !== "Todas" && d.specialty !== specialty) return false;
+      if (location !== "Todas" && d.location !== location) return false;
+      if (teleconsultaOnly && !d.teleconsulta) return false;
+      if (availableOnly && !d.availableToday) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortByDistance && a.distanceKm != null && b.distanceKm != null) {
+        return a.distanceKm - b.distanceKm;
+      }
+      return 0;
+    });
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -218,6 +272,7 @@ export default function MedicosPage() {
           <select
             value={specialty}
             onChange={(e) => setSpecialty(e.target.value)}
+            title="Filtrar por especialidad"
             className="border border-border-light rounded-lg px-3 py-1.5 text-sm text-ink-500 focus:outline-none focus:ring-2 focus:ring-celeste-200"
           >
             {specialties.map((s) => (
@@ -229,6 +284,7 @@ export default function MedicosPage() {
           <select
             value={location}
             onChange={(e) => setLocation(e.target.value)}
+            title="Filtrar por zona"
             className="border border-border-light rounded-lg px-3 py-1.5 text-sm text-ink-500 focus:outline-none focus:ring-2 focus:ring-celeste-200"
           >
             {locations.map((l) => (
@@ -255,6 +311,38 @@ export default function MedicosPage() {
             />
             Disponible hoy
           </label>
+          {/* Geolocation sort toggle */}
+          {!geo.coords && !geo.loading && (
+            <button
+              onClick={() => {
+                geo.refresh();
+                setSortByDistance(true);
+              }}
+              className="flex items-center gap-1.5 text-xs text-celeste-dark hover:underline font-medium ml-1"
+              title="Ordenar por cercanía"
+            >
+              <Navigation className="w-3 h-3" />
+              Cerca mío
+            </button>
+          )}
+          {geo.loading && (
+            <span className="flex items-center gap-1.5 text-xs text-ink-muted ml-1">
+              <Loader2 className="w-3 h-3 animate-spin" />
+              Ubicando…
+            </span>
+          )}
+          {geo.coords && (
+            <label className="flex items-center gap-1.5 text-xs text-ink-500 cursor-pointer ml-1">
+              <input
+                type="checkbox"
+                checked={sortByDistance}
+                onChange={(e) => setSortByDistance(e.target.checked)}
+                className="rounded border-border-light text-celeste-dark focus:ring-celeste-200"
+              />
+              <Navigation className="w-3 h-3 text-celeste-dark" />
+              Más cercanos
+            </label>
+          )}
           <span className="text-xs text-ink-muted ml-auto">{filtered.length} profesionales</span>
         </div>
       </div>
@@ -287,6 +375,7 @@ export default function MedicosPage() {
                   <button
                     onClick={() => showToast(`${doctor.name} agregado a favoritos`)}
                     className="p-2 text-ink-200 hover:text-red-500 transition shrink-0"
+                    title="Agregar a favoritos"
                   >
                     <Heart className="w-4 h-4" />
                   </button>
@@ -302,6 +391,12 @@ export default function MedicosPage() {
                     <MapPin className="w-3 h-3" />
                     {doctor.location}
                   </span>
+                  {doctor.distanceKm != null && (
+                    <span className="flex items-center gap-1 text-celeste-dark font-medium">
+                      <Navigation className="w-3 h-3" />
+                      {formatDistance(doctor.distanceKm)}
+                    </span>
+                  )}
                   <span className="flex items-center gap-1">
                     <Award className="w-3 h-3" />
                     {doctor.education}

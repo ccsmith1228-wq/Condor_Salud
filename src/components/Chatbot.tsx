@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
 import type { ChatMessage, QuickReply, InfoCard } from "@/lib/chatbot-engine";
 import { getWelcomeMessage } from "@/lib/chatbot-engine";
+import { useGeolocation } from "@/lib/hooks/useGeolocation";
 
 // ─── Subcomponents ───────────────────────────────────────────
 
@@ -68,16 +69,61 @@ function CardList({ cards }: { cards: InfoCard[] }) {
         <div key={i} className="border border-border rounded-xl p-3 bg-white">
           <p className="text-[13px] font-semibold text-ink">{card.title}</p>
           <p className="text-[12px] text-ink-light mt-0.5">{card.body}</p>
-          {card.action && (
-            <a
-              href={card.action.url}
-              target={card.action.url.startsWith("http") ? "_blank" : undefined}
-              rel={card.action.url.startsWith("http") ? "noopener noreferrer" : undefined}
-              className="inline-block mt-2 text-[12px] font-semibold text-celeste-dark hover:text-celeste transition"
-            >
-              {card.action.label} &rarr;
-            </a>
-          )}
+          <div className="flex flex-wrap gap-2 mt-2">
+            {card.action && (
+              <a
+                href={card.action.url}
+                target={card.action.url.startsWith("http") ? "_blank" : undefined}
+                rel={card.action.url.startsWith("http") ? "noopener noreferrer" : undefined}
+                className="inline-block text-[12px] font-semibold text-celeste-dark hover:text-celeste transition"
+              >
+                {card.action.label} &rarr;
+              </a>
+            )}
+            {card.directionsUrl && (
+              <a
+                href={card.directionsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-[12px] font-semibold text-emerald-600 hover:text-emerald-500 transition"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  className="w-3.5 h-3.5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polygon points="3 11 22 2 13 21 11 13 3 11" />
+                </svg>
+                Cómo llegar
+              </a>
+            )}
+            {card.mapUrl && (
+              <a
+                href={card.mapUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-[12px] font-semibold text-blue-600 hover:text-blue-500 transition"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  className="w-3.5 h-3.5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+                Ver en mapa
+              </a>
+            )}
+          </div>
         </div>
       ))}
     </div>
@@ -121,6 +167,10 @@ export default function Chatbot() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Geolocation — lazy mode (user triggers it)
+  const geo = useGeolocation({ lazy: true });
+  const hasLocation = !!geo.coords;
+
   // Auto-scroll
   useEffect(() => {
     if (scrollRef.current) {
@@ -163,7 +213,10 @@ export default function Chatbot() {
         const res = await fetch("/api/chatbot", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: text.trim() }),
+          body: JSON.stringify({
+            message: text.trim(),
+            ...(geo.coords ? { lat: geo.coords.latitude, lng: geo.coords.longitude } : {}),
+          }),
         });
 
         const botMsg: ChatMessage = await res.json();
@@ -182,7 +235,7 @@ export default function Chatbot() {
         setIsTyping(false);
       }
     },
-    [isTyping],
+    [isTyping, geo.coords],
   );
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -227,6 +280,11 @@ export default function Chatbot() {
               </div>
             </div>
             <div className="flex items-center gap-1">
+              {hasLocation && (
+                <span className="text-white/60 text-[10px] mr-1" title="Ubicación compartida">
+                  📍
+                </span>
+              )}
               <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
               <span className="text-white/60 text-[10px]">Online</span>
             </div>
@@ -262,6 +320,44 @@ export default function Chatbot() {
             aria-label="Enviar mensaje a Cora"
             className="border-t border-border px-4 py-3 flex gap-2 flex-shrink-0 bg-white"
           >
+            {/* Location share button */}
+            <button
+              type="button"
+              onClick={() => {
+                if (!hasLocation) {
+                  geo.refresh();
+                  // Send a system-level message so Cora knows we have location
+                  setTimeout(() => {
+                    if (geo.permissionState !== "denied") {
+                      sendMessage("Compartí mi ubicación");
+                    }
+                  }, 2000);
+                }
+              }}
+              disabled={geo.loading}
+              title={hasLocation ? "Ubicación compartida" : "Compartir mi ubicación"}
+              className={`w-10 h-10 rounded-full flex items-center justify-center transition flex-shrink-0 ${
+                hasLocation
+                  ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
+                  : geo.loading
+                    ? "bg-amber-50 text-amber-500 border border-amber-200 animate-pulse"
+                    : "bg-surface text-ink-muted border border-border hover:bg-celeste-pale hover:text-celeste-dark"
+              }`}
+              aria-label={hasLocation ? "Ubicación compartida" : "Compartir mi ubicación"}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                className="w-[18px] h-[18px]"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+            </button>
             <input
               ref={inputRef}
               type="text"
@@ -304,6 +400,7 @@ export default function Chatbot() {
 
       {/* ── Floating Bubble ─────────────────────────────────── */}
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={`fixed bottom-6 right-6 z-[96] w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 ${
           isOpen

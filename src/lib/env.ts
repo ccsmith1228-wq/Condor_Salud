@@ -53,6 +53,11 @@ const serverSchema = z.object({
   UPSTASH_REDIS_URL: z.string().url().optional(),
   UPSTASH_REDIS_TOKEN: z.string().optional(),
 
+  // ── Nubix Cloud (RIS/PACS) ─────────────────────────────────
+  NUBIX_API_URL: z.string().url().optional(),
+  NUBIX_API_KEY: z.string().optional(),
+  NUBIX_TENANT_ID: z.string().optional(),
+
   // ── App ─────────────────────────────────────────────────────
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).default("info"),

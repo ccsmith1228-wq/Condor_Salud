@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePatientName } from "@/lib/hooks/usePatientName";
+import { useNearbyServices, formatDistance } from "@/lib/hooks/useNearbyServices";
 import {
   Heart,
   Calendar,
@@ -16,6 +17,12 @@ import {
   Clock,
   AlertCircle,
   Sun,
+  MapPin,
+  Navigation,
+  Loader2,
+  Phone,
+  Building,
+  Cross,
 } from "lucide-react";
 
 /* ── demo data ────────────────────────────────────────── */
@@ -100,6 +107,7 @@ function TrendIcon({ trend }: { trend: string }) {
 /* ── component ────────────────────────────────────────── */
 export default function PatientDashboard() {
   const { firstName } = usePatientName();
+  const nearby = useNearbyServices();
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Greeting */}
@@ -294,6 +302,186 @@ export default function PatientDashboard() {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* ── Near You section ──────────────────────────────────── */}
+      <div className="bg-white rounded-2xl border border-border-light">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border-light">
+          <h2 className="text-sm font-bold text-ink flex items-center gap-2">
+            <Navigation className="w-4 h-4 text-celeste-dark" />
+            Cerca tuyo
+            {nearby.locationName && (
+              <span className="font-normal text-ink-muted">— {nearby.locationName}</span>
+            )}
+          </h2>
+          {nearby.loading && <Loader2 className="w-4 h-4 text-celeste-dark animate-spin" />}
+          {!nearby.loading && !nearby.coords && !nearby.error && (
+            <button
+              onClick={nearby.refresh}
+              className="text-xs text-celeste-dark hover:underline font-medium flex items-center gap-1"
+            >
+              <MapPin className="w-3 h-3" />
+              Activar ubicación
+            </button>
+          )}
+        </div>
+
+        {/* Error / prompt state */}
+        {nearby.error && (
+          <div className="px-5 py-4 text-sm text-amber-700 bg-amber-50 flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+            <div>
+              <p>{nearby.error}</p>
+              <button
+                onClick={nearby.refresh}
+                className="text-xs text-celeste-dark hover:underline mt-1 font-medium"
+              >
+                Reintentar
+              </button>
+            </div>
+          </div>
+        )}
+
+        {!nearby.coords && !nearby.error && !nearby.loading && (
+          <div className="px-5 py-8 text-center">
+            <MapPin className="w-8 h-8 text-ink-200 mx-auto mb-2" />
+            <p className="text-sm text-ink-muted">
+              Habilitá tu ubicación para ver médicos, farmacias y centros de salud cercanos
+            </p>
+            <button
+              onClick={nearby.refresh}
+              className="mt-3 inline-flex items-center gap-2 bg-celeste-dark hover:bg-celeste-700 text-white text-xs font-semibold px-4 py-2 rounded-[4px] transition"
+            >
+              <Navigation className="w-3.5 h-3.5" />
+              Activar ubicación
+            </button>
+          </div>
+        )}
+
+        {/* Results */}
+        {nearby.coords && !nearby.error && (
+          <div className="divide-y divide-border-light">
+            {/* Nearby providers */}
+            {nearby.results.providers.length > 0 && (
+              <div className="px-5 py-4">
+                <p className="text-[11px] font-semibold text-ink-muted uppercase tracking-wide mb-2">
+                  Médicos cercanos
+                </p>
+                <div className="space-y-2">
+                  {nearby.results.providers.slice(0, 3).map((doc) => (
+                    <div key={doc.id} className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-8 h-8 rounded-lg bg-celeste-50 flex items-center justify-center shrink-0">
+                          <Heart className="w-4 h-4 text-celeste-dark" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-ink truncate">{doc.name}</p>
+                          <p className="text-xs text-ink-muted">{doc.specialty}</p>
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0 ml-3">
+                        <span className="text-xs font-medium text-celeste-dark flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          {formatDistance(doc.distanceKm)}
+                        </span>
+                        {doc.availableToday && (
+                          <span className="text-[10px] text-success-600">Disponible hoy</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <Link
+                  href="/paciente/medicos"
+                  className="text-xs text-celeste-dark hover:underline font-medium mt-2 inline-block"
+                >
+                  Ver todos los médicos →
+                </Link>
+              </div>
+            )}
+
+            {/* Nearby pharmacies */}
+            {nearby.results.pharmacies.length > 0 && (
+              <div className="px-5 py-4">
+                <p className="text-[11px] font-semibold text-ink-muted uppercase tracking-wide mb-2">
+                  Farmacias cercanas
+                </p>
+                <div className="space-y-2">
+                  {nearby.results.pharmacies.slice(0, 3).map((ph) => (
+                    <div key={ph.id} className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-8 h-8 rounded-lg bg-success-50 flex items-center justify-center shrink-0">
+                          <Cross className="w-4 h-4 text-success-600" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-ink truncate">{ph.name}</p>
+                          <p className="text-xs text-ink-muted">{ph.address}</p>
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0 ml-3">
+                        <span className="text-xs font-medium text-celeste-dark flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          {formatDistance(ph.distanceKm)}
+                        </span>
+                        {ph.open24h && <span className="text-[10px] text-success-600">24 hs</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Nearby health centers */}
+            {nearby.results.centers.length > 0 && (
+              <div className="px-5 py-4">
+                <p className="text-[11px] font-semibold text-ink-muted uppercase tracking-wide mb-2">
+                  Centros de salud
+                </p>
+                <div className="space-y-2">
+                  {nearby.results.centers.slice(0, 3).map((ctr) => (
+                    <div key={ctr.id} className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                            ctr.emergency ? "bg-red-50" : "bg-amber-50"
+                          }`}
+                        >
+                          <Building
+                            className={`w-4 h-4 ${
+                              ctr.emergency ? "text-red-500" : "text-amber-600"
+                            }`}
+                          />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-ink truncate">{ctr.name}</p>
+                          <p className="text-xs text-ink-muted capitalize">
+                            {ctr.type.replace("_", " ")}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0 ml-3">
+                        <span className="text-xs font-medium text-celeste-dark flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          {formatDistance(ctr.distanceKm)}
+                        </span>
+                        {ctr.emergency && <span className="text-[10px] text-red-500">Guardia</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* No results in range */}
+            {nearby.results.providers.length === 0 &&
+              nearby.results.pharmacies.length === 0 &&
+              nearby.results.centers.length === 0 && (
+                <div className="px-5 py-8 text-center text-sm text-ink-muted">
+                  No encontramos servicios dentro de {nearby.radiusKm} km
+                </div>
+              )}
+          </div>
+        )}
       </div>
     </div>
   );

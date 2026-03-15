@@ -37,6 +37,14 @@ import { getDoctors, getDirectorioKPIs } from "@/lib/services/directorio";
 
 import { getTriages, getTriageKPIs } from "@/lib/services/triage";
 
+import {
+  getNubixStudies,
+  getNubixReports,
+  getNubixDeliveries,
+  getNubixAppointments,
+  getNubixKPIs,
+} from "@/lib/services/nubix";
+
 const dataService = {
   pacientes: getPacientes,
   facturas: getFacturas,
@@ -70,6 +78,13 @@ const dataService = {
   // ─── Module 14: Triage ─────────────────────────────────────
   triages: getTriages,
   triageKPIs: getTriageKPIs,
+
+  // ─── Nubix Cloud (RIS/PACS) ────────────────────────────────
+  nubixStudies: () => getNubixStudies(),
+  nubixReports: getNubixReports,
+  nubixDeliveries: () => getNubixDeliveries(),
+  nubixAppointments: () => getNubixAppointments(),
+  nubixKPIs: getNubixKPIs,
 } as const;
 
 export default dataService;

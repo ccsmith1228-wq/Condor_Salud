@@ -149,6 +149,7 @@ export default function FarmaciaPage() {
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
+              aria-label="Filtrar por categoría"
               className="px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark"
             >
               {categories.map((c) => (
@@ -356,7 +357,7 @@ export default function FarmaciaPage() {
                       className={`h-1.5 rounded-full transition-all ${
                         del.progress === 100 ? "bg-green-500" : "bg-celeste-dark"
                       }`}
-                      style={{ width: `${del.progress}%` }}
+                      style={{ width: `${del.progress}%` } as React.CSSProperties}
                     />
                   </div>
                 </div>

@@ -65,3 +65,25 @@ export function useTriages() {
 export function useTriageKPIs() {
   return useSWR("triageKPIs");
 }
+
+// ─── Nubix Cloud (RIS/PACS) ─────────────────────────────────
+
+export function useNubixStudies() {
+  return useSWR("nubixStudies");
+}
+
+export function useNubixReports() {
+  return useSWR("nubixReports");
+}
+
+export function useNubixDeliveries() {
+  return useSWR("nubixDeliveries");
+}
+
+export function useNubixAppointments() {
+  return useSWR("nubixAppointments");
+}
+
+export function useNubixKPIs() {
+  return useSWR("nubixKPIs");
+}

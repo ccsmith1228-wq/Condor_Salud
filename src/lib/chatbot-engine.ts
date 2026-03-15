@@ -30,6 +30,10 @@ export interface InfoCard {
   body: string;
   icon?: string;
   action?: { label: string; url: string };
+  /** Google Maps directions URL (opens in new tab, not an embed) */
+  directionsUrl?: string;
+  /** Google Maps link for viewing a place */
+  mapUrl?: string;
 }
 
 interface IntentMatch {
@@ -281,6 +285,50 @@ const INTENTS: {
     patterns: [
       /(?:d[oó]nde\s+(?:est[aá]n?|queda)|direcci[oó]n|ubicaci[oó]n|sucursal)/i,
       /(?:mapa|zona|barrio|localidad|provincia)/i,
+    ],
+  },
+  // ── Geolocation-aware intents ─────────────────────────────
+  {
+    intent: "nearby_doctor",
+    patterns: [
+      /(?:m[eé]dico|doctor|profesional|consultor).*(?:cerca|cercan|pr[oó]xim|al\s+lado)/i,
+      /(?:cerca|cercan|pr[oó]xim).*(?:m[eé]dico|doctor|profesional|consultor)/i,
+      /(?:buscar|encontrar).*(?:m[eé]dico|doctor).*(?:cerca|zona)/i,
+      /(?:consultor|cl[ií]nica|centro\s+m[eé]dico).*(?:cerca|pr[oó]xim)/i,
+    ],
+  },
+  {
+    intent: "nearby_pharmacy",
+    patterns: [
+      /(?:farmacia|farmacias).*(?:cerca|cercan|pr[oó]xim|guardia|turno)/i,
+      /(?:cerca|cercan|pr[oó]xim).*farmacia/i,
+      /(?:farmacia\s+de\s+(?:turno|guardia))/i,
+      /(?:d[oó]nde.*(?:compro|consigo).*(?:remedio|medicamento))/i,
+    ],
+  },
+  {
+    intent: "nearby_guardia",
+    patterns: [
+      /(?:guardia|emergencia|urgencia|hospital).*(?:cerca|cercan|pr[oó]xim|m[aá]s\s+cercan)/i,
+      /(?:cerca|cercan|pr[oó]xim).*(?:guardia|emergencia|urgencia|hospital)/i,
+      /(?:d[oó]nde.*guardia|guardia.*d[oó]nde)/i,
+      /(?:necesito.*(?:guardia|hospital|emergencia))/i,
+    ],
+  },
+  {
+    intent: "directions",
+    patterns: [
+      /(?:c[oó]mo\s+llego|c[oó]mo\s+llegar|indicaciones|ruta|camino)/i,
+      /(?:direcciones|navegaci[oó]n|GPS|google\s*maps)/i,
+      /(?:llev[aá]me|guiame|gui[aá]me|ir\s+(?:a|al|hasta))/i,
+      /(?:abrir\s+google\s*maps|farmacias?\s+en\s+google|m[eé]dicos?\s+en\s+google)/i,
+    ],
+  },
+  {
+    intent: "shared_location",
+    patterns: [
+      /(?:compart[ií]\s+(?:mi\s+)?ubicaci[oó]n)/i,
+      /(?:ya\s+compart[ií]|activ[eé]\s+(?:la\s+)?ubicaci[oó]n|habilit[eé]\s+(?:el\s+)?GPS)/i,
     ],
   },
 ];
@@ -991,13 +1039,415 @@ function generateContactHumanResponse(): Partial<ChatMessage> {
   };
 }
 
-function generateLocationResponse(): Partial<ChatMessage> {
+function generateLocationResponse(
+  coords?: { lat: number; lng: number } | null,
+): Partial<ChatMessage> {
+  if (coords) {
+    return {
+      text: "Ya tengo tu ubicación. Puedo ayudarte a encontrar lo que necesites cerca tuyo:\n\n• Médicos y consultorios\n• Farmacias (de guardia también)\n• Guardias y hospitales\n• Cómo llegar a cualquiera de ellos\n\n¿Qué estás buscando?",
+      quickReplies: [
+        { label: "Médico cerca", value: "Buscar médico cerca mío" },
+        { label: "Farmacia cerca", value: "Farmacia cerca mío" },
+        { label: "Guardia más cercana", value: "Guardia más cercana" },
+        { label: "Cómo llego a...", value: "Cómo llego al Hospital Italiano" },
+      ],
+    };
+  }
+
   return {
-    text: "Cóndor Salud es 100% online — lo usás desde donde estés.\n\nSi necesitás ir a un consultorio, desde nuestro Directorio podés buscar médicos, clínicas y farmacias cerca tuyo.",
+    text: "Cóndor Salud es 100% online — lo usás desde donde estés.\n\nSi compartís tu ubicación, puedo buscarte médicos, farmacias y guardias cerca tuyo, y darte las indicaciones para llegar.\n\nHacé clic en el botón de 📍 ubicación abajo para activarlo.",
     quickReplies: [
       { label: "Buscar cerca mío", value: "Buscar consultorios cerca" },
       { label: "Farmacia de guardia", value: "¿Dónde hay una farmacia de guardia?" },
     ],
+  };
+}
+
+// ─── Google Maps URL Generators ──────────────────────────────
+
+function mapsDirectionsUrl(
+  fromLat: number,
+  fromLng: number,
+  toLat: number,
+  toLng: number,
+  travelMode: "driving" | "walking" | "transit" = "transit",
+): string {
+  return `https://www.google.com/maps/dir/?api=1&origin=${fromLat},${fromLng}&destination=${toLat},${toLng}&travelmode=${travelMode}`;
+}
+
+function mapsPlaceUrl(lat: number, lng: number, name?: string): string {
+  const q = name ? encodeURIComponent(name) : `${lat},${lng}`;
+  return `https://www.google.com/maps/search/?api=1&query=${q}&center=${lat},${lng}`;
+}
+
+function mapsSearchNearby(lat: number, lng: number, query: string): string {
+  return `https://www.google.com/maps/search/${encodeURIComponent(query)}/@${lat},${lng},15z`;
+}
+
+// ─── Nearby services data (same demo data as useNearbyServices) ──
+
+interface NearbyServiceItem {
+  name: string;
+  address: string;
+  lat: number;
+  lng: number;
+  specialty?: string;
+  phone?: string;
+  emergency?: boolean;
+  open24h?: boolean;
+}
+
+const NEARBY_DOCTORS: NearbyServiceItem[] = [
+  {
+    name: "Dra. Laura Méndez",
+    address: "Av. Cabildo 2040, Belgrano",
+    lat: -34.5605,
+    lng: -58.4563,
+    specialty: "Clínica Médica",
+  },
+  {
+    name: "Dr. Carlos Ruiz",
+    address: "Av. Santa Fe 3200, Palermo",
+    lat: -34.5875,
+    lng: -58.4096,
+    specialty: "Cardiología",
+  },
+  {
+    name: "Dra. Sofía Peralta",
+    address: "Gorriti 4800, Palermo",
+    lat: -34.588,
+    lng: -58.428,
+    specialty: "Dermatología",
+  },
+  {
+    name: "Dra. Valentina Castro",
+    address: "Av. Rivadavia 5200, Caballito",
+    lat: -34.6186,
+    lng: -58.4381,
+    specialty: "Pediatría",
+  },
+];
+
+const NEARBY_PHARMACIES: NearbyServiceItem[] = [
+  {
+    name: "Farmacity Belgrano",
+    address: "Av. Cabildo 1900, Belgrano",
+    lat: -34.561,
+    lng: -58.455,
+    open24h: true,
+  },
+  {
+    name: "Farmacia del Pueblo",
+    address: "Av. Corrientes 3500, Almagro",
+    lat: -34.605,
+    lng: -58.415,
+    open24h: false,
+  },
+  {
+    name: "Farmacia Suizo Argentina",
+    address: "Av. Santa Fe 2100, Recoleta",
+    lat: -34.595,
+    lng: -58.396,
+    open24h: true,
+  },
+];
+
+const NEARBY_GUARDIAS: NearbyServiceItem[] = [
+  {
+    name: "Hospital Italiano",
+    address: "Tte. Gral. Juan D. Perón 4190, Almagro",
+    lat: -34.6047,
+    lng: -58.4215,
+    emergency: true,
+    phone: "+541149590200",
+  },
+  {
+    name: "Hospital Fernández",
+    address: "Av. Cerviño 3356, Palermo",
+    lat: -34.579,
+    lng: -58.406,
+    emergency: true,
+    phone: "+541148082600",
+  },
+  {
+    name: "Guardia SAME",
+    address: "Av. Entre Ríos 1200, Constitución",
+    lat: -34.629,
+    lng: -58.387,
+    emergency: true,
+    phone: "107",
+  },
+  {
+    name: "Hospital de Clínicas",
+    address: "Av. Córdoba 2351, Recoleta",
+    lat: -34.599,
+    lng: -58.398,
+    emergency: true,
+    phone: "+541159508000",
+  },
+];
+
+function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function sortByDistance(items: NearbyServiceItem[], lat: number, lng: number) {
+  return [...items]
+    .map((item) => ({
+      ...item,
+      distKm: Math.round(haversineKm(lat, lng, item.lat, item.lng) * 10) / 10,
+    }))
+    .sort((a, b) => a.distKm - b.distKm);
+}
+
+function formatDist(km: number): string {
+  if (km < 1) return `${Math.round(km * 1000)} m`;
+  return `${km.toFixed(1)} km`;
+}
+
+// ─── Geo-aware response generators ──────────────────────────
+
+function generateNearbyDoctorResponse(
+  coords?: { lat: number; lng: number } | null,
+): Partial<ChatMessage> {
+  if (!coords) {
+    return {
+      text: "Para buscarte médicos cerca tuyo necesito tu ubicación. Hacé clic en el botón de 📍 ubicación abajo del chat para compartirla.",
+      quickReplies: [
+        { label: "Buscar en el directorio", value: "Quiero ver el directorio médico" },
+        { label: "Teleconsulta ahora", value: "Quiero una teleconsulta" },
+      ],
+    };
+  }
+
+  const sorted = sortByDistance(NEARBY_DOCTORS, coords.lat, coords.lng).slice(0, 3);
+
+  let text = "Encontré estos profesionales cerca tuyo:\n";
+  for (const doc of sorted) {
+    text += `\n📍 ${doc.name} — ${doc.specialty}\n   ${doc.address} (${formatDist(doc.distKm)})\n`;
+  }
+  text += '\nTocá "Cómo llegar" en cada uno para ver las indicaciones en Google Maps.';
+
+  const cards: InfoCard[] = sorted.map((doc) => ({
+    title: `${doc.name} — ${doc.specialty}`,
+    body: `${doc.address} • a ${formatDist(doc.distKm)}`,
+    icon: "map-pin",
+    action: { label: "Sacar turno", url: "/dashboard/directorio" },
+    directionsUrl: mapsDirectionsUrl(coords.lat, coords.lng, doc.lat, doc.lng),
+    mapUrl: mapsPlaceUrl(doc.lat, doc.lng, doc.name),
+  }));
+
+  return {
+    text,
+    cards,
+    quickReplies: [
+      { label: "Ver más en directorio", value: "Quiero ver el directorio médico" },
+      { label: "Teleconsulta ahora", value: "Quiero una teleconsulta" },
+      { label: "Farmacia cerca", value: "Farmacia cerca mío" },
+    ],
+  };
+}
+
+function generateNearbyPharmacyResponse(
+  coords?: { lat: number; lng: number } | null,
+): Partial<ChatMessage> {
+  if (!coords) {
+    return {
+      text: "Para buscarte farmacias cerca tuyo necesito tu ubicación. Hacé clic en el botón de 📍 ubicación abajo del chat para compartirla.",
+      quickReplies: [{ label: "Buscar en Google Maps", value: "Farmacias en Google Maps" }],
+    };
+  }
+
+  const sorted = sortByDistance(NEARBY_PHARMACIES, coords.lat, coords.lng).slice(0, 3);
+
+  let text = "Estas son las farmacias más cercanas:\n";
+  for (const ph of sorted) {
+    const tag = ph.open24h ? " (24hs)" : "";
+    text += `\n🏥 ${ph.name}${tag}\n   ${ph.address} (${formatDist(ph.distKm)})\n`;
+  }
+  text += '\nTocá "Cómo llegar" para ver las indicaciones en Google Maps.';
+
+  const cards: InfoCard[] = sorted.map((ph) => ({
+    title: `${ph.name}${ph.open24h ? " — 24hs" : ""}`,
+    body: `${ph.address} • a ${formatDist(ph.distKm)}`,
+    icon: "pill",
+    directionsUrl: mapsDirectionsUrl(coords.lat, coords.lng, ph.lat, ph.lng),
+    mapUrl: mapsPlaceUrl(ph.lat, ph.lng, ph.name),
+  }));
+
+  return {
+    text,
+    cards,
+    quickReplies: [
+      { label: "Ver todas en mapa", value: "Farmacias en Google Maps" },
+      { label: "Médico cerca", value: "Buscar médico cerca mío" },
+      { label: "Guardia más cercana", value: "Guardia más cercana" },
+    ],
+  };
+}
+
+function generateNearbyGuardiaResponse(
+  coords?: { lat: number; lng: number } | null,
+): Partial<ChatMessage> {
+  if (!coords) {
+    return {
+      text: "Para encontrar la guardia más cercana necesito tu ubicación. Hacé clic en el botón de 📍 ubicación abajo del chat.\n\nSi es una emergencia, llamá al 107 (SAME) ahora.",
+      quickReplies: [{ label: "Llamar al 107", value: "Necesito el número de emergencias" }],
+      cards: [
+        {
+          title: "Emergencias — SAME",
+          body: "Línea 107 — Atención médica de emergencia 24/7",
+          icon: "phone",
+          action: { label: "Llamar al 107", url: "tel:107" },
+        },
+      ],
+    };
+  }
+
+  const sorted = sortByDistance(NEARBY_GUARDIAS, coords.lat, coords.lng).slice(0, 3);
+
+  let text = "Estas son las guardias más cercanas:\n";
+  for (const g of sorted) {
+    text += `\n🚑 ${g.name}\n   ${g.address} (${formatDist(g.distKm)})${g.phone ? `\n   ☎ ${g.phone}` : ""}\n`;
+  }
+  text += '\nTocá "Cómo llegar" para ver la ruta más rápida en Google Maps.';
+
+  const cards: InfoCard[] = sorted.map((g) => ({
+    title: g.name,
+    body: `${g.address} • a ${formatDist(g.distKm)}${g.phone ? ` • ☎ ${g.phone}` : ""}`,
+    icon: "siren",
+    action: g.phone ? { label: `Llamar`, url: `tel:${g.phone}` } : undefined,
+    directionsUrl: mapsDirectionsUrl(coords.lat, coords.lng, g.lat, g.lng),
+    mapUrl: mapsPlaceUrl(g.lat, g.lng, g.name),
+  }));
+
+  return {
+    text,
+    cards,
+    quickReplies: [
+      { label: "Llamar al 107", value: "Necesito el número de emergencias" },
+      { label: "Médico cerca", value: "Buscar médico cerca mío" },
+    ],
+  };
+}
+
+function generateDirectionsResponse(
+  coords?: { lat: number; lng: number } | null,
+): Partial<ChatMessage> {
+  if (!coords) {
+    return {
+      text: "Para darte indicaciones de cómo llegar necesito tu ubicación. Hacé clic en el botón de 📍 ubicación abajo del chat.",
+      quickReplies: [{ label: "Buscar en Google Maps", value: "Abrir Google Maps" }],
+    };
+  }
+
+  // When asking for generic directions, show the top options with directions
+  const allPlaces = [
+    ...sortByDistance(NEARBY_DOCTORS, coords.lat, coords.lng).slice(0, 2),
+    ...sortByDistance(NEARBY_PHARMACIES, coords.lat, coords.lng).slice(0, 1),
+    ...sortByDistance(NEARBY_GUARDIAS, coords.lat, coords.lng).slice(0, 1),
+  ].sort((a, b) => a.distKm - b.distKm);
+
+  let text =
+    "¿A dónde querés llegar? Acá te muestro los lugares de salud más cercanos con indicaciones:\n";
+  for (const p of allPlaces) {
+    const extra = p.specialty
+      ? ` (${p.specialty})`
+      : p.emergency
+        ? " (Guardia)"
+        : p.open24h !== undefined
+          ? " (Farmacia)"
+          : "";
+    text += `\n📍 ${p.name}${extra} — ${formatDist(p.distKm)}\n`;
+  }
+  text += '\nCada tarjeta tiene el link "Cómo llegar" que te abre Google Maps con la ruta.';
+
+  const cards: InfoCard[] = allPlaces.map((p) => {
+    const extra =
+      p.specialty ?? (p.emergency ? "Guardia" : p.open24h !== undefined ? "Farmacia" : "");
+    return {
+      title: `${p.name}${extra ? ` — ${extra}` : ""}`,
+      body: `${p.address} • a ${formatDist(p.distKm)}`,
+      icon: "navigation",
+      directionsUrl: mapsDirectionsUrl(coords.lat, coords.lng, p.lat, p.lng),
+      mapUrl: mapsPlaceUrl(p.lat, p.lng, p.name),
+    };
+  });
+
+  return {
+    text,
+    cards,
+    quickReplies: [
+      { label: "Abrir Google Maps", value: "Abrir Google Maps" },
+      { label: "Buscar otro lugar", value: "Buscar médico cerca mío" },
+    ],
+  };
+}
+
+function generateGoogleMapsSearch(
+  coords?: { lat: number; lng: number } | null,
+  query?: string,
+): Partial<ChatMessage> {
+  const searchQuery = query ?? "médicos cerca";
+
+  if (coords) {
+    const url = mapsSearchNearby(coords.lat, coords.lng, searchQuery);
+    return {
+      text: `Te abro Google Maps para buscar "${searchQuery}" cerca tuyo:`,
+      cards: [
+        {
+          title: `Buscar "${searchQuery}" en Google Maps`,
+          body: "Se abre en una nueva pestaña con tu ubicación.",
+          icon: "map",
+          action: { label: "Abrir Google Maps", url },
+          mapUrl: url,
+        },
+      ],
+      quickReplies: [
+        { label: "Médico cerca", value: "Buscar médico cerca mío" },
+        { label: "Farmacia cerca", value: "Farmacia cerca mío" },
+        { label: "Guardia", value: "Guardia más cercana" },
+      ],
+    };
+  }
+
+  return {
+    text: "Compartí tu ubicación para buscar en Google Maps cerca tuyo, o abrí el mapa directamente:",
+    cards: [
+      {
+        title: "Google Maps",
+        body: "Buscá profesionales de salud, farmacias y hospitales.",
+        icon: "map",
+        action: { label: "Abrir Google Maps", url: "https://www.google.com/maps" },
+      },
+    ],
+  };
+}
+
+function generateSharedLocationResponse(
+  coords?: { lat: number; lng: number } | null,
+): Partial<ChatMessage> {
+  if (coords) {
+    return {
+      text: "¡Perfecto, ya tengo tu ubicación! 📍 Ahora puedo buscarte lo que necesites cerca tuyo y darte indicaciones para llegar.\n\n¿Qué estás buscando?",
+      quickReplies: [
+        { label: "Médico cerca", value: "Buscar médico cerca mío" },
+        { label: "Farmacia cerca", value: "Farmacia cerca mío" },
+        { label: "Guardia más cercana", value: "Guardia más cercana" },
+        { label: "Cómo llego a...", value: "Cómo llego al Hospital Italiano" },
+      ],
+    };
+  }
+
+  return {
+    text: "Parece que todavía no recibí tu ubicación. Hacé clic en el botón 📍 abajo del chat y esperá unos segundos a que tu navegador la comparta.",
+    quickReplies: [{ label: "Buscar en directorio", value: "Quiero ver el directorio médico" }],
   };
 }
 
@@ -1087,12 +1537,34 @@ function extractSpecialty(message: string): string | null {
 
 // ─── Main Engine ─────────────────────────────────────────────
 
-export function processMessage(userMessage: string): Partial<ChatMessage> {
+export function processMessage(
+  userMessage: string,
+  coords?: { lat: number; lng: number } | null,
+): Partial<ChatMessage> {
   const { intent, entities } = detectIntent(userMessage);
 
   // Check if it's a triage-mapped intent
   if (intent in TRIAGE && TRIAGE[intent]) {
-    return buildTriageResponse(TRIAGE[intent]);
+    const triageResp = buildTriageResponse(TRIAGE[intent]);
+    // For emergencies, add nearest guardia with directions if we have coords
+    if (TRIAGE[intent].severity === "emergencia" && coords) {
+      const nearest = sortByDistance(NEARBY_GUARDIAS, coords.lat, coords.lng)[0];
+      if (nearest) {
+        const dirUrl = mapsDirectionsUrl(coords.lat, coords.lng, nearest.lat, nearest.lng);
+        triageResp.cards = [
+          ...(triageResp.cards ?? []),
+          {
+            title: `Guardia más cercana: ${nearest.name}`,
+            body: `${nearest.address} — a ${formatDist(nearest.distKm)}`,
+            icon: "siren",
+            action: nearest.phone ? { label: "Llamar", url: `tel:${nearest.phone}` } : undefined,
+            directionsUrl: dirUrl,
+            mapUrl: mapsPlaceUrl(nearest.lat, nearest.lng, nearest.name),
+          },
+        ];
+      }
+    }
+    return triageResp;
   }
 
   // Check for appointment with specific specialty
@@ -1126,7 +1598,17 @@ export function processMessage(userMessage: string): Partial<ChatMessage> {
     case "contact_human":
       return generateContactHumanResponse();
     case "location":
-      return generateLocationResponse();
+      return generateLocationResponse(coords);
+    case "nearby_doctor":
+      return generateNearbyDoctorResponse(coords);
+    case "nearby_pharmacy":
+      return generateNearbyPharmacyResponse(coords);
+    case "nearby_guardia":
+      return generateNearbyGuardiaResponse(coords);
+    case "directions":
+      return generateDirectionsResponse(coords);
+    case "shared_location":
+      return generateSharedLocationResponse(coords);
     default:
       return generateFallback();
   }
@@ -1137,10 +1619,11 @@ export function getWelcomeMessage(): ChatMessage {
     id: "welcome",
     role: "bot",
     timestamp: Date.now(),
-    text: "¡Hola! Soy Cora, tu asistente de salud.\n\nContame qué te pasa y te digo qué médico necesitás y qué podés comprar en la farmacia para sentirte mejor.\n\n¿En qué te puedo ayudar?",
+    text: "¡Hola! Soy Cora, tu asistente de salud.\n\nContame qué te pasa y te digo qué médico necesitás y qué podés comprar en la farmacia para sentirte mejor.\n\nSi compartís tu ubicación (📍 abajo), te busco médicos, farmacias y guardias cerca tuyo con indicaciones para llegar.\n\n¿En qué te puedo ayudar?",
     quickReplies: [
       { label: "No me siento bien", value: "No me siento bien" },
       { label: "Necesito un turno", value: "Quiero sacar un turno" },
+      { label: "Buscar cerca mío", value: "Buscar médico cerca mío" },
       { label: "Consultar cobertura", value: "Quiero consultar mi cobertura" },
       { label: "Hablar con un médico ya", value: "Quiero una teleconsulta" },
       { label: "¿Cómo funciona?", value: "¿Cómo funciona Cóndor Salud?" },
