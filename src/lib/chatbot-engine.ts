@@ -245,6 +245,17 @@ const INTENTS: {
     ],
   },
   {
+    intent: "delivery",
+    patterns: [
+      /(?:rappi|pedidos\s*ya|pedir.*(?:casa|domicilio|delivery))/i,
+      /(?:delivery.*(?:farmacia|remedio|medicamento|pastilla))/i,
+      /(?:(?:que|quiero).*(?:traigan|env[ií]en|lleven).*(?:remedio|medicamento|farmacia|casa))/i,
+      /(?:(?:remedio|medicamento|pastilla).*(?:domicilio|casa|delivery|envío|envio))/i,
+      /(?:pedir.*(?:rappi|pedidos\s*ya))/i,
+      /(?:comprar.*(?:online|app|aplicaci[oó]n).*(?:remedio|medicamento|farmacia))/i,
+    ],
+  },
+  {
     intent: "telemedicine",
     patterns: [
       /(?:telemedicina|teleconsulta|video\s*consulta|videollamada)/i,
@@ -828,6 +839,9 @@ function buildTriageResponse(entry: TriageEntry): Partial<ChatMessage> {
             value: `Quiero un turno con ${entry.doctorType.split(" / ")[0]}`,
           },
           { label: "Hablar con un médico ya", value: "Quiero una teleconsulta ahora" },
+          ...(entry.otcMeds.length > 0
+            ? [{ label: "🛵 Que me lo traigan", value: "Quiero pedir remedios a domicilio" }]
+            : []),
           { label: "Tengo otro problema", value: "No me siento bien" },
         ];
 
@@ -848,6 +862,28 @@ function buildTriageResponse(entry: TriageEntry): Partial<ChatMessage> {
             icon: "search",
             action: { label: "Ver profesionales", url: "/dashboard/directorio" },
           },
+          ...(entry.otcMeds.length > 0
+            ? [
+                {
+                  title: "🛵 Rappi — Te lo llevan a casa",
+                  body: "Pedí los medicamentos de venta libre por Rappi en minutos.",
+                  icon: "truck" as const,
+                  action: {
+                    label: "Pedir en Rappi",
+                    url: "https://www.rappi.com.ar/restaurantes/categoria/farmacias",
+                  },
+                },
+                {
+                  title: "🛵 PedidosYa — Farmacia a domicilio",
+                  body: "Comprá sin receta y recibilo en tu casa.",
+                  icon: "truck" as const,
+                  action: {
+                    label: "Pedir en PedidosYa",
+                    url: "https://www.pedidosya.com.ar/farmacias",
+                  },
+                },
+              ]
+            : []),
         ];
 
   return { text, quickReplies, cards };
@@ -941,12 +977,88 @@ function generateAppointmentBooking(specialty: string): Partial<ChatMessage> {
 
 function generateMedicationResponse(): Partial<ChatMessage> {
   return {
-    text: "Desde Cóndor Salud podés manejar todo lo de tus remedios:\n\n• Buscar precios actualizados de medicamentos\n• Ver tus recetas vigentes\n• Pedir que te los lleven a tu casa\n• Configurar pedidos automáticos para los que tomás siempre\n• Buscar farmacias de guardia cerca\n\n¿Qué necesitás?",
+    text: "Desde Cóndor Salud podés manejar todo lo de tus remedios:\n\n• Buscar precios actualizados de medicamentos\n• Ver tus recetas vigentes\n• Pedir que te los lleven a tu casa con Rappi o PedidosYa\n• Configurar pedidos automáticos para los que tomás siempre\n• Buscar farmacias de guardia cerca\n\n¿Qué necesitás?",
     quickReplies: [
       { label: "Buscar un remedio", value: "Quiero buscar un medicamento" },
       { label: "Mis recetas", value: "Quiero ver mis recetas" },
       { label: "Farmacia de guardia", value: "¿Dónde hay una farmacia de guardia?" },
-      { label: "Que me lo traigan", value: "Quiero un pedido a domicilio" },
+      { label: "🛵 Pedir por Rappi", value: "Quiero pedir remedios por Rappi" },
+      { label: "🛵 Pedir por PedidosYa", value: "Quiero pedir remedios por PedidosYa" },
+    ],
+    cards: [
+      {
+        title: "Rappi — Farmacia a domicilio",
+        body: "Pedí medicamentos de venta libre y te los llevan en minutos.",
+        icon: "truck",
+        action: {
+          label: "Abrir Rappi",
+          url: "https://www.rappi.com.ar/restaurantes/categoria/farmacias",
+        },
+      },
+      {
+        title: "PedidosYa — Farmacia a domicilio",
+        body: "Comprá remedios sin receta y recibilos en tu casa.",
+        icon: "truck",
+        action: { label: "Abrir PedidosYa", url: "https://www.pedidosya.com.ar/farmacias" },
+      },
+    ],
+  };
+}
+
+// ─── Delivery (Rappi / PedidosYa) ───────────────────────────
+
+function generateDeliveryResponse(
+  coords?: { lat: number; lng: number } | null,
+): Partial<ChatMessage> {
+  const rappiUrl = coords
+    ? `https://www.rappi.com.ar/restaurantes/categoria/farmacias?lat=${coords.lat}&lng=${coords.lng}`
+    : "https://www.rappi.com.ar/restaurantes/categoria/farmacias";
+  const pedidosYaUrl = "https://www.pedidosya.com.ar/farmacias";
+
+  let text =
+    "¡Perfecto! Podés pedir medicamentos de venta libre (sin receta) directo a tu casa con estas apps:\n";
+  text += "\n🟠 Rappi — Llega en 30-60 min, pagás con tarjeta, efectivo o Mercado Pago.";
+  text += "\n🔴 PedidosYa — Delivery de farmacias adheridas, con seguimiento en tiempo real.";
+  text +=
+    '\n\n💡 Consejo: buscá el medicamento por nombre (ej: "Tafirol", "Ibupirac") en la app y compará precios entre farmacias.';
+
+  if (!coords) {
+    text +=
+      "\n\n📍 Si compartís tu ubicación, te muestro las farmacias con delivery más cerca tuyo.";
+  }
+
+  const cards: InfoCard[] = [
+    {
+      title: "Rappi — Farmacia",
+      body: "Medicamentos sin receta a domicilio. Envío en 30-60 min.",
+      icon: "truck",
+      action: { label: "Pedir en Rappi", url: rappiUrl },
+    },
+    {
+      title: "PedidosYa — Farmacia",
+      body: "Farmacias cerca tuyo con delivery. Seguimiento en vivo.",
+      icon: "truck",
+      action: { label: "Pedir en PedidosYa", url: pedidosYaUrl },
+    },
+  ];
+
+  // If we have coords, add a Google Maps search for pharmacies
+  if (coords) {
+    cards.push({
+      title: "Farmacias cerca tuyo",
+      body: "Ver todas las farmacias cercanas en Google Maps.",
+      icon: "map-pin",
+      mapUrl: mapsSearchNearby(coords.lat, coords.lng, "farmacia"),
+    });
+  }
+
+  return {
+    text,
+    cards,
+    quickReplies: [
+      { label: "Farmacia cerca", value: "Farmacia cerca mío" },
+      { label: "¿Qué puedo tomar?", value: "No me siento bien" },
+      { label: "Teleconsulta", value: "Quiero una teleconsulta" },
     ],
   };
 }
@@ -1587,6 +1699,8 @@ export function processMessage(
       return generateCoverageResponse(entities);
     case "medication":
       return generateMedicationResponse();
+    case "delivery":
+      return generateDeliveryResponse(coords);
     case "telemedicine":
       return generateTelemedicineResponse();
     case "pricing":
