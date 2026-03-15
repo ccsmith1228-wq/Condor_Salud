@@ -170,6 +170,9 @@ export default function Chatbot() {
   // Geolocation — lazy mode (user triggers it)
   const geo = useGeolocation({ lazy: true });
   const hasLocation = !!geo.coords;
+  const [locationRequested, setLocationRequested] = useState(false);
+  const coordsRef = useRef(geo.coords);
+  coordsRef.current = geo.coords;
 
   // Auto-scroll
   useEffect(() => {
@@ -215,7 +218,9 @@ export default function Chatbot() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             message: text.trim(),
-            ...(geo.coords ? { lat: geo.coords.latitude, lng: geo.coords.longitude } : {}),
+            ...(coordsRef.current
+              ? { lat: coordsRef.current.latitude, lng: coordsRef.current.longitude }
+              : {}),
           }),
         });
 
@@ -235,8 +240,19 @@ export default function Chatbot() {
         setIsTyping(false);
       }
     },
-    [isTyping, geo.coords],
+    [isTyping],
   );
+
+  // When geolocation resolves after user requested it, send confirmation to Cora
+  useEffect(() => {
+    if (!locationRequested) return;
+    if (geo.coords && !isTyping) {
+      setLocationRequested(false);
+      sendMessage("Compartí mi ubicación");
+    } else if (geo.error && !geo.loading) {
+      setLocationRequested(false);
+    }
+  }, [locationRequested, geo.coords, geo.error, geo.loading, isTyping, sendMessage]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -326,12 +342,7 @@ export default function Chatbot() {
               onClick={() => {
                 if (!hasLocation) {
                   geo.refresh();
-                  // Send a system-level message so Cora knows we have location
-                  setTimeout(() => {
-                    if (geo.permissionState !== "denied") {
-                      sendMessage("Compartí mi ubicación");
-                    }
-                  }, 2000);
+                  setLocationRequested(true);
                 }
               }}
               disabled={geo.loading}

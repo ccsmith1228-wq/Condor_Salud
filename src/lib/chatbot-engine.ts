@@ -283,8 +283,8 @@ const INTENTS: {
   {
     intent: "location",
     patterns: [
-      /(?:d[oó]nde\s+(?:est[aá]n?|queda)|direcci[oó]n|ubicaci[oó]n|sucursal)/i,
-      /(?:mapa|zona|barrio|localidad|provincia)/i,
+      /(?:d[oó]nde\s+(?:est[aá]n?|queda)|direcci[oó]n|sucursal|oficina)/i,
+      /(?:(?:qu[eé]\s+)?(?:zona|barrio|localidad|provincia))/i,
     ],
   },
   // ── Geolocation-aware intents ─────────────────────────────
