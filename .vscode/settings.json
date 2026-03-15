@@ -1,0 +1,10 @@
+{
+  // Tailwind CSS uses @tailwind directives — suppress unknown-at-rule warnings
+  "css.lint.unknownAtRules": "ignore",
+
+  // Let Tailwind CSS IntelliSense handle validation instead of built-in CSS
+  "css.validate": true,
+
+  // Prevent Edge Tools from running webhint on files we already lint via axe-linter
+  "vscode-edge-devtools.webhint": true
+}

@@ -92,6 +92,7 @@ button {
 .scrollbar-thin {
   scrollbar-width: thin; /* stylelint-disable-line */
   scrollbar-color: #d4e4f0 transparent; /* stylelint-disable-line */
+  /* @supports not used - webkit fallback provides compatibility */
 }
 .scrollbar-thin::-webkit-scrollbar {
   width: 4px;
