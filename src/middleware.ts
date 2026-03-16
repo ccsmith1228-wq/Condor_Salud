@@ -45,15 +45,10 @@ export async function middleware(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     // Redirect unauthenticated users away from protected routes
-    const isProtectedPage = PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
+    // NOTE: Dashboard is demo-browsable (mock data). Only API routes are blocked.
+    // Write operations are gated by RequirePermission on the client side.
     const isProtectedApi =
       pathname.startsWith("/api/") && !PUBLIC_API_PREFIXES.some((p) => pathname.startsWith(p));
-
-    if (!user && isProtectedPage) {
-      const loginUrl = new URL("/auth/login", request.url);
-      loginUrl.searchParams.set("redirect", pathname);
-      return NextResponse.redirect(loginUrl);
-    }
 
     // SH-04: Block unauthenticated access to protected API routes
     if (!user && isProtectedApi) {
