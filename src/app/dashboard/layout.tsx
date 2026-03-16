@@ -34,6 +34,7 @@ import {
   Video,
   UserSearch,
   Stethoscope,
+  Network,
 } from "lucide-react";
 
 const navIcons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -56,6 +57,7 @@ const navIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   "/dashboard/farmacia": Pill,
   "/dashboard/telemedicina": Video,
   "/dashboard/directorio": UserSearch,
+  "/dashboard/interconsultas": Network,
   "/dashboard/triage": Stethoscope,
 };
 
@@ -94,6 +96,7 @@ const navSections = [
       { label: "Farmacia Online", href: "/dashboard/farmacia" },
       { label: "Telemedicina", href: "/dashboard/telemedicina" },
       { label: "Directorio Medico", href: "/dashboard/directorio" },
+      { label: "Red Interconsultas", href: "/dashboard/interconsultas" },
       { label: "Triage", href: "/dashboard/triage" },
     ],
   },
@@ -125,6 +128,7 @@ const ROUTE_MODULE_MAP: Record<string, ModuleId> = {
   "/dashboard/farmacia": "farmacia",
   "/dashboard/telemedicina": "telemedicina",
   "/dashboard/directorio": "directorio",
+  "/dashboard/interconsultas": "interconsultas",
   "/dashboard/triage": "triage",
 };
 

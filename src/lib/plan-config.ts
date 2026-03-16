@@ -22,6 +22,7 @@ export type ModuleId =
   | "farmacia"
   | "telemedicina"
   | "directorio"
+  | "interconsultas"
   | "triage"
   | "chatbot";
 
@@ -192,6 +193,15 @@ export const MODULES: ModuleDef[] = [
     phase: 2,
   },
   {
+    id: "interconsultas",
+    label: "Red de Interconsultas",
+    desc: "Derivaciones y red de profesionales para estudios.",
+    price: 8000,
+    category: "servicios",
+    phase: 2,
+    deps: ["pacientes"],
+  },
+  {
     id: "triage",
     label: "Triage Clínico",
     desc: "Clasificación de urgencia asistida por IA.",
@@ -247,7 +257,7 @@ export const CATEGORIES: CategoryDef[] = [
   {
     id: "servicios",
     label: "Servicios",
-    modules: ["farmacia", "telemedicina", "directorio", "triage", "chatbot"],
+    modules: ["farmacia", "telemedicina", "directorio", "interconsultas", "triage", "chatbot"],
   },
 ];
 
@@ -277,6 +287,7 @@ export const PRESETS: PresetDef[] = [
       "auditoria",
       "nomenclador",
       "reportes",
+      "interconsultas",
       "alertas",
       "wizard",
     ],
@@ -303,6 +314,7 @@ export const PRESETS: PresetDef[] = [
       "farmacia",
       "telemedicina",
       "directorio",
+      "interconsultas",
       "triage",
       "chatbot",
       "alertas",
