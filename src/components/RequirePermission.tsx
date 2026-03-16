@@ -59,10 +59,8 @@ export function RouteGuard({ children }: RouteGuardProps) {
 
   useEffect(() => {
     if (isLoading) return;
-    if (!isAuthenticated) {
-      router.replace(`/auth/login?redirect=${encodeURIComponent(pathname)}`);
-      return;
-    }
+    // Dashboard is demo-browsable — only enforce RBAC for authenticated users
+    if (!isAuthenticated) return;
     if (user && !canAccessRoute(user.role, pathname)) {
       router.replace("/dashboard?forbidden=1");
     }
@@ -76,7 +74,8 @@ export function RouteGuard({ children }: RouteGuardProps) {
     );
   }
 
-  if (!isAuthenticated) return null;
+  // Unauthenticated users can browse demo — skip access denied
+  if (!isAuthenticated) return <>{children}</>;
 
   if (user && !canAccessRoute(user.role, pathname)) {
     return <AccessDenied />;
