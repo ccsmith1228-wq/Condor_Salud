@@ -14,6 +14,7 @@ import Waitlist from "@/components/Waitlist";
 import FinalCTA from "@/components/FinalCTA";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
+import Chatbot from "@/components/Chatbot";
 
 export default function Home() {
   return (
@@ -35,6 +36,7 @@ export default function Home() {
       </main>
       <Footer />
       <WhatsAppFloat />
+      <Chatbot />
     </LanguageProvider>
   );
 }

@@ -7,6 +7,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { ToastProvider } from "@/components/Toast";
 import { DemoModalProvider } from "@/components/DemoModal";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
+import Chatbot from "@/components/Chatbot";
+
 import { SWRProvider } from "@/lib/swr";
 import { useAuth } from "@/lib/auth/context";
 import { usePlanSafe } from "@/lib/plan-context";
@@ -438,13 +440,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         >
           <SWRProvider>
             <ToastProvider>
-              <DemoModalProvider>
-                {children}
-                <WhatsAppFloat />
-              </DemoModalProvider>
+              <DemoModalProvider>{children}</DemoModalProvider>
             </ToastProvider>
           </SWRProvider>
         </main>
+        <WhatsAppFloat />
+        <Chatbot />
       </div>
     </div>
   );

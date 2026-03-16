@@ -7,8 +7,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { ToastProvider } from "@/components/Toast";
 import { SWRProvider } from "@/lib/swr";
 import { usePatientName } from "@/lib/hooks/usePatientName";
-
 import WhatsAppFloat from "@/components/WhatsAppFloat";
+import Chatbot from "@/components/Chatbot";
+
 import {
   Heart,
   Calendar,
@@ -210,6 +211,7 @@ export default function PatientLayout({ children }: { children: React.ReactNode 
       </div>
 
       <WhatsAppFloat />
+      <Chatbot />
 
       {/* Name prompt modal — shown once when no name cookie exists */}
       {loaded && needsName && (
