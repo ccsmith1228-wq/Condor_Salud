@@ -2,7 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 
 // ─── Protected routes ────────────────────────────────────────
 const PROTECTED_PREFIXES = ["/dashboard", "/paciente"];
-const AUTH_ROUTES = ["/auth/login", "/auth/registro"];
+const AUTH_ROUTES = ["/auth/login", "/auth/registro", "/auth/forgot-password"];
+// Reset-password and verify need session, so they're NOT in AUTH_ROUTES
 // Public API routes that don't require authentication
 const PUBLIC_API_PREFIXES = [
   "/api/health",
@@ -63,6 +64,24 @@ export async function middleware(request: NextRequest) {
     if (user && AUTH_ROUTES.includes(pathname)) {
       const redirectTo = sanitizeRedirect(request.nextUrl.searchParams.get("redirect"));
       return NextResponse.redirect(new URL(redirectTo, request.url));
+    }
+
+    // ── RBAC: Role-based route access ──
+    // Check if the user's role has permission for the requested dashboard route.
+    // The role is stored in user_metadata (set during signup/profile trigger).
+    if (user && pathname.startsWith("/dashboard/")) {
+      const role = user.user_metadata?.role as string | undefined;
+      if (role) {
+        const { canAccessRoute } = await import("@/lib/auth/rbac");
+        // canAccessRoute expects UserRole; fallback to "admin" if unknown
+        const validRoles = ["admin", "medico", "facturacion", "recepcion"];
+        const userRole = validRoles.includes(role) ? role : "admin";
+        if (
+          !canAccessRoute(userRole as "admin" | "medico" | "facturacion" | "recepcion", pathname)
+        ) {
+          return NextResponse.redirect(new URL("/dashboard?forbidden=1", request.url));
+        }
+      }
     }
 
     return response;

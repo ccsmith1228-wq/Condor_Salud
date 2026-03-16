@@ -153,17 +153,12 @@ export default function LoginPage() {
                 />
                 <span className="text-xs text-ink-light">Recordarme</span>
               </label>
-              <button
-                type="button"
-                onClick={() =>
-                  showToast(
-                    "Funcionalidad próximamente. Contactá a soporte por WhatsApp para recuperar tu contraseña.",
-                  )
-                }
+              <Link
+                href="/auth/forgot-password"
                 className="text-xs text-celeste-dark font-medium hover:underline"
               >
                 ¿Olvidaste tu contraseña?
-              </button>
+              </Link>
             </div>
             <Button type="submit" loading={isSubmitting} className="w-full py-3">
               Ingresar

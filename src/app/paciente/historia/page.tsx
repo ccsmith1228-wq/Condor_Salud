@@ -1,339 +1,349 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { useToast } from "@/components/Toast";
+import { usePatientName } from "@/lib/hooks/usePatientName";
 import {
-  FileText,
-  Calendar,
-  Download,
-  Search,
-  Filter,
-  ChevronDown,
-  ChevronRight,
+  getHistoriaClinica,
+  getHistoriaSummary,
+  type HistoriaEvent,
+  type HistoriaEventType,
+  type HistoriaSummary,
+  type HistoriaFilter,
+} from "@/lib/services/historia";
+import {
   Stethoscope,
   TestTubes,
+  ImageIcon,
   Pill,
   Syringe,
   Heart,
-  ImageIcon,
-  ClipboardList,
-  AlertCircle,
-  Eye,
+  AlertTriangle,
+  FileText,
+  Search,
+  Download,
+  Loader2,
+  ChevronDown,
+  Calendar,
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-import { useToast } from "@/components/Toast";
 
-/* ── types ────────────────────────────────────────────── */
-type Tab = "todo" | "consultas" | "laboratorio" | "imagenes" | "recetas";
-type EventType = "consulta" | "laboratorio" | "imagen" | "receta" | "vacuna" | "internacion";
+// ─── Icon Map ────────────────────────────────────────────────
 
-interface MedicalEvent {
-  id: number;
-  type: EventType;
-  title: string;
-  description: string;
-  doctor: string;
-  date: string;
-  details?: string[];
-  attachments?: { name: string; type: string }[];
-}
-
-/* ── demo data ────────────────────────────────────────── */
-const events: MedicalEvent[] = [
-  {
-    id: 1,
-    type: "consulta",
-    title: "Control cardiológico",
-    description: "Electrocardiograma normal. Se ajusta medicación.",
-    doctor: "Dr. Carlos Ruiz",
-    date: "2026-03-05",
-    details: ["ECG: ritmo sinusal normal", "PA: 120/80 mmHg", "Se reduce Atorvastatina a 10mg"],
-  },
-  {
-    id: 2,
-    type: "laboratorio",
-    title: "Hemograma completo + Perfil lipídico",
-    description: "Resultados dentro de parámetros normales.",
-    doctor: "Dra. Laura Méndez",
-    date: "2026-02-28",
-    details: [
-      "Hemoglobina: 14.2 g/dL",
-      "Colesterol total: 195 mg/dL",
-      "LDL: 110 mg/dL",
-      "HDL: 55 mg/dL",
-      "Triglicéridos: 120 mg/dL",
-      "Glucemia: 98 mg/dL",
-    ],
-    attachments: [{ name: "Resultados_Lab_28Feb.pdf", type: "PDF" }],
-  },
-  {
-    id: 3,
-    type: "receta",
-    title: "Receta - Losartán, Metformina, Atorvastatina",
-    description: "Renovación de medicación crónica.",
-    doctor: "Dra. Laura Méndez",
-    date: "2026-02-15",
-    details: ["Losartán 50mg x 30", "Metformina 850mg x 60", "Atorvastatina 20mg x 30"],
-    attachments: [{ name: "Receta_15Feb.pdf", type: "PDF" }],
-  },
-  {
-    id: 4,
-    type: "consulta",
-    title: "Control clínico general",
-    description: "Paciente en buen estado general. Se solicita lab de control.",
-    doctor: "Dra. Laura Méndez",
-    date: "2026-02-10",
-    details: ["Peso: 72.5 kg", "PA: 125/82 mmHg", "Se solicita hemograma + perfil lipídico"],
-  },
-  {
-    id: 5,
-    type: "imagen",
-    title: "Eco Doppler cardíaco",
-    description: "Fracción de eyección normal. Sin alteraciones significativas.",
-    doctor: "Dr. Carlos Ruiz",
-    date: "2026-01-20",
-    details: ["FE: 62%", "Cavidades de tamaño normal", "Sin valvulopatías significativas"],
-    attachments: [{ name: "EcoDoppler_20Ene.pdf", type: "PDF" }],
-  },
-  {
-    id: 6,
-    type: "vacuna",
-    title: "Vacuna antigripal 2026",
-    description: "Aplicación vacuna influenza tetravalente.",
-    doctor: "Vacunatorio Centro",
-    date: "2026-01-15",
-  },
-  {
-    id: 7,
-    type: "consulta",
-    title: "Consulta ginecológica",
-    description: "Control anual. PAP y colposcopia normales.",
-    doctor: "Dra. Ana Torres",
-    date: "2026-01-22",
-    details: [
-      "PAP: negativo para lesión",
-      "Colposcopia: satisfactoria",
-      "Próximo control en 12 meses",
-    ],
-    attachments: [{ name: "PAP_22Ene.pdf", type: "PDF" }],
-  },
-  {
-    id: 8,
-    type: "laboratorio",
-    title: "Análisis de orina",
-    description: "Sin particularidades.",
-    doctor: "Dra. Laura Méndez",
-    date: "2024-12-10",
-    details: ["pH: 6.0", "Proteínas: negativo", "Glucosa: negativo", "Sedimento: normal"],
-  },
-];
-
-const typeMap: Record<EventType, { label: string; icon: LucideIcon; color: string }> = {
-  consulta: { label: "Consulta", icon: Stethoscope, color: "bg-celeste-50 text-celeste-dark" },
-  laboratorio: { label: "Laboratorio", icon: TestTubes, color: "bg-celeste-50 text-celeste-dark" },
-  imagen: { label: "Imagen", icon: ImageIcon, color: "bg-success-50 text-success-600" },
-  receta: { label: "Receta", icon: Pill, color: "bg-amber-50 text-amber-600" },
-  vacuna: { label: "Vacuna", icon: Syringe, color: "bg-red-50 text-red-600" },
-  internacion: { label: "Internación", icon: Heart, color: "bg-red-50 text-red-600" },
+const typeIconMap: Record<HistoriaEventType, React.ElementType> = {
+  consulta: Stethoscope,
+  laboratorio: TestTubes,
+  imagen: ImageIcon,
+  receta: Pill,
+  vacuna: Syringe,
+  internacion: Heart,
+  triage: AlertTriangle,
+  nota_clinica: FileText,
 };
 
-/* ── component ────────────────────────────────────────── */
-export default function HistoriaPage() {
+const typeLabel: Record<HistoriaEventType, string> = {
+  consulta: "Consultas",
+  laboratorio: "Laboratorio",
+  imagen: "Imágenes",
+  receta: "Recetas",
+  vacuna: "Vacunas",
+  internacion: "Internaciones",
+  triage: "Triages",
+  nota_clinica: "Notas Clínicas",
+};
+
+const typeColor: Record<HistoriaEventType, string> = {
+  consulta: "bg-celeste text-white",
+  laboratorio: "bg-purple-500 text-white",
+  imagen: "bg-amber-500 text-white",
+  receta: "bg-green-500 text-white",
+  vacuna: "bg-teal-500 text-white",
+  internacion: "bg-red-500 text-white",
+  triage: "bg-orange-500 text-white",
+  nota_clinica: "bg-ink-light text-white",
+};
+
+// ─── Tabs ────────────────────────────────────────────────────
+
+interface Tab {
+  key: string;
+  label: string;
+  types?: HistoriaEventType[];
+}
+
+const tabs: Tab[] = [
+  { key: "todo", label: "Todo" },
+  { key: "consultas", label: "Consultas", types: ["consulta"] },
+  { key: "laboratorio", label: "Laboratorio", types: ["laboratorio"] },
+  { key: "imagenes", label: "Imágenes", types: ["imagen"] },
+  { key: "recetas", label: "Recetas", types: ["receta"] },
+  { key: "triage", label: "Triages", types: ["triage", "nota_clinica"] },
+];
+
+// ─── Helpers ─────────────────────────────────────────────────
+
+function formatMonth(dateStr: string): string {
+  const d = new Date(dateStr + "T00:00:00");
+  const month = d.toLocaleString("es-AR", { month: "long" });
+  return `${month.charAt(0).toUpperCase()}${month.slice(1)} ${d.getFullYear()}`;
+}
+
+function groupByMonth(events: HistoriaEvent[]): [string, HistoriaEvent[]][] {
+  const map = new Map<string, HistoriaEvent[]>();
+  for (const e of events) {
+    const key = e.date.slice(0, 7); // YYYY-MM
+    if (!map.has(key)) map.set(key, []);
+    map.get(key)!.push(e);
+  }
+  return Array.from(map.entries()).sort((a, b) => b[0].localeCompare(a[0]));
+}
+
+// ─── Component ───────────────────────────────────────────────
+
+export default function HistoriaClinicaPage() {
+  const { name } = usePatientName();
   const { showToast } = useToast();
-  const [tab, setTab] = useState<Tab>("todo");
+  const [events, setEvents] = useState<HistoriaEvent[]>([]);
+  const [summary, setSummary] = useState<HistoriaSummary | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("todo");
   const [search, setSearch] = useState("");
-  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [expanded, setExpanded] = useState<string | null>(null);
 
-  const tabFilter: Record<Tab, EventType[]> = {
-    todo: ["consulta", "laboratorio", "imagen", "receta", "vacuna", "internacion"],
-    consultas: ["consulta"],
-    laboratorio: ["laboratorio"],
-    imagenes: ["imagen"],
-    recetas: ["receta"],
-  };
+  const patientName = name || "Demo Paciente";
 
-  const filtered = events
-    .filter((e) => tabFilter[tab].includes(e.type))
-    .filter((e) =>
-      search
-        ? e.title.toLowerCase().includes(search.toLowerCase()) ||
-          e.doctor.toLowerCase().includes(search.toLowerCase())
-        : true,
-    );
+  // Load data
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    const tab = tabs.find((t) => t.key === activeTab);
+    const filter: HistoriaFilter = {};
+    if (tab?.types) filter.types = tab.types;
+    if (search) filter.search = search;
 
-  // Group by month
-  const grouped = filtered.reduce<Record<string, MedicalEvent[]>>((acc, e) => {
-    const key = new Date(e.date).toLocaleDateString("es-AR", { year: "numeric", month: "long" });
-    if (!acc[key]) acc[key] = [];
-    acc[key].push(e);
-    return acc;
-  }, {});
+    const [evts, sum] = await Promise.all([
+      getHistoriaClinica(patientName, filter),
+      getHistoriaSummary(patientName),
+    ]);
+    setEvents(evts);
+    setSummary(sum);
+    setLoading(false);
+  }, [patientName, activeTab, search]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const grouped = useMemo(() => groupByMonth(events), [events]);
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="space-y-5">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-display font-bold text-ink">Historia Clínica</h1>
-        <p className="text-sm text-ink-muted mt-0.5">Tu historial médico completo</p>
+        <h1 className="text-2xl font-bold text-ink">Historia Clínica</h1>
+        <p className="text-sm text-ink-muted mt-0.5">Registro completo de atenciones y estudios</p>
       </div>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         {[
-          {
-            label: "Consultas",
-            count: events.filter((e) => e.type === "consulta").length,
-            color: "text-celeste-dark",
-          },
+          { label: "Consultas", value: summary?.consultas ?? "...", color: "border-celeste" },
           {
             label: "Laboratorio",
-            count: events.filter((e) => e.type === "laboratorio").length,
-            color: "text-celeste-dark",
+            value: summary?.laboratorio ?? "...",
+            color: "border-purple-400",
           },
-          {
-            label: "Imágenes",
-            count: events.filter((e) => e.type === "imagen").length,
-            color: "text-success-600",
-          },
-          {
-            label: "Recetas",
-            count: events.filter((e) => e.type === "receta").length,
-            color: "text-amber-600",
-          },
-        ].map((s) => (
+          { label: "Imágenes", value: summary?.imagenes ?? "...", color: "border-amber-400" },
+          { label: "Recetas", value: summary?.recetas ?? "...", color: "border-green-400" },
+          { label: "Total", value: summary?.total ?? "...", color: "border-ink" },
+        ].map((c) => (
           <div
-            key={s.label}
-            className="bg-white rounded-xl border border-border-light p-3 text-center"
+            key={c.label}
+            className={`bg-white border border-border rounded-lg p-4 border-l-[3px] ${c.color}`}
           >
-            <p className={`text-2xl font-bold ${s.color}`}>{s.count}</p>
-            <p className="text-xs text-ink-muted">{s.label}</p>
+            <p className="text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+              {c.label}
+            </p>
+            <p className="text-xl font-bold text-ink mt-1">{c.value}</p>
           </div>
         ))}
       </div>
 
-      {/* Tabs & search */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex gap-1 bg-ink-50 rounded-xl p-1 w-fit overflow-x-auto">
-          {(
-            [
-              ["todo", "Todo"],
-              ["consultas", "Consultas"],
-              ["laboratorio", "Lab"],
-              ["imagenes", "Imágenes"],
-              ["recetas", "Recetas"],
-            ] as [Tab, string][]
-          ).map(([key, label]) => (
+      {/* Tabs + Search */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex gap-1 border border-border rounded-lg p-0.5 bg-surface">
+          {tabs.map((tab) => (
             <button
-              key={key}
-              onClick={() => setTab(key)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition whitespace-nowrap ${
-                tab === key ? "bg-white text-ink shadow-sm" : "text-ink-muted hover:text-ink"
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`px-3 py-1.5 text-xs font-medium rounded-md transition ${
+                activeTab === tab.key
+                  ? "bg-white shadow-sm text-ink"
+                  : "text-ink-muted hover:text-ink"
               }`}
             >
-              {label}
+              {tab.label}
             </button>
           ))}
         </div>
-        <div className="relative">
+        <div className="relative ml-auto">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-ink-300" />
           <input
             type="text"
             placeholder="Buscar en historia..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 pr-4 py-2 border border-border-light rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark w-60"
+            className="pl-9 pr-4 py-1.5 border border-border rounded-[4px] text-sm focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark w-48"
           />
         </div>
       </div>
 
-      {/* Timeline */}
-      <div className="space-y-6">
-        {Object.entries(grouped).map(([month, items]) => (
-          <div key={month}>
-            <h3 className="text-xs font-bold text-ink-muted uppercase tracking-wider mb-3">
-              {month}
-            </h3>
-            <div className="space-y-2">
-              {items.map((event) => {
-                const { icon: Icon, color, label } = typeMap[event.type];
-                const isExpanded = expandedId === event.id;
-                return (
-                  <div
-                    key={event.id}
-                    className="bg-white rounded-2xl border border-border-light overflow-hidden"
-                  >
-                    <button
-                      onClick={() => setExpandedId(isExpanded ? null : event.id)}
-                      className="w-full flex items-center gap-3 px-5 py-3.5 text-left hover:bg-surface/30 transition"
-                    >
-                      <div
-                        className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${color}`}
-                      >
-                        <Icon className="w-4 h-4" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="text-sm font-semibold text-ink truncate">{event.title}</p>
-                          <span
-                            className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${color}`}
-                          >
-                            {label}
-                          </span>
-                        </div>
-                        <p className="text-xs text-ink-muted truncate">
-                          {event.doctor} · {new Date(event.date).toLocaleDateString("es-AR")}
-                        </p>
-                      </div>
-                      <ChevronDown
-                        className={`w-4 h-4 text-ink-300 transition-transform shrink-0 ${isExpanded ? "rotate-180" : ""}`}
-                      />
-                    </button>
+      {/* Loading */}
+      {loading && (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-6 h-6 text-celeste-dark animate-spin" />
+          <span className="ml-2 text-sm text-ink-muted">Cargando historia clínica...</span>
+        </div>
+      )}
 
-                    {isExpanded && (
-                      <div className="px-5 pb-4 border-t border-border-light pt-3">
-                        <p className="text-sm text-ink-500 mb-3">{event.description}</p>
-                        {event.details && (
-                          <div className="bg-surface rounded-xl p-3 mb-3">
-                            <ul className="space-y-1">
-                              {event.details.map((d) => (
-                                <li
-                                  key={d}
-                                  className="text-xs text-ink-500 flex items-center gap-2"
+      {/* Timeline */}
+      {!loading && (
+        <div className="space-y-6">
+          {grouped.map(([month, monthEvents]) => (
+            <div key={month}>
+              <div className="flex items-center gap-2 mb-3">
+                <Calendar className="w-4 h-4 text-ink-muted" />
+                <h2 className="text-sm font-bold text-ink-muted uppercase tracking-wider">
+                  {formatMonth(monthEvents[0]?.date ?? month)}
+                </h2>
+                <span className="text-xs text-ink-300">({monthEvents.length})</span>
+              </div>
+
+              <div className="space-y-2 pl-2 border-l-2 border-border ml-2">
+                {monthEvents.map((event) => {
+                  const Icon = typeIconMap[event.type] ?? FileText;
+                  const isOpen = expanded === event.id;
+
+                  return (
+                    <div
+                      key={event.id}
+                      className={`bg-white border rounded-lg overflow-hidden transition ml-4 relative ${
+                        isOpen
+                          ? "border-celeste shadow-sm"
+                          : "border-border hover:border-celeste-light"
+                      }`}
+                    >
+                      {/* Timeline connector dot */}
+                      <div className="absolute -left-[23px] top-5 w-2.5 h-2.5 rounded-full bg-white border-2 border-celeste" />
+
+                      <button
+                        onClick={() => setExpanded(isOpen ? null : event.id)}
+                        className="w-full px-5 py-4 flex items-center gap-4 text-left"
+                      >
+                        <div
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${typeColor[event.type]}`}
+                        >
+                          <Icon className="w-4 h-4" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-ink truncate">{event.title}</p>
+                          <p className="text-xs text-ink-light mt-0.5 truncate">
+                            {event.description}
+                          </p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-[10px] text-ink-muted">{event.doctor}</span>
+                            <span className="text-[10px] text-ink-300">·</span>
+                            <span className="text-[10px] text-ink-muted">{event.date}</span>
+                          </div>
+                        </div>
+                        {(event.details || event.attachments) && (
+                          <ChevronDown
+                            className={`w-4 h-4 text-ink-muted flex-shrink-0 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                          />
+                        )}
+                      </button>
+
+                      {isOpen && (event.details || event.attachments) && (
+                        <div className="px-5 pb-4 pt-0 border-t border-border-light">
+                          {event.details && event.details.length > 0 && (
+                            <div className="mt-3">
+                              <p className="text-[10px] font-bold tracking-wider text-ink-muted uppercase mb-1.5">
+                                Detalles
+                              </p>
+                              <ul className="space-y-1">
+                                {event.details.map((d, i) => (
+                                  <li
+                                    key={i}
+                                    className="text-xs text-ink-light flex items-start gap-1.5"
+                                  >
+                                    <span className="text-celeste-dark mt-0.5">•</span>
+                                    {d}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                          {event.attachments && event.attachments.length > 0 && (
+                            <div className="mt-3 pt-2 border-t border-border-light">
+                              <p className="text-[10px] font-bold tracking-wider text-ink-muted uppercase mb-1.5">
+                                Documentos adjuntos
+                              </p>
+                              <div className="flex flex-wrap gap-2">
+                                {event.attachments.map((att, i) => (
+                                  <button
+                                    key={i}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (att.url) {
+                                        window.open(att.url, "_blank");
+                                      } else {
+                                        showToast("📎 Descargando " + att.name);
+                                      }
+                                    }}
+                                    className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-celeste-dark border border-celeste-light rounded-[4px] hover:bg-celeste-pale transition"
+                                  >
+                                    <Download className="w-3 h-3" />
+                                    {att.name}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {event.metadata && (
+                            <div className="mt-3 pt-2 border-t border-border-light">
+                              {Object.entries(event.metadata).map(([key, val]) => (
+                                <div
+                                  key={key}
+                                  className="flex items-center justify-between text-xs py-0.5"
                                 >
-                                  <div className="w-1 h-1 rounded-full bg-celeste-dark shrink-0" />
-                                  {d}
-                                </li>
+                                  <span className="text-ink-muted capitalize">
+                                    {key.replace(/_/g, " ")}
+                                  </span>
+                                  <span className="text-ink font-medium">{val}</span>
+                                </div>
                               ))}
-                            </ul>
-                          </div>
-                        )}
-                        {event.attachments && event.attachments.length > 0 && (
-                          <div className="flex flex-wrap gap-2">
-                            {event.attachments.map((att) => (
-                              <button
-                                key={att.name}
-                                onClick={() => showToast(`✅ ${att.name} descargado correctamente`)}
-                                className="flex items-center gap-2 text-xs text-celeste-dark bg-celeste-50 hover:bg-celeste-100 px-3 py-1.5 rounded-[4px] transition"
-                              >
-                                <Download className="w-3 h-3" />
-                                {att.name}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
-        {Object.keys(grouped).length === 0 && (
-          <div className="bg-white rounded-2xl border border-border-light px-5 py-12 text-center text-sm text-ink-muted">
-            No se encontraron registros
-          </div>
-        )}
-      </div>
+          ))}
+
+          {events.length === 0 && (
+            <div className="bg-white border border-border rounded-lg px-5 py-12 text-center">
+              <FileText className="w-8 h-8 text-ink-muted mx-auto mb-3" />
+              <p className="text-sm font-semibold text-ink">Sin registros</p>
+              <p className="text-xs text-ink-muted mt-1">
+                {search
+                  ? "No se encontraron registros con esa búsqueda"
+                  : "No hay registros en la historia clínica"}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
