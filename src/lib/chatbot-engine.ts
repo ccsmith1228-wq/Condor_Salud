@@ -782,9 +782,26 @@ const TRIAGE: Record<string, TriageEntry> = {
   },
 };
 
+// ─── Language helper ─────────────────────────────────────────
+
+function en(lang?: string): boolean {
+  return !!lang && lang.startsWith("en");
+}
+
 // ─── Response Generators ─────────────────────────────────────
 
-function generateGreeting(): Partial<ChatMessage> {
+function generateGreeting(lang?: string): Partial<ChatMessage> {
+  if (en(lang)) {
+    return {
+      text: "Hi! I'm Cora, your virtual nurse 👩‍⚕️\n\nI'm glad you reached out. Tell me what's going on — I'll ask a few questions like a nurse would to understand your situation and guide you to the right doctor.\n\nIf something hurts or you're not feeling well, start there. Take your time.",
+      quickReplies: [
+        { label: "I'm not feeling well", value: "I'm not feeling well" },
+        { label: "Book an appointment", value: "I want to book an appointment" },
+        { label: "Check my coverage", value: "I want to check my insurance coverage" },
+        { label: "How does it work?", value: "How does Cóndor Salud work?" },
+      ],
+    };
+  }
   return {
     text: "¡Hola! Soy Cora, tu enfermera virtual 👩‍⚕️\n\nQué bueno que me escribiste. Contame con confianza qué te está pasando — te voy a hacer algunas preguntas como haría una enfermera para entender bien tu situación y orientarte con el médico que necesitás.\n\nSi te duele algo o no te sentís bien, arrancá por ahí. Sin apuro.",
     quickReplies: [
@@ -796,24 +813,60 @@ function generateGreeting(): Partial<ChatMessage> {
   };
 }
 
-function generateFarewell(): Partial<ChatMessage> {
+function generateFarewell(lang?: string): Partial<ChatMessage> {
   return {
-    text: "¡Cuidate mucho! 💛 Acordate: si los síntomas empeoran o no mejoran en 24-48 horas, no dudes en consultar con un médico. Acá estoy las 24 horas, los 7 días — volvé cuando quieras, aunque sea solo para preguntarme algo chiquito.",
+    text: en(lang)
+      ? "Take care! 💛 Remember: if symptoms get worse or don't improve in 24-48 hours, don't hesitate to see a doctor. I'm here 24/7 — come back anytime, even for a small question."
+      : "¡Cuidate mucho! 💛 Acordate: si los síntomas empeoran o no mejoran en 24-48 horas, no dudes en consultar con un médico. Acá estoy las 24 horas, los 7 días — volvé cuando quieras, aunque sea solo para preguntarme algo chiquito.",
   };
 }
 
-function generateThanks(): Partial<ChatMessage> {
+function generateThanks(lang?: string): Partial<ChatMessage> {
   return {
-    text: "¡Me alegra poder ayudarte! 😊 ¿Hay algo más que te preocupe o que quieras preguntarme? No me molesta para nada.",
-    quickReplies: [
-      { label: "Sí, otra cosa", value: "Tengo otra consulta" },
-      { label: "No, chau!", value: "Chau, gracias" },
-    ],
+    text: en(lang)
+      ? "Happy to help! 😊 Is there anything else you'd like to ask? Don't hesitate."
+      : "¡Me alegra poder ayudarte! 😊 ¿Hay algo más que te preocupe o que quieras preguntarme? No me molesta para nada.",
+    quickReplies: en(lang)
+      ? [
+          { label: "Yes, something else", value: "I have another question" },
+          { label: "No, bye!", value: "Bye, thanks" },
+        ]
+      : [
+          { label: "Sí, otra cosa", value: "Tengo otra consulta" },
+          { label: "No, chau!", value: "Chau, gracias" },
+        ],
   };
 }
 
 // UM-10/UM-11: COVID/Coronavirus response
-function generateCovidResponse(): Partial<ChatMessage> {
+function generateCovidResponse(lang?: string): Partial<ChatMessage> {
+  if (en(lang)) {
+    return {
+      text: "I understand your concern about COVID-19. Here are the recommended steps:\n\n1. If you have fever, cough, sore throat, or loss of smell/taste, isolate yourself and contact your doctor.\n2. You can get a rapid antigen test (at pharmacies) or a PCR test.\n3. If you have difficulty breathing, call 107 (SAME) immediately.\n\nHere's some useful info:",
+      cards: [
+        {
+          title: "🏥 SAME (Emergency)",
+          body: "If you have severe breathing difficulty, chest pain, or confusion",
+          action: { label: "Call 107", url: "tel:107" },
+        },
+        {
+          title: "📞 COVID Hotline Argentina",
+          body: "Official information from the Ministry of Health",
+          action: { label: "Call 120", url: "tel:120" },
+        },
+        {
+          title: "💊 Pharmacy tests",
+          body: "Over-the-counter antigen self-tests available at licensed pharmacies",
+          action: { label: "Find pharmacy", url: "/paciente/medicamentos" },
+        },
+      ],
+      quickReplies: [
+        { label: "I have symptoms", value: "I have fever and cough" },
+        { label: "Where to get tested", value: "Where can I get a COVID test" },
+        { label: "Telemedicine", value: "I want a telemedicine consultation" },
+      ],
+    };
+  }
   return {
     text: "Entiendo tu preocupación por COVID-19. Estos son los pasos recomendados:\n\n1. Si tenés fiebre, tos, dolor de garganta, o pérdida de olfato/gusto, aislate y contactá a tu médico.\n2. Podés hacerte un test rápido de antígenos (en farmacias) o un PCR.\n3. Si tenés dificultad para respirar, llamá al 107 (SAME) inmediatamente.\n\nTe dejo información útil:",
     cards: [
@@ -842,21 +895,32 @@ function generateCovidResponse(): Partial<ChatMessage> {
 }
 
 // ── Build triage response from TriageEntry ──────────────────
-function buildTriageResponse(entry: TriageEntry): Partial<ChatMessage> {
+function buildTriageResponse(entry: TriageEntry, lang?: string): Partial<ChatMessage> {
+  const isEnglish = en(lang);
   // Nurse-like empathetic prefix based on severity
   const empathyPrefix =
     entry.severity === "emergencia"
-      ? "Entiendo que esto puede asustar, pero es importante actuar rápido.\n\n"
+      ? isEnglish
+        ? "I understand this can be scary, but it's important to act fast.\n\n"
+        : "Entiendo que esto puede asustar, pero es importante actuar rápido.\n\n"
       : entry.severity === "serio"
-        ? "Te escucho. Vamos a tomarnos esto con seriedad.\n\n"
-        : "Te entiendo, vamos a ver cómo te ayudo.\n\n";
+        ? isEnglish
+          ? "I hear you. Let's take this seriously.\n\n"
+          : "Te escucho. Vamos a tomarnos esto con seriedad.\n\n"
+        : isEnglish
+          ? "I understand, let's see how I can help.\n\n"
+          : "Te entiendo, vamos a ver cómo te ayudo.\n\n";
   let text = empathyPrefix + entry.advice;
 
   // OTC Medicine recommendations
   if (entry.otcMeds.length > 0) {
-    text += "\n\nLo que podés comprar en la farmacia sin receta:";
+    text += isEnglish
+      ? "\n\nOver-the-counter medications you can buy at a pharmacy:"
+      : "\n\nLo que podés comprar en la farmacia sin receta:";
     for (const med of entry.otcMeds) {
-      text += `\n\n• ${med.name}\n  Dosis: ${med.dose}\n  ${med.note}`;
+      text += isEnglish
+        ? `\n\n• ${med.name}\n  Dose: ${med.dose}\n  ${med.note}`
+        : `\n\n• ${med.name}\n  Dosis: ${med.dose}\n  ${med.note}`;
     }
   }
 
@@ -866,93 +930,153 @@ function buildTriageResponse(entry: TriageEntry): Partial<ChatMessage> {
   }
 
   // Red flags
-  text += `\n\nCuándo ir al médico urgente:\n${entry.redFlags}`;
+  text += isEnglish
+    ? `\n\nWhen to see a doctor urgently:\n${entry.redFlags}`
+    : `\n\nCuándo ir al médico urgente:\n${entry.redFlags}`;
 
   // Doctor routing
-  text += `\n\nEl profesional indicado para vos: ${entry.doctorLabel}.`;
+  text += isEnglish
+    ? `\n\nThe right specialist for you: ${entry.doctorLabel}.`
+    : `\n\nEl profesional indicado para vos: ${entry.doctorLabel}.`;
 
   // Nurse follow-up
   if (entry.severity !== "emergencia") {
-    text +=
-      "\n\n¿Hace cuánto te sentís así? ¿Es la primera vez o te pasó antes? Eso me ayuda a orientarte mejor.";
+    text += isEnglish
+      ? "\n\nHow long have you been feeling this way? Is this the first time or has it happened before? That helps me guide you better."
+      : "\n\n¿Hace cuánto te sentís así? ¿Es la primera vez o te pasó antes? Eso me ayuda a orientarte mejor.";
   }
 
   // Disclaimer
-  text += "\n\n⚕️ Esto es orientación general — no reemplaza una consulta médica.";
+  text += isEnglish
+    ? "\n\n⚕️ This is general guidance — it does not replace a medical consultation."
+    : "\n\n⚕️ Esto es orientación general — no reemplaza una consulta médica.";
 
   const quickReplies: QuickReply[] =
     entry.severity === "emergencia"
-      ? [
-          { label: "Llamar al 107 (emergencias)", value: "Necesito el número de emergencias" },
-          { label: "Guardia más cercana", value: "¿Dónde queda la guardia más cercana?" },
-        ]
-      : [
-          {
-            label: `Turno con ${entry.doctorType.split(" / ")[0]}`,
-            value: `Quiero un turno con ${entry.doctorType.split(" / ")[0]}`,
-          },
-          { label: "Hablar con un médico ya", value: "Quiero una teleconsulta ahora" },
-          ...(entry.otcMeds.length > 0
-            ? [{ label: "🛵 Que me lo traigan", value: "Quiero pedir remedios a domicilio" }]
-            : []),
-          { label: "Tengo otro problema", value: "No me siento bien" },
-        ];
+      ? isEnglish
+        ? [
+            { label: "Call 107 (emergency)", value: "I need the emergency number" },
+            { label: "Nearest ER", value: "Where is the nearest ER?" },
+          ]
+        : [
+            { label: "Llamar al 107 (emergencias)", value: "Necesito el número de emergencias" },
+            { label: "Guardia más cercana", value: "¿Dónde queda la guardia más cercana?" },
+          ]
+      : isEnglish
+        ? [
+            {
+              label: `Book ${entry.doctorType.split(" / ")[0]}`,
+              value: `I want an appointment with ${entry.doctorType.split(" / ")[0]}`,
+            },
+            { label: "Talk to a doctor now", value: "I want a telemedicine consultation now" },
+            ...(entry.otcMeds.length > 0
+              ? [{ label: "🛵 Deliver to me", value: "I want home delivery of medications" }]
+              : []),
+            { label: "Another issue", value: "I'm not feeling well" },
+          ]
+        : [
+            {
+              label: `Turno con ${entry.doctorType.split(" / ")[0]}`,
+              value: `Quiero un turno con ${entry.doctorType.split(" / ")[0]}`,
+            },
+            { label: "Hablar con un médico ya", value: "Quiero una teleconsulta ahora" },
+            ...(entry.otcMeds.length > 0
+              ? [{ label: "🛵 Que me lo traigan", value: "Quiero pedir remedios a domicilio" }]
+              : []),
+            { label: "Tengo otro problema", value: "No me siento bien" },
+          ];
 
   // PS-02: Crisis hotline card for mental health intents
   const isMentalHealth =
     entry.doctorType.includes("Psicología") || entry.doctorType.includes("Psiquiatría");
 
-  const crisisCard: InfoCard = {
-    title: "Línea de Crisis — 135",
-    body: "Atención en crisis emocional las 24 horas, los 365 días. Confidencial y gratuita.",
-    icon: "phone",
-    action: { label: "Llamar al 135", url: "tel:135" },
-  };
+  const crisisCard: InfoCard = isEnglish
+    ? {
+        title: "Crisis Hotline — 135",
+        body: "24/7 emotional crisis support. Confidential and free.",
+        icon: "phone",
+        action: { label: "Call 135", url: "tel:135" },
+      }
+    : {
+        title: "Línea de Crisis — 135",
+        body: "Atención en crisis emocional las 24 horas, los 365 días. Confidencial y gratuita.",
+        icon: "phone",
+        action: { label: "Llamar al 135", url: "tel:135" },
+      };
 
   const cards: InfoCard[] | undefined =
     entry.severity === "emergencia"
       ? [
-          {
-            title: "Emergencias - SAME",
-            body: "Línea 107 - Atención médica de emergencia 24/7 en todo el país.",
-            icon: "phone",
-            action: { label: "Llamar al 107", url: "tel:107" },
-          },
+          isEnglish
+            ? {
+                title: "Emergency — SAME",
+                body: "Line 107 — 24/7 emergency medical care nationwide.",
+                icon: "phone",
+                action: { label: "Call 107", url: "tel:107" },
+              }
+            : {
+                title: "Emergencias - SAME",
+                body: "Línea 107 - Atención médica de emergencia 24/7 en todo el país.",
+                icon: "phone",
+                action: { label: "Llamar al 107", url: "tel:107" },
+              },
         ]
       : isMentalHealth
         ? [
             crisisCard,
-            {
-              title: `Buscá un ${entry.doctorLabel}`,
-              body: "Encontrá profesionales cerca tuyo con turnos disponibles.",
-              icon: "search",
-              action: { label: "Ver profesionales", url: "/paciente/medicos" },
-            },
+            isEnglish
+              ? {
+                  title: `Find a ${entry.doctorLabel}`,
+                  body: "Find professionals near you with available appointments.",
+                  icon: "search",
+                  action: { label: "View professionals", url: "/paciente/medicos" },
+                }
+              : {
+                  title: `Buscá un ${entry.doctorLabel}`,
+                  body: "Encontrá profesionales cerca tuyo con turnos disponibles.",
+                  icon: "search",
+                  action: { label: "Ver profesionales", url: "/paciente/medicos" },
+                },
           ]
         : [
-            {
-              title: `Buscá un ${entry.doctorLabel}`,
-              body: "Encontrá profesionales cerca tuyo con turnos disponibles.",
-              icon: "search",
-              action: { label: "Ver profesionales", url: "/paciente/medicos" },
-            },
+            isEnglish
+              ? {
+                  title: `Find a ${entry.doctorLabel}`,
+                  body: "Find professionals near you with available appointments.",
+                  icon: "search",
+                  action: { label: "View professionals", url: "/paciente/medicos" },
+                }
+              : {
+                  title: `Buscá un ${entry.doctorLabel}`,
+                  body: "Encontrá profesionales cerca tuyo con turnos disponibles.",
+                  icon: "search",
+                  action: { label: "Ver profesionales", url: "/paciente/medicos" },
+                },
             ...(entry.otcMeds.length > 0
               ? [
                   {
-                    title: "🛵 Rappi — Te lo llevan a casa",
-                    body: "Pedí los medicamentos de venta libre por Rappi en minutos.",
+                    title: isEnglish
+                      ? "🛵 Rappi — Delivered to your door"
+                      : "🛵 Rappi — Te lo llevan a casa",
+                    body: isEnglish
+                      ? "Order OTC medications via Rappi in minutes."
+                      : "Pedí los medicamentos de venta libre por Rappi en minutos.",
                     icon: "truck" as const,
                     action: {
-                      label: "Pedir en Rappi",
+                      label: isEnglish ? "Order on Rappi" : "Pedir en Rappi",
                       url: "https://www.rappi.com.ar/farmacias",
                     },
                   },
                   {
-                    title: "🛵 PedidosYa — Farmacia a domicilio",
-                    body: "Comprá sin receta y recibilo en tu casa.",
+                    title: isEnglish
+                      ? "🛵 PedidosYa — Pharmacy delivery"
+                      : "🛵 PedidosYa — Farmacia a domicilio",
+                    body: isEnglish
+                      ? "Buy OTC meds and get them delivered."
+                      : "Comprá sin receta y recibilo en tu casa.",
                     icon: "truck" as const,
                     action: {
-                      label: "Pedir en PedidosYa",
+                      label: isEnglish ? "Order on PedidosYa" : "Pedir en PedidosYa",
                       url: "https://www.pedidosya.com.ar/farmacias",
                     },
                   },
@@ -964,7 +1088,30 @@ function buildTriageResponse(entry: TriageEntry): Partial<ChatMessage> {
 }
 
 // ── Symptom picker (body-part based, plain language) ────────
-function generateSymptomPicker(): Partial<ChatMessage> {
+function generateSymptomPicker(lang?: string): Partial<ChatMessage> {
+  if (en(lang)) {
+    return {
+      text: "Alright, let's figure out what's going on. Like a nurse would, I'll ask some questions to understand your situation.\n\nWhere do you feel the discomfort? Tap the closest match:",
+      quickReplies: [
+        { label: "Headache", value: "I have a headache" },
+        { label: "Sore throat", value: "I have a sore throat" },
+        { label: "Chest pain", value: "I have chest pain" },
+        { label: "Stomach pain", value: "I have stomach pain" },
+        { label: "Back pain", value: "I have back pain" },
+        { label: "Skin issue", value: "I have a skin problem" },
+        { label: "Cold or flu", value: "I have the flu" },
+        { label: "Fever", value: "I have a fever" },
+        { label: "Allergy", value: "I have an allergy" },
+        { label: "Anxiety or stress", value: "I have anxiety" },
+        { label: "For my child", value: "My child isn't feeling well" },
+        { label: "Women's health", value: "Gynecology consultation" },
+        { label: "Toothache", value: "I have a toothache" },
+        { label: "Eyes", value: "My eyes bother me" },
+        { label: "Ears", value: "My ear hurts" },
+        { label: "Injury or sprain", value: "I hurt my joint" },
+      ],
+    };
+  }
   return {
     text: "Bueno, vamos a ver qué te pasa. Como haría una enfermera, te voy a ir preguntando para entender bien.\n\n¿En qué parte del cuerpo sentís la molestia? Tocá la que más se acerque:",
     quickReplies: [
@@ -988,17 +1135,42 @@ function generateSymptomPicker(): Partial<ChatMessage> {
   };
 }
 
-function generateCoverageResponse(entities: Record<string, string>): Partial<ChatMessage> {
+function generateCoverageResponse(
+  entities: Record<string, string>,
+  lang?: string,
+): Partial<ChatMessage> {
   const provider = entities.provider;
 
   if (provider) {
     const name = provider.charAt(0).toUpperCase() + provider.slice(1);
+    if (en(lang)) {
+      return {
+        text: `Cóndor Salud works with ${name} and many other insurance providers. From your account you can:\n\n• See what your plan covers\n• Check your copay amount\n• Request authorizations for tests\n• See which medications are covered\n\nWant to verify your coverage?`,
+        quickReplies: [
+          { label: "Verify coverage", value: "I want to verify my coverage" },
+          { label: "View plans", value: "What plans do you have?" },
+          { label: "Talk to someone", value: "I want to talk to an agent" },
+        ],
+      };
+    }
     return {
       text: `Cóndor Salud trabaja con ${name} y muchas otras obras sociales y prepagas. Desde tu cuenta podés:\n\n• Ver qué te cubre tu plan\n• Saber cuánto te sale el coseguro\n• Pedir autorizaciones para estudios\n• Ver qué remedios te cubre\n\n¿Querés verificar tu cobertura?`,
       quickReplies: [
         { label: "Verificar cobertura", value: "Quiero verificar mi cobertura" },
         { label: "Ver planes", value: "¿Qué planes tienen?" },
         { label: "Hablar con alguien", value: "Quiero hablar con un agente" },
+      ],
+    };
+  }
+
+  if (en(lang)) {
+    return {
+      text: "We work with the largest health insurance providers in Argentina:\n\n• PAMI\n• OSDE\n• Swiss Medical\n• Galeno\n• Medifé\n• Accord Salud\n• And many more\n\nWhich one do you have?",
+      quickReplies: [
+        { label: "PAMI", value: "I have PAMI, what does it cover?" },
+        { label: "OSDE", value: "I have OSDE, what does it cover?" },
+        { label: "Swiss Medical", value: "I have Swiss Medical, what does it cover?" },
+        { label: "Other", value: "I have a different insurance" },
       ],
     };
   }
@@ -1014,7 +1186,23 @@ function generateCoverageResponse(entities: Record<string, string>): Partial<Cha
   };
 }
 
-function generateAppointmentResponse(): Partial<ChatMessage> {
+function generateAppointmentResponse(lang?: string): Partial<ChatMessage> {
+  if (en(lang)) {
+    return {
+      text: "Let's find you an appointment. Do you know what type of doctor you need, or would you rather tell me what's going on and I'll guide you? Don't worry if you're not sure — that's what I'm here for 😊",
+      quickReplies: [
+        { label: "General doctor", value: "Appointment with a general doctor" },
+        { label: "Heart doctor", value: "Appointment with a cardiologist" },
+        { label: "Skin doctor", value: "Appointment with a dermatologist" },
+        { label: "Bone/joint doctor", value: "Appointment with an orthopedist" },
+        { label: "For my child", value: "Appointment with a pediatrician" },
+        { label: "Gynecologist", value: "Appointment with a gynecologist" },
+        { label: "Dentist", value: "Appointment with a dentist" },
+        { label: "Not sure which I need", value: "I'm not feeling well" },
+      ],
+    };
+  }
+
   return {
     text: "¡Perfecto! Vamos a buscarte un turno. ¿Sabés qué tipo de médico necesitás, o preferís contarme qué te pasa y yo te oriento? No te preocupes si no sabés, para eso estoy 😊",
     quickReplies: [
@@ -1030,7 +1218,26 @@ function generateAppointmentResponse(): Partial<ChatMessage> {
   };
 }
 
-function generateAppointmentBooking(specialty: string): Partial<ChatMessage> {
+function generateAppointmentBooking(specialty: string, lang?: string): Partial<ChatMessage> {
+  if (en(lang)) {
+    return {
+      text: `Done! You can search for appointments with ${specialty} in our directory. You'll see nearby professionals with available times, patient reviews, and whether they accept your insurance.\n\nIf you'd rather be seen right now from home, telemedicine is also available.`,
+      quickReplies: [
+        { label: "Search appointments", value: "I want to see the doctor directory" },
+        { label: "Telemedicine now", value: "I want a telemedicine consultation now" },
+        { label: "Different specialty", value: "I want to book an appointment" },
+      ],
+      cards: [
+        {
+          title: "Provider Directory",
+          body: "Search by specialty, area, and insurance. Appointments available 24/7.",
+          icon: "search",
+          action: { label: "Search appointments", url: "/paciente/medicos" },
+        },
+      ],
+    };
+  }
+
   return {
     text: `¡Listo! Podés buscar turnos con ${specialty} en nuestro directorio. Vas a ver profesionales cerca tuyo con horarios disponibles, opiniones de otros pacientes y si aceptan tu obra social.\n\nSi preferís atenderte ahora desde tu casa, también hay teleconsulta.`,
     quickReplies: [
@@ -1049,7 +1256,37 @@ function generateAppointmentBooking(specialty: string): Partial<ChatMessage> {
   };
 }
 
-function generateMedicationResponse(): Partial<ChatMessage> {
+function generateMedicationResponse(lang?: string): Partial<ChatMessage> {
+  if (en(lang)) {
+    return {
+      text: "With Cóndor Salud you can manage everything about your medications:\n\n• Search up-to-date medication prices\n• View your active prescriptions\n• Get them delivered to your door via Rappi or PedidosYa\n• Set up automatic refills for your regular meds\n• Find on-duty pharmacies nearby\n\nWhat do you need?",
+      quickReplies: [
+        { label: "Search a medication", value: "I want to search for a medication" },
+        { label: "My prescriptions", value: "I want to see my prescriptions" },
+        { label: "On-duty pharmacy", value: "Where is there an on-duty pharmacy?" },
+        { label: "🛵 Order via Rappi", value: "I want to order meds via Rappi" },
+        { label: "🛵 Order via PedidosYa", value: "I want to order meds via PedidosYa" },
+      ],
+      cards: [
+        {
+          title: "Rappi — Pharmacy Delivery",
+          body: "Order over-the-counter medications delivered in minutes.",
+          icon: "truck",
+          action: {
+            label: "Open Rappi",
+            url: "https://www.rappi.com.ar/farmacias",
+          },
+        },
+        {
+          title: "PedidosYa — Pharmacy Delivery",
+          body: "Buy non-prescription meds and get them delivered home.",
+          icon: "truck",
+          action: { label: "Open PedidosYa", url: "https://www.pedidosya.com.ar/farmacias" },
+        },
+      ],
+    };
+  }
+
   return {
     text: "Desde Cóndor Salud podés manejar todo lo de tus remedios:\n\n• Buscar precios actualizados de medicamentos\n• Ver tus recetas vigentes\n• Pedir que te los lleven a tu casa con Rappi o PedidosYa\n• Configurar pedidos automáticos para los que tomás siempre\n• Buscar farmacias de guardia cerca\n\n¿Qué necesitás?",
     quickReplies: [
@@ -1083,11 +1320,59 @@ function generateMedicationResponse(): Partial<ChatMessage> {
 
 function generateDeliveryResponse(
   coords?: { lat: number; lng: number } | null,
+  lang?: string,
 ): Partial<ChatMessage> {
   const rappiUrl = coords
     ? `https://www.rappi.com.ar/farmacias?lat=${coords.lat}&lng=${coords.lng}`
     : "https://www.rappi.com.ar/farmacias";
   const pedidosYaUrl = "https://www.pedidosya.com.ar/farmacias";
+
+  if (en(lang)) {
+    let text =
+      "You can order over-the-counter medications (no prescription needed) straight to your door with these apps:\n";
+    text += "\n🟠 Rappi — Delivered in 30–60 min. Pay by card, cash, or Mercado Pago.";
+    text += "\n🔴 PedidosYa — Delivery from partner pharmacies with real-time tracking.";
+    text +=
+      '\n\n💡 Tip: Search by medication name (e.g., "Tafirol", "Ibupirac") in the app and compare prices across pharmacies.';
+
+    if (!coords) {
+      text += "\n\n📍 Share your location and I'll show you the closest pharmacies with delivery.";
+    }
+
+    const cards: InfoCard[] = [
+      {
+        title: "Rappi — Pharmacy",
+        body: "Over-the-counter meds delivered to your door in 30–60 min.",
+        icon: "truck",
+        action: { label: "Order on Rappi", url: rappiUrl },
+      },
+      {
+        title: "PedidosYa — Pharmacy",
+        body: "Nearby pharmacies with delivery. Live tracking.",
+        icon: "truck",
+        action: { label: "Order on PedidosYa", url: pedidosYaUrl },
+      },
+    ];
+
+    if (coords) {
+      cards.push({
+        title: "Pharmacies near you",
+        body: "View all nearby pharmacies on Google Maps.",
+        icon: "map-pin",
+        mapUrl: mapsSearchNearby(coords.lat, coords.lng, "farmacia"),
+      });
+    }
+
+    return {
+      text,
+      cards,
+      quickReplies: [
+        { label: "Pharmacy nearby", value: "Pharmacy near me" },
+        { label: "What can I take?", value: "I'm not feeling well" },
+        { label: "Telemedicine", value: "I want a telemedicine consultation" },
+      ],
+    };
+  }
 
   let text =
     "¡Perfecto! Podés pedir medicamentos de venta libre (sin receta) directo a tu casa con estas apps:\n";
@@ -1137,7 +1422,29 @@ function generateDeliveryResponse(
   };
 }
 
-function generateTelemedicineResponse(): Partial<ChatMessage> {
+function generateTelemedicineResponse(lang?: string): Partial<ChatMessage> {
+  if (en(lang)) {
+    return {
+      text: "With telemedicine you can talk to a doctor by video call without leaving home:\n\n• General practitioner, psychologist, nutritionist, and more\n• Digital prescription sent instantly\n• Consultation summary via WhatsApp\n• Monday to Saturday, 8 AM to 10 PM\n\nIf your insurance covers it, it can be free. Otherwise, it’s $4,500.",
+      quickReplies: [
+        { label: "Talk to a doctor now", value: "I want to start a telemedicine consultation now" },
+        {
+          label: "Schedule for another day",
+          value: "I want to schedule a telemedicine consultation",
+        },
+        { label: "Does my insurance cover it?", value: "Does telemedicine accept my insurance?" },
+      ],
+      cards: [
+        {
+          title: "Telemedicine",
+          body: "Talk to a doctor in minutes. From home.",
+          icon: "video",
+          action: { label: "Start telemedicine", url: "/paciente/teleconsulta" },
+        },
+      ],
+    };
+  }
+
   return {
     text: "Con la teleconsulta podés hablar con un médico por videollamada, sin salir de tu casa:\n\n• Médico clínico, psicólogo, nutricionista y más\n• Te dan la receta digital al toque\n• Resumen de la consulta por WhatsApp\n• De lunes a sábados de 8 a 22hs\n\nSi tu obra social lo cubre, puede ser gratis. Sino, sale $4.500.",
     quickReplies: [
@@ -1156,7 +1463,26 @@ function generateTelemedicineResponse(): Partial<ChatMessage> {
   };
 }
 
-function generatePricingResponse(): Partial<ChatMessage> {
+function generatePricingResponse(lang?: string): Partial<ChatMessage> {
+  if (en(lang)) {
+    return {
+      text: "We have 3 plans:\n\n• Essential — Free\n  Verify coverage and search for doctors\n\n• Professional — $12,900/month\n  Digital prescriptions, telemedicine, billing\n\n• Institution — $34,900/month\n  All-inclusive, multi-location, dedicated support\n\nAll plans include a 14-day free trial, no credit card required.",
+      quickReplies: [
+        { label: "Try for free", value: "I want to try it for free" },
+        { label: "Compare plans", value: "I want to compare plans in detail" },
+        { label: "Talk to someone", value: "I want to talk to someone in sales" },
+      ],
+      cards: [
+        {
+          title: "Try free for 14 days",
+          body: "No credit card required. Cancel anytime.",
+          icon: "star",
+          action: { label: "Start for free", url: "/auth/registro" },
+        },
+      ],
+    };
+  }
+
   return {
     text: "Tenemos 3 planes:\n\n• Esencial — Gratis\n  Verificar cobertura y buscar médicos\n\n• Profesional — $12.900/mes\n  Recetas digitales, telemedicina, facturación\n\n• Institución — $34.900/mes\n  Todo incluido, multi-sede, soporte dedicado\n\nTodos tienen 14 días de prueba gratis, sin meter tarjeta.",
     quickReplies: [
@@ -1175,7 +1501,18 @@ function generatePricingResponse(): Partial<ChatMessage> {
   };
 }
 
-function generateHowItWorksResponse(): Partial<ChatMessage> {
+function generateHowItWorksResponse(lang?: string): Partial<ChatMessage> {
+  if (en(lang)) {
+    return {
+      text: "Cóndor Salud brings all your healthcare into one place. Here’s what you can do:\n\n1. Check what your insurance covers instantly\n2. Search for doctors and book appointments online\n3. Talk to a doctor by video call\n4. Manage your prescriptions and order medications\n5. Check your symptoms (like right now)\n6. Receive reminders via WhatsApp\n\nWorks with PAMI, OSDE, Swiss Medical, Galeno, and many more.",
+      quickReplies: [
+        { label: "Sign up", value: "I want to sign up" },
+        { label: "How much does it cost?", value: "How much does it cost?" },
+        { label: "Try the demo", value: "I want to see a demo" },
+      ],
+    };
+  }
+
   return {
     text: "Cóndor Salud junta todo lo de salud en un solo lugar. Lo que podés hacer:\n\n1. Ver qué te cubre tu obra social al instante\n2. Buscar médicos y sacar turno online\n3. Hablar con un médico por videollamada\n4. Manejar tus recetas y pedir remedios\n5. Chequear tus síntomas (como ahora)\n6. Recibir recordatorios por WhatsApp\n\nFunciona con PAMI, OSDE, Swiss Medical, Galeno y muchas más.",
     quickReplies: [
@@ -1186,7 +1523,25 @@ function generateHowItWorksResponse(): Partial<ChatMessage> {
   };
 }
 
-function generateRegisterResponse(): Partial<ChatMessage> {
+function generateRegisterResponse(lang?: string): Partial<ChatMessage> {
+  if (en(lang)) {
+    return {
+      text: "Signing up is free and takes 2 minutes:\n\n1. Enter your email and choose a password\n2. Fill in your details and insurance info\n3. That's it! You're ready to go\n\nNo credit card required.",
+      quickReplies: [
+        { label: "Let's do it, sign me up", value: "I want to sign up now" },
+        { label: "I have a question", value: "I have questions before signing up" },
+      ],
+      cards: [
+        {
+          title: "Create a free account",
+          body: "2 minutes. No credit card required.",
+          icon: "user-plus",
+          action: { label: "Sign up", url: "/auth/registro" },
+        },
+      ],
+    };
+  }
+
   return {
     text: "Registrarte es gratis y tarda 2 minutos:\n\n1. Poné tu email y elegí una contraseña\n2. Completá tus datos y tu obra social\n3. ¡Listo! Ya podés usar todo\n\nNo necesitás tarjeta de crédito.",
     quickReplies: [
@@ -1204,7 +1559,28 @@ function generateRegisterResponse(): Partial<ChatMessage> {
   };
 }
 
-function generateContactHumanResponse(): Partial<ChatMessage> {
+function generateContactHumanResponse(lang?: string): Partial<ChatMessage> {
+  if (en(lang)) {
+    return {
+      text: "Of course! Let me connect you with someone from our team:\n\n• WhatsApp: +1 202 695 0244 (response in minutes)\n• Email: soporte@condorsalud.com.ar\n• Phone: 0800-333-SALUD (Mon–Fri 9 AM to 6 PM)\n\nWould you like me to transfer you to WhatsApp?",
+      quickReplies: [
+        { label: "Go to WhatsApp", value: "Yes, transfer me to WhatsApp" },
+        { label: "I'll stay here", value: "I'd rather stay here" },
+      ],
+      cards: [
+        {
+          title: "WhatsApp — We're here to help",
+          body: "Talk to a real person. Response time: 3 minutes.",
+          icon: "message-circle",
+          action: {
+            label: "Open WhatsApp",
+            url: "https://wa.me/12026950244?text=Hola%2C%20necesito%20ayuda%20con%20C%C3%B3ndor%20Salud",
+          },
+        },
+      ],
+    };
+  }
+
   return {
     text: "¡Claro! Te conecto con una persona de nuestro equipo:\n\n• WhatsApp: +1 202 695 0244 (te responden en minutos)\n• Email: soporte@condorsalud.com.ar\n• Teléfono: 0800-333-SALUD (lunes a viernes 9 a 18hs)\n\n¿Querés que te pasemos a WhatsApp?",
     quickReplies: [
@@ -1227,7 +1603,29 @@ function generateContactHumanResponse(): Partial<ChatMessage> {
 
 function generateLocationResponse(
   coords?: { lat: number; lng: number } | null,
+  lang?: string,
 ): Partial<ChatMessage> {
+  if (en(lang)) {
+    if (coords) {
+      return {
+        text: "I've got your location! I can help you find what you need nearby:\n\n• Doctors and clinics\n• Pharmacies (including on-duty ones)\n• Emergency rooms and hospitals\n• Directions to any of them\n\nWhat are you looking for?",
+        quickReplies: [
+          { label: "Doctor nearby", value: "Find a doctor near me" },
+          { label: "Pharmacy nearby", value: "Pharmacy near me" },
+          { label: "Nearest ER", value: "Nearest emergency room" },
+          { label: "Directions to...", value: "How do I get to Hospital Italiano" },
+        ],
+      };
+    }
+    return {
+      text: "Cóndor Salud is 100% online — use it from wherever you are.\n\nIf you share your location, I can find doctors, pharmacies, and emergency rooms near you, and give you directions to get there.\n\nClick the 📍 location button below to enable it.",
+      quickReplies: [
+        { label: "Search nearby", value: "Search clinics nearby" },
+        { label: "On-duty pharmacy", value: "Where is there an on-duty pharmacy?" },
+      ],
+    };
+  }
+
   if (coords) {
     return {
       text: "Ya tengo tu ubicación. Puedo ayudarte a encontrar lo que necesites cerca tuyo:\n\n• Médicos y consultorios\n• Farmacias (de guardia también)\n• Guardias y hospitales\n• Cómo llegar a cualquiera de ellos\n\n¿Qué estás buscando?",
@@ -1401,8 +1799,18 @@ function formatDist(km: number): string {
 
 function generateNearbyDoctorResponse(
   coords?: { lat: number; lng: number } | null,
+  lang?: string,
 ): Partial<ChatMessage> {
   if (!coords) {
+    if (en(lang)) {
+      return {
+        text: "To find doctors near you I need your location. Click the 📍 location button below the chat to share it.",
+        quickReplies: [
+          { label: "Search the directory", value: "I want to see the doctor directory" },
+          { label: "Telemedicine now", value: "I want a telemedicine consultation" },
+        ],
+      };
+    }
     return {
       text: "Para buscarte médicos cerca tuyo necesito tu ubicación. Hacé clic en el botón de 📍 ubicación abajo del chat para compartirla.",
       quickReplies: [
@@ -1413,6 +1821,33 @@ function generateNearbyDoctorResponse(
   }
 
   const sorted = sortByDistance(NEARBY_DOCTORS, coords.lat, coords.lng).slice(0, 3);
+
+  if (en(lang)) {
+    let text = "I found these providers near you:\n";
+    for (const doc of sorted) {
+      text += `\n📍 ${doc.name} — ${doc.specialty}\n   ${doc.address} (${formatDist(doc.distKm)})\n`;
+    }
+    text += '\nTap "Get directions" on each one to see directions in Google Maps.';
+
+    const cards: InfoCard[] = sorted.map((doc) => ({
+      title: `${doc.name} — ${doc.specialty}`,
+      body: `${doc.address} • ${formatDist(doc.distKm)} away`,
+      icon: "map-pin",
+      action: { label: "Book appointment", url: "/paciente/medicos" },
+      directionsUrl: mapsDirectionsUrl(coords.lat, coords.lng, doc.lat, doc.lng),
+      mapUrl: mapsPlaceUrl(doc.lat, doc.lng, doc.name),
+    }));
+
+    return {
+      text,
+      cards,
+      quickReplies: [
+        { label: "See more in directory", value: "I want to see the doctor directory" },
+        { label: "Telemedicine now", value: "I want a telemedicine consultation" },
+        { label: "Pharmacy nearby", value: "Pharmacy near me" },
+      ],
+    };
+  }
 
   let text = "Encontré estos profesionales cerca tuyo:\n";
   for (const doc of sorted) {
@@ -1442,8 +1877,15 @@ function generateNearbyDoctorResponse(
 
 function generateNearbyPharmacyResponse(
   coords?: { lat: number; lng: number } | null,
+  lang?: string,
 ): Partial<ChatMessage> {
   if (!coords) {
+    if (en(lang)) {
+      return {
+        text: "To find pharmacies near you I need your location. Click the 📍 location button below the chat to share it.",
+        quickReplies: [{ label: "Search on Google Maps", value: "Pharmacies on Google Maps" }],
+      };
+    }
     return {
       text: "Para buscarte farmacias cerca tuyo necesito tu ubicación. Hacé clic en el botón de 📍 ubicación abajo del chat para compartirla.",
       quickReplies: [{ label: "Buscar en Google Maps", value: "Farmacias en Google Maps" }],
@@ -1451,6 +1893,33 @@ function generateNearbyPharmacyResponse(
   }
 
   const sorted = sortByDistance(NEARBY_PHARMACIES, coords.lat, coords.lng).slice(0, 3);
+
+  if (en(lang)) {
+    let text = "Here are the closest pharmacies:\n";
+    for (const ph of sorted) {
+      const tag = ph.open24h ? " (24h)" : "";
+      text += `\n🏥 ${ph.name}${tag}\n   ${ph.address} (${formatDist(ph.distKm)})\n`;
+    }
+    text += '\nTap "Get directions" to see directions in Google Maps.';
+
+    const cards: InfoCard[] = sorted.map((ph) => ({
+      title: `${ph.name}${ph.open24h ? " — 24h" : ""}`,
+      body: `${ph.address} • ${formatDist(ph.distKm)} away`,
+      icon: "pill",
+      directionsUrl: mapsDirectionsUrl(coords.lat, coords.lng, ph.lat, ph.lng),
+      mapUrl: mapsPlaceUrl(ph.lat, ph.lng, ph.name),
+    }));
+
+    return {
+      text,
+      cards,
+      quickReplies: [
+        { label: "View all on map", value: "Pharmacies on Google Maps" },
+        { label: "Doctor nearby", value: "Find a doctor near me" },
+        { label: "Nearest ER", value: "Nearest emergency room" },
+      ],
+    };
+  }
 
   let text = "Estas son las farmacias más cercanas:\n";
   for (const ph of sorted) {
@@ -1480,8 +1949,23 @@ function generateNearbyPharmacyResponse(
 
 function generateNearbyGuardiaResponse(
   coords?: { lat: number; lng: number } | null,
+  lang?: string,
 ): Partial<ChatMessage> {
   if (!coords) {
+    if (en(lang)) {
+      return {
+        text: "To find the nearest emergency room I need your location. Click the 📍 location button below the chat.\n\nIf this is an emergency, call 107 (SAME) now.",
+        quickReplies: [{ label: "Call 107", value: "I need the emergency number" }],
+        cards: [
+          {
+            title: "Emergency — SAME",
+            body: "Dial 107 — 24/7 emergency medical assistance",
+            icon: "phone",
+            action: { label: "Call 107", url: "tel:107" },
+          },
+        ],
+      };
+    }
     return {
       text: "Para encontrar la guardia más cercana necesito tu ubicación. Hacé clic en el botón de 📍 ubicación abajo del chat.\n\nSi es una emergencia, llamá al 107 (SAME) ahora.",
       quickReplies: [{ label: "Llamar al 107", value: "Necesito el número de emergencias" }],
@@ -1497,6 +1981,32 @@ function generateNearbyGuardiaResponse(
   }
 
   const sorted = sortByDistance(NEARBY_GUARDIAS, coords.lat, coords.lng).slice(0, 3);
+
+  if (en(lang)) {
+    let text = "Here are the nearest emergency rooms:\n";
+    for (const g of sorted) {
+      text += `\n🚑 ${g.name}\n   ${g.address} (${formatDist(g.distKm)})${g.phone ? `\n   ☎ ${g.phone}` : ""}\n`;
+    }
+    text += '\nTap "Get directions" to see the fastest route in Google Maps.';
+
+    const cards: InfoCard[] = sorted.map((g) => ({
+      title: g.name,
+      body: `${g.address} • ${formatDist(g.distKm)} away${g.phone ? ` • ☎ ${g.phone}` : ""}`,
+      icon: "siren",
+      action: g.phone ? { label: `Call`, url: `tel:${g.phone}` } : undefined,
+      directionsUrl: mapsDirectionsUrl(coords.lat, coords.lng, g.lat, g.lng),
+      mapUrl: mapsPlaceUrl(g.lat, g.lng, g.name),
+    }));
+
+    return {
+      text,
+      cards,
+      quickReplies: [
+        { label: "Call 107", value: "I need the emergency number" },
+        { label: "Doctor nearby", value: "Find a doctor near me" },
+      ],
+    };
+  }
 
   let text = "Estas son las guardias más cercanas:\n";
   for (const g of sorted) {
@@ -1525,8 +2035,15 @@ function generateNearbyGuardiaResponse(
 
 function generateDirectionsResponse(
   coords?: { lat: number; lng: number } | null,
+  lang?: string,
 ): Partial<ChatMessage> {
   if (!coords) {
+    if (en(lang)) {
+      return {
+        text: "To give you directions I need your location. Click the 📍 location button below the chat.",
+        quickReplies: [{ label: "Search on Google Maps", value: "Open Google Maps" }],
+      };
+    }
     return {
       text: "Para darte indicaciones de cómo llegar necesito tu ubicación. Hacé clic en el botón de 📍 ubicación abajo del chat.",
       quickReplies: [{ label: "Buscar en Google Maps", value: "Abrir Google Maps" }],
@@ -1539,6 +2056,42 @@ function generateDirectionsResponse(
     ...sortByDistance(NEARBY_PHARMACIES, coords.lat, coords.lng).slice(0, 1),
     ...sortByDistance(NEARBY_GUARDIAS, coords.lat, coords.lng).slice(0, 1),
   ].sort((a, b) => a.distKm - b.distKm);
+
+  if (en(lang)) {
+    let text =
+      "Where would you like to go? Here are the nearest healthcare locations with directions:\n";
+    for (const p of allPlaces) {
+      const extra = p.specialty
+        ? ` (${p.specialty})`
+        : p.emergency
+          ? " (ER)"
+          : p.open24h !== undefined
+            ? " (Pharmacy)"
+            : "";
+      text += `\n📍 ${p.name}${extra} — ${formatDist(p.distKm)}\n`;
+    }
+    text += '\nEach card has a "Get directions" link that opens Google Maps with the route.';
+
+    const cards: InfoCard[] = allPlaces.map((p) => {
+      const extra = p.specialty ?? (p.emergency ? "ER" : p.open24h !== undefined ? "Pharmacy" : "");
+      return {
+        title: `${p.name}${extra ? ` — ${extra}` : ""}`,
+        body: `${p.address} • ${formatDist(p.distKm)} away`,
+        icon: "navigation",
+        directionsUrl: mapsDirectionsUrl(coords.lat, coords.lng, p.lat, p.lng),
+        mapUrl: mapsPlaceUrl(p.lat, p.lng, p.name),
+      };
+    });
+
+    return {
+      text,
+      cards,
+      quickReplies: [
+        { label: "Open Google Maps", value: "Open Google Maps" },
+        { label: "Search another place", value: "Find a doctor near me" },
+      ],
+    };
+  }
 
   let text =
     "¿A dónde querés llegar? Acá te muestro los lugares de salud más cercanos con indicaciones:\n";
@@ -1618,7 +2171,28 @@ function generateGoogleMapsSearch(
 
 function generateSharedLocationResponse(
   coords?: { lat: number; lng: number } | null,
+  lang?: string,
 ): Partial<ChatMessage> {
+  if (en(lang)) {
+    if (coords) {
+      return {
+        text: "Got your location! 📍 Now I can find what you need nearby and give you directions to get there.\n\nWhat are you looking for?",
+        quickReplies: [
+          { label: "Doctor nearby", value: "Find a doctor near me" },
+          { label: "Pharmacy nearby", value: "Pharmacy near me" },
+          { label: "Nearest ER", value: "Nearest emergency room" },
+          { label: "Directions to...", value: "How do I get to Hospital Italiano" },
+        ],
+      };
+    }
+    return {
+      text: "It looks like I haven't received your location yet. Click the 📍 button below the chat and wait a few seconds for your browser to share it.",
+      quickReplies: [
+        { label: "Search the directory", value: "I want to see the doctor directory" },
+      ],
+    };
+  }
+
   if (coords) {
     return {
       text: "¡Perfecto, ya tengo tu ubicación! 📍 Ahora puedo buscarte lo que necesites cerca tuyo y darte indicaciones para llegar.\n\n¿Qué estás buscando?",
@@ -1637,7 +2211,19 @@ function generateSharedLocationResponse(
   };
 }
 
-function generateFallback(): Partial<ChatMessage> {
+function generateFallback(lang?: string): Partial<ChatMessage> {
+  if (en(lang)) {
+    return {
+      text: "Sorry, I didn't quite catch that 🤔 But don't worry, I'm here to help! Could you tell me in different words what's going on or what you need? Or if you prefer, pick one of these options:",
+      quickReplies: [
+        { label: "I'm not feeling well", value: "I'm not feeling well" },
+        { label: "I need an appointment", value: "I want to book an appointment" },
+        { label: "My coverage", value: "I want to check my insurance coverage" },
+        { label: "Talk to a person", value: "I want to talk to an agent" },
+      ],
+    };
+  }
+
   return {
     text: "Perdón, no te entendí del todo 🤔 Pero quedate tranqui que te quiero ayudar. ¿Podés contarme con otras palabras qué te pasa o qué necesitás? O si preferís, elegí una de estas opciones:",
     quickReplies: [
@@ -1787,12 +2373,13 @@ function extractSpecialty(message: string): string | null {
 export function processMessage(
   userMessage: string,
   coords?: { lat: number; lng: number } | null,
+  lang?: string,
 ): Partial<ChatMessage> {
   const { intent, entities } = detectIntent(userMessage);
 
   // Check if it's a triage-mapped intent
   if (intent in TRIAGE && TRIAGE[intent]) {
-    const triageResp = buildTriageResponse(TRIAGE[intent]);
+    const triageResp = buildTriageResponse(TRIAGE[intent], lang);
     // For emergencies, add nearest guardia with directions if we have coords
     if (TRIAGE[intent].severity === "emergencia" && coords) {
       const nearest = sortByDistance(NEARBY_GUARDIAS, coords.lat, coords.lng)[0];
@@ -1801,10 +2388,14 @@ export function processMessage(
         triageResp.cards = [
           ...(triageResp.cards ?? []),
           {
-            title: `Guardia más cercana: ${nearest.name}`,
+            title: en(lang)
+              ? `Nearest ER: ${nearest.name}`
+              : `Guardia más cercana: ${nearest.name}`,
             body: `${nearest.address} — a ${formatDist(nearest.distKm)}`,
             icon: "siren",
-            action: nearest.phone ? { label: "Llamar", url: `tel:${nearest.phone}` } : undefined,
+            action: nearest.phone
+              ? { label: en(lang) ? "Call" : "Llamar", url: `tel:${nearest.phone}` }
+              : undefined,
             directionsUrl: dirUrl,
             mapUrl: mapsPlaceUrl(nearest.lat, nearest.lng, nearest.name),
           },
@@ -1817,51 +2408,51 @@ export function processMessage(
   // Check for appointment with specific specialty
   if (intent === "appointment") {
     const specialty = extractSpecialty(userMessage);
-    if (specialty) return generateAppointmentBooking(specialty);
-    return generateAppointmentResponse();
+    if (specialty) return generateAppointmentBooking(specialty, lang);
+    return generateAppointmentResponse(lang);
   }
 
   switch (intent) {
     case "greeting":
-      return generateGreeting();
+      return generateGreeting(lang);
     case "farewell":
-      return generateFarewell();
+      return generateFarewell(lang);
     case "thanks":
-      return generateThanks();
+      return generateThanks(lang);
     case "covid":
-      return generateCovidResponse();
+      return generateCovidResponse(lang);
     case "triage_generic":
-      return generateSymptomPicker();
+      return generateSymptomPicker(lang);
     case "coverage":
-      return generateCoverageResponse(entities);
+      return generateCoverageResponse(entities, lang);
     case "medication":
-      return generateMedicationResponse();
+      return generateMedicationResponse(lang);
     case "delivery":
-      return generateDeliveryResponse(coords);
+      return generateDeliveryResponse(coords, lang);
     case "telemedicine":
-      return generateTelemedicineResponse();
+      return generateTelemedicineResponse(lang);
     case "pricing":
-      return generatePricingResponse();
+      return generatePricingResponse(lang);
     case "how_it_works":
-      return generateHowItWorksResponse();
+      return generateHowItWorksResponse(lang);
     case "register":
-      return generateRegisterResponse();
+      return generateRegisterResponse(lang);
     case "contact_human":
-      return generateContactHumanResponse();
+      return generateContactHumanResponse(lang);
     case "location":
-      return generateLocationResponse(coords);
+      return generateLocationResponse(coords, lang);
     case "nearby_doctor":
-      return generateNearbyDoctorResponse(coords);
+      return generateNearbyDoctorResponse(coords, lang);
     case "nearby_pharmacy":
-      return generateNearbyPharmacyResponse(coords);
+      return generateNearbyPharmacyResponse(coords, lang);
     case "nearby_guardia":
-      return generateNearbyGuardiaResponse(coords);
+      return generateNearbyGuardiaResponse(coords, lang);
     case "directions":
-      return generateDirectionsResponse(coords);
+      return generateDirectionsResponse(coords, lang);
     case "shared_location":
-      return generateSharedLocationResponse(coords);
+      return generateSharedLocationResponse(coords, lang);
     default:
-      return generateFallback();
+      return generateFallback(lang);
   }
 }
 

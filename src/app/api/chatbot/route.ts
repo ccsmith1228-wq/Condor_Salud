@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
         id: `bot-${Date.now()}`,
         role: "bot",
         timestamp: Date.now(),
-        ...processMessage(cleanMessage, coords),
+        ...processMessage(cleanMessage, coords, lang),
       });
     }
 
@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
     const delay = 200 + Math.random() * 400;
     await new Promise((resolve) => setTimeout(resolve, delay));
 
-    const response = processMessage(cleanMessage, coords);
+    const response = processMessage(cleanMessage, coords, lang);
 
     return NextResponse.json({
       id: `bot-${Date.now()}`,
