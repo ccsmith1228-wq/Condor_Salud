@@ -2,9 +2,19 @@
   // Tailwind CSS uses @tailwind directives — suppress unknown-at-rule warnings
   "css.lint.unknownAtRules": "ignore",
 
-  // Let Tailwind CSS IntelliSense handle validation instead of built-in CSS
-  "css.validate": true,
+  // Disable built-in CSS validation — Tailwind IntelliSense handles it
+  "css.validate": false,
+  "less.validate": false,
+  "scss.validate": false,
 
-  // Prevent Edge Tools from running webhint on files we already lint via axe-linter
-  "vscode-edge-devtools.webhint": true
+  // Treat .css as Tailwind so IntelliSense works correctly
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+
+  // PostgreSQL migrations — disable MSSQL diagnostics for .sql files
+  "mssql.ignoredFiles": ["supabase/**/*.sql"],
+
+  // Ensure the TS language server restarts cleanly
+  "typescript.tsdk": "node_modules/typescript/lib"
 }
