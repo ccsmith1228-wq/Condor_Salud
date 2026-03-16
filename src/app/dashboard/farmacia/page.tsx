@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useDemoAction } from "@/components/DemoModal";
+import { formatCurrency } from "@/lib/utils";
 import {
   useMedications,
   usePrescriptions,
@@ -190,7 +191,7 @@ export default function FarmaciaPage() {
                     <td className="px-5 py-3 text-ink-light">{med.lab}</td>
                     <td className="px-5 py-3 text-ink-light">{med.category}</td>
                     <td className="px-5 py-3 text-right font-medium text-ink">
-                      ${med.price.toLocaleString("es-AR")}
+                      {formatCurrency(med.price)}
                     </td>
                     <td className="px-5 py-3 text-center">
                       <span className="text-green-600 font-medium">{med.pamiCoverage}%</span>
@@ -413,7 +414,7 @@ export default function FarmaciaPage() {
                     >
                       <td className="px-5 py-3 font-medium text-ink">{med.name}</td>
                       <td className="px-5 py-3 text-right text-ink-muted">
-                        ${med.price.toLocaleString("es-AR")}
+                        {formatCurrency(med.price)}
                       </td>
                       <td className="px-5 py-3 text-center">
                         <span
@@ -423,10 +424,10 @@ export default function FarmaciaPage() {
                         </span>
                       </td>
                       <td className="px-5 py-3 text-right text-green-600">
-                        -${discount.toLocaleString("es-AR")}
+                        -{formatCurrency(discount)}
                       </td>
                       <td className="px-5 py-3 text-right font-bold text-ink">
-                        ${copago.toLocaleString("es-AR")}
+                        {formatCurrency(copago)}
                       </td>
                     </tr>
                   );

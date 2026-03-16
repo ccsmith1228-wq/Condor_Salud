@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useDemoAction } from "@/components/DemoModal";
+import { formatCurrency } from "@/lib/utils";
 
 /* ---------- Types ---------- */
 interface PaymentMethod {
@@ -254,8 +255,7 @@ export default function PagosConfigPage() {
     .reduce((sum, t) => sum + t.monto, 0);
   const autoCount = paymentMethods.filter((p) => p.autoBilling).length;
 
-  const fmt = (n: number) =>
-    n.toLocaleString("es-AR", { style: "currency", currency: "ARS", minimumFractionDigits: 0 });
+  const fmt = formatCurrency;
 
   const tabs = [
     { id: "overview" as const, label: "General" },

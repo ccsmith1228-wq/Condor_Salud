@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useDemoAction } from "@/components/DemoModal";
+import { formatCurrency } from "@/lib/utils";
 import { Download, Filter, Search, Mail } from "lucide-react";
 import type { Financiador, FinanciadorType } from "@/lib/types";
 
@@ -107,9 +108,7 @@ const typeLabels: Record<FinanciadorType, { label: string; bg: string; text: str
 
 type TypeFilter = "Todos" | FinanciadorType;
 
-function formatMonto(n: number): string {
-  return "$" + n.toLocaleString("es-AR");
-}
+const formatMonto = formatCurrency;
 
 function formatPorcentaje(facturado: number, cobrado: number): number {
   return Math.round((cobrado / facturado) * 100);

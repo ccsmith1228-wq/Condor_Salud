@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useDemoAction } from "@/components/DemoModal";
+import { formatCurrency } from "@/lib/utils";
 import { Download, Filter, TrendingDown, Calendar, BarChart3, AlertTriangle } from "lucide-react";
 import type { InflacionMes } from "@/lib/types";
 
@@ -85,9 +86,7 @@ const financiadoresInflacion = [
 type Period = "3m" | "6m";
 type FinFilter = "Todos" | string;
 
-function formatMonto(n: number): string {
-  return "$" + n.toLocaleString("es-AR");
-}
+const formatMonto = formatCurrency;
 
 export default function InflacionPage() {
   const { showDemo } = useDemoAction();

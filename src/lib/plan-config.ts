@@ -2,6 +2,8 @@
 // Defines all 19 modules, 4 categories, 3 presets, pricing,
 // dependencies, and utility functions for the plan system.
 
+import { formatCurrency } from "@/lib/utils";
+
 export type ModuleId =
   | "pacientes"
   | "agenda"
@@ -387,5 +389,5 @@ export function calcPresetSubtotal(preset: PresetDef): number {
 
 /** Format number as ARS with period separators */
 export function formatARS(amount: number): string {
-  return "$" + amount.toLocaleString("es-AR");
+  return formatCurrency(amount);
 }
