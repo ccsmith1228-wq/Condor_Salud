@@ -20,7 +20,15 @@ const sizes = {
   xl: "max-w-4xl",
 };
 
-export function Modal({ open, onClose, title, children, footer, size = "md", className }: ModalProps) {
+export function Modal({
+  open,
+  onClose,
+  title,
+  children,
+  footer,
+  size = "md",
+  className,
+}: ModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const previousFocus = useRef<HTMLElement | null>(null);
 
@@ -80,8 +88,19 @@ export function Modal({ open, onClose, title, children, footer, size = "md", cla
             className="p-1.5 rounded-[4px] text-ink-muted hover:bg-surface hover:text-ink transition-colors"
             aria-label="Cerrar"
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>

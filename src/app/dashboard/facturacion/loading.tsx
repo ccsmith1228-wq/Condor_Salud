@@ -1,2 +1,4 @@
 import { PageSkeleton } from "@/components/ui/Skeleton";
-export default function Loading() { return <PageSkeleton />; }
+export default function Loading() {
+  return <PageSkeleton />;
+}

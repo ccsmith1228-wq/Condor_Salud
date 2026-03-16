@@ -80,10 +80,7 @@ export function DataTable<T>({
               role={onRowClick ? "button" : undefined}
             >
               {columns.map((col) => (
-                <td
-                  key={col.key}
-                  className={cn("px-4 py-3 text-sm text-ink", col.className)}
-                >
+                <td key={col.key} className={cn("px-4 py-3 text-sm text-ink", col.className)}>
                   {col.render(row, i)}
                 </td>
               ))}

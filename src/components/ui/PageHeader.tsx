@@ -9,7 +9,13 @@ interface PageHeaderProps {
   className?: string;
 }
 
-export function PageHeader({ title, description, actions, breadcrumbs, className }: PageHeaderProps) {
+export function PageHeader({
+  title,
+  description,
+  actions,
+  breadcrumbs,
+  className,
+}: PageHeaderProps) {
   return (
     <div className={cn("space-y-1", className)}>
       {breadcrumbs && breadcrumbs.length > 0 && (
