@@ -3,6 +3,7 @@ import { DM_Sans } from "next/font/google";
 import { AuthProvider } from "@/lib/auth/context";
 import { PlanProvider } from "@/lib/plan-context";
 import { SWRProvider } from "@/lib/swr";
+import { PostHogProvider } from "@/lib/posthog";
 import Chatbot from "@/components/Chatbot";
 import "./globals.css";
 
@@ -96,14 +97,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Saltar al contenido principal
         </a>
-        <SWRProvider>
-          <PlanProvider>
-            <AuthProvider>
-              <main id="main-content">{children}</main>
-              <Chatbot />
-            </AuthProvider>
-          </PlanProvider>
-        </SWRProvider>
+        <PostHogProvider>
+          <SWRProvider>
+            <PlanProvider>
+              <AuthProvider>
+                <main id="main-content">{children}</main>
+                <Chatbot />
+              </AuthProvider>
+            </PlanProvider>
+          </SWRProvider>
+        </PostHogProvider>
       </body>
     </html>
   );

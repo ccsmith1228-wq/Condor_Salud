@@ -1,5 +1,6 @@
-// ─── Analytics Skeleton ──────────────────────────────────────
-// Replace with PostHog, Plausible, or Vercel Analytics when ready.
+// ─── Analytics — wired to PostHog ────────────────────────────
+// Thin wrapper that delegates to PostHog for tracking + identity.
+// Falls back to console logging in dev when PostHog is not configured.
 
 import { createClientLogger } from "@/lib/logger";
 
@@ -26,9 +27,21 @@ interface AnalyticsEvent {
   timestamp?: number;
 }
 
+/** Lazy-load posthog-js only on the client */
+function getPostHog() {
+  if (typeof window === "undefined") return null;
+  try {
+    // Dynamic require for client-side PostHog
+    const ph = require("posthog-js").default;
+    if (ph && typeof ph.capture === "function") return ph;
+  } catch {
+    // PostHog not available — no-op
+  }
+  return null;
+}
+
 class Analytics {
   private enabled: boolean;
-  private queue: AnalyticsEvent[] = [];
 
   constructor() {
     this.enabled = typeof window !== "undefined" && process.env.NODE_ENV === "production";
@@ -37,31 +50,32 @@ class Analytics {
   track(name: EventName, properties?: Record<string, string | number | boolean>) {
     const event: AnalyticsEvent = { name, properties, timestamp: Date.now() };
 
-    if (!this.enabled) {
-      if (process.env.NODE_ENV === "development") {
-        log.debug({ event: name, ...properties }, "Track event");
-      }
-      return;
+    if (process.env.NODE_ENV === "development") {
+      log.debug({ event: name, ...properties }, "Track event");
     }
 
-    this.queue.push(event);
-    this.flush();
+    const ph = getPostHog();
+    if (ph) {
+      ph.capture(name, properties);
+    }
   }
 
   identify(userId: string, traits?: Record<string, string>) {
     if (process.env.NODE_ENV === "development") {
       log.debug({ userId, ...traits }, "Identify user");
     }
-    // TODO: Wire to PostHog/Plausible
+
+    const ph = getPostHog();
+    if (ph) {
+      ph.identify(userId, traits);
+    }
   }
 
-  private flush() {
-    if (this.queue.length === 0) return;
-    // TODO: Wire to PostHog/Plausible — for now, log in dev and clear queue
-    if (process.env.NODE_ENV === "development") {
-      log.debug({ count: this.queue.length }, "Analytics flush (events pending provider)");
+  reset() {
+    const ph = getPostHog();
+    if (ph) {
+      ph.reset();
     }
-    this.queue = [];
   }
 }
 

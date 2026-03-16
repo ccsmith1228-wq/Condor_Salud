@@ -38,6 +38,8 @@
     "mercadopago": "^2.12.0",
     "next": "14.2.15",
     "pino": "^10.3.1",
+    "posthog-js": "^1.360.2",
+    "posthog-node": "^5.28.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.71.2",

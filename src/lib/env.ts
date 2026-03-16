@@ -49,6 +49,10 @@ const serverSchema = z.object({
   // ── Resend (Email) ──────────────────────────────────────────
   RESEND_API_KEY: z.string().optional(),
 
+  // ── PostHog (Analytics) ─────────────────────────────────────
+  NEXT_PUBLIC_POSTHOG_KEY: z.string().optional(),
+  NEXT_PUBLIC_POSTHOG_HOST: z.string().url().optional(),
+
   // ── Upstash Redis ───────────────────────────────────────────
   UPSTASH_REDIS_URL: z.string().url().optional(),
   UPSTASH_REDIS_TOKEN: z.string().optional(),
@@ -84,6 +88,8 @@ const clientSchema = z.object({
   NEXT_PUBLIC_GOOGLE_CLIENT_ID: z.string().optional(),
   NEXT_PUBLIC_DEMO_MODE: z.string().optional(),
   NEXT_PUBLIC_SENTRY_DSN: z.string().url().optional(),
+  NEXT_PUBLIC_POSTHOG_KEY: z.string().optional(),
+  NEXT_PUBLIC_POSTHOG_HOST: z.string().url().optional(),
 });
 
 // ─── Type exports ────────────────────────────────────────────
@@ -128,6 +134,8 @@ function validateClientEnv(): ClientEnv {
     clientVars.NEXT_PUBLIC_GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
     clientVars.NEXT_PUBLIC_DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE;
     clientVars.NEXT_PUBLIC_SENTRY_DSN = process.env.NEXT_PUBLIC_SENTRY_DSN;
+    clientVars.NEXT_PUBLIC_POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
+    clientVars.NEXT_PUBLIC_POSTHOG_HOST = process.env.NEXT_PUBLIC_POSTHOG_HOST;
   } else {
     // On server: can read directly
     clientVars.NEXT_PUBLIC_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -139,6 +147,8 @@ function validateClientEnv(): ClientEnv {
     clientVars.NEXT_PUBLIC_GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
     clientVars.NEXT_PUBLIC_DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE;
     clientVars.NEXT_PUBLIC_SENTRY_DSN = process.env.NEXT_PUBLIC_SENTRY_DSN;
+    clientVars.NEXT_PUBLIC_POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
+    clientVars.NEXT_PUBLIC_POSTHOG_HOST = process.env.NEXT_PUBLIC_POSTHOG_HOST;
   }
 
   const result = clientSchema.safeParse(clientVars);
