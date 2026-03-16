@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { useDemoAction } from "@/components/DemoModal";
+import { useExport } from "@/lib/services/export";
+import type { PDFReportType, ExcelReportType } from "@/lib/services/export";
 import {
   BarChart3,
   XCircle,
@@ -13,7 +14,30 @@ import {
   Package,
   Calendar,
   Target,
+  Loader2,
+  Download,
 } from "lucide-react";
+
+// ─── Map report IDs to export types ──────────────────────────
+const pdfTypeMap: Record<string, PDFReportType> = {
+  R01: "facturacion",
+  R02: "rechazos",
+  R03: "kpi",
+  R04: "kpi",
+  R05: "kpi",
+  R06: "kpi",
+  R07: "kpi",
+  R08: "kpi",
+  R09: "kpi",
+  R10: "kpi",
+};
+const excelTypeMap: Record<string, ExcelReportType> = {
+  R01: "facturacion",
+  R02: "rechazos",
+  R05: "pacientes",
+  R08: "inventario",
+  R09: "nomenclador",
+};
 
 const reportIconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   R01: BarChart3,
@@ -169,7 +193,7 @@ const historialGeneraciones = [
 ];
 
 export default function ReportesPage() {
-  const { showDemo } = useDemoAction();
+  const { isExporting, exportError, exportPDF, exportExcel } = useExport();
   const [catFilter, setCatFilter] = useState("Todos");
   const [dateRange, setDateRange] = useState("Marzo 2026");
 
@@ -178,6 +202,13 @@ export default function ReportesPage() {
 
   return (
     <div className="space-y-5">
+      {/* Export error banner */}
+      {exportError && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+          Error al exportar: {exportError}
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-ink">Reportes</h1>
@@ -199,9 +230,15 @@ export default function ReportesPage() {
             <option>2025 Anual</option>
           </select>
           <button
-            onClick={() => showDemo(`Generar todos los reportes — ${dateRange}`)}
-            className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
+            onClick={() => exportPDF("kpi", { periodo: dateRange })}
+            disabled={isExporting}
+            className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition disabled:opacity-50 flex items-center gap-2"
           >
+            {isExporting ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Download className="w-4 h-4" />
+            )}
             Generar todos
           </button>
         </div>
@@ -244,17 +281,25 @@ export default function ReportesPage() {
             </div>
             <div className="flex gap-2">
               <button
-                onClick={() => showDemo(`Generar PDF: ${r.nombre}`)}
-                className="flex-1 px-3 py-2 text-xs font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
+                onClick={() => exportPDF(pdfTypeMap[r.id] || "kpi", { periodo: dateRange })}
+                disabled={isExporting}
+                className="flex-1 px-3 py-2 text-xs font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition disabled:opacity-50"
               >
-                Generar PDF
+                {isExporting ? "..." : "Generar PDF"}
               </button>
-              <button
-                onClick={() => showDemo(`Exportar Excel: ${r.nombre}`)}
-                className="flex-1 px-3 py-2 text-xs font-semibold border border-border text-ink-light rounded-[4px] hover:border-celeste-dark hover:text-celeste-dark transition"
-              >
-                Excel
-              </button>
+              {excelTypeMap[r.id] ? (
+                <button
+                  onClick={() =>
+                    excelTypeMap[r.id] && exportExcel(excelTypeMap[r.id]!, { periodo: dateRange })
+                  }
+                  disabled={isExporting}
+                  className="flex-1 px-3 py-2 text-xs font-semibold border border-border text-ink-light rounded-[4px] hover:border-celeste-dark hover:text-celeste-dark transition disabled:opacity-50"
+                >
+                  {isExporting ? "..." : "Excel"}
+                </button>
+              ) : (
+                <span className="flex-1" />
+              )}
               <Link
                 href={r.link}
                 className="px-3 py-2 text-xs font-medium text-celeste-dark hover:underline flex items-center"
@@ -307,10 +352,14 @@ export default function ReportesPage() {
                 </td>
                 <td className="px-5 py-3 text-right">
                   <button
-                    onClick={() => showDemo(`Descargar ${h.reporte} (${h.formato})`)}
-                    className="text-xs text-celeste-dark font-medium hover:underline"
+                    onClick={() => {
+                      if (h.formato === "PDF") exportPDF("kpi", { periodo: dateRange });
+                      else exportExcel("facturacion", { periodo: dateRange });
+                    }}
+                    disabled={isExporting}
+                    className="text-xs text-celeste-dark font-medium hover:underline disabled:opacity-50"
                   >
-                    Descargar
+                    {isExporting ? "..." : "Descargar"}
                   </button>
                 </td>
               </tr>

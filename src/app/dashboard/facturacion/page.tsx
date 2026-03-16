@@ -4,9 +4,11 @@ import { useState, useMemo } from "react";
 import type { FacturaEstado } from "@/lib/types";
 import { useToast } from "@/components/Toast";
 import { useDemoAction } from "@/components/DemoModal";
+import { useExport } from "@/lib/services/export";
 import { Card, CardContent, StatusBadge, PageHeader, Select, Button } from "@/components/ui";
 import { formatCurrency } from "@/lib/utils";
 import { useFacturas } from "@/hooks/use-data";
+import { Download, Loader2 } from "lucide-react";
 
 const estadoConfig: Record<FacturaEstado, string> = {
   presentada: "Presentada",
@@ -37,6 +39,7 @@ const estadosFilter = [
 export default function FacturacionPage() {
   const { showToast } = useToast();
   const { showDemo } = useDemoAction();
+  const { isExporting, exportPDF, exportExcel } = useExport();
   const { data: facturas = [], isLoading } = useFacturas();
   const [filtroFinanciador, setFiltroFinanciador] = useState("Todos");
   const [filtroEstado, setFiltroEstado] = useState("todos");
@@ -98,7 +101,35 @@ export default function FacturacionPage() {
         title="Facturación"
         description="Gestión de facturas por financiador"
         breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Facturación" }]}
-        actions={<Button onClick={() => showDemo("Nueva factura")}>Nueva factura</Button>}
+        actions={
+          <div className="flex gap-2">
+            <button
+              onClick={() => exportPDF("facturacion")}
+              disabled={isExporting}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold border border-border text-ink-light rounded-[4px] hover:border-celeste-dark hover:text-celeste-dark transition disabled:opacity-50"
+            >
+              {isExporting ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Download className="w-3.5 h-3.5" />
+              )}
+              PDF
+            </button>
+            <button
+              onClick={() => exportExcel("facturacion")}
+              disabled={isExporting}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold border border-border text-ink-light rounded-[4px] hover:border-green-600 hover:text-green-600 transition disabled:opacity-50"
+            >
+              {isExporting ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Download className="w-3.5 h-3.5" />
+              )}
+              Excel
+            </button>
+            <Button onClick={() => showDemo("Nueva factura")}>Nueva factura</Button>
+          </div>
+        }
       />
 
       {/* KPI summary */}

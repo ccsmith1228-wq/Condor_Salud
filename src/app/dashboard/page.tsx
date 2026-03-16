@@ -7,7 +7,18 @@ import { usePlanSafe } from "@/lib/plan-context";
 import { PRESETS, formatARS } from "@/lib/plan-config";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import { StatusBadge } from "@/components/ui";
-import { Users, Calendar, Shield, Package, Tag, ClipboardList, BookOpen } from "lucide-react";
+import {
+  Users,
+  Calendar,
+  Shield,
+  Package,
+  Tag,
+  ClipboardList,
+  BookOpen,
+  Download,
+  Loader2,
+} from "lucide-react";
+import { useExport } from "@/lib/services/export";
 
 const kpis = [
   {
@@ -88,6 +99,7 @@ export default function DashboardPage() {
   const { user } = useAuth();
   const plan = usePlanSafe();
   const [showWizardBanner, setShowWizardBanner] = useState(true);
+  const { isExporting, exportPDF } = useExport();
 
   const activePresetDef = plan.activePreset
     ? PRESETS.find((p) => p.id === plan.activePreset)
@@ -174,6 +186,18 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex gap-2">
+          <button
+            onClick={() => exportPDF("kpi")}
+            disabled={isExporting}
+            className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition disabled:opacity-50"
+          >
+            {isExporting ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Download className="w-4 h-4" />
+            )}
+            KPI PDF
+          </button>
           <Link
             href="/dashboard/reportes"
             className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"

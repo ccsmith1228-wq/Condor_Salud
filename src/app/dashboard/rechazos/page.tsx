@@ -4,9 +4,11 @@ import { useState, useMemo } from "react";
 import type { RechazoMotivo } from "@/lib/types";
 import { useToast } from "@/components/Toast";
 import { useDemoAction } from "@/components/DemoModal";
+import { useExport } from "@/lib/services/export";
 import { Card, CardContent, StatusBadge, PageHeader, Select, Button } from "@/components/ui";
 import { formatCurrency } from "@/lib/utils";
 import { useRechazos } from "@/hooks/use-data";
+import { Download, Loader2 } from "lucide-react";
 
 const motivoLabels: Record<RechazoMotivo, string> = {
   codigo_invalido: "Código inválido",
@@ -21,6 +23,7 @@ const motivoLabels: Record<RechazoMotivo, string> = {
 export default function RechazosPage() {
   const { showToast } = useToast();
   const { showDemo } = useDemoAction();
+  const { isExporting, exportPDF, exportExcel } = useExport();
   const { data: rechazos = [], isLoading } = useRechazos();
   const [filtroFinanciador, setFiltroFinanciador] = useState("Todos");
   const [filtroEstado, setFiltroEstado] = useState("todos");
@@ -58,6 +61,34 @@ export default function RechazosPage() {
         title="Gestión de Rechazos"
         description="Auditoría y reprocesamiento de facturas rechazadas"
         breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Rechazos" }]}
+        actions={
+          <div className="flex gap-2">
+            <button
+              onClick={() => exportPDF("rechazos")}
+              disabled={isExporting}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold border border-border text-ink-light rounded-[4px] hover:border-celeste-dark hover:text-celeste-dark transition disabled:opacity-50"
+            >
+              {isExporting ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Download className="w-3.5 h-3.5" />
+              )}
+              PDF
+            </button>
+            <button
+              onClick={() => exportExcel("rechazos")}
+              disabled={isExporting}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold border border-border text-ink-light rounded-[4px] hover:border-green-600 hover:text-green-600 transition disabled:opacity-50"
+            >
+              {isExporting ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Download className="w-3.5 h-3.5" />
+              )}
+              Excel
+            </button>
+          </div>
+        }
       />
 
       {/* KPI summary */}
