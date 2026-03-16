@@ -20,7 +20,8 @@ const coreCeleste = [true, false, true, false, true, false];
 const extraIcons = [Calendar, Pill, Video, Stethoscope];
 
 export default function Features() {
-  const { t } = useLocale();
+  const { t, segment } = useLocale();
+  const isTourist = segment === "tourist";
 
   const coreFeatures = coreIcons.map((icon, i) => ({
     icon,
@@ -95,7 +96,7 @@ export default function Features() {
         {/* CTA */}
         <div className="text-center mt-8">
           <Link
-            href="/dashboard"
+            href={isTourist ? "/paciente" : "/dashboard"}
             className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-celeste-dark border border-celeste-dark rounded-[4px] hover:bg-celeste-pale transition"
           >
             {t("features.cta")}

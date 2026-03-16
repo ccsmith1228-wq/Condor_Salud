@@ -676,8 +676,8 @@ const translations: Dict = {
   // ── TOURIST (individuals / patients) ───────────────────────
 
   "hero.badge@tourist": {
-    es: "Nuevo: Buscá médicos, farmacias y guardias cerca tuyo 📍",
-    en: "New: Find doctors, pharmacies & ERs near you 📍",
+    es: "Nuevo: Buscá médicos, farmacias y guardias cerca tuyo",
+    en: "New: Find doctors, pharmacies & ERs near you",
   },
   "hero.title1@tourist": {
     es: "Tu salud en Argentina.",
@@ -853,6 +853,36 @@ const translations: Dict = {
   },
   "features.core5.hl@tourist": { es: "Chat 24/7 en ES + EN", en: "24/7 chat in ES + EN" },
   "features.cta@tourist": { es: "Probá el chatbot ahora", en: "Try the chatbot now" },
+  "features.extraTitle@tourist": {
+    es: "Todo lo que necesitás como paciente",
+    en: "Everything you need as a patient",
+  },
+  "features.extraSubtitle@tourist": {
+    es: "Servicios integrados, sin costo, desde tu celular",
+    en: "Integrated services, free of charge, from your phone",
+  },
+  "features.extra0.title@tourist": { es: "Turnos online", en: "Online appointments" },
+  "features.extra0.desc@tourist": {
+    es: "Reservá turno con el médico que necesitás",
+    en: "Book an appointment with the doctor you need",
+  },
+  "features.extra1.title@tourist": { es: "Remedios a domicilio", en: "Meds delivery" },
+  "features.extra1.desc@tourist": {
+    es: "Pedí medicamentos directo a tu puerta",
+    en: "Order medications delivered to your door",
+  },
+  "features.extra2.title@tourist": { es: "Videoconsulta", en: "Video consult" },
+  "features.extra2.desc@tourist": {
+    es: "Hablá con un médico desde donde estés",
+    en: "Talk to a doctor from wherever you are",
+  },
+  "features.extra3.title@tourist": { es: "Cora 24/7", en: "Cora 24/7" },
+  "features.extra3.desc@tourist": {
+    es: "Tu enfermera virtual, siempre disponible",
+    en: "Your virtual nurse, always available",
+  },
+
+  "faq.label@tourist": { es: "Preguntas frecuentes", en: "Frequently asked questions" },
 
   "how.label@tourist": { es: "Cómo funciona", en: "How it works" },
   "how.title@tourist": { es: "Conseguí atención ", en: "Get care " },
@@ -895,9 +925,9 @@ const translations: Dict = {
     es: "Hablá con Cora, buscá un médico cerca o hacé una teleconsulta. Todo gratis, todo ahora.",
     en: "Talk to Cora, find a doctor nearby or do a teleconsult. All free, all now.",
   },
-  "cta.hl0@tourist": { es: "Médicos cerca tuyo 📍", en: "Doctors near you 📍" },
+  "cta.hl0@tourist": { es: "Médicos cerca tuyo", en: "Doctors near you" },
   "cta.hl1@tourist": { es: "Teleconsulta sin espera", en: "Teleconsult, no wait" },
-  "cta.hl2@tourist": { es: "Remedios a domicilio 🛵", en: "Meds delivered 🛵" },
+  "cta.hl2@tourist": { es: "Remedios a domicilio", en: "Meds delivered" },
   "cta.primary@tourist": { es: "Hablar con Cora", en: "Talk to Cora" },
   "cta.secondary@tourist": { es: "Buscar médico cerca", en: "Find doctor nearby" },
   "cta.bottom@tourist": {
