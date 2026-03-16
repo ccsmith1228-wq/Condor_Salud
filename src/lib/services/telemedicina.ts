@@ -179,7 +179,7 @@ export async function getWaitingRoom(): Promise<WaitingRoomEntry[]> {
     return (data || []).map((r) => ({
       id: r.id,
       patientName: r.patient_name,
-      age: r.age,
+      age: r.age ?? 0,
       reason: r.reason,
       queuePosition: r.queue_position,
       waitTime: r.wait_time || "",

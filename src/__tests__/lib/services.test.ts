@@ -131,8 +131,8 @@ describe("Data service functions", () => {
 });
 
 describe("KPI builder functions", () => {
-  it("getDashboardKPIs returns 4 KPIs", () => {
-    const kpis = getDashboardKPIs();
+  it("getDashboardKPIs returns 4 KPIs", async () => {
+    const kpis = await getDashboardKPIs();
     expect(kpis).toHaveLength(4);
     kpis.forEach((kpi) => {
       expect(kpi).toHaveProperty("label");
@@ -142,23 +142,23 @@ describe("KPI builder functions", () => {
     });
   });
 
-  it("getFacturacionKPIs returns 4 KPIs", () => {
-    expect(getFacturacionKPIs()).toHaveLength(4);
+  it("getFacturacionKPIs returns 4 KPIs", async () => {
+    expect(await getFacturacionKPIs()).toHaveLength(4);
   });
 
-  it("getRechazosKPIs returns 4 KPIs", () => {
-    expect(getRechazosKPIs()).toHaveLength(4);
+  it("getRechazosKPIs returns 4 KPIs", async () => {
+    expect(await getRechazosKPIs()).toHaveLength(4);
   });
 
-  it("getPacientesKPIs returns 4 KPIs", () => {
-    expect(getPacientesKPIs()).toHaveLength(4);
+  it("getPacientesKPIs returns 4 KPIs", async () => {
+    expect(await getPacientesKPIs()).toHaveLength(4);
   });
 
-  it("getAgendaKPIs returns 4 KPIs", () => {
-    expect(getAgendaKPIs()).toHaveLength(4);
+  it("getAgendaKPIs returns 4 KPIs", async () => {
+    expect(await getAgendaKPIs()).toHaveLength(4);
   });
 
-  it("getInventarioKPIs returns 4 KPIs", () => {
-    expect(getInventarioKPIs()).toHaveLength(4);
+  it("getInventarioKPIs returns 4 KPIs", async () => {
+    expect(await getInventarioKPIs()).toHaveLength(4);
   });
 });

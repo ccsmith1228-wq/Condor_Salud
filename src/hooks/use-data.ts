@@ -126,45 +126,45 @@ export function useAuditoria() {
 }
 
 // ─── KPI Hooks ───────────────────────────────────────────────
-// KPIs are synchronous builders, but we wrap them for consistency.
+// KPI functions are async (Supabase when configured, mock fallback).
 
 export function useDashboardKPIs() {
-  return useSWR<KPI[]>("kpi-dashboard", () => Promise.resolve(getDashboardKPIs()), {
+  return useSWR<KPI[]>("kpi-dashboard", () => getDashboardKPIs(), {
     revalidateOnFocus: false,
     dedupingInterval: 30000,
   });
 }
 
 export function useFacturacionKPIs() {
-  return useSWR<KPI[]>("kpi-facturacion", () => Promise.resolve(getFacturacionKPIs()), {
+  return useSWR<KPI[]>("kpi-facturacion", () => getFacturacionKPIs(), {
     revalidateOnFocus: false,
     dedupingInterval: 30000,
   });
 }
 
 export function useRechazosKPIs() {
-  return useSWR<KPI[]>("kpi-rechazos", () => Promise.resolve(getRechazosKPIs()), {
+  return useSWR<KPI[]>("kpi-rechazos", () => getRechazosKPIs(), {
     revalidateOnFocus: false,
     dedupingInterval: 30000,
   });
 }
 
 export function usePacientesKPIs() {
-  return useSWR<KPI[]>("kpi-pacientes", () => Promise.resolve(getPacientesKPIs()), {
+  return useSWR<KPI[]>("kpi-pacientes", () => getPacientesKPIs(), {
     revalidateOnFocus: false,
     dedupingInterval: 30000,
   });
 }
 
 export function useAgendaKPIs() {
-  return useSWR<KPI[]>("kpi-agenda", () => Promise.resolve(getAgendaKPIs()), {
+  return useSWR<KPI[]>("kpi-agenda", () => getAgendaKPIs(), {
     revalidateOnFocus: false,
     dedupingInterval: 30000,
   });
 }
 
 export function useInventarioKPIs() {
-  return useSWR<KPI[]>("kpi-inventario", () => Promise.resolve(getInventarioKPIs()), {
+  return useSWR<KPI[]>("kpi-inventario", () => getInventarioKPIs(), {
     revalidateOnFocus: false,
     dedupingInterval: 30000,
   });

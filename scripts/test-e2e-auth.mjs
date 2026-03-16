@@ -7,8 +7,10 @@ const c = createClient(
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZyZ3ppeGZ2cWlmanZzbGZqemRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMzEwOTUsImV4cCI6MjA4ODkwNzA5NX0.zqfyYtNObPTKArdglzdBnSdDoHIVtwooUh1NeLkB4Qk'
 );
 
-const email = `test-e2e-${Date.now()}@condorsalud.com`;
+const ts = Date.now();
+const email = `test-e2e-${ts}@condorsalud.com`;
 const pw = 'TestPass123!!';
+const cuit = `30-${String(ts).slice(-8)}-0`; // unique CUIT per run
 
 console.log('═══ Cóndor Salud — E2E Auth Test ═══\n');
 
@@ -21,7 +23,7 @@ const { data: signUp, error: sErr } = await c.auth.signUp({
     data: {
       full_name: 'Dr. Test E2E',
       clinic_name: 'Clínica E2E Test',
-      cuit: '30-99999999-0',
+      cuit,
       provincia: 'CABA',
       especialidad: 'Clínica médica',
       role: 'admin',

@@ -661,26 +661,30 @@ CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
 DECLARE
   _clinic_id UUID;
+  _cuit TEXT;
 BEGIN
+  -- Build a CUIT value: use provided or generate a placeholder
+  _cuit := COALESCE(NULLIF(NEW.raw_user_meta_data->>'cuit', ''), 'pending-' || NEW.id::text);
+
   -- If user signed up with clinic metadata, create the clinic first
   IF NEW.raw_user_meta_data->>'clinic_name' IS NOT NULL THEN
-    INSERT INTO clinics (name, cuit, provincia, especialidad)
+    INSERT INTO public.clinics (name, cuit, provincia, especialidad)
     VALUES (
       COALESCE(NEW.raw_user_meta_data->>'clinic_name', 'Mi Clínica'),
-      COALESCE(NEW.raw_user_meta_data->>'cuit', ''),
+      _cuit,
       COALESCE(NEW.raw_user_meta_data->>'provincia', 'CABA'),
       COALESCE(NEW.raw_user_meta_data->>'especialidad', '')
     )
     RETURNING id INTO _clinic_id;
   ELSE
     -- Create a default clinic for the user
-    INSERT INTO clinics (name, cuit)
-    VALUES (COALESCE(NEW.raw_user_meta_data->>'clinic_name', 'Mi Clínica'), '')
+    INSERT INTO public.clinics (name, cuit)
+    VALUES (COALESCE(NEW.raw_user_meta_data->>'clinic_name', 'Mi Clínica'), _cuit)
     RETURNING id INTO _clinic_id;
   END IF;
 
   -- Create the profile
-  INSERT INTO profiles (id, clinic_id, role, full_name)
+  INSERT INTO public.profiles (id, clinic_id, role, full_name)
   VALUES (
     NEW.id,
     _clinic_id,
@@ -690,7 +694,7 @@ BEGIN
 
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- Fire after a new user is created in auth.users
 CREATE OR REPLACE TRIGGER on_auth_user_created

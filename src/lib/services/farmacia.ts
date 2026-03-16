@@ -233,9 +233,9 @@ export async function getMedications(): Promise<Medication[]> {
       pamiCoverage: r.pami_coverage,
       osCoverage: r.os_coverage,
       prepagaCoverage: r.prepaga_coverage,
-      stock: r.stock,
+      stock: r.stock as Medication["stock"],
       requiresPrescription: r.requires_prescription,
-    }));
+    })) as Medication[];
   } catch {
     return mockMedications;
   }
@@ -256,10 +256,10 @@ export async function getPrescriptions(): Promise<Prescription[]> {
       patientName: r.patient_name,
       doctorName: r.doctor_name,
       date: r.date,
-      items: r.items || [],
-      status: r.status,
+      items: (r.items || []) as string[],
+      status: r.status as Prescription["status"],
       financiador: r.financiador,
-    }));
+    })) as Prescription[];
   } catch {
     return mockPrescriptions;
   }
@@ -280,7 +280,7 @@ export async function getDeliveries(): Promise<Delivery[]> {
       patientName: r.patient_name,
       address: r.address,
       itemCount: r.item_count,
-      status: r.status,
+      status: r.status as Delivery["status"],
       eta: r.eta || "-",
       courier: r.courier,
       progress: r.progress,
@@ -300,11 +300,11 @@ export async function getRecurringOrders(): Promise<RecurringOrder[]> {
       id: r.id,
       code: r.code,
       patientName: r.patient_name,
-      medications: r.medications || [],
+      medications: (r.medications || []) as string[],
       frequency: r.frequency,
       nextDelivery: r.next_delivery,
       financiador: r.financiador,
-      status: r.status,
+      status: r.status as RecurringOrder["status"],
     }));
   } catch {
     return mockRecurringOrders;
@@ -340,8 +340,8 @@ export async function createPrescription(data: {
     patientName: row.patient_name,
     doctorName: row.doctor_name,
     date: row.date,
-    items: row.items,
-    status: row.status,
+    items: (row.items || []) as string[],
+    status: row.status as Prescription["status"],
     financiador: row.financiador,
   };
 }

@@ -175,16 +175,16 @@ export async function getTriages(): Promise<Triage[]> {
       code: r.code,
       patientName: r.patient_name,
       date: r.created_at,
-      symptoms: r.symptoms || [],
+      symptoms: (r.symptoms || []) as string[],
       severity: r.severity,
       frequency: r.frequency,
       duration: r.duration || "",
       triggers: r.triggers || "",
       freeNotes: r.free_notes || "",
-      photoUrls: r.photo_urls || [],
+      photoUrls: (r.photo_urls || []) as string[],
       routedSpecialty: r.routed_specialty || "",
       routedDoctor: r.routed_doctor || "",
-      status: r.status,
+      status: r.status as Triage["status"],
     }));
   } catch {
     return mockTriages;
@@ -229,7 +229,7 @@ export async function createTriage(data: {
     code: row.code,
     patientName: row.patient_name,
     date: row.created_at,
-    symptoms: row.symptoms,
+    symptoms: (row.symptoms || []) as string[],
     severity: row.severity,
     frequency: row.frequency,
     duration: row.duration || "",
@@ -238,7 +238,7 @@ export async function createTriage(data: {
     photoUrls: [],
     routedSpecialty: row.routed_specialty || "",
     routedDoctor: "",
-    status: row.status,
+    status: row.status as Triage["status"],
   };
 }
 
@@ -271,14 +271,14 @@ export async function saveClinicalNote(data: {
   if (error) throw error;
   return {
     id: row.id,
-    triageId: row.triage_id,
-    consultationId: row.consultation_id,
+    triageId: row.triage_id ?? undefined,
+    consultationId: row.consultation_id ?? undefined,
     doctorName: row.doctor_name,
     patientName: row.patient_name,
-    icd10Codes: row.icd10_codes,
+    icd10Codes: (row.icd10_codes || []) as { code: string; description: string }[],
     notes: row.notes || "",
     treatmentPlan: row.treatment_plan || "",
-    referrals: row.referrals || [],
+    referrals: (row.referrals || []) as string[],
     date: row.date,
   };
 }

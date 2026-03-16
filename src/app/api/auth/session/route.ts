@@ -56,11 +56,11 @@ export async function GET(req: NextRequest) {
       }
 
       // Fetch profile data
-      const { data: profile } = await supabase
+      const { data: profile } = (await supabase
         .from("profiles")
         .select("role, full_name, avatar_url, clinic_id, clinics(name)")
         .eq("id", authUser.id)
-        .single();
+        .single()) as { data: Record<string, any> | null };
 
       const user = {
         id: authUser.id,
@@ -180,11 +180,11 @@ export async function POST(req: NextRequest) {
         }
 
         // Fetch profile
-        const { data: profile } = await supabase
+        const { data: profile } = (await supabase
           .from("profiles")
           .select("role, full_name, avatar_url, clinic_id, clinics(name)")
           .eq("id", data.user.id)
-          .single();
+          .single()) as { data: Record<string, any> | null };
 
         return NextResponse.json({
           user: {

@@ -1413,7 +1413,18 @@ const AUDITORIA: AuditoriaItem[] = [
 ];
 
 // ─── KPI builders ────────────────────────────────────────────
-export function getDashboardKPIs(): KPI[] {
+// When Supabase is configured, compute KPIs from real data.
+// Otherwise, return hardcoded demo values.
+
+export async function getDashboardKPIs(): Promise<KPI[]> {
+  if (isSupabaseConfigured()) {
+    try {
+      const { fetchDashboardKPIs } = await import("@/lib/services/supabase-queries");
+      return await fetchDashboardKPIs();
+    } catch {
+      /* fall through to mock */
+    }
+  }
   return [
     { label: "Facturado (mar)", value: "$9.4M", change: "+8.2%", up: true, color: "celeste" },
     { label: "Cobrado (mar)", value: "$7.8M", change: "+5.1%", up: true, color: "celeste" },
@@ -1422,7 +1433,15 @@ export function getDashboardKPIs(): KPI[] {
   ];
 }
 
-export function getFacturacionKPIs(): KPI[] {
+export async function getFacturacionKPIs(): Promise<KPI[]> {
+  if (isSupabaseConfigured()) {
+    try {
+      const { fetchFacturacionKPIs } = await import("@/lib/services/supabase-queries");
+      return await fetchFacturacionKPIs();
+    } catch {
+      /* fall through to mock */
+    }
+  }
   return [
     { label: "Facturado (mar)", value: "$9.4M", change: "+8.2%", up: true, color: "celeste" },
     { label: "Cobrado", value: "$7.8M", change: "+5.1%", up: true, color: "celeste" },
@@ -1431,7 +1450,15 @@ export function getFacturacionKPIs(): KPI[] {
   ];
 }
 
-export function getRechazosKPIs(): KPI[] {
+export async function getRechazosKPIs(): Promise<KPI[]> {
+  if (isSupabaseConfigured()) {
+    try {
+      const { fetchRechazosKPIs } = await import("@/lib/services/supabase-queries");
+      return await fetchRechazosKPIs();
+    } catch {
+      /* fall through to mock */
+    }
+  }
   return [
     { label: "Rechazos (mar)", value: "48", change: "-12 vs feb", up: false, color: "gold" },
     { label: "Monto rechazado", value: "$293.5K", change: "-18%", up: false, color: "gold" },
@@ -1440,7 +1467,15 @@ export function getRechazosKPIs(): KPI[] {
   ];
 }
 
-export function getPacientesKPIs(): KPI[] {
+export async function getPacientesKPIs(): Promise<KPI[]> {
+  if (isSupabaseConfigured()) {
+    try {
+      const { fetchPacientesKPIs } = await import("@/lib/services/supabase-queries");
+      return await fetchPacientesKPIs();
+    } catch {
+      /* fall through to mock */
+    }
+  }
   return [
     {
       label: "Total pacientes",
@@ -1455,7 +1490,15 @@ export function getPacientesKPIs(): KPI[] {
   ];
 }
 
-export function getAgendaKPIs(): KPI[] {
+export async function getAgendaKPIs(): Promise<KPI[]> {
+  if (isSupabaseConfigured()) {
+    try {
+      const { fetchAgendaKPIs } = await import("@/lib/services/supabase-queries");
+      return await fetchAgendaKPIs();
+    } catch {
+      /* fall through to mock */
+    }
+  }
   return [
     { label: "Turnos hoy", value: "16", change: "3 disponibles", up: true, color: "celeste" },
     { label: "Atendidos", value: "3", change: "18.7%", up: true, color: "celeste" },
@@ -1464,7 +1507,15 @@ export function getAgendaKPIs(): KPI[] {
   ];
 }
 
-export function getInventarioKPIs(): KPI[] {
+export async function getInventarioKPIs(): Promise<KPI[]> {
+  if (isSupabaseConfigured()) {
+    try {
+      const { fetchInventarioKPIs } = await import("@/lib/services/supabase-queries");
+      return await fetchInventarioKPIs();
+    } catch {
+      /* fall through to mock */
+    }
+  }
   return [
     { label: "Total ítems", value: "12", change: "categorías: 5", up: true, color: "celeste" },
     { label: "Stock bajo", value: "2", change: "requieren atención", up: false, color: "gold" },

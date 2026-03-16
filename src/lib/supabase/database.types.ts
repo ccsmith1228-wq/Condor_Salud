@@ -1,0 +1,1222 @@
+// ─── Auto-generated Supabase Database Types ──────────────────
+// Generated from Supabase OpenAPI spec on 2026-03-16
+// Replace by running: npx supabase gen types typescript --project-id frgzixfvqifjvslfjzdj
+//
+// This file provides full type safety for Supabase client queries.
+
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
+
+export interface Database {
+  public: {
+    Tables: {
+      alertas: {
+        Row: {
+          id: string;
+          clinic_id: string;
+          tipo: string;
+          titulo: string;
+          detalle: string;
+          fecha: string;
+          acento: string;
+          read: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          clinic_id: string;
+          tipo: string;
+          titulo: string;
+          detalle: string;
+          fecha?: string;
+          acento?: string;
+          read?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          clinic_id?: string;
+          tipo?: string;
+          titulo?: string;
+          detalle?: string;
+          fecha?: string;
+          acento?: string;
+          read?: boolean;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      auditoria: {
+        Row: {
+          id: string;
+          clinic_id: string;
+          fecha: string;
+          paciente: string;
+          prestacion: string;
+          financiador: string;
+          tipo: string;
+          severidad: string;
+          detalle: string;
+          estado: string;
+          resolved_by: string | null;
+          resolved_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          clinic_id: string;
+          fecha?: string;
+          paciente: string;
+          prestacion: string;
+          financiador: string;
+          tipo: string;
+          severidad?: string;
+          detalle?: string;
+          estado?: string;
+          resolved_by?: string | null;
+          resolved_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          clinic_id?: string;
+          fecha?: string;
+          paciente?: string;
+          prestacion?: string;
+          financiador?: string;
+          tipo?: string;
+          severidad?: string;
+          detalle?: string;
+          estado?: string;
+          resolved_by?: string | null;
+          resolved_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      clinical_notes: {
+        Row: {
+          id: string;
+          triage_id: string | null;
+          consultation_id: string | null;
+          doctor_name: string;
+          doctor_id: string | null;
+          patient_name: string;
+          icd10_codes: Json;
+          notes: string | null;
+          treatment_plan: string | null;
+          referrals: Json;
+          date: string;
+          created_at: string;
+          updated_at: string;
+          clinic_id: string | null;
+        };
+        Insert: {
+          id?: string;
+          triage_id?: string | null;
+          consultation_id?: string | null;
+          doctor_name: string;
+          doctor_id?: string | null;
+          patient_name: string;
+          icd10_codes?: Json;
+          notes?: string | null;
+          treatment_plan?: string | null;
+          referrals?: Json;
+          date?: string;
+          created_at?: string;
+          updated_at?: string;
+          clinic_id?: string | null;
+        };
+        Update: {
+          id?: string;
+          triage_id?: string | null;
+          consultation_id?: string | null;
+          doctor_name?: string;
+          doctor_id?: string | null;
+          patient_name?: string;
+          icd10_codes?: Json;
+          notes?: string | null;
+          treatment_plan?: string | null;
+          referrals?: Json;
+          date?: string;
+          created_at?: string;
+          updated_at?: string;
+          clinic_id?: string | null;
+        };
+        Relationships: [];
+      };
+      clinics: {
+        Row: {
+          id: string;
+          name: string;
+          cuit: string;
+          plan_tier: string;
+          sedes: number;
+          provincia: string;
+          localidad: string;
+          especialidad: string | null;
+          phone: string | null;
+          email: string | null;
+          address: string | null;
+          logo_url: string | null;
+          active: boolean;
+          onboarding_complete: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          cuit: string;
+          plan_tier?: string;
+          sedes?: number;
+          provincia?: string;
+          localidad?: string;
+          especialidad?: string | null;
+          phone?: string | null;
+          email?: string | null;
+          address?: string | null;
+          logo_url?: string | null;
+          active?: boolean;
+          onboarding_complete?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          cuit?: string;
+          plan_tier?: string;
+          sedes?: number;
+          provincia?: string;
+          localidad?: string;
+          especialidad?: string | null;
+          phone?: string | null;
+          email?: string | null;
+          address?: string | null;
+          logo_url?: string | null;
+          active?: boolean;
+          onboarding_complete?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      consultations: {
+        Row: {
+          id: string;
+          code: string;
+          patient_name: string;
+          patient_id: string | null;
+          doctor_name: string;
+          doctor_id: string | null;
+          specialty: string;
+          date: string;
+          time: string | null;
+          duration: string | null;
+          status: string;
+          billed: boolean;
+          bill_code: string | null;
+          prescription_sent: boolean;
+          summary_sent: boolean;
+          financiador: string | null;
+          video_room_url: string | null;
+          recording_url: string | null;
+          created_at: string;
+          updated_at: string;
+          clinic_id: string | null;
+        };
+        Insert: {
+          id?: string;
+          code: string;
+          patient_name: string;
+          patient_id?: string | null;
+          doctor_name: string;
+          doctor_id?: string | null;
+          specialty: string;
+          date?: string;
+          time?: string | null;
+          duration?: string | null;
+          status?: string;
+          billed?: boolean;
+          bill_code?: string | null;
+          prescription_sent?: boolean;
+          summary_sent?: boolean;
+          financiador?: string | null;
+          video_room_url?: string | null;
+          recording_url?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          clinic_id?: string | null;
+        };
+        Update: {
+          id?: string;
+          code?: string;
+          patient_name?: string;
+          patient_id?: string | null;
+          doctor_name?: string;
+          doctor_id?: string | null;
+          specialty?: string;
+          date?: string;
+          time?: string | null;
+          duration?: string | null;
+          status?: string;
+          billed?: boolean;
+          bill_code?: string | null;
+          prescription_sent?: boolean;
+          summary_sent?: boolean;
+          financiador?: string | null;
+          video_room_url?: string | null;
+          recording_url?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          clinic_id?: string | null;
+        };
+        Relationships: [];
+      };
+      deliveries: {
+        Row: {
+          id: string;
+          code: string;
+          prescription_id: string | null;
+          patient_name: string;
+          address: string;
+          item_count: number;
+          status: string;
+          eta: string | null;
+          courier: string;
+          progress: number;
+          created_at: string;
+          updated_at: string;
+          clinic_id: string | null;
+        };
+        Insert: {
+          id?: string;
+          code: string;
+          prescription_id?: string | null;
+          patient_name: string;
+          address: string;
+          item_count?: number;
+          status?: string;
+          eta?: string | null;
+          courier?: string;
+          progress?: number;
+          created_at?: string;
+          updated_at?: string;
+          clinic_id?: string | null;
+        };
+        Update: {
+          id?: string;
+          code?: string;
+          prescription_id?: string | null;
+          patient_name?: string;
+          address?: string;
+          item_count?: number;
+          status?: string;
+          eta?: string | null;
+          courier?: string;
+          progress?: number;
+          created_at?: string;
+          updated_at?: string;
+          clinic_id?: string | null;
+        };
+        Relationships: [];
+      };
+      doctor_availability: {
+        Row: {
+          id: string;
+          doctor_id: string;
+          date: string;
+          time_slot: string;
+          booked: boolean;
+          patient_id: string | null;
+        };
+        Insert: {
+          id?: string;
+          doctor_id: string;
+          date: string;
+          time_slot: string;
+          booked?: boolean;
+          patient_id?: string | null;
+        };
+        Update: {
+          id?: string;
+          doctor_id?: string;
+          date?: string;
+          time_slot?: string;
+          booked?: boolean;
+          patient_id?: string | null;
+        };
+        Relationships: [];
+      };
+      doctor_reviews: {
+        Row: {
+          id: string;
+          doctor_id: string;
+          patient_name: string;
+          rating: number;
+          text: string | null;
+          verified: boolean;
+          date: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          doctor_id: string;
+          patient_name: string;
+          rating: number;
+          text?: string | null;
+          verified?: boolean;
+          date?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          doctor_id?: string;
+          patient_name?: string;
+          rating?: number;
+          text?: string | null;
+          verified?: boolean;
+          date?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      doctors: {
+        Row: {
+          id: string;
+          name: string;
+          specialty: string;
+          location: string;
+          address: string | null;
+          financiadores: Json;
+          rating: number;
+          review_count: number;
+          next_slot: string | null;
+          available: boolean;
+          teleconsulta: boolean;
+          experience: string | null;
+          languages: Json;
+          bio: string | null;
+          active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          specialty: string;
+          location: string;
+          address?: string | null;
+          financiadores: Json;
+          rating?: number;
+          review_count?: number;
+          next_slot?: string | null;
+          available?: boolean;
+          teleconsulta?: boolean;
+          experience?: string | null;
+          languages?: Json;
+          bio?: string | null;
+          active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          specialty?: string;
+          location?: string;
+          address?: string | null;
+          financiadores?: Json;
+          rating?: number;
+          review_count?: number;
+          next_slot?: string | null;
+          available?: boolean;
+          teleconsulta?: boolean;
+          experience?: string | null;
+          languages?: Json;
+          bio?: string | null;
+          active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      facturas: {
+        Row: {
+          id: string;
+          clinic_id: string;
+          numero: string;
+          fecha: string;
+          financiador: string;
+          paciente: string;
+          paciente_id: string | null;
+          prestacion: string;
+          codigo_nomenclador: string;
+          monto: number;
+          estado: string;
+          fecha_presentacion: string | null;
+          fecha_cobro: string | null;
+          cae: string | null;
+          profesional_id: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          clinic_id: string;
+          numero: string;
+          fecha?: string;
+          financiador: string;
+          paciente: string;
+          paciente_id?: string | null;
+          prestacion: string;
+          codigo_nomenclador: string;
+          monto: number;
+          estado?: string;
+          fecha_presentacion?: string | null;
+          fecha_cobro?: string | null;
+          cae?: string | null;
+          profesional_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          clinic_id?: string;
+          numero?: string;
+          fecha?: string;
+          financiador?: string;
+          paciente?: string;
+          paciente_id?: string | null;
+          prestacion?: string;
+          codigo_nomenclador?: string;
+          monto?: number;
+          estado?: string;
+          fecha_presentacion?: string | null;
+          fecha_cobro?: string | null;
+          cae?: string | null;
+          profesional_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      financiadores: {
+        Row: {
+          id: string;
+          clinic_id: string;
+          name: string;
+          type: string;
+          facturado: number;
+          cobrado: number;
+          tasa_rechazo: number;
+          dias_promedio_pago: number;
+          facturas_pendientes: number;
+          ultimo_pago: string | null;
+          convenio_vigente: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          clinic_id: string;
+          name: string;
+          type?: string;
+          facturado?: number;
+          cobrado?: number;
+          tasa_rechazo?: number;
+          dias_promedio_pago?: number;
+          facturas_pendientes?: number;
+          ultimo_pago?: string | null;
+          convenio_vigente?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          clinic_id?: string;
+          name?: string;
+          type?: string;
+          facturado?: number;
+          cobrado?: number;
+          tasa_rechazo?: number;
+          dias_promedio_pago?: number;
+          facturas_pendientes?: number;
+          ultimo_pago?: string | null;
+          convenio_vigente?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      inflacion: {
+        Row: {
+          id: string;
+          clinic_id: string;
+          mes: string;
+          ipc: number;
+          facturado: number;
+          cobrado: number;
+          dias_demora: number;
+          perdida_real: number;
+          perdida_porcentaje: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          clinic_id: string;
+          mes: string;
+          ipc?: number;
+          facturado?: number;
+          cobrado?: number;
+          dias_demora?: number;
+          perdida_real?: number;
+          perdida_porcentaje?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          clinic_id?: string;
+          mes?: string;
+          ipc?: number;
+          facturado?: number;
+          cobrado?: number;
+          dias_demora?: number;
+          perdida_real?: number;
+          perdida_porcentaje?: number;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      inventario: {
+        Row: {
+          id: string;
+          clinic_id: string;
+          nombre: string;
+          categoria: string;
+          stock: number;
+          minimo: number;
+          unidad: string;
+          precio: number;
+          proveedor: string;
+          vencimiento: string | null;
+          lote: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          clinic_id: string;
+          nombre: string;
+          categoria: string;
+          stock?: number;
+          minimo?: number;
+          unidad?: string;
+          precio?: number;
+          proveedor?: string;
+          vencimiento?: string | null;
+          lote?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          clinic_id?: string;
+          nombre?: string;
+          categoria?: string;
+          stock?: number;
+          minimo?: number;
+          unidad?: string;
+          precio?: number;
+          proveedor?: string;
+          vencimiento?: string | null;
+          lote?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      medications: {
+        Row: {
+          id: string;
+          name: string;
+          lab: string;
+          category: string;
+          price: number;
+          pami_coverage: number;
+          os_coverage: number;
+          prepaga_coverage: number;
+          stock: string;
+          requires_prescription: boolean;
+          active: boolean;
+          created_at: string;
+          updated_at: string;
+          clinic_id: string | null;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          lab: string;
+          category: string;
+          price: number;
+          pami_coverage?: number;
+          os_coverage?: number;
+          prepaga_coverage?: number;
+          stock?: string;
+          requires_prescription?: boolean;
+          active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+          clinic_id?: string | null;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          lab?: string;
+          category?: string;
+          price?: number;
+          pami_coverage?: number;
+          os_coverage?: number;
+          prepaga_coverage?: number;
+          stock?: string;
+          requires_prescription?: boolean;
+          active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+          clinic_id?: string | null;
+        };
+        Relationships: [];
+      };
+      nomenclador: {
+        Row: {
+          id: string;
+          codigo: string;
+          descripcion: string;
+          capitulo: string;
+          valor_osde: number;
+          valor_swiss: number;
+          valor_pami: number;
+          valor_galeno: number;
+          vigente: boolean;
+          ultima_actualizacion: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          codigo: string;
+          descripcion: string;
+          capitulo: string;
+          valor_osde?: number;
+          valor_swiss?: number;
+          valor_pami?: number;
+          valor_galeno?: number;
+          vigente?: boolean;
+          ultima_actualizacion?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          codigo?: string;
+          descripcion?: string;
+          capitulo?: string;
+          valor_osde?: number;
+          valor_swiss?: number;
+          valor_pami?: number;
+          valor_galeno?: number;
+          vigente?: boolean;
+          ultima_actualizacion?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      pacientes: {
+        Row: {
+          id: string;
+          clinic_id: string;
+          nombre: string;
+          dni: string;
+          email: string | null;
+          telefono: string | null;
+          fecha_nacimiento: string | null;
+          direccion: string | null;
+          financiador: string;
+          plan: string;
+          ultima_visita: string | null;
+          estado: string;
+          notas: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          clinic_id: string;
+          nombre: string;
+          dni: string;
+          email?: string | null;
+          telefono?: string | null;
+          fecha_nacimiento?: string | null;
+          direccion?: string | null;
+          financiador?: string;
+          plan?: string;
+          ultima_visita?: string | null;
+          estado?: string;
+          notas?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          clinic_id?: string;
+          nombre?: string;
+          dni?: string;
+          email?: string | null;
+          telefono?: string | null;
+          fecha_nacimiento?: string | null;
+          direccion?: string | null;
+          financiador?: string;
+          plan?: string;
+          ultima_visita?: string | null;
+          estado?: string;
+          notas?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      prescriptions: {
+        Row: {
+          id: string;
+          code: string;
+          patient_id: string | null;
+          patient_name: string;
+          doctor_name: string;
+          date: string;
+          items: Json;
+          status: string;
+          financiador: string;
+          created_at: string;
+          updated_at: string;
+          clinic_id: string | null;
+        };
+        Insert: {
+          id?: string;
+          code: string;
+          patient_id?: string | null;
+          patient_name: string;
+          doctor_name: string;
+          date?: string;
+          items: Json;
+          status?: string;
+          financiador: string;
+          created_at?: string;
+          updated_at?: string;
+          clinic_id?: string | null;
+        };
+        Update: {
+          id?: string;
+          code?: string;
+          patient_id?: string | null;
+          patient_name?: string;
+          doctor_name?: string;
+          date?: string;
+          items?: Json;
+          status?: string;
+          financiador?: string;
+          created_at?: string;
+          updated_at?: string;
+          clinic_id?: string | null;
+        };
+        Relationships: [];
+      };
+      profiles: {
+        Row: {
+          id: string;
+          clinic_id: string;
+          role: string;
+          full_name: string;
+          avatar_url: string | null;
+          phone: string | null;
+          especialidad: string | null;
+          matricula: string | null;
+          active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id: string;
+          clinic_id: string;
+          role?: string;
+          full_name?: string;
+          avatar_url?: string | null;
+          phone?: string | null;
+          especialidad?: string | null;
+          matricula?: string | null;
+          active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          clinic_id?: string;
+          role?: string;
+          full_name?: string;
+          avatar_url?: string | null;
+          phone?: string | null;
+          especialidad?: string | null;
+          matricula?: string | null;
+          active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      rechazos: {
+        Row: {
+          id: string;
+          clinic_id: string;
+          factura_id: string | null;
+          factura_numero: string;
+          financiador: string;
+          paciente: string;
+          prestacion: string;
+          monto: number;
+          motivo: string;
+          motivo_detalle: string;
+          fecha_rechazo: string;
+          fecha_presentacion: string;
+          reprocesable: boolean;
+          estado: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          clinic_id: string;
+          factura_id?: string | null;
+          factura_numero: string;
+          financiador: string;
+          paciente: string;
+          prestacion: string;
+          monto: number;
+          motivo: string;
+          motivo_detalle?: string;
+          fecha_rechazo?: string;
+          fecha_presentacion: string;
+          reprocesable?: boolean;
+          estado?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          clinic_id?: string;
+          factura_id?: string | null;
+          factura_numero?: string;
+          financiador?: string;
+          paciente?: string;
+          prestacion?: string;
+          monto?: number;
+          motivo?: string;
+          motivo_detalle?: string;
+          fecha_rechazo?: string;
+          fecha_presentacion?: string;
+          reprocesable?: boolean;
+          estado?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      recurring_orders: {
+        Row: {
+          id: string;
+          code: string;
+          patient_name: string;
+          patient_id: string | null;
+          medications: Json;
+          frequency: string;
+          next_delivery: string;
+          financiador: string;
+          status: string;
+          created_at: string;
+          updated_at: string;
+          clinic_id: string | null;
+        };
+        Insert: {
+          id?: string;
+          code: string;
+          patient_name: string;
+          patient_id?: string | null;
+          medications: Json;
+          frequency?: string;
+          next_delivery: string;
+          financiador: string;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+          clinic_id?: string | null;
+        };
+        Update: {
+          id?: string;
+          code?: string;
+          patient_name?: string;
+          patient_id?: string | null;
+          medications?: Json;
+          frequency?: string;
+          next_delivery?: string;
+          financiador?: string;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+          clinic_id?: string | null;
+        };
+        Relationships: [];
+      };
+      reportes: {
+        Row: {
+          id: string;
+          clinic_id: string;
+          nombre: string;
+          categoria: string;
+          descripcion: string;
+          ultima_gen: string | null;
+          formato: string;
+          data_query: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          clinic_id: string;
+          nombre: string;
+          categoria: string;
+          descripcion?: string;
+          ultima_gen?: string | null;
+          formato?: string;
+          data_query?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          clinic_id?: string;
+          nombre?: string;
+          categoria?: string;
+          descripcion?: string;
+          ultima_gen?: string | null;
+          formato?: string;
+          data_query?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      triages: {
+        Row: {
+          id: string;
+          code: string;
+          patient_name: string;
+          patient_id: string | null;
+          symptoms: Json;
+          severity: number;
+          frequency: string;
+          duration: string | null;
+          triggers: string | null;
+          free_notes: string | null;
+          photo_urls: Json;
+          routed_specialty: string | null;
+          routed_doctor: string | null;
+          status: string;
+          created_at: string;
+          updated_at: string;
+          clinic_id: string | null;
+        };
+        Insert: {
+          id?: string;
+          code: string;
+          patient_name: string;
+          patient_id?: string | null;
+          symptoms: Json;
+          severity?: number;
+          frequency?: string;
+          duration?: string | null;
+          triggers?: string | null;
+          free_notes?: string | null;
+          photo_urls?: Json;
+          routed_specialty?: string | null;
+          routed_doctor?: string | null;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+          clinic_id?: string | null;
+        };
+        Update: {
+          id?: string;
+          code?: string;
+          patient_name?: string;
+          patient_id?: string | null;
+          symptoms?: Json;
+          severity?: number;
+          frequency?: string;
+          duration?: string | null;
+          triggers?: string | null;
+          free_notes?: string | null;
+          photo_urls?: Json;
+          routed_specialty?: string | null;
+          routed_doctor?: string | null;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+          clinic_id?: string | null;
+        };
+        Relationships: [];
+      };
+      turnos: {
+        Row: {
+          id: string;
+          clinic_id: string;
+          fecha: string;
+          hora: string;
+          paciente: string;
+          paciente_id: string | null;
+          tipo: string;
+          financiador: string;
+          profesional: string;
+          profesional_id: string | null;
+          estado: string;
+          notas: string | null;
+          duration_min: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          clinic_id: string;
+          fecha?: string;
+          hora: string;
+          paciente: string;
+          paciente_id?: string | null;
+          tipo: string;
+          financiador?: string;
+          profesional: string;
+          profesional_id?: string | null;
+          estado?: string;
+          notas?: string | null;
+          duration_min?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          clinic_id?: string;
+          fecha?: string;
+          hora?: string;
+          paciente?: string;
+          paciente_id?: string | null;
+          tipo?: string;
+          financiador?: string;
+          profesional?: string;
+          profesional_id?: string | null;
+          estado?: string;
+          notas?: string | null;
+          duration_min?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      waiting_room: {
+        Row: {
+          id: string;
+          consultation_id: string | null;
+          patient_name: string;
+          age: number | null;
+          reason: string;
+          queue_position: number;
+          wait_time: string | null;
+          intake_complete: boolean;
+          financiador: string | null;
+          joined_at: string;
+          clinic_id: string | null;
+        };
+        Insert: {
+          id?: string;
+          consultation_id?: string | null;
+          patient_name: string;
+          age?: number | null;
+          reason: string;
+          queue_position?: number;
+          wait_time?: string | null;
+          intake_complete?: boolean;
+          financiador?: string | null;
+          joined_at?: string;
+          clinic_id?: string | null;
+        };
+        Update: {
+          id?: string;
+          consultation_id?: string | null;
+          patient_name?: string;
+          age?: number | null;
+          reason?: string;
+          queue_position?: number;
+          wait_time?: string | null;
+          intake_complete?: boolean;
+          financiador?: string | null;
+          joined_at?: string;
+          clinic_id?: string | null;
+        };
+        Relationships: [];
+      };
+      waitlist: {
+        Row: {
+          id: string;
+          email: string;
+          source: string;
+          segment: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          email: string;
+          source?: string;
+          segment?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          email?: string;
+          source?: string;
+          segment?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+    };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      get_clinic_id: {
+        Args: Record<string, never>;
+        Returns: string;
+      };
+    };
+    Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
+    };
+  };
+}
+
+// ─── Helper types ────────────────────────────────────────────
+export type Tables<T extends keyof Database["public"]["Tables"]> =
+  Database["public"]["Tables"][T]["Row"];
+export type InsertTables<T extends keyof Database["public"]["Tables"]> =
+  Database["public"]["Tables"][T]["Insert"];
+export type UpdateTables<T extends keyof Database["public"]["Tables"]> =
+  Database["public"]["Tables"][T]["Update"];
