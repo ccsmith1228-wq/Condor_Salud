@@ -241,14 +241,20 @@ BEGIN
       'doctor_availability','triages','clinical_notes'
     ])
   LOOP
-    EXECUTE format(
-      'CREATE POLICY IF NOT EXISTS "Allow authenticated read" ON %I FOR SELECT TO authenticated USING (true)',
-      tbl
-    );
-    EXECUTE format(
-      'CREATE POLICY IF NOT EXISTS "Allow authenticated write" ON %I FOR ALL TO authenticated USING (true) WITH CHECK (true)',
-      tbl
-    );
+    BEGIN
+      EXECUTE format(
+        'CREATE POLICY "Allow authenticated read" ON %I FOR SELECT TO authenticated USING (true)',
+        tbl
+      );
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
+    BEGIN
+      EXECUTE format(
+        'CREATE POLICY "Allow authenticated write" ON %I FOR ALL TO authenticated USING (true) WITH CHECK (true)',
+        tbl
+      );
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
   END LOOP;
 END $$;
 

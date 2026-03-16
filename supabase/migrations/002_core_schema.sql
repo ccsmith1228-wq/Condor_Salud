@@ -419,29 +419,41 @@ ALTER TABLE auditoria ENABLE ROW LEVEL SECURITY;
 ALTER TABLE waitlist ENABLE ROW LEVEL SECURITY;
 
 -- ─── Helper function: get current user's clinic_id ───────────────────────────
-CREATE OR REPLACE FUNCTION auth.clinic_id()
+CREATE OR REPLACE FUNCTION public.get_clinic_id()
 RETURNS UUID AS $$
-  SELECT clinic_id FROM profiles WHERE id = auth.uid()
+  SELECT clinic_id FROM public.profiles WHERE id = auth.uid()
 $$ LANGUAGE sql STABLE SECURITY DEFINER;
 
 -- ─── Clinics: users can only see their own clinic ────────────────────────────
-CREATE POLICY "Users see own clinic"
-  ON clinics FOR SELECT TO authenticated
-  USING (id = auth.clinic_id());
+DO $$ BEGIN
+  CREATE POLICY "Users see own clinic"
+    ON clinics FOR SELECT TO authenticated
+    USING (id = public.get_clinic_id());
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
-CREATE POLICY "Admins update own clinic"
-  ON clinics FOR UPDATE TO authenticated
-  USING (id = auth.clinic_id())
-  WITH CHECK (id = auth.clinic_id());
+DO $$ BEGIN
+  CREATE POLICY "Admins update own clinic"
+    ON clinics FOR UPDATE TO authenticated
+    USING (id = public.get_clinic_id())
+    WITH CHECK (id = public.get_clinic_id());
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- ─── Profiles: users see teammates ──────────────────────────────────────────
-CREATE POLICY "Users see clinic profiles"
-  ON profiles FOR SELECT TO authenticated
-  USING (clinic_id = auth.clinic_id());
+DO $$ BEGIN
+  CREATE POLICY "Users see clinic profiles"
+    ON profiles FOR SELECT TO authenticated
+    USING (clinic_id = public.get_clinic_id());
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
-CREATE POLICY "Users update own profile"
-  ON profiles FOR UPDATE TO authenticated
-  USING (id = auth.uid());
+DO $$ BEGIN
+  CREATE POLICY "Users update own profile"
+    ON profiles FOR UPDATE TO authenticated
+    USING (id = auth.uid());
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- ─── Clinic-scoped tables: CRUD within own clinic ───────────────────────────
 -- Macro: apply standard tenant-isolation policies to a table
@@ -457,50 +469,77 @@ BEGIN
     ])
   LOOP
     -- SELECT: own clinic only
-    EXECUTE format(
-      'CREATE POLICY "Tenant isolation read" ON %I FOR SELECT TO authenticated USING (clinic_id = auth.clinic_id())',
-      tbl
-    );
+    BEGIN
+      EXECUTE format(
+        'CREATE POLICY "Tenant isolation read" ON %I FOR SELECT TO authenticated USING (clinic_id = public.get_clinic_id())',
+        tbl
+      );
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
     -- INSERT: must be own clinic
-    EXECUTE format(
-      'CREATE POLICY "Tenant isolation insert" ON %I FOR INSERT TO authenticated WITH CHECK (clinic_id = auth.clinic_id())',
-      tbl
-    );
+    BEGIN
+      EXECUTE format(
+        'CREATE POLICY "Tenant isolation insert" ON %I FOR INSERT TO authenticated WITH CHECK (clinic_id = public.get_clinic_id())',
+        tbl
+      );
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
     -- UPDATE: own clinic only
-    EXECUTE format(
-      'CREATE POLICY "Tenant isolation update" ON %I FOR UPDATE TO authenticated USING (clinic_id = auth.clinic_id()) WITH CHECK (clinic_id = auth.clinic_id())',
-      tbl
-    );
+    BEGIN
+      EXECUTE format(
+        'CREATE POLICY "Tenant isolation update" ON %I FOR UPDATE TO authenticated USING (clinic_id = public.get_clinic_id()) WITH CHECK (clinic_id = public.get_clinic_id())',
+        tbl
+      );
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
     -- DELETE: own clinic only
-    EXECUTE format(
-      'CREATE POLICY "Tenant isolation delete" ON %I FOR DELETE TO authenticated USING (clinic_id = auth.clinic_id())',
-      tbl
-    );
+    BEGIN
+      EXECUTE format(
+        'CREATE POLICY "Tenant isolation delete" ON %I FOR DELETE TO authenticated USING (clinic_id = public.get_clinic_id())',
+        tbl
+      );
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
   END LOOP;
 END $$;
 
 -- ─── Nomenclador: readable by all authenticated users (national standard) ───
-CREATE POLICY "Nomenclador public read"
-  ON nomenclador FOR SELECT TO authenticated
-  USING (true);
+DO $$ BEGIN
+  CREATE POLICY "Nomenclador public read"
+    ON nomenclador FOR SELECT TO authenticated
+    USING (true);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- Only service_role can modify nomenclador (admin seeding)
-CREATE POLICY "Nomenclador admin write"
-  ON nomenclador FOR ALL TO service_role
-  USING (true) WITH CHECK (true);
+DO $$ BEGIN
+  CREATE POLICY "Nomenclador admin write"
+    ON nomenclador FOR ALL TO service_role
+    USING (true) WITH CHECK (true);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- ─── Waitlist: public insert (anon), read by service_role only ──────────────
-CREATE POLICY "Waitlist public insert"
-  ON waitlist FOR INSERT TO anon
-  WITH CHECK (true);
+DO $$ BEGIN
+  CREATE POLICY "Waitlist public insert"
+    ON waitlist FOR INSERT TO anon
+    WITH CHECK (true);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
-CREATE POLICY "Waitlist authenticated insert"
-  ON waitlist FOR INSERT TO authenticated
-  WITH CHECK (true);
+DO $$ BEGIN
+  CREATE POLICY "Waitlist authenticated insert"
+    ON waitlist FOR INSERT TO authenticated
+    WITH CHECK (true);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
-CREATE POLICY "Waitlist admin read"
-  ON waitlist FOR SELECT TO service_role
-  USING (true);
+DO $$ BEGIN
+  CREATE POLICY "Waitlist admin read"
+    ON waitlist FOR SELECT TO service_role
+    USING (true);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- ─── Module 11-14: Update existing RLS to use clinic_id ─────────────────────
 -- Drop the old wide-open policies and replace with tenant-scoped ones
@@ -525,45 +564,62 @@ BEGIN
     END;
 
     -- Create tenant-scoped policies
-    EXECUTE format(
-      'CREATE POLICY "Tenant read" ON %I FOR SELECT TO authenticated USING (clinic_id = auth.clinic_id())',
-      tbl
-    );
-    EXECUTE format(
-      'CREATE POLICY "Tenant insert" ON %I FOR INSERT TO authenticated WITH CHECK (clinic_id = auth.clinic_id())',
-      tbl
-    );
-    EXECUTE format(
-      'CREATE POLICY "Tenant update" ON %I FOR UPDATE TO authenticated USING (clinic_id = auth.clinic_id()) WITH CHECK (clinic_id = auth.clinic_id())',
-      tbl
-    );
-    EXECUTE format(
-      'CREATE POLICY "Tenant delete" ON %I FOR DELETE TO authenticated USING (clinic_id = auth.clinic_id())',
-      tbl
-    );
+    BEGIN
+      EXECUTE format(
+        'CREATE POLICY "Tenant read" ON %I FOR SELECT TO authenticated USING (clinic_id = public.get_clinic_id())',
+        tbl
+      );
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
+    BEGIN
+      EXECUTE format(
+        'CREATE POLICY "Tenant insert" ON %I FOR INSERT TO authenticated WITH CHECK (clinic_id = public.get_clinic_id())',
+        tbl
+      );
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
+    BEGIN
+      EXECUTE format(
+        'CREATE POLICY "Tenant update" ON %I FOR UPDATE TO authenticated USING (clinic_id = public.get_clinic_id()) WITH CHECK (clinic_id = public.get_clinic_id())',
+        tbl
+      );
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
+    BEGIN
+      EXECUTE format(
+        'CREATE POLICY "Tenant delete" ON %I FOR DELETE TO authenticated USING (clinic_id = public.get_clinic_id())',
+        tbl
+      );
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
   END LOOP;
 END $$;
 
 -- Doctors and doctor_reviews are public-readable (patient portal)
-CREATE POLICY "Doctors public read"
-  ON doctors FOR SELECT TO authenticated
-  USING (true);
+DO $$ BEGIN
+  CREATE POLICY "Doctors public read" ON doctors FOR SELECT TO authenticated USING (true);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
-CREATE POLICY "Doctors anon read"
-  ON doctors FOR SELECT TO anon
-  USING (true);
+DO $$ BEGIN
+  CREATE POLICY "Doctors anon read" ON doctors FOR SELECT TO anon USING (true);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
-CREATE POLICY "Doctor reviews public read"
-  ON doctor_reviews FOR SELECT TO authenticated
-  USING (true);
+DO $$ BEGIN
+  CREATE POLICY "Doctor reviews public read" ON doctor_reviews FOR SELECT TO authenticated USING (true);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
-CREATE POLICY "Doctor reviews anon read"
-  ON doctor_reviews FOR SELECT TO anon
-  USING (true);
+DO $$ BEGIN
+  CREATE POLICY "Doctor reviews anon read" ON doctor_reviews FOR SELECT TO anon USING (true);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
-CREATE POLICY "Doctor availability public read"
-  ON doctor_availability FOR SELECT TO authenticated
-  USING (true);
+DO $$ BEGIN
+  CREATE POLICY "Doctor availability public read" ON doctor_availability FOR SELECT TO authenticated USING (true);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- =============================================================================
 -- TRIGGERS — auto-update updated_at
@@ -589,6 +645,7 @@ BEGIN
       'consultations', 'triages', 'clinical_notes'
     ])
   LOOP
+    EXECUTE format('DROP TRIGGER IF EXISTS set_updated_at ON %I', tbl);
     EXECUTE format(
       'CREATE TRIGGER set_updated_at BEFORE UPDATE ON %I FOR EACH ROW EXECUTE FUNCTION update_updated_at()',
       tbl
@@ -657,19 +714,25 @@ VALUES (
 ON CONFLICT (id) DO NOTHING;
 
 -- Storage RLS: users can upload to their clinic's folder
-CREATE POLICY "Triage photos upload"
-  ON storage.objects FOR INSERT TO authenticated
-  WITH CHECK (
-    bucket_id = 'triage-photos' AND
-    (storage.foldername(name))[1] = auth.clinic_id()::text
-  );
+DO $$ BEGIN
+  CREATE POLICY "Triage photos upload"
+    ON storage.objects FOR INSERT TO authenticated
+    WITH CHECK (
+      bucket_id = 'triage-photos' AND
+      (storage.foldername(name))[1] = public.get_clinic_id()::text
+    );
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
-CREATE POLICY "Triage photos read"
-  ON storage.objects FOR SELECT TO authenticated
-  USING (
-    bucket_id = 'triage-photos' AND
-    (storage.foldername(name))[1] = auth.clinic_id()::text
-  );
+DO $$ BEGIN
+  CREATE POLICY "Triage photos read"
+    ON storage.objects FOR SELECT TO authenticated
+    USING (
+      bucket_id = 'triage-photos' AND
+      (storage.foldername(name))[1] = public.get_clinic_id()::text
+    );
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- =============================================================================
 -- SEED: Nomenclador (national standard billing codes)
@@ -690,3 +753,22 @@ VALUES
   ('420810', 'RMN cerebro', 'Diagnóstico por imágenes', 85000, 88000, 58000, 82000),
   ('420901', 'Sesión de kinesiología', 'Rehabilitación', 12000, 12500, 8500, 11500)
 ON CONFLICT (codigo) DO NOTHING;
+
+-- =============================================================================
+-- GRANTS — Base table permissions
+-- =============================================================================
+
+-- Authenticated users get full access to all public tables (RLS still applies)
+GRANT ALL ON ALL TABLES IN SCHEMA public TO authenticated;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO authenticated;
+
+-- Anon: waitlist insert (landing page signups)
+GRANT INSERT ON waitlist TO anon;
+
+-- Anon: public-readable tables (patient portal / directorio)
+GRANT SELECT ON doctors TO anon;
+GRANT SELECT ON doctor_reviews TO anon;
+GRANT SELECT ON doctor_availability TO anon;
+
+-- Service role: waitlist read (admin dashboard)
+GRANT SELECT ON waitlist TO service_role;
