@@ -26,14 +26,11 @@ export async function POST(request: NextRequest) {
     // ── Persist to Supabase if configured ──
     if (isSupabaseConfigured()) {
       try {
-        const { createClient } = await import("@supabase/supabase-js");
-        const supabase = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        );
+        const { createClient } = await import("@/lib/supabase/server");
+        const supabase = createClient();
         const { error: dbError } = await supabase
           .from("waitlist")
-          .upsert({ email }, { onConflict: "email" });
+          .upsert({ email, source: "landing" }, { onConflict: "email" });
 
         if (dbError) {
           logger.error({ err: dbError, route: "waitlist" }, "Supabase waitlist insert failed");

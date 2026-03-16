@@ -1,7 +1,7 @@
 // ─── Session API ─────────────────────────────────────────────
-// Manages user sessions via httpOnly cookies.
-// Replaces the previous localStorage-based session management,
-// eliminating XSS session-hijack vectors (S-04/S-05).
+// Manages user sessions.
+// When Supabase is configured, delegates to Supabase Auth.
+// In demo/dev mode, uses httpOnly cookies for session simulation.
 //
 // POST /api/auth/session — Create session (login)
 // GET  /api/auth/session — Read current session
@@ -42,6 +42,44 @@ const isSupabaseConfigured = () => {
 
 // ─── GET: Read current session ───────────────────────────────
 export async function GET(req: NextRequest) {
+  // ── Supabase mode: read session from Supabase cookies ──
+  if (isSupabaseConfigured()) {
+    try {
+      const { createClient } = await import("@/lib/supabase/server");
+      const supabase = createClient();
+      const {
+        data: { user: authUser },
+      } = await supabase.auth.getUser();
+
+      if (!authUser) {
+        return NextResponse.json({ user: null });
+      }
+
+      // Fetch profile data
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role, full_name, avatar_url, clinic_id, clinics(name)")
+        .eq("id", authUser.id)
+        .single();
+
+      const user = {
+        id: authUser.id,
+        email: authUser.email ?? "",
+        name: profile?.full_name || authUser.user_metadata?.full_name || authUser.email,
+        role: profile?.role || "admin",
+        clinicId: profile?.clinic_id || "",
+        clinicName: (profile?.clinics as { name?: string })?.name || "",
+        avatarUrl: profile?.avatar_url || authUser.user_metadata?.avatar_url,
+      };
+
+      return NextResponse.json({ user });
+    } catch (err) {
+      logger.error({ err, route: "auth/session" }, "Supabase session read error");
+      return NextResponse.json({ user: null });
+    }
+  }
+
+  // ── Demo mode: read from httpOnly cookie ──
   const cookie = req.cookies.get(COOKIE_NAME)?.value;
 
   if (!cookie) {
@@ -50,8 +88,6 @@ export async function GET(req: NextRequest) {
 
   try {
     const session = JSON.parse(cookie);
-    // Return only safe fields — role comes from the server cookie,
-    // not from anything the client can forge.
     return NextResponse.json({
       user: {
         id: session.id,
@@ -64,7 +100,6 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch {
-    // Corrupt cookie — clear it
     const res = NextResponse.json({ user: null });
     res.cookies.delete(COOKIE_NAME);
     return res;
@@ -97,11 +132,76 @@ export async function POST(req: NextRequest) {
 
     // ── Supabase auth (production) ──
     if (isSupabaseConfigured()) {
-      // TODO: Wire to Supabase Auth
-      // const { createClient } = await import("@/lib/supabase/server");
-      // const supabase = createClient();
-      // const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      return NextResponse.json({ error: "Supabase auth not yet wired" }, { status: 501 });
+      try {
+        const { createClient } = await import("@/lib/supabase/server");
+        const supabase = createClient();
+
+        if (action === "register") {
+          const { data, error } = await supabase.auth.signUp({
+            email,
+            password: password || "",
+            options: {
+              data: {
+                full_name: body.name || email,
+                clinic_name: body.clinicName || "Mi Clínica",
+                role: "admin",
+              },
+            },
+          });
+
+          if (error) {
+            return NextResponse.json({ error: error.message }, { status: 400 });
+          }
+
+          return NextResponse.json({
+            user: {
+              id: data.user?.id,
+              email: data.user?.email,
+              name: body.name || email,
+              role: "admin",
+              clinicId: "",
+              clinicName: body.clinicName || "",
+            },
+            success: true,
+          });
+        }
+
+        // Login
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password: password || "",
+        });
+
+        if (error || !data.user) {
+          return NextResponse.json(
+            { error: error?.message || "Email o contraseña incorrectos" },
+            { status: 401 },
+          );
+        }
+
+        // Fetch profile
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role, full_name, avatar_url, clinic_id, clinics(name)")
+          .eq("id", data.user.id)
+          .single();
+
+        return NextResponse.json({
+          user: {
+            id: data.user.id,
+            email: data.user.email,
+            name: profile?.full_name || data.user.user_metadata?.full_name || email,
+            role: profile?.role || "admin",
+            clinicId: profile?.clinic_id || "",
+            clinicName: (profile?.clinics as { name?: string })?.name || "",
+            avatarUrl: profile?.avatar_url,
+          },
+          success: true,
+        });
+      } catch (err) {
+        logger.error({ err, route: "auth/session" }, "Supabase auth error");
+        return NextResponse.json({ error: "Error de autenticación" }, { status: 500 });
+      }
     }
 
     // ── Demo mode (development only) ──
@@ -125,6 +225,17 @@ export async function POST(req: NextRequest) {
 
 // ─── DELETE: Destroy session (logout) ────────────────────────
 export async function DELETE() {
+  // ── Supabase: sign out server-side ──
+  if (isSupabaseConfigured()) {
+    try {
+      const { createClient } = await import("@/lib/supabase/server");
+      const supabase = createClient();
+      await supabase.auth.signOut();
+    } catch {
+      // Best-effort
+    }
+  }
+
   const response = NextResponse.json({ success: true });
   response.cookies.set(COOKIE_NAME, "", {
     ...cookieOptions(),

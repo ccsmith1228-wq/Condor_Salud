@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import { isSupabaseConfigured } from "@/lib/env";
 
 // ─── Types ───────────────────────────────────────────────────
 export type UserRole = "admin" | "medico" | "facturacion" | "recepcion";
@@ -96,9 +97,6 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
   ],
 };
 
-// ─── Demo user ───────────────────────────────────────────────
-// Removed — demo user is now managed server-side in /api/auth/session
-
 // ─── Context ─────────────────────────────────────────────────
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -109,10 +107,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAuthenticated: false,
   });
 
-  // ── Check session on mount (reads httpOnly cookie via API) ──
+  // ── Supabase or Demo session bootstrap ─────────────────────
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+
+    async function bootstrap() {
+      // ── Supabase Auth Mode ──
+      if (isSupabaseConfigured()) {
+        try {
+          const { createClient } = await import("@/lib/supabase/client");
+          const supabase = createClient();
+
+          // Get current session
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
+
+          if (session?.user) {
+            const user = await resolveProfile(supabase, session.user);
+            if (!cancelled) {
+              setState({ user, isLoading: false, isAuthenticated: true });
+            }
+          } else if (!cancelled) {
+            setState({ user: null, isLoading: false, isAuthenticated: false });
+          }
+
+          // Listen for auth state changes (login/logout/token refresh)
+          const {
+            data: { subscription },
+          } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
+            if (cancelled) return;
+            if (newSession?.user) {
+              const user = await resolveProfile(supabase, newSession.user);
+              setState({ user, isLoading: false, isAuthenticated: true });
+            } else {
+              setState({ user: null, isLoading: false, isAuthenticated: false });
+            }
+          });
+
+          return () => {
+            cancelled = true;
+            subscription.unsubscribe();
+          };
+        } catch {
+          if (!cancelled) {
+            setState({ user: null, isLoading: false, isAuthenticated: false });
+          }
+        }
+        return;
+      }
+
+      // ── Demo Mode (cookie-based session via API) ──
       try {
         const res = await fetch("/api/auth/session", { credentials: "include" });
         if (!res.ok) throw new Error("Session fetch failed");
@@ -129,14 +174,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setState({ user: null, isLoading: false, isAuthenticated: false });
         }
       }
-    })();
+    }
+
+    bootstrap();
     return () => {
       cancelled = true;
     };
   }, []);
 
-  // ── Login via server-side session ──
+  // ── Login ──────────────────────────────────────────────────
   const login = useCallback(async (email: string, password: string) => {
+    // ── Supabase Auth ──
+    if (isSupabaseConfigured()) {
+      try {
+        const { createClient } = await import("@/lib/supabase/client");
+        const supabase = createClient();
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+        if (error || !data.user) {
+          return { success: false, error: mapSupabaseError(error?.message) };
+        }
+
+        // Profile is resolved by onAuthStateChange listener
+        return { success: true };
+      } catch {
+        return { success: false, error: "Error de conexión" };
+      }
+    }
+
+    // ── Demo fallback ──
     try {
       const res = await fetch("/api/auth/session", {
         method: "POST",
@@ -158,8 +224,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // ── Register via server-side session ──
+  // ── Register ───────────────────────────────────────────────
   const register = useCallback(async (data: RegisterData) => {
+    // ── Supabase Auth ──
+    if (isSupabaseConfigured()) {
+      try {
+        const { createClient } = await import("@/lib/supabase/client");
+        const supabase = createClient();
+        const { data: authData, error } = await supabase.auth.signUp({
+          email: data.email,
+          password: data.password,
+          options: {
+            data: {
+              full_name: data.name,
+              clinic_name: data.clinicName,
+              cuit: data.cuit,
+              provincia: data.provincia,
+              especialidad: data.especialidad,
+              role: "admin", // First user of a clinic is always admin
+            },
+          },
+        });
+
+        if (error || !authData.user) {
+          return { success: false, error: mapSupabaseError(error?.message) };
+        }
+
+        // Profile created by DB trigger (handle_new_user).
+        // onAuthStateChange will pick up the new session.
+        return { success: true };
+      } catch {
+        return { success: false, error: "Error de conexión" };
+      }
+    }
+
+    // ── Demo fallback ──
     try {
       const res = await fetch("/api/auth/session", {
         method: "POST",
@@ -187,16 +286,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // ── Logout (server clears httpOnly cookie) ──
+  // ── Logout ─────────────────────────────────────────────────
   // SM-03: Also clear Google OAuth cookies
   const logout = useCallback(async () => {
-    try {
-      await fetch("/api/auth/session", {
-        method: "DELETE",
-        credentials: "include",
-      });
-    } catch {
-      // Best-effort; clear local state regardless
+    if (isSupabaseConfigured()) {
+      try {
+        const { createClient } = await import("@/lib/supabase/client");
+        const supabase = createClient();
+        await supabase.auth.signOut();
+      } catch {
+        // Best-effort
+      }
+    } else {
+      try {
+        await fetch("/api/auth/session", {
+          method: "DELETE",
+          credentials: "include",
+        });
+      } catch {
+        // Best-effort
+      }
     }
     // SM-03: Clear Google cookies (non-httpOnly ones clearable from client)
     document.cookie = "condor_google_user=; path=/; max-age=0";
@@ -229,4 +338,54 @@ export function useUser() {
   const { user } = useAuth();
   if (!user) throw new Error("useUser called without authenticated user");
   return user;
+}
+
+// ─── Helpers ─────────────────────────────────────────────────
+
+/** Resolve Supabase auth.user → our User shape by querying the profiles table */
+// @ts-expect-error -- Supabase client and auth user types vary by version
+async function resolveProfile(supabase, authUser): Promise<User> {
+  try {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role, full_name, avatar_url, clinic_id, clinics(name)")
+      .eq("id", authUser.id)
+      .single();
+
+    if (profile) {
+      return {
+        id: authUser.id,
+        email: authUser.email ?? "",
+        name: profile.full_name || authUser.user_metadata?.full_name || authUser.email,
+        role: (profile.role as UserRole) || "admin",
+        clinicId: profile.clinic_id,
+        clinicName: profile.clinics?.name || "",
+        avatarUrl: profile.avatar_url || authUser.user_metadata?.avatar_url,
+      };
+    }
+  } catch {
+    // Profile query failed — fall back to metadata
+  }
+
+  // Fallback: build from user_metadata (before profile trigger completes)
+  return {
+    id: authUser.id,
+    email: authUser.email ?? "",
+    name: authUser.user_metadata?.full_name || authUser.email,
+    role: (authUser.user_metadata?.role as UserRole) || "admin",
+    clinicId: "",
+    clinicName: authUser.user_metadata?.clinic_name || "",
+    avatarUrl: authUser.user_metadata?.avatar_url,
+  };
+}
+
+/** Map Supabase auth error messages to Spanish */
+function mapSupabaseError(msg?: string): string {
+  if (!msg) return "Error al iniciar sesión";
+  if (msg.includes("Invalid login")) return "Email o contraseña incorrectos";
+  if (msg.includes("Email not confirmed")) return "Confirmá tu email antes de ingresar";
+  if (msg.includes("User already registered")) return "Ya existe una cuenta con ese email";
+  if (msg.includes("Password should be")) return "La contraseña debe tener al menos 8 caracteres";
+  if (msg.includes("rate limit")) return "Demasiados intentos. Esperá un momento.";
+  return msg;
 }
