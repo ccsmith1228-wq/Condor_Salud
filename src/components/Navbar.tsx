@@ -2,11 +2,34 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { Globe } from "lucide-react";
 import { useLocale } from "@/lib/i18n/context";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
-  const { locale, toggleLocale, t } = useLocale();
+  const { locale, toggleLocale, t, segment } = useLocale();
+
+  const isTourist = segment === "tourist";
+
+  // Segment-aware nav links
+  const navLinks = isTourist
+    ? [
+        { href: "/paciente/medicos", label: t("nav.doctors") },
+        { href: "/paciente/teleconsulta", label: t("nav.teleconsult") },
+        { href: "/paciente/medicamentos", label: t("nav.pharmacy") },
+        { href: "/paciente/cobertura", label: t("nav.coverage") },
+      ]
+    : [
+        { href: "/#problema", label: t("nav.problem") },
+        { href: "/#producto", label: t("nav.product") },
+        { href: "/#pricing", label: t("nav.pricing") },
+        { href: "/planes", label: t("nav.plans") },
+      ];
+
+  // Segment-aware primary CTA
+  const primaryCta = isTourist
+    ? { href: "/paciente", label: t("nav.patient") }
+    : { href: "/auth/registro", label: t("nav.try") };
 
   return (
     <>
@@ -19,174 +42,128 @@ export default function Navbar() {
 
       <nav
         aria-label={t("nav.aria")}
-        className="sticky top-1 z-[99] bg-white border-b border-border px-6 lg:px-10 py-4 flex items-center justify-between"
+        className="sticky top-1 z-[99] bg-white/80 backdrop-blur-md border-b border-border/60 px-6 lg:px-10 py-3 flex items-center justify-between"
       >
-        <Link href="/" className="flex items-center gap-3">
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2.5">
           <Image
             src="/condor.png"
             alt="Cóndor Salud"
-            width={40}
-            height={40}
-            className="w-10 h-10 object-contain"
+            width={36}
+            height={36}
+            className="w-9 h-9 object-contain"
           />
-          <div className="font-display font-bold text-xl">
+          <div className="font-display font-bold text-lg leading-tight">
             <span className="text-celeste-dark">CÓNDOR </span>
             <span className="text-gold">SALUD</span>
           </div>
         </Link>
 
         {/* Desktop nav */}
-        <div className="hidden md:flex items-center gap-6">
+        <div className="hidden md:flex items-center gap-1">
+          {/* Nav links */}
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="px-3 py-2 text-[13px] font-medium text-ink-light hover:text-celeste-dark rounded-lg hover:bg-celeste-pale/50 transition"
+            >
+              {link.label}
+            </Link>
+          ))}
+
+          {/* Divider */}
+          <div className="w-px h-5 bg-border mx-2" />
+
           {/* Language toggle */}
           <button
             type="button"
             onClick={toggleLocale}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold tracking-wide border border-border rounded-full hover:border-celeste-dark hover:text-celeste-dark transition"
+            className="inline-flex items-center gap-1.5 px-2.5 py-2 text-[12px] font-semibold text-ink-muted hover:text-celeste-dark rounded-lg hover:bg-celeste-pale/50 transition"
             aria-label={locale === "es" ? "Switch to English" : "Cambiar a Español"}
           >
-            <span className={locale === "es" ? "text-celeste-dark" : "text-ink-muted"}>ES</span>
-            <span className="text-ink-muted">/</span>
-            <span className={locale === "en" ? "text-celeste-dark" : "text-ink-muted"}>EN</span>
+            <Globe className="w-3.5 h-3.5" />
+            {locale === "es" ? "EN" : "ES"}
           </button>
+
+          {/* Secondary CTA */}
           <Link
-            href="/#problema"
-            className="text-[13px] font-medium text-ink-light hover:text-celeste-dark transition"
+            href={isTourist ? "/dashboard" : "/auth/login"}
+            className="px-4 py-2 text-[13px] font-medium text-ink-light hover:text-celeste-dark rounded-lg hover:bg-celeste-pale/50 transition"
           >
-            {t("nav.problem")}
+            {isTourist ? t("nav.demo") : t("nav.login")}
           </Link>
+
+          {/* Primary CTA */}
           <Link
-            href="/#producto"
-            className="text-[13px] font-medium text-ink-light hover:text-celeste-dark transition"
+            href={primaryCta.href}
+            className="ml-1 px-5 py-2 text-[13px] font-semibold text-white bg-celeste-dark hover:bg-celeste rounded-full transition shadow-sm"
           >
-            {t("nav.product")}
-          </Link>
-          <Link
-            href="/#pricing"
-            className="text-[13px] font-medium text-ink-light hover:text-celeste-dark transition"
-          >
-            {t("nav.pricing")}
-          </Link>
-          <Link
-            href="/planes"
-            className="text-[13px] font-medium text-ink-light hover:text-celeste-dark transition"
-          >
-            {t("nav.plans")}
-          </Link>
-          <Link
-            href="/auth/login"
-            className="px-5 py-2 text-xs font-semibold text-celeste-dark border border-celeste-dark hover:bg-celeste-pale rounded-[4px] transition"
-          >
-            {t("nav.login")}
-          </Link>
-          <Link
-            href="/auth/registro"
-            className="px-5 py-2 text-xs font-semibold text-white bg-celeste-dark hover:bg-celeste rounded-[4px] transition"
-          >
-            {t("nav.try")}
-          </Link>
-          <Link
-            href="/paciente"
-            className="px-5 py-2 text-xs font-semibold text-celeste-dark border border-celeste rounded-[4px] hover:bg-celeste-pale transition"
-          >
-            {t("nav.patient")}
-          </Link>
-          <Link
-            href="/dashboard"
-            className="px-5 py-2 text-xs font-semibold text-white bg-celeste hover:bg-celeste-dark rounded-[4px] transition"
-          >
-            {t("nav.demo")}
+            {primaryCta.label}
           </Link>
         </div>
 
-        {/* Mobile hamburger */}
-        <button
-          onClick={() => setOpen(!open)}
-          className="md:hidden p-2"
-          aria-label={t("nav.menuAria")}
-          aria-expanded={open ? "true" : "false"}
-        >
-          <div className="space-y-1.5">
-            <span
-              className={`block w-6 h-0.5 bg-ink transition-transform ${open ? "rotate-45 translate-y-2" : ""}`}
-            />
-            <span
-              className={`block w-6 h-0.5 bg-ink transition-opacity ${open ? "opacity-0" : ""}`}
-            />
-            <span
-              className={`block w-6 h-0.5 bg-ink transition-transform ${open ? "-rotate-45 -translate-y-2" : ""}`}
-            />
-          </div>
-        </button>
+        {/* Mobile: lang + hamburger */}
+        <div className="flex md:hidden items-center gap-2">
+          <button
+            type="button"
+            onClick={toggleLocale}
+            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold text-ink-muted hover:text-celeste-dark rounded-lg transition"
+            aria-label={locale === "es" ? "Switch to English" : "Cambiar a Español"}
+          >
+            <Globe className="w-3.5 h-3.5" />
+            {locale === "es" ? "EN" : "ES"}
+          </button>
+          <button
+            onClick={() => setOpen(!open)}
+            className="p-2 rounded-lg hover:bg-surface transition"
+            aria-label={t("nav.menuAria")}
+            aria-expanded={open ? "true" : "false"}
+          >
+            <div className="space-y-1.5">
+              <span
+                className={`block w-5 h-0.5 bg-ink rounded-full transition-transform duration-200 ${open ? "rotate-45 translate-y-[4px]" : ""}`}
+              />
+              <span
+                className={`block w-5 h-0.5 bg-ink rounded-full transition-opacity duration-200 ${open ? "opacity-0" : ""}`}
+              />
+              <span
+                className={`block w-5 h-0.5 bg-ink rounded-full transition-transform duration-200 ${open ? "-rotate-45 -translate-y-[4px]" : ""}`}
+              />
+            </div>
+          </button>
+        </div>
 
         {/* Mobile menu */}
         {open && (
-          <div className="absolute top-full left-0 right-0 bg-white border-b border-border p-6 flex flex-col gap-4 md:hidden">
-            {/* Mobile language toggle */}
-            <button
-              type="button"
-              onClick={toggleLocale}
-              className="self-start flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold tracking-wide border border-border rounded-full hover:border-celeste-dark hover:text-celeste-dark transition"
-              aria-label={locale === "es" ? "Switch to English" : "Cambiar a Español"}
-            >
-              <span className={locale === "es" ? "text-celeste-dark" : "text-ink-muted"}>ES</span>
-              <span className="text-ink-muted">/</span>
-              <span className={locale === "en" ? "text-celeste-dark" : "text-ink-muted"}>EN</span>
-            </button>
+          <div className="absolute top-full left-0 right-0 bg-white/95 backdrop-blur-md border-b border-border/60 p-5 flex flex-col gap-1 md:hidden animate-segmentFade">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setOpen(false)}
+                className="px-4 py-3 text-[14px] font-medium text-ink-light hover:text-celeste-dark rounded-xl hover:bg-celeste-pale/50 transition"
+              >
+                {link.label}
+              </Link>
+            ))}
+
+            <div className="h-px bg-border/60 my-2" />
+
             <Link
-              href="/#problema"
+              href={isTourist ? "/dashboard" : "/auth/login"}
               onClick={() => setOpen(false)}
-              className="text-[13px] font-medium text-ink-light"
+              className="px-4 py-3 text-[14px] font-medium text-ink-light hover:text-celeste-dark rounded-xl hover:bg-celeste-pale/50 transition"
             >
-              {t("nav.problem")}
+              {isTourist ? t("nav.demo") : t("nav.login")}
             </Link>
+
             <Link
-              href="/#producto"
+              href={primaryCta.href}
               onClick={() => setOpen(false)}
-              className="text-[13px] font-medium text-ink-light"
+              className="mx-2 mt-1 px-5 py-3 text-[14px] font-semibold text-white bg-celeste-dark hover:bg-celeste rounded-full text-center transition shadow-sm"
             >
-              {t("nav.product")}
-            </Link>
-            <Link
-              href="/#pricing"
-              onClick={() => setOpen(false)}
-              className="text-[13px] font-medium text-ink-light"
-            >
-              {t("nav.pricing")}
-            </Link>
-            <Link
-              href="/planes"
-              onClick={() => setOpen(false)}
-              className="text-[13px] font-medium text-ink-light"
-            >
-              {t("nav.plans")}
-            </Link>
-            <Link
-              href="/#waitlist"
-              onClick={() => setOpen(false)}
-              className="px-5 py-2 text-xs font-semibold text-white bg-celeste-dark rounded-[4px] text-center"
-            >
-              {t("nav.joinWaitlist")}
-            </Link>
-            <Link
-              href="/auth/login"
-              onClick={() => setOpen(false)}
-              className="px-5 py-2 text-xs font-semibold text-celeste-dark border border-celeste-dark rounded-[4px] text-center"
-            >
-              {t("nav.login")}
-            </Link>
-            <Link
-              href="/paciente"
-              onClick={() => setOpen(false)}
-              className="px-5 py-2 text-xs font-semibold text-celeste-dark border border-celeste rounded-[4px] text-center"
-            >
-              {t("nav.patient")}
-            </Link>
-            <Link
-              href="/dashboard"
-              onClick={() => setOpen(false)}
-              className="px-5 py-2 text-xs font-semibold text-white bg-celeste rounded-[4px] text-center"
-            >
-              {t("nav.demo")}
+              {primaryCta.label}
             </Link>
           </div>
         )}

@@ -20,6 +20,10 @@ const translations: Dict = {
   "nav.joinWaitlist": { es: "Sumate al waitlist", en: "Join the waitlist" },
   "nav.menuAria": { es: "Menú de navegación", en: "Navigation menu" },
   "nav.whatsappDemo": { es: "WhatsApp Demo", en: "WhatsApp Demo" },
+  "nav.doctors": { es: "Médicos", en: "Doctors" },
+  "nav.teleconsult": { es: "Teleconsulta", en: "Teleconsult" },
+  "nav.pharmacy": { es: "Farmacia", en: "Pharmacy" },
+  "nav.coverage": { es: "Cobertura", en: "Coverage" },
 
   // ── Hero ────────────────────────────────────────────────────
   "hero.badge": {
