@@ -1,9 +1,14 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
+import { useLocale } from "@/lib/i18n/context";
 
 // L-01: Dynamic copyright year
 
 export default function Footer() {
+  const { t } = useLocale();
+
   return (
     <footer className="border-t border-border pt-10 pb-8">
       <div className="max-w-6xl mx-auto px-6 lg:px-10">
@@ -27,75 +32,83 @@ export default function Footer() {
         {/* Nav columns — centered */}
         <div className="flex flex-wrap justify-center gap-12 text-[13px] mb-8">
           <div className="space-y-2">
-            <p className="font-semibold text-ink text-xs uppercase tracking-wider">Solución</p>
+            <p className="font-semibold text-ink text-xs uppercase tracking-wider">
+              {t("footer.colSolution")}
+            </p>
             <Link
               href="/#problema"
               className="block text-ink-light hover:text-celeste-dark transition"
             >
-              Problema
+              {t("footer.problem")}
             </Link>
             <Link
               href="/#producto"
               className="block text-ink-light hover:text-celeste-dark transition"
             >
-              Solución
+              {t("footer.solution")}
             </Link>
             <Link
               href="/planes"
               className="block text-ink-light hover:text-celeste-dark transition"
             >
-              Planes
+              {t("footer.plans")}
             </Link>
           </div>
           <div className="space-y-2">
-            <p className="font-semibold text-ink text-xs uppercase tracking-wider">Plataforma</p>
+            <p className="font-semibold text-ink text-xs uppercase tracking-wider">
+              {t("footer.colPlatform")}
+            </p>
             <Link
               href="/dashboard"
               className="block text-ink-light hover:text-celeste-dark transition"
             >
-              Demo
+              {t("footer.demo")}
             </Link>
             <Link
               href="/paciente"
               className="block text-ink-light hover:text-celeste-dark transition"
             >
-              Portal Paciente
+              {t("footer.patient")}
             </Link>
             <Link
               href="/#waitlist"
               className="block text-ink-light hover:text-celeste-dark transition"
             >
-              Waitlist
+              {t("footer.waitlist")}
             </Link>
           </div>
           <div className="space-y-2">
-            <p className="font-semibold text-ink text-xs uppercase tracking-wider">Cuenta</p>
+            <p className="font-semibold text-ink text-xs uppercase tracking-wider">
+              {t("footer.colAccount")}
+            </p>
             <Link
               href="/auth/login"
               className="block text-ink-light hover:text-celeste-dark transition"
             >
-              Iniciar sesión
+              {t("footer.login")}
             </Link>
             <Link
               href="/auth/registro"
               className="block text-ink-light hover:text-celeste-dark transition"
             >
-              Registrarse
+              {t("footer.register")}
             </Link>
           </div>
           <div className="space-y-2">
-            <p className="font-semibold text-ink text-xs uppercase tracking-wider">Legal</p>
+            <p className="font-semibold text-ink text-xs uppercase tracking-wider">
+              {t("footer.colLegal")}
+            </p>
             <Link
               href="/privacidad"
               className="block text-ink-light hover:text-celeste-dark transition"
             >
-              Privacidad
+              {t("footer.privacy")}
             </Link>
             <Link
               href="/terminos"
               className="block text-ink-light hover:text-celeste-dark transition"
             >
-              Términos
+              {t("footer.terms")}
             </Link>
           </div>
         </div>
@@ -103,7 +116,8 @@ export default function Footer() {
         {/* Bottom divider + copyright */}
         <div className="border-t border-border pt-4 text-center">
           <p className="text-[11px] text-ink-muted">
-            Plataforma de Inteligencia · Sistema de Salud Argentino · {new Date().getFullYear()}
+            {t("footer.copy")}
+            {new Date().getFullYear()}
           </p>
         </div>
       </div>

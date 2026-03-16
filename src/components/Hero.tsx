@@ -1,9 +1,14 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { useLocale } from "@/lib/i18n/context";
 
 const trustLogos = ["PAMI", "OSDE", "Swiss Medical", "Galeno", "Medifé", "IOMA"];
 
 export default function Hero() {
+  const { t } = useLocale();
+
   return (
     <section className="px-6 pt-16 pb-20 max-w-[1000px] mx-auto">
       {/* Announcement banner */}
@@ -13,22 +18,19 @@ export default function Hero() {
           className="inline-flex items-center gap-2 px-4 py-1.5 bg-celeste-pale border border-celeste/20 rounded-full text-xs hover:bg-celeste-100 hover:border-celeste/40 transition"
         >
           <span className="w-2 h-2 bg-celeste-dark rounded-full animate-pulse" />
-          <span className="text-ink-light">
-            Nuevo: Integración con Google Calendar y TopDoctors.com.ar
-          </span>
+          <span className="text-ink-light">{t("hero.badge")}</span>
           <ArrowRight className="w-3 h-3 text-celeste-dark" />
         </Link>
       </div>
 
       <div className="text-center">
         <h1 className="text-[clamp(32px,5vw,56px)] font-bold text-ink leading-[1.1] mb-6">
-          Todo tu sistema de salud.
+          {t("hero.title1")}
           <br />
-          <em className="not-italic text-celeste-dark">Una sola vista.</em>
+          <em className="not-italic text-celeste-dark">{t("hero.title2")}</em>
         </h1>
         <p className="text-lg text-ink-light leading-[1.7] max-w-[660px] mx-auto mb-8">
-          Conectamos PAMI, obras sociales, prepagas y AFIP en una plataforma unificada. Verificá
-          cobertura, facturá automáticamente, y dejá de perder plata por inflación.
+          {t("hero.subtitle")}
         </p>
 
         {/* CTA buttons */}
@@ -37,19 +39,17 @@ export default function Hero() {
             href="/auth/registro"
             className="inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-bold text-white bg-celeste-dark hover:bg-celeste rounded-[4px] transition"
           >
-            Empezar gratis — 14 días
+            {t("hero.cta1")}
             <ArrowRight className="w-4 h-4" />
           </Link>
           <Link
             href="/dashboard"
             className="inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-semibold text-ink-light border-[1.5px] border-border hover:border-celeste-dark hover:text-celeste-dark rounded-[4px] transition"
           >
-            Ver demo en vivo
+            {t("hero.cta2")}
           </Link>
         </div>
-        <p className="text-[11px] text-ink-muted mb-10">
-          Sin tarjeta de crédito · Setup en 2 minutos · Cancelá cuando quieras
-        </p>
+        <p className="text-[11px] text-ink-muted mb-10">{t("hero.fine")}</p>
 
         {/* Dashboard preview */}
         <div className="relative max-w-[800px] mx-auto mb-10">
@@ -71,10 +71,10 @@ export default function Hero() {
               {/* Mock KPI row */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
-                  { label: "Facturado", val: "$12.4M", change: "+18%" },
-                  { label: "Cobrado", val: "$9.8M", change: "+24%" },
-                  { label: "Rechazos", val: "3.2%", change: "-62%" },
-                  { label: "Demora prom.", val: "22 días", change: "-45d" },
+                  { label: t("hero.mockBilled"), val: "$12.4M", change: "+18%" },
+                  { label: t("hero.mockCollected"), val: "$9.8M", change: "+24%" },
+                  { label: t("hero.mockRejections"), val: "3.2%", change: "-62%" },
+                  { label: t("hero.mockDelay"), val: "22 días", change: "-45d" },
                 ].map((k) => (
                   <div key={k.label} className="bg-white border border-border/60 rounded-lg p-3">
                     <p className="text-[10px] text-ink-muted">{k.label}</p>
@@ -86,16 +86,18 @@ export default function Hero() {
               {/* Mock chart */}
               <div className="bg-white border border-border/60 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs font-semibold text-ink">Ingresos vs. Rechazos — Mar 2026</p>
+                  <p className="text-xs font-semibold text-ink">{t("hero.mockChartTitle")}</p>
                   <div className="flex gap-3 text-[10px] text-ink-muted">
                     <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 bg-celeste-dark rounded-full" /> Facturado
+                      <span className="w-2 h-2 bg-celeste-dark rounded-full" />{" "}
+                      {t("hero.mockBilled")}
                     </span>
                     <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 bg-gold rounded-full" /> Cobrado
+                      <span className="w-2 h-2 bg-gold rounded-full" /> {t("hero.mockCollected")}
                     </span>
                     <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 bg-red-400 rounded-full" /> Rechazos
+                      <span className="w-2 h-2 bg-red-400 rounded-full" />{" "}
+                      {t("hero.mockRejections")}
                     </span>
                   </div>
                 </div>
@@ -118,7 +120,7 @@ export default function Hero() {
 
         {/* Trust logos */}
         <p className="text-[10px] font-bold tracking-[2px] text-ink-muted uppercase mb-4">
-          Integrado con los principales financiadores
+          {t("hero.trust")}
         </p>
         <div className="flex flex-wrap justify-center gap-6">
           {trustLogos.map((name) => (

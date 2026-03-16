@@ -5,6 +5,7 @@ import Image from "next/image";
 import type { ChatMessage, QuickReply, InfoCard } from "@/lib/chatbot-engine";
 import { getWelcomeMessage } from "@/lib/chatbot-engine";
 import { useGeolocation } from "@/lib/hooks/useGeolocation";
+import { useLocale } from "@/lib/i18n/context";
 
 // ─── Subcomponents ───────────────────────────────────────────
 
@@ -63,6 +64,7 @@ function MessageBubble({ msg }: { msg: ChatMessage }) {
 }
 
 function CardList({ cards }: { cards: InfoCard[] }) {
+  const { t } = useLocale();
   return (
     <div className="pl-9 flex flex-col gap-2 animate-chatMsg">
       {cards.map((card, i) => (
@@ -98,7 +100,7 @@ function CardList({ cards }: { cards: InfoCard[] }) {
                 >
                   <polygon points="3 11 22 2 13 21 11 13 3 11" />
                 </svg>
-                Cómo llegar
+                {t("chat.directions")}
               </a>
             )}
             {card.mapUrl && (
@@ -120,7 +122,7 @@ function CardList({ cards }: { cards: InfoCard[] }) {
                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                   <circle cx="12" cy="10" r="3" />
                 </svg>
-                Ver en mapa
+                {t("chat.viewMap")}
               </a>
             )}
           </div>
@@ -162,8 +164,7 @@ function QuickReplies({
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
-  const browserLang = typeof navigator !== "undefined" ? navigator.language : "es";
-  const isEn = browserLang.startsWith("en");
+  const { locale, isEn } = useLocale();
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     // UM-08: Restore from sessionStorage if available
     if (typeof sessionStorage !== "undefined") {
@@ -174,7 +175,7 @@ export default function Chatbot() {
         /* ignore */
       }
     }
-    return [getWelcomeMessage(browserLang)];
+    return [getWelcomeMessage(locale)];
   });
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -204,6 +205,12 @@ export default function Chatbot() {
       /* ignore */
     }
   }, [messages]);
+
+  // Reset conversation when locale changes
+  useEffect(() => {
+    setMessages([getWelcomeMessage(locale)]);
+    sessionStorage.removeItem("condor_chat_messages");
+  }, [locale]);
 
   // Focus input when chat opens
   useEffect(() => {
@@ -252,7 +259,7 @@ export default function Chatbot() {
           body: JSON.stringify({
             message: text.trim(),
             history,
-            lang: typeof navigator !== "undefined" ? navigator.language : "es",
+            lang: locale,
             ...(coordsRef.current
               ? { lat: coordsRef.current.latitude, lng: coordsRef.current.longitude }
               : {}),
@@ -277,7 +284,7 @@ export default function Chatbot() {
         setIsTyping(false);
       }
     },
-    [isTyping, messages, isEn],
+    [isTyping, messages, isEn, locale],
   );
 
   // When geolocation resolves after user requested it, send confirmation to Cora
@@ -350,7 +357,7 @@ export default function Chatbot() {
               <button
                 type="button"
                 onClick={() => {
-                  setMessages([getWelcomeMessage(browserLang)]);
+                  setMessages([getWelcomeMessage(locale)]);
                   setInput("");
                   sessionStorage.removeItem("condor_chat_messages");
                 }}

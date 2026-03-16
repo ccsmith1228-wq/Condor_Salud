@@ -1,33 +1,21 @@
-import { AlertTriangle, Clock, TrendingDown, Unlink } from "lucide-react";
+"use client";
 
-const stats = [
-  {
-    icon: Unlink,
-    value: "300+",
-    label: "Financiadores sin conectar",
-    detail: "Cada obra social y prepaga usa su propio portal, formato y nomenclador",
-  },
-  {
-    icon: AlertTriangle,
-    value: "8–25%",
-    label: "Tasa de rechazo promedio",
-    detail: "Errores de nomenclador, datos incompletos y auditorías manuales",
-  },
-  {
-    icon: Clock,
-    value: "45–90",
-    label: "Días de demora de pago",
-    detail: "Entre presentación y acreditación, la inflación erosiona cada cobro",
-  },
-  {
-    icon: TrendingDown,
-    value: "8–15%",
-    label: "Pérdida real por inflación",
-    detail: "Cada día de demora = plata que perdés. $1M hoy son $920K en 30 días",
-  },
-];
+import { AlertTriangle, Clock, TrendingDown, Unlink } from "lucide-react";
+import { useLocale } from "@/lib/i18n/context";
+
+const statIcons = [Unlink, AlertTriangle, Clock, TrendingDown];
+const statValues = ["300+", "8–25%", "45–90", "8–15%"];
 
 export default function Stats() {
+  const { t } = useLocale();
+
+  const stats = statIcons.map((icon, i) => ({
+    icon,
+    value: statValues[i],
+    label: t(`stats.label${i}`),
+    detail: t(`stats.detail${i}`),
+  }));
+
   return (
     <section className="px-6 mb-16">
       <div className="max-w-[960px] mx-auto">
@@ -46,9 +34,7 @@ export default function Stats() {
             </div>
           ))}
         </div>
-        <p className="text-center text-[11px] text-ink-muted mt-4">
-          Fuente: Datos del mercado argentino de salud. Superintendencia de Servicios de Salud.
-        </p>
+        <p className="text-center text-[11px] text-ink-muted mt-4">{t("stats.source")}</p>
       </div>
     </section>
   );

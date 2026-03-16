@@ -1,39 +1,33 @@
-import { UserPlus, Settings2, Zap } from "lucide-react";
+"use client";
 
-const steps = [
-  {
-    icon: UserPlus,
-    step: "01",
-    title: "Creá tu cuenta en 2 minutos",
-    desc: "Registrá tu clínica, cargá el CUIT y seleccioná los financiadores con los que trabajás. Sin contratos ni tarjeta de crédito.",
-  },
-  {
-    icon: Settings2,
-    step: "02",
-    title: "Conectamos tus financiadores",
-    desc: "Cóndor Salud se integra automáticamente con PAMI, obras sociales y prepagas. Verificamos padrones y configuramos nomencladores.",
-  },
-  {
-    icon: Zap,
-    step: "03",
-    title: "Facturá y cobrá más rápido",
-    desc: "Verificá cobertura en tiempo real, facturá sin errores y hacé seguimiento de cada peso. Reducí rechazos desde el primer día.",
-  },
-];
+import { UserPlus, Settings2, Zap } from "lucide-react";
+import { useLocale } from "@/lib/i18n/context";
+
+const stepIcons = [UserPlus, Settings2, Zap];
+const stepNums = ["01", "02", "03"];
 
 export default function HowItWorks() {
+  const { t } = useLocale();
+
+  const steps = stepIcons.map((icon, i) => ({
+    icon,
+    step: stepNums[i],
+    title: t(`how.step${i}.title`),
+    desc: t(`how.step${i}.desc`),
+  }));
+
   return (
     <section className="px-6 py-20 border-t border-border">
       <div className="max-w-[900px] mx-auto">
         <p className="text-[11px] font-bold tracking-[2px] text-celeste uppercase mb-2.5">
-          Cómo funciona
+          {t("how.label")}
         </p>
         <h2 className="text-[clamp(24px,3vw,36px)] font-bold text-ink mb-4 leading-[1.2]">
-          Arrancá en minutos, <em className="not-italic text-celeste-dark">no en meses</em>
+          {t("how.title")}
+          <em className="not-italic text-celeste-dark">{t("how.titleEm")}</em>
         </h2>
         <p className="text-[15px] text-ink-light leading-[1.7] max-w-[600px] mb-12">
-          Otras plataformas tardan semanas en implementarse. Con Cóndor, estás operativo el mismo
-          día.
+          {t("how.subtitle")}
         </p>
 
         <div className="grid md:grid-cols-3 gap-8">
@@ -44,7 +38,7 @@ export default function HowItWorks() {
                   <s.icon className="w-5 h-5 text-celeste-dark" />
                 </div>
                 <span className="text-[11px] font-bold tracking-wider text-celeste-dark/60 uppercase">
-                  Paso {s.step}
+                  {t("how.stepLabel")} {s.step}
                 </span>
               </div>
               <h3 className="font-bold text-base text-ink mb-2">{s.title}</h3>

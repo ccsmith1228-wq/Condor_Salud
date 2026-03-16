@@ -1,3 +1,4 @@
+import { LanguageProvider } from "@/lib/i18n/context";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Stats from "@/components/Stats";
@@ -16,7 +17,7 @@ import WhatsAppFloat from "@/components/WhatsAppFloat";
 
 export default function Home() {
   return (
-    <>
+    <LanguageProvider>
       <Navbar />
       <main>
         <Hero />
@@ -34,6 +35,6 @@ export default function Home() {
       </main>
       <Footer />
       <WhatsAppFloat />
-    </>
+    </LanguageProvider>
   );
 }

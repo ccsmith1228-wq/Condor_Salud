@@ -1,53 +1,27 @@
 "use client";
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { useLocale } from "@/lib/i18n/context";
 
-const faqs = [
-  {
-    q: "¿Cuánto tarda la implementación?",
-    a: "La mayoría de las clínicas están operativas el mismo día. Creás tu cuenta, seleccionás financiadores, y Cóndor configura automáticamente los nomencladores y conexiones. Para integraciones avanzadas (HIS, laboratorio), el equipo te acompaña en 48–72 horas.",
-  },
-  {
-    q: "¿Funciona con PAMI y todas las obras sociales?",
-    a: "Sí. Cóndor se integra con PAMI (padrón, nomenclador propio, receta digital), más de 280 obras sociales y 45 prepagas. Incluye verificación de padrón en tiempo real, presentación electrónica y seguimiento de expedientes.",
-  },
-  {
-    q: "¿Cómo funciona el ajuste por inflación?",
-    a: "Todos los planes se ajustan mensualmente por IPC (INDEC). El tracker de inflación te muestra el valor real vs. nominal de cada cobro y cuánto perdés por cada día de demora. Así podés tomar decisiones con datos reales.",
-  },
-  {
-    q: "¿Necesito cambiar mi sistema de historia clínica?",
-    a: "No. Cóndor se integra con los principales HIS del mercado argentino (TRAKCARE, eMedical, PROSALUD, etc.) y también funciona de manera independiente. Importamos datos vía API o archivos estándar.",
-  },
-  {
-    q: "¿Mis datos están seguros?",
-    a: "Cóndor cumple con la Ley 25.326 de Protección de Datos Personales y está hosteado en infraestructura con certificación SOC 2 e ISO 27001. Los datos de salud se encriptan en tránsito (TLS 1.3) y en reposo (AES-256).",
-  },
-  {
-    q: "¿Puedo probar antes de pagar?",
-    a: "Sí. Ofrecemos 14 días de prueba gratuita con acceso completo a todos los módulos del plan elegido. No pedimos tarjeta de crédito para empezar. Los primeros 50 del waitlist reciben 30 días gratis.",
-  },
-  {
-    q: "¿Qué pasa si tengo clínicas en varias provincias?",
-    a: "El plan Enterprise incluye multi-sucursal con dashboard consolidado. Cada sede puede tener sus propios financiadores y nomencladores, pero la facturación y reportes se unifican en una sola vista directiva.",
-  },
-  {
-    q: "¿Ofrecen soporte y capacitación?",
-    a: "Todos los planes incluyen soporte por WhatsApp en horario extendido (8–22h). Los planes Profesional y Enterprise incluyen onboarding personalizado, capacitación del equipo y un Customer Success Manager dedicado.",
-  },
-];
+const FAQ_COUNT = 8;
 
 export default function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const { t } = useLocale();
+
+  const faqs = Array.from({ length: FAQ_COUNT }, (_, i) => ({
+    q: t(`faq.q${i}`),
+    a: t(`faq.a${i}`),
+  }));
 
   return (
     <section id="faq" className="px-6 py-20 border-t border-border">
       <div className="max-w-[720px] mx-auto">
         <p className="text-[11px] font-bold tracking-[2px] text-celeste uppercase mb-2.5">
-          Preguntas frecuentes
+          {t("faq.label")}
         </p>
         <h2 className="text-[clamp(24px,3vw,36px)] font-bold text-ink mb-10 leading-[1.2]">
-          Todo lo que necesitás saber
+          {t("faq.title")}
         </h2>
 
         <div className="space-y-1">

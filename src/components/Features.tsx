@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import {
   Search,
@@ -11,81 +13,41 @@ import {
   Video,
   Stethoscope,
 } from "lucide-react";
+import { useLocale } from "@/lib/i18n/context";
 
-const coreFeatures = [
-  {
-    icon: Search,
-    title: "Verificación Tiempo Real",
-    desc: "Verificá cobertura de PAMI, obras sociales y prepagas antes de atender al paciente. Padrón actualizado, copago estimado y autorización online en segundos.",
-    highlight: "Ahorrá 3hs/día en llamadas",
-    celeste: true,
-  },
-  {
-    icon: FileText,
-    title: "Facturación Unificada",
-    desc: "Nomenclador SSS + PAMI + arancelarios de cada prepaga en una sola interfaz. Liquidación automática por financiador con validación preventiva de errores.",
-    highlight: "Facturá 3x más rápido",
-    celeste: false,
-  },
-  {
-    icon: ShieldCheck,
-    title: "Auditoría Inteligente",
-    desc: "El sistema revisa cada línea de facturación contra las reglas de cada financiador ANTES de presentar. Detecta códigos incorrectos, combinaciones inválidas y datos faltantes.",
-    highlight: "Reduce rechazos 40–60%",
-    celeste: true,
-  },
-  {
-    icon: TrendingUp,
-    title: "Tracker de Inflación",
-    desc: "Visualizá el valor real vs. nominal de cada cobro. Sabé exactamente cuánto perdés por cada día de demora y compará rendimiento entre financiadores ajustado por IPC.",
-    highlight: "Visibilidad peso x peso",
-    celeste: false,
-  },
-  {
-    icon: Plug,
-    title: "Integración Total",
-    desc: "AFIP factura electrónica, receta digital PAMI, SISA, REFEPS y conexión directa con Swiss Medical, OSDE, IOMA, Galeno, Medifé y más de 280 obras sociales.",
-    highlight: "330+ integraciones",
-    celeste: true,
-  },
-  {
-    icon: BarChart3,
-    title: "Dashboard Directivo",
-    desc: "Ingresos, rechazos, demoras y rendimiento por financiador en una sola vista. Alertas automáticas cuando algo se desvía. Exportá reportes en PDF y Excel.",
-    highlight: "Decisiones con datos reales",
-    celeste: false,
-  },
-];
-
-const extraModules = [
-  {
-    icon: Calendar,
-    title: "Agenda inteligente",
-    desc: "Turnos con verificación automática de cobertura",
-  },
-  { icon: Pill, title: "Farmacia Online", desc: "Receta digital + cobertura PAMI integrada" },
-  { icon: Video, title: "Telemedicina", desc: "Videoconsulta con facturación automática" },
-  {
-    icon: Stethoscope,
-    title: "Triage IA",
-    desc: "Clasificación de urgencias con inteligencia artificial",
-  },
-];
+const coreIcons = [Search, FileText, ShieldCheck, TrendingUp, Plug, BarChart3];
+const coreCeleste = [true, false, true, false, true, false];
+const extraIcons = [Calendar, Pill, Video, Stethoscope];
 
 export default function Features() {
+  const { t } = useLocale();
+
+  const coreFeatures = coreIcons.map((icon, i) => ({
+    icon,
+    title: t(`features.core${i}.title`),
+    desc: t(`features.core${i}.desc`),
+    highlight: t(`features.core${i}.hl`),
+    celeste: coreCeleste[i],
+  }));
+
+  const extraModules = extraIcons.map((icon, i) => ({
+    icon,
+    title: t(`features.extra${i}.title`),
+    desc: t(`features.extra${i}.desc`),
+  }));
+
   return (
     <section id="producto" className="px-6 py-20 bg-celeste-pale/50">
       <div className="max-w-[960px] mx-auto">
         <p className="text-[11px] font-bold tracking-[2px] text-celeste uppercase mb-2.5">
-          El producto
+          {t("features.label")}
         </p>
         <h2 className="text-[clamp(24px,3vw,36px)] font-bold text-ink mb-4 leading-[1.2]">
-          Todo lo que tu clínica necesita.{" "}
-          <em className="not-italic text-celeste-dark">Una sola base de datos.</em>
+          {t("features.title")}
+          <em className="not-italic text-celeste-dark">{t("features.titleEm")}</em>
         </h2>
         <p className="text-[15px] text-ink-light leading-[1.7] max-w-[640px] mb-10">
-          19 módulos integrados que cubren desde la verificación de cobertura hasta el reporte
-          directivo. Sin módulos sueltos, sin integraciones extra, sin costos ocultos.
+          {t("features.subtitle")}
         </p>
 
         {/* Core feature cards */}
@@ -113,10 +75,8 @@ export default function Features() {
 
         {/* Extra modules */}
         <div className="bg-white border border-border rounded-xl p-6">
-          <h3 className="text-sm font-bold text-ink mb-1">Y mucho más incluido en tu plan</h3>
-          <p className="text-[12px] text-ink-muted mb-5">
-            19 módulos totales — todos integrados entre sí, sin costo adicional
-          </p>
+          <h3 className="text-sm font-bold text-ink mb-1">{t("features.extraTitle")}</h3>
+          <p className="text-[12px] text-ink-muted mb-5">{t("features.extraSubtitle")}</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {extraModules.map((m) => (
               <div key={m.title} className="flex items-start gap-2.5">
@@ -138,7 +98,7 @@ export default function Features() {
             href="/dashboard"
             className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-celeste-dark border border-celeste-dark rounded-[4px] hover:bg-celeste-pale transition"
           >
-            Explorá el demo completo
+            {t("features.cta")}
           </Link>
         </div>
       </div>

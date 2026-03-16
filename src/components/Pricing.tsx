@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import {
   PRESETS,
@@ -7,16 +9,19 @@ import {
   getModule,
 } from "@/lib/plan-config";
 import { Check } from "lucide-react";
+import { useLocale } from "@/lib/i18n/context";
 
 export default function Pricing() {
+  const { t } = useLocale();
+
   return (
     <section id="pricing" className="px-6 py-20 border-t border-border">
       <div className="max-w-[960px] mx-auto">
         <p className="text-[11px] font-bold tracking-[2px] text-celeste uppercase mb-2.5">
-          Pricing
+          {t("pricing.label")}
         </p>
         <h2 className="text-[clamp(24px,3vw,36px)] font-bold text-ink mb-4 leading-[1.2]">
-          Precio en pesos con ajuste mensual IPC
+          {t("pricing.title")}
         </h2>
         <div className="grid md:grid-cols-3 gap-6 mt-8">
           {PRESETS.map((preset) => {
@@ -49,7 +54,8 @@ export default function Pricing() {
                       {formatARS(subtotal)}
                     </span>
                     <span className="px-1.5 py-0.5 text-[10px] font-bold bg-green-100 text-green-700 rounded">
-                      {Math.round(preset.discount * 100)}% dto.
+                      {Math.round(preset.discount * 100)}
+                      {t("pricing.discount")}
                     </span>
                   </div>
                 )}
@@ -57,7 +63,9 @@ export default function Pricing() {
                   className={`text-[28px] font-bold mb-4 ${isPro ? "text-celeste-dark" : "text-ink"}`}
                 >
                   {formatARS(price)}
-                  <span className="text-sm font-normal text-ink-muted">/mes</span>
+                  <span className="text-sm font-normal text-ink-muted">
+                    {t("pricing.perMonth")}
+                  </span>
                 </div>
                 <div className="flex-1 space-y-1.5 mb-5">
                   {moduleLabels.map((label) => (
@@ -68,7 +76,7 @@ export default function Pricing() {
                   ))}
                   {preset.modules.length > 5 && (
                     <p className="text-[11px] text-celeste-dark font-medium mt-1">
-                      +{preset.modules.length - 5} módulos mas
+                      +{preset.modules.length - 5} {t("pricing.moreModules")}
                     </p>
                   )}
                 </div>
@@ -79,10 +87,10 @@ export default function Pricing() {
                       : "border border-celeste-dark text-celeste-dark hover:bg-celeste-pale"
                   }`}
                 >
-                  Elegir plan
+                  {t("pricing.choose")}
                 </span>
                 <p className="text-center text-[10px] text-ink-muted mt-2">
-                  {preset.modules.length} módulos incluidos
+                  {preset.modules.length} {t("pricing.modulesIncluded")}
                 </p>
               </Link>
             );
@@ -91,9 +99,9 @@ export default function Pricing() {
         {/* Custom plan CTA */}
         <div className="text-center mt-8">
           <p className="text-sm text-ink-muted">
-            ¿Necesitás algo diferente?{" "}
+            {t("pricing.custom")}
             <Link href="/planes#custom" className="text-celeste-dark font-semibold hover:underline">
-              Armá tu plan a medida
+              {t("pricing.customLink")}
             </Link>
           </p>
         </div>
