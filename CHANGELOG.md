@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] — 2026-03-16
+
+### Added
+
+- **Test coverage tripled**: 172 tests across 14 files (up from 62/5)
+- 7 new service test suites covering demo-mode CRUD, filtering, stats, and write-guard assertions for facturación, rechazos, financiadores, inflación, inventario, nomenclador, reportes
+- `require-auth.test.ts` — tests for cookie auth, corrupt cookie, missing fields, Supabase fallback
+- `onboarding.test.ts` — tests for demo-mode onboarding lifecycle
+- Coverage thresholds bumped: statements 9%, branches 7%, functions 14%, lines 9%
+
 ## [0.5.0] — 2026-03-16
 
 ### Added
