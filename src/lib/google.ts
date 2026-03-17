@@ -1,6 +1,6 @@
 /* ────────────────────────────────────────────────────────────
  *  Google OAuth / API integration helpers
- *  Client ID: 839939811541-7gkav9m5u2bvl7siapqgbqr6nbvn2hcr.apps.googleusercontent.com
+ *  Client ID loaded from NEXT_PUBLIC_GOOGLE_CLIENT_ID env var
  * ──────────────────────────────────────────────────────────── */
 
 export const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? "";
@@ -157,7 +157,8 @@ export async function createCalendarEvent(
 }
 
 /* ── Google Maps / Places helpers ────────────────────────── */
-export const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
+export const GOOGLE_MAPS_API_KEY =
+  process.env.GOOGLE_MAPS_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY || "";
 
 export function buildStaticMapUrl(
   address: string,

@@ -1194,6 +1194,279 @@ export interface Database {
         };
         Relationships: [];
       };
+
+      // ─── Migration 004 tables ───────────────────────────────
+      network_doctors: {
+        Row: {
+          id: string;
+          clinic_id: string;
+          nombre: string;
+          especialidad: string;
+          subespecialidad: string | null;
+          matricula: string;
+          telefono: string | null;
+          email: string | null;
+          direccion: string | null;
+          localidad: string;
+          obras_sociales: string[];
+          horarios: string | null;
+          acepta_derivaciones: boolean;
+          notas: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          clinic_id: string;
+          nombre: string;
+          especialidad: string;
+          subespecialidad?: string | null;
+          matricula: string;
+          telefono?: string | null;
+          email?: string | null;
+          direccion?: string | null;
+          localidad?: string;
+          obras_sociales?: string[];
+          horarios?: string | null;
+          acepta_derivaciones?: boolean;
+          notas?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          clinic_id?: string;
+          nombre?: string;
+          especialidad?: string;
+          subespecialidad?: string | null;
+          matricula?: string;
+          telefono?: string | null;
+          email?: string | null;
+          direccion?: string | null;
+          localidad?: string;
+          obras_sociales?: string[];
+          horarios?: string | null;
+          acepta_derivaciones?: boolean;
+          notas?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "network_doctors_clinic_id_fkey";
+            columns: ["clinic_id"];
+            referencedRelation: "clinics";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+
+      interconsultas: {
+        Row: {
+          id: string;
+          clinic_id: string;
+          paciente_id: string | null;
+          paciente_nombre: string;
+          doctor_origen_id: string | null;
+          doctor_origen_nombre: string;
+          doctor_destino_id: string | null;
+          doctor_destino_nombre: string;
+          especialidad: string;
+          prioridad: "urgente" | "alta" | "normal" | "baja";
+          motivo: string;
+          diagnostico: string | null;
+          estado: "pendiente" | "aceptada" | "en_curso" | "completada" | "cancelada";
+          respuesta: string | null;
+          fecha_solicitud: string;
+          fecha_respuesta: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          clinic_id: string;
+          paciente_id?: string | null;
+          paciente_nombre: string;
+          doctor_origen_id?: string | null;
+          doctor_origen_nombre: string;
+          doctor_destino_id?: string | null;
+          doctor_destino_nombre: string;
+          especialidad: string;
+          prioridad?: "urgente" | "alta" | "normal" | "baja";
+          motivo: string;
+          diagnostico?: string | null;
+          estado?: "pendiente" | "aceptada" | "en_curso" | "completada" | "cancelada";
+          respuesta?: string | null;
+          fecha_solicitud?: string;
+          fecha_respuesta?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          clinic_id?: string;
+          paciente_id?: string | null;
+          paciente_nombre?: string;
+          doctor_origen_id?: string | null;
+          doctor_origen_nombre?: string;
+          doctor_destino_id?: string | null;
+          doctor_destino_nombre?: string;
+          especialidad?: string;
+          prioridad?: "urgente" | "alta" | "normal" | "baja";
+          motivo?: string;
+          diagnostico?: string | null;
+          estado?: "pendiente" | "aceptada" | "en_curso" | "completada" | "cancelada";
+          respuesta?: string | null;
+          fecha_solicitud?: string;
+          fecha_respuesta?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "interconsultas_clinic_id_fkey";
+            columns: ["clinic_id"];
+            referencedRelation: "clinics";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "interconsultas_paciente_id_fkey";
+            columns: ["paciente_id"];
+            referencedRelation: "pacientes";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "interconsultas_doctor_destino_id_fkey";
+            columns: ["doctor_destino_id"];
+            referencedRelation: "network_doctors";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+
+      solicitudes_estudio: {
+        Row: {
+          id: string;
+          clinic_id: string;
+          paciente_id: string | null;
+          paciente_nombre: string;
+          doctor_solicitante: string;
+          tipo: "laboratorio" | "imagen" | "cardiologia" | "otros";
+          estudio: string;
+          centro: string | null;
+          indicacion: string | null;
+          urgente: boolean;
+          estado: "solicitado" | "programado" | "realizado" | "informado" | "cancelado";
+          resultado_url: string | null;
+          fecha_solicitud: string;
+          fecha_resultado: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          clinic_id: string;
+          paciente_id?: string | null;
+          paciente_nombre: string;
+          doctor_solicitante: string;
+          tipo: "laboratorio" | "imagen" | "cardiologia" | "otros";
+          estudio: string;
+          centro?: string | null;
+          indicacion?: string | null;
+          urgente?: boolean;
+          estado?: "solicitado" | "programado" | "realizado" | "informado" | "cancelado";
+          resultado_url?: string | null;
+          fecha_solicitud?: string;
+          fecha_resultado?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          clinic_id?: string;
+          paciente_id?: string | null;
+          paciente_nombre?: string;
+          doctor_solicitante?: string;
+          tipo?: "laboratorio" | "imagen" | "cardiologia" | "otros";
+          estudio?: string;
+          centro?: string | null;
+          indicacion?: string | null;
+          urgente?: boolean;
+          estado?: "solicitado" | "programado" | "realizado" | "informado" | "cancelado";
+          resultado_url?: string | null;
+          fecha_solicitud?: string;
+          fecha_resultado?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "solicitudes_estudio_clinic_id_fkey";
+            columns: ["clinic_id"];
+            referencedRelation: "clinics";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "solicitudes_estudio_paciente_id_fkey";
+            columns: ["paciente_id"];
+            referencedRelation: "pacientes";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+
+      inflacion_mensual: {
+        Row: {
+          id: string;
+          clinic_id: string;
+          mes: string;
+          anio: number;
+          mes_num: number;
+          ipc: number;
+          facturado: number;
+          cobrado: number;
+          dias_demora: number;
+          perdida_real: number;
+          perdida_porcentaje: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          clinic_id: string;
+          mes: string;
+          anio: number;
+          mes_num: number;
+          ipc: number;
+          facturado?: number;
+          cobrado?: number;
+          dias_demora?: number;
+          perdida_real?: number;
+          perdida_porcentaje?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          clinic_id?: string;
+          mes?: string;
+          anio?: number;
+          mes_num?: number;
+          ipc?: number;
+          facturado?: number;
+          cobrado?: number;
+          dias_demora?: number;
+          perdida_real?: number;
+          perdida_porcentaje?: number;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "inflacion_mensual_clinic_id_fkey";
+            columns: ["clinic_id"];
+            referencedRelation: "clinics";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;

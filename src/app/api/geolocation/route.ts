@@ -13,7 +13,7 @@ import { logger } from "@/lib/logger";
 // ─── Helpers ─────────────────────────────────────────────────
 
 const GOOGLE_MAPS_API_KEY =
-  process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? process.env.GOOGLE_MAPS_API_KEY ?? "";
+  process.env.GOOGLE_MAPS_API_KEY ?? process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY ?? "";
 
 function jsonError(message: string, status: number) {
   return NextResponse.json({ error: message }, { status });

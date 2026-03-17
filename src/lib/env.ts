@@ -17,6 +17,7 @@ const serverSchema = z.object({
 
   // ── Sentry ──────────────────────────────────────────────────
   SENTRY_DSN: z.string().url().optional(),
+  NEXT_PUBLIC_SENTRY_DSN: z.string().url().optional(),
   SENTRY_AUTH_TOKEN: z.string().optional(),
   SENTRY_ORG: z.string().optional(),
   SENTRY_PROJECT: z.string().optional(),
@@ -68,6 +69,18 @@ const serverSchema = z.object({
   // ── Google OAuth ────────────────────────────────────────────
   NEXT_PUBLIC_GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
+
+  // ── Supabase JWT (for API route auth) ──────────────────────
+  SUPABASE_JWT_SECRET: z.string().optional(),
+
+  // ── Session Encryption (for Google OAuth tokens) ───────────
+  SESSION_ENCRYPTION_KEY: z
+    .string()
+    .length(64, "SESSION_ENCRYPTION_KEY must be a 64-char hex string (32 bytes)")
+    .optional(),
+
+  // ── Google Maps (server-side proxy) ────────────────────────
+  GOOGLE_MAPS_API_KEY: z.string().optional(),
 
   // ── App ─────────────────────────────────────────────────────
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),

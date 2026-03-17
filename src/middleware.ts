@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 const AUTH_ROUTES = ["/auth/login", "/auth/registro", "/auth/forgot-password"];
 const PUBLIC_API_PREFIXES = [
   "/api/health",
+  "/api/status",
   "/api/chatbot",
   "/api/waitlist",
   "/api/auth",
