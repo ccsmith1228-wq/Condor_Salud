@@ -56,17 +56,16 @@ function setLocaleCookie(locale: Locale): void {
 }
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocale] = useState<Locale>("es");
-  const [segment, _setSegment] = useState<Segment>("default");
-
-  // Hydrate locale + segment from cookies on mount
-  useEffect(() => {
-    const storedLocale = getLocaleFromCookie();
-    if (storedLocale !== "es") setLocale(storedLocale);
-
-    const storedSegment = getSegmentFromCookie();
-    if (storedSegment !== "default") _setSegment(storedSegment);
-  }, []);
+  // Read locale from cookie synchronously on first client render
+  // to avoid the flash from "es" → "en" after mount
+  const [locale, setLocale] = useState<Locale>(() => {
+    if (typeof document === "undefined") return "es";
+    return getLocaleFromCookie();
+  });
+  const [segment, _setSegment] = useState<Segment>(() => {
+    if (typeof document === "undefined") return "default";
+    return getSegmentFromCookie();
+  });
 
   // Keep html lang attribute and cookie in sync
   useEffect(() => {

@@ -1,7 +1,54 @@
 import { NextRequest, NextResponse } from "next/server";
 import { processMessage, detectEmergency } from "@/lib/chatbot-engine";
+import type { LivePlaces } from "@/lib/chatbot-engine";
 import { askClaude, isClaudeConfigured } from "@/lib/ai/claude";
 import { checkRateLimit, sanitize, logger } from "@/lib/security/api-guard";
+import { nearbyPlacesSearch } from "@/lib/google";
+
+/* ── Helper: fetch live places from Google and map to chatbot format ── */
+async function fetchLivePlaces(lat: number, lng: number): Promise<LivePlaces | null> {
+  try {
+    const [rawDocs, rawPharms, rawHosps] = await Promise.all([
+      nearbyPlacesSearch(lat, lng, "doctor", 5000),
+      nearbyPlacesSearch(lat, lng, "pharmacy", 5000),
+      nearbyPlacesSearch(lat, lng, "hospital", 5000),
+    ]);
+
+    // If all three returned empty, Google key is likely missing — skip
+    if (!rawDocs.length && !rawPharms.length && !rawHosps.length) return null;
+
+    const mapItem = (p: {
+      name: string;
+      address: string;
+      lat: number;
+      lng: number;
+      types?: string[];
+      openNow?: boolean;
+    }) => ({
+      name: p.name,
+      address: p.address,
+      lat: p.lat,
+      lng: p.lng,
+    });
+
+    return {
+      doctors: rawDocs.map((p) => ({
+        ...mapItem(p),
+        specialty: p.types?.find((t) => t !== "doctor" && t !== "health") ?? undefined,
+      })),
+      pharmacies: rawPharms.map((p) => ({
+        ...mapItem(p),
+        open24h: p.openNow ?? undefined,
+      })),
+      hospitals: rawHosps.map((p) => ({
+        ...mapItem(p),
+        emergency: true,
+      })),
+    };
+  } catch {
+    return null;
+  }
+}
 
 export async function POST(req: NextRequest) {
   // ── Rate limit: 20 req / 60s per IP ──
@@ -74,12 +121,16 @@ export async function POST(req: NextRequest) {
     // ── SAFETY LAYER: Check for emergencies first (rule-based) ──
     // Emergency detection must NEVER be delegated to AI.
     const emergency = detectEmergency(cleanMessage);
+
+    // ── Fetch live Google Places data when coords are available ──
+    const livePlaces = coords ? await fetchLivePlaces(coords.lat, coords.lng) : null;
+
     if (emergency) {
       return NextResponse.json({
         id: `bot-${Date.now()}`,
         role: "bot",
         timestamp: Date.now(),
-        ...processMessage(cleanMessage, coords, lang),
+        ...processMessage(cleanMessage, coords, lang, livePlaces),
       });
     }
 
@@ -108,7 +159,7 @@ export async function POST(req: NextRequest) {
     const delay = 200 + Math.random() * 400;
     await new Promise((resolve) => setTimeout(resolve, delay));
 
-    const response = processMessage(cleanMessage, coords, lang);
+    const response = processMessage(cleanMessage, coords, lang, livePlaces);
 
     return NextResponse.json({
       id: `bot-${Date.now()}`,

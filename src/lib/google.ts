@@ -160,6 +160,88 @@ export async function createCalendarEvent(
 export const GOOGLE_MAPS_API_KEY =
   process.env.GOOGLE_MAPS_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY || "";
 
+/* ── Nearby Places Search (Google Places API New) ────────── */
+export interface NearbyPlace {
+  placeId: string;
+  name: string;
+  address: string;
+  lat: number;
+  lng: number;
+  rating?: number;
+  types: string[];
+  openNow?: boolean;
+}
+
+const PLACE_TYPE_MAP: Record<string, string> = {
+  doctor: "doctor",
+  pharmacy: "pharmacy",
+  hospital: "hospital",
+  dentist: "dentist",
+  physiotherapist: "physiotherapist",
+  health: "health",
+};
+
+/**
+ * Search for nearby places using Google Places API (New).
+ * Returns empty array when no API key is configured.
+ */
+export async function nearbyPlacesSearch(
+  lat: number,
+  lng: number,
+  type: string,
+  radius = 5000,
+): Promise<NearbyPlace[]> {
+  if (!GOOGLE_MAPS_API_KEY) return [];
+
+  const placeType = PLACE_TYPE_MAP[type] ?? "doctor";
+
+  try {
+    const res = await fetch("https://places.googleapis.com/v1/places:searchNearby", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": GOOGLE_MAPS_API_KEY,
+        "X-Goog-FieldMask":
+          "places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.types,places.currentOpeningHours",
+      },
+      body: JSON.stringify({
+        includedTypes: [placeType],
+        maxResultCount: 20,
+        locationRestriction: {
+          circle: { center: { latitude: lat, longitude: lng }, radius },
+        },
+        languageCode: "es",
+      }),
+    });
+
+    if (!res.ok) return [];
+
+    const data = await res.json();
+    return (data.places ?? []).map(
+      (p: {
+        id?: string;
+        displayName?: { text?: string };
+        formattedAddress?: string;
+        location?: { latitude?: number; longitude?: number };
+        rating?: number;
+        types?: string[];
+        currentOpeningHours?: { openNow?: boolean };
+      }) => ({
+        placeId: p.id ?? "",
+        name: p.displayName?.text ?? "Sin nombre",
+        address: p.formattedAddress ?? "",
+        lat: p.location?.latitude ?? lat,
+        lng: p.location?.longitude ?? lng,
+        rating: p.rating,
+        types: p.types ?? [],
+        openNow: p.currentOpeningHours?.openNow,
+      }),
+    );
+  } catch {
+    return [];
+  }
+}
+
 export function buildStaticMapUrl(
   address: string,
   options?: { zoom?: number; width?: number; height?: number },

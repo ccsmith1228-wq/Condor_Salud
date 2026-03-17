@@ -1800,6 +1800,7 @@ function formatDist(km: number): string {
 function generateNearbyDoctorResponse(
   coords?: { lat: number; lng: number } | null,
   lang?: string,
+  doctorData: NearbyServiceItem[] = NEARBY_DOCTORS,
 ): Partial<ChatMessage> {
   if (!coords) {
     if (en(lang)) {
@@ -1820,7 +1821,7 @@ function generateNearbyDoctorResponse(
     };
   }
 
-  const sorted = sortByDistance(NEARBY_DOCTORS, coords.lat, coords.lng).slice(0, 3);
+  const sorted = sortByDistance(doctorData, coords.lat, coords.lng).slice(0, 3);
 
   if (en(lang)) {
     let text = "I found these providers near you:\n";
@@ -1878,6 +1879,7 @@ function generateNearbyDoctorResponse(
 function generateNearbyPharmacyResponse(
   coords?: { lat: number; lng: number } | null,
   lang?: string,
+  pharmacyData: NearbyServiceItem[] = NEARBY_PHARMACIES,
 ): Partial<ChatMessage> {
   if (!coords) {
     if (en(lang)) {
@@ -1892,7 +1894,7 @@ function generateNearbyPharmacyResponse(
     };
   }
 
-  const sorted = sortByDistance(NEARBY_PHARMACIES, coords.lat, coords.lng).slice(0, 3);
+  const sorted = sortByDistance(pharmacyData, coords.lat, coords.lng).slice(0, 3);
 
   if (en(lang)) {
     let text = "Here are the closest pharmacies:\n";
@@ -1950,6 +1952,7 @@ function generateNearbyPharmacyResponse(
 function generateNearbyGuardiaResponse(
   coords?: { lat: number; lng: number } | null,
   lang?: string,
+  hospitalData: NearbyServiceItem[] = NEARBY_GUARDIAS,
 ): Partial<ChatMessage> {
   if (!coords) {
     if (en(lang)) {
@@ -1980,7 +1983,7 @@ function generateNearbyGuardiaResponse(
     };
   }
 
-  const sorted = sortByDistance(NEARBY_GUARDIAS, coords.lat, coords.lng).slice(0, 3);
+  const sorted = sortByDistance(hospitalData, coords.lat, coords.lng).slice(0, 3);
 
   if (en(lang)) {
     let text = "Here are the nearest emergency rooms:\n";
@@ -2036,6 +2039,9 @@ function generateNearbyGuardiaResponse(
 function generateDirectionsResponse(
   coords?: { lat: number; lng: number } | null,
   lang?: string,
+  doctorData: NearbyServiceItem[] = NEARBY_DOCTORS,
+  pharmacyData: NearbyServiceItem[] = NEARBY_PHARMACIES,
+  hospitalData: NearbyServiceItem[] = NEARBY_GUARDIAS,
 ): Partial<ChatMessage> {
   if (!coords) {
     if (en(lang)) {
@@ -2052,9 +2058,9 @@ function generateDirectionsResponse(
 
   // When asking for generic directions, show the top options with directions
   const allPlaces = [
-    ...sortByDistance(NEARBY_DOCTORS, coords.lat, coords.lng).slice(0, 2),
-    ...sortByDistance(NEARBY_PHARMACIES, coords.lat, coords.lng).slice(0, 1),
-    ...sortByDistance(NEARBY_GUARDIAS, coords.lat, coords.lng).slice(0, 1),
+    ...sortByDistance(doctorData, coords.lat, coords.lng).slice(0, 2),
+    ...sortByDistance(pharmacyData, coords.lat, coords.lng).slice(0, 1),
+    ...sortByDistance(hospitalData, coords.lat, coords.lng).slice(0, 1),
   ].sort((a, b) => a.distKm - b.distKm);
 
   if (en(lang)) {
@@ -2370,19 +2376,32 @@ function extractSpecialty(message: string): string | null {
 
 // ─── Main Engine ─────────────────────────────────────────────
 
+/** Optional live places data from Google Places API */
+export interface LivePlaces {
+  doctors?: NearbyServiceItem[];
+  pharmacies?: NearbyServiceItem[];
+  hospitals?: NearbyServiceItem[];
+}
+
 export function processMessage(
   userMessage: string,
   coords?: { lat: number; lng: number } | null,
   lang?: string,
+  livePlaces?: LivePlaces | null,
 ): Partial<ChatMessage> {
   const { intent, entities } = detectIntent(userMessage);
+
+  // Merge live places with fallback demo data
+  const doctors = livePlaces?.doctors?.length ? livePlaces.doctors : NEARBY_DOCTORS;
+  const pharmacies = livePlaces?.pharmacies?.length ? livePlaces.pharmacies : NEARBY_PHARMACIES;
+  const hospitals = livePlaces?.hospitals?.length ? livePlaces.hospitals : NEARBY_GUARDIAS;
 
   // Check if it's a triage-mapped intent
   if (intent in TRIAGE && TRIAGE[intent]) {
     const triageResp = buildTriageResponse(TRIAGE[intent], lang);
     // For emergencies, add nearest guardia with directions if we have coords
     if (TRIAGE[intent].severity === "emergencia" && coords) {
-      const nearest = sortByDistance(NEARBY_GUARDIAS, coords.lat, coords.lng)[0];
+      const nearest = sortByDistance(hospitals, coords.lat, coords.lng)[0];
       if (nearest) {
         const dirUrl = mapsDirectionsUrl(coords.lat, coords.lng, nearest.lat, nearest.lng);
         triageResp.cards = [
@@ -2442,13 +2461,13 @@ export function processMessage(
     case "location":
       return generateLocationResponse(coords, lang);
     case "nearby_doctor":
-      return generateNearbyDoctorResponse(coords, lang);
+      return generateNearbyDoctorResponse(coords, lang, doctors);
     case "nearby_pharmacy":
-      return generateNearbyPharmacyResponse(coords, lang);
+      return generateNearbyPharmacyResponse(coords, lang, pharmacies);
     case "nearby_guardia":
-      return generateNearbyGuardiaResponse(coords, lang);
+      return generateNearbyGuardiaResponse(coords, lang, hospitals);
     case "directions":
-      return generateDirectionsResponse(coords, lang);
+      return generateDirectionsResponse(coords, lang, doctors, pharmacies, hospitals);
     case "shared_location":
       return generateSharedLocationResponse(coords, lang);
     default:

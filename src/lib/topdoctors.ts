@@ -38,14 +38,14 @@ const SPECIALTY_SLUGS: Record<string, string> = {
 export function getTopDoctorsSpecialtyUrl(specialty: string): string {
   const slug = SPECIALTY_SLUGS[specialty];
   if (slug) return `${TOPDOCTORS_BASE}/${slug}/`;
-  return `${TOPDOCTORS_BASE}/buscar?q=${encodeURIComponent(specialty)}`;
+  return `${TOPDOCTORS_BASE}/buscar-especialistas/?q=${encodeURIComponent(specialty)}`;
 }
 
 /**
  * Get the TopDoctors search URL for a specific doctor name.
  */
 export function getTopDoctorsSearchUrl(doctorName: string): string {
-  return `${TOPDOCTORS_BASE}/buscar?q=${encodeURIComponent(doctorName)}`;
+  return `${TOPDOCTORS_BASE}/buscar-especialistas/?q=${encodeURIComponent(doctorName)}`;
 }
 
 /**

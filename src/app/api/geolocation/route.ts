@@ -9,11 +9,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { checkRateLimit, sanitizeBody } from "@/lib/security/api-guard";
 import { requireAuth } from "@/lib/security/require-auth";
 import { logger } from "@/lib/logger";
+import { nearbyPlacesSearch, GOOGLE_MAPS_API_KEY } from "@/lib/google";
 
 // ─── Helpers ─────────────────────────────────────────────────
-
-const GOOGLE_MAPS_API_KEY =
-  process.env.GOOGLE_MAPS_API_KEY ?? process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY ?? "";
 
 function jsonError(message: string, status: number) {
   return NextResponse.json({ error: message }, { status });
@@ -72,98 +70,7 @@ async function reverseGeocode(lat: number, lng: number): Promise<string | null> 
   }
 }
 
-// ─── Nearby Places Search ────────────────────────────────────
-
-interface NearbyPlace {
-  placeId: string;
-  name: string;
-  address: string;
-  lat: number;
-  lng: number;
-  rating?: number;
-  types: string[];
-  openNow?: boolean;
-}
-
-const TYPE_MAP: Record<string, string> = {
-  doctor: "doctor",
-  pharmacy: "pharmacy",
-  hospital: "hospital",
-  dentist: "dentist",
-  physiotherapist: "physiotherapist",
-  health: "health",
-};
-
-async function nearbySearch(
-  lat: number,
-  lng: number,
-  type: string,
-  radius: number,
-): Promise<NearbyPlace[]> {
-  // If no Google key, return empty (frontend uses mock data)
-  if (!GOOGLE_MAPS_API_KEY) {
-    return [];
-  }
-
-  const placeType = TYPE_MAP[type] ?? "doctor";
-
-  try {
-    // Use Places API (New) — Text Search
-    const url = "https://places.googleapis.com/v1/places:searchNearby";
-    const body = {
-      includedTypes: [placeType],
-      maxResultCount: 20,
-      locationRestriction: {
-        circle: {
-          center: { latitude: lat, longitude: lng },
-          radius,
-        },
-      },
-      languageCode: "es",
-    };
-
-    const res = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Goog-Api-Key": GOOGLE_MAPS_API_KEY,
-        "X-Goog-FieldMask":
-          "places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.types,places.currentOpeningHours",
-      },
-      body: JSON.stringify(body),
-    });
-
-    if (!res.ok) {
-      logger.warn({ status: res.status }, "Nearby search failed");
-      return [];
-    }
-
-    const data = await res.json();
-    return (data.places ?? []).map(
-      (p: {
-        id?: string;
-        displayName?: { text?: string };
-        formattedAddress?: string;
-        location?: { latitude?: number; longitude?: number };
-        rating?: number;
-        types?: string[];
-        currentOpeningHours?: { openNow?: boolean };
-      }) => ({
-        placeId: p.id ?? "",
-        name: p.displayName?.text ?? "Sin nombre",
-        address: p.formattedAddress ?? "",
-        lat: p.location?.latitude ?? lat,
-        lng: p.location?.longitude ?? lng,
-        rating: p.rating,
-        types: p.types ?? [],
-        openNow: p.currentOpeningHours?.openNow,
-      }),
-    );
-  } catch (err) {
-    logger.warn({ error: String(err) }, "Nearby search error");
-    return [];
-  }
-}
+// ─── Nearby Places — uses shared helper from @/lib/google ───
 
 // ─── Fallback locality estimator (no API key needed) ─────────
 
@@ -235,7 +142,7 @@ export async function GET(req: NextRequest) {
         50_000, // max 50 km
       );
 
-      const places = await nearbySearch(coords.lat, coords.lng, type, radius);
+      const places = await nearbyPlacesSearch(coords.lat, coords.lng, type, radius);
       return NextResponse.json({
         places,
         count: places.length,
