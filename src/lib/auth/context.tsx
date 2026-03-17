@@ -252,6 +252,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         // Profile created by DB trigger (handle_new_user).
         // onAuthStateChange will pick up the new session.
+
+        // Notify admin of new signup (fire-and-forget)
+        fetch("/api/auth/signup-notify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: data.name,
+            email: data.email,
+            clinicName: data.clinicName,
+            cuit: data.cuit,
+            provincia: data.provincia,
+            especialidad: data.especialidad,
+          }),
+        }).catch(() => {}); // Silent — don't block registration
+
         return { success: true };
       } catch {
         return { success: false, error: "Error de conexión" };

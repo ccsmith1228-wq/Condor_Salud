@@ -48,6 +48,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // ── Notify admin via email ──
+    const resendKey = process.env.RESEND_API_KEY;
+    if (resendKey) {
+      const ts = new Date().toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires" });
+      fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          from: "Cóndor Salud <notificaciones@condorsalud.com.ar>",
+          to: ["admin@condorsalud.com.ar"],
+          subject: `📋 Nueva suscripción waitlist: ${email}`,
+          html: `<p><strong>${email}</strong> se anotó en la waitlist el ${ts}.</p>`,
+        }),
+      }).catch(() => {});
+    }
+
     return NextResponse.json({ message: "¡Listo! Te contactamos pronto." }, { status: 201 });
   } catch (err) {
     logger.error({ err, route: "waitlist" }, "Waitlist error");
