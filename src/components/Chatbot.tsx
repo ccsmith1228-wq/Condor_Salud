@@ -6,6 +6,25 @@ import type { ChatMessage, QuickReply, InfoCard } from "@/lib/chatbot-engine";
 import { getWelcomeMessage } from "@/lib/chatbot-engine";
 import { useGeolocation } from "@/lib/hooks/useGeolocation";
 import { useLocale } from "@/lib/i18n/context";
+import { analytics } from "@/lib/analytics";
+
+// Web Speech API type shim (webkit-prefixed)
+interface SpeechRecognitionLike extends EventTarget {
+  lang: string;
+  interimResults: boolean;
+  maxAlternatives: number;
+  start(): void;
+  stop(): void;
+  onresult: ((ev: { results: { 0: { 0: { transcript: string } } } }) => void) | null;
+  onerror: ((ev: Event) => void) | null;
+  onend: (() => void) | null;
+}
+declare global {
+  interface Window {
+    SpeechRecognition?: new () => SpeechRecognitionLike;
+    webkitSpeechRecognition?: new () => SpeechRecognitionLike;
+  }
+}
 
 // ─── Subcomponents ───────────────────────────────────────────
 
@@ -52,12 +71,22 @@ function MessageBubble({ msg }: { msg: ChatMessage }) {
           />
         </div>
       )}
-      <div
-        className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-[13px] leading-relaxed whitespace-pre-line ${
-          isBot ? "bg-surface text-ink rounded-bl-md" : "bg-celeste text-white rounded-br-md"
-        }`}
-      >
-        {msg.text}
+      <div className="flex flex-col max-w-[80%]">
+        <div
+          className={`rounded-2xl px-4 py-2.5 text-[13px] leading-relaxed whitespace-pre-line ${
+            isBot ? "bg-surface text-ink rounded-bl-md" : "bg-celeste text-white rounded-br-md"
+          }`}
+        >
+          {msg.text}
+        </div>
+        {isBot && msg.source === "ai" && (
+          <span
+            className="mt-0.5 ml-1 text-[10px] text-ink-muted/60 select-none"
+            aria-label="Powered by AI"
+          >
+            ✨ AI
+          </span>
+        )}
       </div>
     </div>
   );
@@ -183,6 +212,39 @@ export default function Chatbot() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Voice input — Web Speech API
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const speechSupported =
+    typeof window !== "undefined" &&
+    ("SpeechRecognition" in window || "webkitSpeechRecognition" in window);
+
+  const toggleVoice = useCallback(() => {
+    if (isListening && recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+      return;
+    }
+    if (!speechSupported) return;
+    const SR = window.SpeechRecognition ?? window.webkitSpeechRecognition;
+    if (!SR) return;
+    const recognition = new SR();
+    recognition.lang = locale === "en" ? "en-US" : "es-AR";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    recognition.onresult = (e) => {
+      const transcript = e.results[0]?.[0]?.transcript;
+      if (transcript) setInput(transcript);
+      setIsListening(false);
+    };
+    recognition.onerror = () => setIsListening(false);
+    recognition.onend = () => setIsListening(false);
+    recognitionRef.current = recognition;
+    recognition.start();
+    setIsListening(true);
+    analytics.track("chatbot_voice_input", { lang: locale });
+  }, [isListening, speechSupported, locale]);
+
   // Geolocation — lazy mode (user triggers it)
   const geo = useGeolocation({ lazy: true });
   const hasLocation = !!geo.coords;
@@ -242,6 +304,7 @@ export default function Chatbot() {
       setMessages((prev) => [...prev, userMsg]);
       setInput("");
       setIsTyping(true);
+      analytics.track("chatbot_message_sent", { lang: locale });
 
       try {
         // Build conversation history for Claude AI context
@@ -253,6 +316,10 @@ export default function Chatbot() {
             content: m.text,
           }));
 
+        // Extract last triage context from the most recent bot message
+        const lastBotMsg = [...messages].reverse().find((m) => m.role === "bot");
+        const triageContext = lastBotMsg?.triageContext;
+
         const res = await fetch("/api/chatbot", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -260,6 +327,7 @@ export default function Chatbot() {
             message: text.trim(),
             history,
             lang: locale,
+            ...(triageContext ? { triageContext } : {}),
             ...(coordsRef.current
               ? { lat: coordsRef.current.latitude, lng: coordsRef.current.longitude }
               : {}),
@@ -296,6 +364,14 @@ export default function Chatbot() {
 
         const botMsg: ChatMessage = await res.json();
         setMessages((prev) => [...prev, botMsg]);
+        analytics.track("chatbot_response", {
+          source: botMsg.source ?? "unknown",
+          has_cards: !!(botMsg.cards && botMsg.cards.length > 0),
+          lang: locale,
+        });
+        if ("isEmergency" in botMsg) {
+          analytics.track("chatbot_emergency", { lang: locale });
+        }
       } catch {
         setMessages((prev) => [
           ...prev,
@@ -492,6 +568,52 @@ export default function Chatbot() {
                 <circle cx="12" cy="10" r="3" />
               </svg>
             </button>
+            {/* Mic button — Web Speech API */}
+            {speechSupported && (
+              <button
+                type="button"
+                onClick={toggleVoice}
+                disabled={isTyping}
+                title={
+                  isListening
+                    ? isEn
+                      ? "Stop listening"
+                      : "Dejar de escuchar"
+                    : isEn
+                      ? "Voice input"
+                      : "Entrada por voz"
+                }
+                className={`w-10 h-10 rounded-full flex items-center justify-center transition flex-shrink-0 ${
+                  isListening
+                    ? "bg-red-50 text-red-500 border border-red-300 animate-pulse"
+                    : "bg-surface text-ink-muted border border-border hover:bg-celeste-pale hover:text-celeste-dark"
+                }`}
+                aria-label={
+                  isListening
+                    ? isEn
+                      ? "Stop listening"
+                      : "Dejar de escuchar"
+                    : isEn
+                      ? "Voice input"
+                      : "Entrada por voz"
+                }
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  className="w-[18px] h-[18px]"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                  <line x1="12" y1="19" x2="12" y2="23" />
+                  <line x1="8" y1="23" x2="16" y2="23" />
+                </svg>
+              </button>
+            )}
             <input
               ref={inputRef}
               type="text"

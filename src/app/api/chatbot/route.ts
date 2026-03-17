@@ -5,6 +5,128 @@ import { askClaude, isClaudeConfigured } from "@/lib/ai/claude";
 import { checkRateLimit, sanitize, logger } from "@/lib/security/api-guard";
 import { nearbyPlacesSearch } from "@/lib/google";
 
+/* ── Helper: enrich coverage responses with real data from /api/coverage ── */
+async function enrichCoverageResponse(
+  response: Record<string, unknown>,
+  message: string,
+  isEn: boolean,
+): Promise<Record<string, unknown>> {
+  // Detect if the user mentioned a specific provider
+  const providerPatterns: Record<string, string> = {
+    pami: "PAMI",
+    osde: "OSDE",
+    "swiss medical": "Swiss Medical",
+    galeno: "Galeno",
+    medife: "Medifé",
+    "medif[eé]": "Medifé",
+    "accord salud": "Accord Salud",
+    "sancor salud": "Sancor Salud",
+    sancor: "Sancor Salud",
+  };
+
+  const lower = message.toLowerCase();
+  let matchedProvider: string | null = null;
+  let displayName: string | null = null;
+
+  for (const [pattern, name] of Object.entries(providerPatterns)) {
+    if (lower.includes(pattern.replace(/\[.*?\]/g, ""))) {
+      matchedProvider = pattern.replace(/\[.*?\]/g, "");
+      displayName = name;
+      break;
+    }
+  }
+
+  if (!matchedProvider) return response;
+
+  try {
+    // Internal fetch to the coverage API (relative URL won't work server-side, call logic directly)
+    const { isSupabaseConfigured } = await import("@/lib/env");
+    let plans: Array<Record<string, unknown>> = [];
+
+    if (isSupabaseConfigured()) {
+      const { createClient } = await import("@/lib/supabase/server");
+      const supabase = createClient();
+      const sb: { from: (table: string) => ReturnType<typeof supabase.from> } = supabase as never;
+
+      const { data } = await sb
+        .from("coverage_plans")
+        .select("*")
+        .or(`provider_group.ilike.%${matchedProvider}%,provider_name.ilike.%${matchedProvider}%`)
+        .eq("active", true)
+        .limit(5);
+
+      if (data) plans = data as Array<Record<string, unknown>>;
+    }
+
+    if (plans.length > 0) {
+      const plan = plans[0]!;
+      const checks = [
+        plan.covers_general && (isEn ? "✅ General consultations" : "✅ Consultas generales"),
+        plan.covers_specialists && (isEn ? "✅ Specialists" : "✅ Especialistas"),
+        plan.covers_emergency && (isEn ? "✅ Emergency room" : "✅ Guardia"),
+        plan.covers_dental && (isEn ? "✅ Dental" : "✅ Odontología"),
+        plan.covers_telemedicine && (isEn ? "✅ Telemedicine" : "✅ Teleconsulta"),
+        plan.covers_medications && (isEn ? "✅ Medications" : "✅ Medicamentos"),
+        plan.covers_mental_health && (isEn ? "✅ Mental health" : "✅ Salud mental"),
+      ].filter(Boolean);
+
+      const copayInfo = plan.copay_general
+        ? isEn
+          ? `Copay: ${plan.copay_general}`
+          : `Coseguro: ${plan.copay_general}`
+        : "";
+
+      const notes = isEn ? (plan.notes_en ?? "") : (plan.notes_es ?? "");
+
+      const text = isEn
+        ? `Here's what ${displayName} covers:\n\n${checks.join("\n")}${copayInfo ? `\n\n${copayInfo}` : ""}${notes ? `\n\n${notes}` : ""}\n\nWant to find a doctor that accepts ${displayName}?`
+        : `Esto es lo que cubre ${displayName}:\n\n${checks.join("\n")}${copayInfo ? `\n\n${copayInfo}` : ""}${notes ? `\n\n${notes}` : ""}\n\n¿Querés buscar un médico que acepte ${displayName}?`;
+
+      const cards =
+        plan.phone || plan.website
+          ? [
+              {
+                title: displayName,
+                body: isEn
+                  ? "Contact your provider directly"
+                  : "Contactá a tu obra social directamente",
+                icon: "phone",
+                ...(plan.phone
+                  ? {
+                      action: {
+                        label: isEn ? `Call ${plan.phone}` : `Llamar al ${plan.phone}`,
+                        url: `tel:${plan.phone}`,
+                      },
+                    }
+                  : {}),
+              },
+            ]
+          : undefined;
+
+      return {
+        ...response,
+        text,
+        cards,
+        quickReplies: isEn
+          ? [
+              { label: "Search directory", value: "I want to see the doctor directory" },
+              { label: "Different provider", value: "I want to check my insurance coverage" },
+              { label: "Talk to someone", value: "I want to talk to an agent" },
+            ]
+          : [
+              { label: "Buscar directorio", value: "Quiero ver el directorio médico" },
+              { label: "Otra obra social", value: "Quiero consultar mi cobertura" },
+              { label: "Hablar con alguien", value: "Quiero hablar con un agente" },
+            ],
+      };
+    }
+  } catch (err) {
+    logger.warn({ err }, "Coverage enrichment failed, using default response");
+  }
+
+  return response;
+}
+
 /* ── Helper: fetch live places from Google and map to chatbot format ── */
 async function fetchLivePlaces(lat: number, lng: number): Promise<LivePlaces | null> {
   try {
@@ -39,10 +161,12 @@ async function fetchLivePlaces(lat: number, lng: number): Promise<LivePlaces | n
       pharmacies: rawPharms.map((p) => ({
         ...mapItem(p),
         open24h: p.openNow ?? undefined,
+        openNow: p.openNow ?? undefined,
       })),
       hospitals: rawHosps.map((p) => ({
         ...mapItem(p),
         emergency: true,
+        openNow: p.openNow ?? undefined,
       })),
     };
   } catch {
@@ -77,12 +201,14 @@ export async function POST(req: NextRequest) {
       lng,
       history,
       lang: bodyLang,
+      triageContext,
     } = body as {
       message?: string;
       lat?: number;
       lng?: number;
       history?: { role: "user" | "assistant"; content: string }[];
       lang?: string;
+      triageContext?: string;
     };
     lang = bodyLang;
 
@@ -130,7 +256,9 @@ export async function POST(req: NextRequest) {
         id: `bot-${Date.now()}`,
         role: "bot",
         timestamp: Date.now(),
-        ...processMessage(cleanMessage, coords, lang, livePlaces),
+        source: "rules" as const,
+        isEmergency: true,
+        ...processMessage(cleanMessage, coords, lang, livePlaces, triageContext),
       });
     }
 
@@ -146,6 +274,7 @@ export async function POST(req: NextRequest) {
           id: `bot-${Date.now()}`,
           role: "bot",
           timestamp: Date.now(),
+          source: "ai" as const,
           ...aiResponse,
         });
       }
@@ -159,13 +288,22 @@ export async function POST(req: NextRequest) {
     const delay = 200 + Math.random() * 400;
     await new Promise((resolve) => setTimeout(resolve, delay));
 
-    const response = processMessage(cleanMessage, coords, lang, livePlaces);
+    const response = processMessage(cleanMessage, coords, lang, livePlaces, triageContext);
+
+    // Enrich coverage responses with real data when available
+    const isEn = typeof lang === "string" && lang.startsWith("en");
+    const enriched = await enrichCoverageResponse(
+      response as Record<string, unknown>,
+      cleanMessage,
+      isEn,
+    );
 
     return NextResponse.json({
       id: `bot-${Date.now()}`,
       role: "bot",
       timestamp: Date.now(),
-      ...response,
+      source: "rules" as const,
+      ...enriched,
     });
   } catch (err) {
     logger.error({ err, route: "chatbot" }, "Chatbot processing error");

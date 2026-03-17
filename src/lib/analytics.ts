@@ -19,7 +19,11 @@ type EventName =
   | "reporte_exported"
   | "config_updated"
   | "search_performed"
-  | "filter_applied";
+  | "filter_applied"
+  | "chatbot_message_sent"
+  | "chatbot_response"
+  | "chatbot_emergency"
+  | "chatbot_voice_input";
 
 interface AnalyticsEvent {
   name: EventName;

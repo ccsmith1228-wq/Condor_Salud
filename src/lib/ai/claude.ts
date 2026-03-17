@@ -59,7 +59,7 @@ AVAILABLE URLS for cards:
 - /planes — View plans and pricing
 - tel:107 — SAME Emergency (ambulance) — Argentina
 - tel:135 — Suicide Prevention Hotline — Argentina
-- https://www.rappi.com.ar/restaurantes/categoria/farmacias — Rappi pharmacy delivery
+- https://www.rappi.com.ar/farmacias — Rappi pharmacy delivery
 - https://www.pedidosya.com.ar/farmacias — PedidosYa pharmacy delivery
 
 JSON RULES:

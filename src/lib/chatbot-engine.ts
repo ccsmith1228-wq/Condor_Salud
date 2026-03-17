@@ -18,6 +18,10 @@ export interface ChatMessage {
   timestamp: number;
   quickReplies?: QuickReply[];
   cards?: InfoCard[];
+  /** Whether the response came from Claude AI or the rule-based engine */
+  source?: "ai" | "rules";
+  /** Triage context key for conversation continuity (e.g. "pain_head") */
+  triageContext?: string;
 }
 
 export interface QuickReply {
@@ -1145,18 +1149,18 @@ function generateCoverageResponse(
     const name = provider.charAt(0).toUpperCase() + provider.slice(1);
     if (en(lang)) {
       return {
-        text: `Cóndor Salud works with ${name} and many other insurance providers. From your account you can:\n\n• See what your plan covers\n• Check your copay amount\n• Request authorizations for tests\n• See which medications are covered\n\nWant to verify your coverage?`,
+        text: `Cóndor Salud works with ${name} and many other insurance providers. Here's what you can do right now:\n\n• Browse our provider directory to find doctors that accept your plan\n• Book appointments with covered specialists\n• Use telemedicine for video consultations\n\nWant to browse the directory?`,
         quickReplies: [
-          { label: "Verify coverage", value: "I want to verify my coverage" },
+          { label: "Search directory", value: "I want to see the doctor directory" },
           { label: "View plans", value: "What plans do you have?" },
           { label: "Talk to someone", value: "I want to talk to an agent" },
         ],
       };
     }
     return {
-      text: `Cóndor Salud trabaja con ${name} y muchas otras obras sociales y prepagas. Desde tu cuenta podés:\n\n• Ver qué te cubre tu plan\n• Saber cuánto te sale el coseguro\n• Pedir autorizaciones para estudios\n• Ver qué remedios te cubre\n\n¿Querés verificar tu cobertura?`,
+      text: `Cóndor Salud trabaja con ${name} y muchas otras obras sociales y prepagas. Lo que podés hacer ahora:\n\n• Buscar en nuestro directorio médicos que acepten tu plan\n• Sacar turnos con especialistas cubiertos\n• Usar teleconsulta para atenderte por videollamada\n\n¿Querés buscar en el directorio?`,
       quickReplies: [
-        { label: "Verificar cobertura", value: "Quiero verificar mi cobertura" },
+        { label: "Buscar directorio", value: "Quiero ver el directorio médico" },
         { label: "Ver planes", value: "¿Qué planes tienen?" },
         { label: "Hablar con alguien", value: "Quiero hablar con un agente" },
       ],
@@ -1221,7 +1225,7 @@ function generateAppointmentResponse(lang?: string): Partial<ChatMessage> {
 function generateAppointmentBooking(specialty: string, lang?: string): Partial<ChatMessage> {
   if (en(lang)) {
     return {
-      text: `Done! You can search for appointments with ${specialty} in our directory. You'll see nearby professionals with available times, patient reviews, and whether they accept your insurance.\n\nIf you'd rather be seen right now from home, telemedicine is also available.`,
+      text: `Done! You can search for ${specialty} in our provider directory. Browse professionals near you and book an appointment directly.\n\nIf you'd rather be seen right now from home, telemedicine is also available.`,
       quickReplies: [
         { label: "Search appointments", value: "I want to see the doctor directory" },
         { label: "Telemedicine now", value: "I want a telemedicine consultation now" },
@@ -1239,7 +1243,7 @@ function generateAppointmentBooking(specialty: string, lang?: string): Partial<C
   }
 
   return {
-    text: `¡Listo! Podés buscar turnos con ${specialty} en nuestro directorio. Vas a ver profesionales cerca tuyo con horarios disponibles, opiniones de otros pacientes y si aceptan tu obra social.\n\nSi preferís atenderte ahora desde tu casa, también hay teleconsulta.`,
+    text: `¡Listo! Podés buscar ${specialty} en nuestro directorio de profesionales. Explorá profesionales cerca tuyo y sacá turno directamente.\n\nSi preferís atenderte ahora desde tu casa, también hay teleconsulta.`,
     quickReplies: [
       { label: "Buscar turnos", value: "Quiero ver el directorio médico" },
       { label: "Teleconsulta ahora", value: "Quiero una teleconsulta ahora" },
@@ -1259,13 +1263,13 @@ function generateAppointmentBooking(specialty: string, lang?: string): Partial<C
 function generateMedicationResponse(lang?: string): Partial<ChatMessage> {
   if (en(lang)) {
     return {
-      text: "With Cóndor Salud you can manage everything about your medications:\n\n• Search up-to-date medication prices\n• View your active prescriptions\n• Get them delivered to your door via Rappi or PedidosYa\n• Set up automatic refills for your regular meds\n• Find on-duty pharmacies nearby\n\nWhat do you need?",
+      text: "With Cóndor Salud you can manage your medications:\n\n• Get over-the-counter meds delivered via Rappi or PedidosYa\n• Find on-duty pharmacies nearby\n• Tell me your symptoms and I'll suggest what you can buy at the pharmacy\n\nWhat do you need?",
       quickReplies: [
-        { label: "Search a medication", value: "I want to search for a medication" },
-        { label: "My prescriptions", value: "I want to see my prescriptions" },
+        { label: "What can I take?", value: "I'm not feeling well" },
         { label: "On-duty pharmacy", value: "Where is there an on-duty pharmacy?" },
         { label: "🛵 Order via Rappi", value: "I want to order meds via Rappi" },
         { label: "🛵 Order via PedidosYa", value: "I want to order meds via PedidosYa" },
+        { label: "Find nearby", value: "Find a pharmacy near me" },
       ],
       cards: [
         {
@@ -1288,13 +1292,13 @@ function generateMedicationResponse(lang?: string): Partial<ChatMessage> {
   }
 
   return {
-    text: "Desde Cóndor Salud podés manejar todo lo de tus remedios:\n\n• Buscar precios actualizados de medicamentos\n• Ver tus recetas vigentes\n• Pedir que te los lleven a tu casa con Rappi o PedidosYa\n• Configurar pedidos automáticos para los que tomás siempre\n• Buscar farmacias de guardia cerca\n\n¿Qué necesitás?",
+    text: "Desde Cóndor Salud podés manejar tus remedios:\n\n• Pedir medicamentos de venta libre a tu casa con Rappi o PedidosYa\n• Buscar farmacias de guardia cerca tuyo\n• Contame qué te pasa y te digo qué podés comprar en la farmacia\n\n¿Qué necesitás?",
     quickReplies: [
-      { label: "Buscar un remedio", value: "Quiero buscar un medicamento" },
-      { label: "Mis recetas", value: "Quiero ver mis recetas" },
+      { label: "¿Qué puedo tomar?", value: "No me siento bien" },
       { label: "Farmacia de guardia", value: "¿Dónde hay una farmacia de guardia?" },
       { label: "🛵 Pedir por Rappi", value: "Quiero pedir remedios por Rappi" },
       { label: "🛵 Pedir por PedidosYa", value: "Quiero pedir remedios por PedidosYa" },
+      { label: "Buscar cerca", value: "Buscar farmacia cerca mío" },
     ],
     cards: [
       {
@@ -1321,15 +1325,24 @@ function generateMedicationResponse(lang?: string): Partial<ChatMessage> {
 function generateDeliveryResponse(
   coords?: { lat: number; lng: number } | null,
   lang?: string,
+  /** OTC medication names from triage context for smart deep-links */
+  medNames?: string[],
 ): Partial<ChatMessage> {
-  const rappiUrl = coords
-    ? `https://www.rappi.com.ar/farmacias?lat=${coords.lat}&lng=${coords.lng}`
-    : "https://www.rappi.com.ar/farmacias";
-  const pedidosYaUrl = "https://www.pedidosya.com.ar/farmacias";
+  // Smart deep-links: pre-fill search with medication name if available
+  const firstMed = medNames?.[0];
+  const rappiUrl = firstMed
+    ? `https://www.rappi.com.ar/farmacias?q=${encodeURIComponent(firstMed)}${coords ? `&lat=${coords.lat}&lng=${coords.lng}` : ""}`
+    : coords
+      ? `https://www.rappi.com.ar/farmacias?lat=${coords.lat}&lng=${coords.lng}`
+      : "https://www.rappi.com.ar/farmacias";
+  const pedidosYaUrl = firstMed
+    ? `https://www.pedidosya.com.ar/farmacias?q=${encodeURIComponent(firstMed)}`
+    : "https://www.pedidosya.com.ar/farmacias";
 
   if (en(lang)) {
-    let text =
-      "You can order over-the-counter medications (no prescription needed) straight to your door with these apps:\n";
+    let text = medNames?.length
+      ? `Based on what we discussed, here are delivery options for ${medNames.join(", ")}:\n`
+      : "You can order over-the-counter medications (no prescription needed) straight to your door with these apps:\n";
     text += "\n🟠 Rappi — Delivered in 30–60 min. Pay by card, cash, or Mercado Pago.";
     text += "\n🔴 PedidosYa — Delivery from partner pharmacies with real-time tracking.";
     text +=
@@ -1374,8 +1387,9 @@ function generateDeliveryResponse(
     };
   }
 
-  let text =
-    "¡Perfecto! Podés pedir medicamentos de venta libre (sin receta) directo a tu casa con estas apps:\n";
+  let text = medNames?.length
+    ? `Según lo que hablamos, te muestro opciones de delivery para ${medNames.join(", ")}:\n`
+    : "¡Perfecto! Podés pedir medicamentos de venta libre (sin receta) directo a tu casa con estas apps:\n";
   text += "\n🟠 Rappi — Llega en 30-60 min, pagás con tarjeta, efectivo o Mercado Pago.";
   text += "\n🔴 PedidosYa — Delivery de farmacias adheridas, con seguimiento en tiempo real.";
   text +=
@@ -1504,7 +1518,7 @@ function generatePricingResponse(lang?: string): Partial<ChatMessage> {
 function generateHowItWorksResponse(lang?: string): Partial<ChatMessage> {
   if (en(lang)) {
     return {
-      text: "Cóndor Salud brings all your healthcare into one place. Here’s what you can do:\n\n1. Check what your insurance covers instantly\n2. Search for doctors and book appointments online\n3. Talk to a doctor by video call\n4. Manage your prescriptions and order medications\n5. Check your symptoms (like right now)\n6. Receive reminders via WhatsApp\n\nWorks with PAMI, OSDE, Swiss Medical, Galeno, and many more.",
+      text: "Cóndor Salud brings all your healthcare into one place. Here’s what you can do:\n\n1. Search for doctors and book appointments online\n2. Talk to a doctor by video call (telemedicine)\n3. Check your symptoms with Cora (like right now!)\n4. Find pharmacies and emergency rooms nearby\n5. Get over-the-counter meds delivered via Rappi\n\nWorks with PAMI, OSDE, Swiss Medical, Galeno, and many more.",
       quickReplies: [
         { label: "Sign up", value: "I want to sign up" },
         { label: "How much does it cost?", value: "How much does it cost?" },
@@ -1514,7 +1528,7 @@ function generateHowItWorksResponse(lang?: string): Partial<ChatMessage> {
   }
 
   return {
-    text: "Cóndor Salud junta todo lo de salud en un solo lugar. Lo que podés hacer:\n\n1. Ver qué te cubre tu obra social al instante\n2. Buscar médicos y sacar turno online\n3. Hablar con un médico por videollamada\n4. Manejar tus recetas y pedir remedios\n5. Chequear tus síntomas (como ahora)\n6. Recibir recordatorios por WhatsApp\n\nFunciona con PAMI, OSDE, Swiss Medical, Galeno y muchas más.",
+    text: "Cóndor Salud junta todo lo de salud en un solo lugar. Lo que podés hacer:\n\n1. Buscar médicos y sacar turno online\n2. Hablar con un médico por videollamada (teleconsulta)\n3. Chequear tus síntomas con Cora (¡como ahora!)\n4. Encontrar farmacias y guardias cerca tuyo\n5. Pedir remedios de venta libre por Rappi\n\nFunciona con PAMI, OSDE, Swiss Medical, Galeno y muchas más.",
     quickReplies: [
       { label: "Registrarme", value: "Quiero registrarme" },
       { label: "¿Cuánto sale?", value: "¿Cuánto cuesta?" },
@@ -1679,6 +1693,7 @@ interface NearbyServiceItem {
   phone?: string;
   emergency?: boolean;
   open24h?: boolean;
+  openNow?: boolean;
 }
 
 const NEARBY_DOCTORS: NearbyServiceItem[] = [
@@ -1826,18 +1841,23 @@ function generateNearbyDoctorResponse(
   if (en(lang)) {
     let text = "I found these providers near you:\n";
     for (const doc of sorted) {
-      text += `\n📍 ${doc.name} — ${doc.specialty}\n   ${doc.address} (${formatDist(doc.distKm)})\n`;
+      const status = doc.openNow === true ? " ✅ Open" : doc.openNow === false ? " ❌ Closed" : "";
+      text += `\n📍 ${doc.name} — ${doc.specialty}${status}\n   ${doc.address} (${formatDist(doc.distKm)})\n`;
     }
     text += '\nTap "Get directions" on each one to see directions in Google Maps.';
 
-    const cards: InfoCard[] = sorted.map((doc) => ({
-      title: `${doc.name} — ${doc.specialty}`,
-      body: `${doc.address} • ${formatDist(doc.distKm)} away`,
-      icon: "map-pin",
-      action: { label: "Book appointment", url: "/paciente/medicos" },
-      directionsUrl: mapsDirectionsUrl(coords.lat, coords.lng, doc.lat, doc.lng),
-      mapUrl: mapsPlaceUrl(doc.lat, doc.lng, doc.name),
-    }));
+    const cards: InfoCard[] = sorted.map((doc) => {
+      const status =
+        doc.openNow === true ? " · Open now ✅" : doc.openNow === false ? " · Closed ❌" : "";
+      return {
+        title: `${doc.name} — ${doc.specialty}`,
+        body: `${doc.address} • ${formatDist(doc.distKm)} away${status}`,
+        icon: "map-pin",
+        action: { label: "Book appointment", url: "/paciente/medicos" },
+        directionsUrl: mapsDirectionsUrl(coords.lat, coords.lng, doc.lat, doc.lng),
+        mapUrl: mapsPlaceUrl(doc.lat, doc.lng, doc.name),
+      };
+    });
 
     return {
       text,
@@ -1852,18 +1872,24 @@ function generateNearbyDoctorResponse(
 
   let text = "Encontré estos profesionales cerca tuyo:\n";
   for (const doc of sorted) {
-    text += `\n📍 ${doc.name} — ${doc.specialty}\n   ${doc.address} (${formatDist(doc.distKm)})\n`;
+    const status =
+      doc.openNow === true ? " ✅ Abierto" : doc.openNow === false ? " ❌ Cerrado" : "";
+    text += `\n📍 ${doc.name} — ${doc.specialty}${status}\n   ${doc.address} (${formatDist(doc.distKm)})\n`;
   }
   text += '\nTocá "Cómo llegar" en cada uno para ver las indicaciones en Google Maps.';
 
-  const cards: InfoCard[] = sorted.map((doc) => ({
-    title: `${doc.name} — ${doc.specialty}`,
-    body: `${doc.address} • a ${formatDist(doc.distKm)}`,
-    icon: "map-pin",
-    action: { label: "Sacar turno", url: "/paciente/medicos" },
-    directionsUrl: mapsDirectionsUrl(coords.lat, coords.lng, doc.lat, doc.lng),
-    mapUrl: mapsPlaceUrl(doc.lat, doc.lng, doc.name),
-  }));
+  const cards: InfoCard[] = sorted.map((doc) => {
+    const status =
+      doc.openNow === true ? " · Abierto ahora ✅" : doc.openNow === false ? " · Cerrado ❌" : "";
+    return {
+      title: `${doc.name} — ${doc.specialty}`,
+      body: `${doc.address} • a ${formatDist(doc.distKm)}${status}`,
+      icon: "map-pin",
+      action: { label: "Sacar turno", url: "/paciente/medicos" },
+      directionsUrl: mapsDirectionsUrl(coords.lat, coords.lng, doc.lat, doc.lng),
+      mapUrl: mapsPlaceUrl(doc.lat, doc.lng, doc.name),
+    };
+  });
 
   return {
     text,
@@ -1900,17 +1926,22 @@ function generateNearbyPharmacyResponse(
     let text = "Here are the closest pharmacies:\n";
     for (const ph of sorted) {
       const tag = ph.open24h ? " (24h)" : "";
-      text += `\n🏥 ${ph.name}${tag}\n   ${ph.address} (${formatDist(ph.distKm)})\n`;
+      const status = ph.openNow === true ? " ✅ Open" : ph.openNow === false ? " ❌ Closed" : "";
+      text += `\n🏥 ${ph.name}${tag}${status}\n   ${ph.address} (${formatDist(ph.distKm)})\n`;
     }
     text += '\nTap "Get directions" to see directions in Google Maps.';
 
-    const cards: InfoCard[] = sorted.map((ph) => ({
-      title: `${ph.name}${ph.open24h ? " — 24h" : ""}`,
-      body: `${ph.address} • ${formatDist(ph.distKm)} away`,
-      icon: "pill",
-      directionsUrl: mapsDirectionsUrl(coords.lat, coords.lng, ph.lat, ph.lng),
-      mapUrl: mapsPlaceUrl(ph.lat, ph.lng, ph.name),
-    }));
+    const cards: InfoCard[] = sorted.map((ph) => {
+      const status =
+        ph.openNow === true ? " · Open now ✅" : ph.openNow === false ? " · Closed ❌" : "";
+      return {
+        title: `${ph.name}${ph.open24h ? " — 24h" : ""}`,
+        body: `${ph.address} • ${formatDist(ph.distKm)} away${status}`,
+        icon: "pill",
+        directionsUrl: mapsDirectionsUrl(coords.lat, coords.lng, ph.lat, ph.lng),
+        mapUrl: mapsPlaceUrl(ph.lat, ph.lng, ph.name),
+      };
+    });
 
     return {
       text,
@@ -1926,17 +1957,22 @@ function generateNearbyPharmacyResponse(
   let text = "Estas son las farmacias más cercanas:\n";
   for (const ph of sorted) {
     const tag = ph.open24h ? " (24hs)" : "";
-    text += `\n🏥 ${ph.name}${tag}\n   ${ph.address} (${formatDist(ph.distKm)})\n`;
+    const status = ph.openNow === true ? " ✅ Abierta" : ph.openNow === false ? " ❌ Cerrada" : "";
+    text += `\n🏥 ${ph.name}${tag}${status}\n   ${ph.address} (${formatDist(ph.distKm)})\n`;
   }
   text += '\nTocá "Cómo llegar" para ver las indicaciones en Google Maps.';
 
-  const cards: InfoCard[] = sorted.map((ph) => ({
-    title: `${ph.name}${ph.open24h ? " — 24hs" : ""}`,
-    body: `${ph.address} • a ${formatDist(ph.distKm)}`,
-    icon: "pill",
-    directionsUrl: mapsDirectionsUrl(coords.lat, coords.lng, ph.lat, ph.lng),
-    mapUrl: mapsPlaceUrl(ph.lat, ph.lng, ph.name),
-  }));
+  const cards: InfoCard[] = sorted.map((ph) => {
+    const status =
+      ph.openNow === true ? " · Abierta ahora ✅" : ph.openNow === false ? " · Cerrada ❌" : "";
+    return {
+      title: `${ph.name}${ph.open24h ? " — 24hs" : ""}`,
+      body: `${ph.address} • a ${formatDist(ph.distKm)}${status}`,
+      icon: "pill",
+      directionsUrl: mapsDirectionsUrl(coords.lat, coords.lng, ph.lat, ph.lng),
+      mapUrl: mapsPlaceUrl(ph.lat, ph.lng, ph.name),
+    };
+  });
 
   return {
     text,
@@ -1988,18 +2024,23 @@ function generateNearbyGuardiaResponse(
   if (en(lang)) {
     let text = "Here are the nearest emergency rooms:\n";
     for (const g of sorted) {
-      text += `\n🚑 ${g.name}\n   ${g.address} (${formatDist(g.distKm)})${g.phone ? `\n   ☎ ${g.phone}` : ""}\n`;
+      const status = g.openNow === true ? " ✅ Open" : g.openNow === false ? " ❌ Closed" : "";
+      text += `\n🚑 ${g.name}${status}\n   ${g.address} (${formatDist(g.distKm)})${g.phone ? `\n   ☎ ${g.phone}` : ""}\n`;
     }
     text += '\nTap "Get directions" to see the fastest route in Google Maps.';
 
-    const cards: InfoCard[] = sorted.map((g) => ({
-      title: g.name,
-      body: `${g.address} • ${formatDist(g.distKm)} away${g.phone ? ` • ☎ ${g.phone}` : ""}`,
-      icon: "siren",
-      action: g.phone ? { label: `Call`, url: `tel:${g.phone}` } : undefined,
-      directionsUrl: mapsDirectionsUrl(coords.lat, coords.lng, g.lat, g.lng),
-      mapUrl: mapsPlaceUrl(g.lat, g.lng, g.name),
-    }));
+    const cards: InfoCard[] = sorted.map((g) => {
+      const status =
+        g.openNow === true ? " · Open now ✅" : g.openNow === false ? " · Closed ❌" : "";
+      return {
+        title: g.name,
+        body: `${g.address} • ${formatDist(g.distKm)} away${status}${g.phone ? ` • ☎ ${g.phone}` : ""}`,
+        icon: "siren",
+        action: g.phone ? { label: `Call`, url: `tel:${g.phone}` } : undefined,
+        directionsUrl: mapsDirectionsUrl(coords.lat, coords.lng, g.lat, g.lng),
+        mapUrl: mapsPlaceUrl(g.lat, g.lng, g.name),
+      };
+    });
 
     return {
       text,
@@ -2013,18 +2054,23 @@ function generateNearbyGuardiaResponse(
 
   let text = "Estas son las guardias más cercanas:\n";
   for (const g of sorted) {
-    text += `\n🚑 ${g.name}\n   ${g.address} (${formatDist(g.distKm)})${g.phone ? `\n   ☎ ${g.phone}` : ""}\n`;
+    const status = g.openNow === true ? " ✅ Abierta" : g.openNow === false ? " ❌ Cerrada" : "";
+    text += `\n🚑 ${g.name}${status}\n   ${g.address} (${formatDist(g.distKm)})${g.phone ? `\n   ☎ ${g.phone}` : ""}\n`;
   }
   text += '\nTocá "Cómo llegar" para ver la ruta más rápida en Google Maps.';
 
-  const cards: InfoCard[] = sorted.map((g) => ({
-    title: g.name,
-    body: `${g.address} • a ${formatDist(g.distKm)}${g.phone ? ` • ☎ ${g.phone}` : ""}`,
-    icon: "siren",
-    action: g.phone ? { label: `Llamar`, url: `tel:${g.phone}` } : undefined,
-    directionsUrl: mapsDirectionsUrl(coords.lat, coords.lng, g.lat, g.lng),
-    mapUrl: mapsPlaceUrl(g.lat, g.lng, g.name),
-  }));
+  const cards: InfoCard[] = sorted.map((g) => {
+    const status =
+      g.openNow === true ? " · Abierta ahora ✅" : g.openNow === false ? " · Cerrada ❌" : "";
+    return {
+      title: g.name,
+      body: `${g.address} • a ${formatDist(g.distKm)}${status}${g.phone ? ` • ☎ ${g.phone}` : ""}`,
+      icon: "siren",
+      action: g.phone ? { label: `Llamar`, url: `tel:${g.phone}` } : undefined,
+      directionsUrl: mapsDirectionsUrl(coords.lat, coords.lng, g.lat, g.lng),
+      mapUrl: mapsPlaceUrl(g.lat, g.lng, g.name),
+    };
+  });
 
   return {
     text,
@@ -2388,6 +2434,8 @@ export function processMessage(
   coords?: { lat: number; lng: number } | null,
   lang?: string,
   livePlaces?: LivePlaces | null,
+  /** Last triage key from previous conversation turn (e.g. "pain_head") */
+  lastTriageKey?: string | null,
 ): Partial<ChatMessage> {
   const { intent, entities } = detectIntent(userMessage);
 
@@ -2396,9 +2444,80 @@ export function processMessage(
   const pharmacies = livePlaces?.pharmacies?.length ? livePlaces.pharmacies : NEARBY_PHARMACIES;
   const hospitals = livePlaces?.hospitals?.length ? livePlaces.hospitals : NEARBY_GUARDIAS;
 
+  // ── Conversation state machine: triage follow-up ──
+  // If the previous turn was a triage and the user is answering the nurse's
+  // follow-up question (duration, recurrence), refine the advice instead of
+  // re-detecting a new intent.  We check that the current message doesn't
+  // strongly match a *different* intent (greeting, farewell, etc.).
+  if (lastTriageKey && lastTriageKey in TRIAGE && intent === "unknown") {
+    const entry = TRIAGE[lastTriageKey];
+    if (entry) {
+      const isEn = en(lang);
+      const durationMatch = userMessage.match(
+        /(\d+)\s*(?:d[ií]as?|days?|horas?|hours?|semanas?|weeks?|meses?|months?)/i,
+      );
+      const recurrence =
+        /(?:primera vez|first time|ya me pas[oó]|happened before|varias veces|several times|siempre|always)/i.test(
+          userMessage,
+        );
+
+      if (durationMatch || recurrence) {
+        let followUp = isEn
+          ? `Thanks for telling me. Based on what you described — ${entry.doctorLabel} — here's my updated guidance:\n\n`
+          : `Gracias por contarme. En base a lo que me describís — ${entry.doctorLabel} — te actualizo la orientación:\n\n`;
+
+        if (durationMatch) {
+          const num = parseInt(durationMatch[1] ?? "1");
+          const isLong = num >= 3; // 3+ days/hours etc = prolonged
+          followUp += isEn
+            ? isLong
+              ? "Since it's been going on for a while, I'd recommend seeing a doctor soon rather than waiting it out."
+              : "It sounds recent — keep an eye on it and see a doctor if it doesn't improve in 24-48 hours."
+            : isLong
+              ? "Como ya lleva un tiempo, te recomiendo consultar con un médico pronto en vez de esperar."
+              : "Parece reciente — observalo y consultá con un médico si no mejora en 24-48 horas.";
+        }
+
+        if (recurrence) {
+          followUp += isEn
+            ? "\nSince this has happened before, it's worth discussing the pattern with a specialist."
+            : "\nComo ya te pasó antes, vale la pena conversar el patrón con un especialista.";
+        }
+
+        followUp += isEn
+          ? `\n\nWant me to help you find a ${entry.doctorType.split(" / ")[0]}?`
+          : `\n\n¿Querés que te ayude a encontrar un ${entry.doctorType.split(" / ")[0]}?`;
+
+        return {
+          text: followUp,
+          triageContext: lastTriageKey,
+          quickReplies: isEn
+            ? [
+                {
+                  label: `Book ${entry.doctorType.split(" / ")[0]}`,
+                  value: `I want an appointment with ${entry.doctorType.split(" / ")[0]}`,
+                },
+                { label: "Talk to a doctor now", value: "I want a telemedicine consultation now" },
+                { label: "Find nearby", value: "Find a doctor near me" },
+              ]
+            : [
+                {
+                  label: `Turno con ${entry.doctorType.split(" / ")[0]}`,
+                  value: `Quiero un turno con ${entry.doctorType.split(" / ")[0]}`,
+                },
+                { label: "Hablar con un médico ya", value: "Quiero una teleconsulta ahora" },
+                { label: "Buscar cerca mío", value: "Buscar médico cerca mío" },
+              ],
+        };
+      }
+    }
+  }
+
   // Check if it's a triage-mapped intent
   if (intent in TRIAGE && TRIAGE[intent]) {
     const triageResp = buildTriageResponse(TRIAGE[intent], lang);
+    // Tag with triageContext so next turn can continue the conversation
+    triageResp.triageContext = intent;
     // For emergencies, add nearest guardia with directions if we have coords
     if (TRIAGE[intent].severity === "emergencia" && coords) {
       const nearest = sortByDistance(hospitals, coords.lat, coords.lng)[0];
@@ -2446,8 +2565,13 @@ export function processMessage(
       return generateCoverageResponse(entities, lang);
     case "medication":
       return generateMedicationResponse(lang);
-    case "delivery":
-      return generateDeliveryResponse(coords, lang);
+    case "delivery": {
+      // Smart deep-links: pass OTC med names from triage context if available
+      const triageKey = lastTriageKey ?? undefined;
+      const otcMeds =
+        triageKey && TRIAGE[triageKey] ? TRIAGE[triageKey].otcMeds.map((m) => m.name) : undefined;
+      return generateDeliveryResponse(coords, lang, otcMeds);
+    }
     case "telemedicine":
       return generateTelemedicineResponse(lang);
     case "pricing":
