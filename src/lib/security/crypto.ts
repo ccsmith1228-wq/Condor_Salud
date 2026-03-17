@@ -4,7 +4,18 @@
  */
 import crypto from "crypto";
 
-const ENCRYPTION_KEY = process.env.SESSION_ENCRYPTION_KEY || crypto.randomBytes(32).toString("hex");
+const ENCRYPTION_KEY =
+  process.env.SESSION_ENCRYPTION_KEY ||
+  (() => {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "SESSION_ENCRYPTION_KEY is required in production. " +
+          "Generate one with: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"",
+      );
+    }
+    // Dev-only fallback — stable per process but NOT across restarts
+    return crypto.randomBytes(32).toString("hex");
+  })();
 const ALGORITHM = "aes-256-gcm";
 
 /** Encrypt a plaintext string → "iv:tag:ciphertext" (hex) */

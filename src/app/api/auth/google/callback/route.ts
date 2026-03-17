@@ -82,12 +82,12 @@ export async function GET(req: NextRequest) {
     const encryptedAccessToken = encrypt(tokens.access_token);
     const encryptedRefreshToken = tokens.refresh_token ? encrypt(tokens.refresh_token) : undefined;
 
-    // ── SH-03: Default role is "user", NOT "admin" ──
+    // ── SH-03: Default role is "medico" (valid RBAC role) ──
     const sessionData = {
       id: `google-${googleUser.sub}`,
       email: googleUser.email,
       name: googleUser.name,
-      role: "user" as const,
+      role: "medico" as const,
       clinicId: "pending",
       clinicName: "Sin asignar",
       avatarUrl: googleUser.picture,

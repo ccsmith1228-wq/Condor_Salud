@@ -16,6 +16,12 @@ vi.mock("@/lib/logger", () => ({
   },
 }));
 
+// Mock crypto — encrypt/decrypt are identity functions in tests
+vi.mock("@/lib/security/crypto", () => ({
+  encrypt: (text: string) => text,
+  decrypt: (text: string) => text,
+}));
+
 describe("requireAuth", () => {
   beforeEach(() => {
     vi.resetModules();

@@ -9,6 +9,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
+import { encrypt, decrypt } from "@/lib/security/crypto";
 
 const COOKIE_NAME = "condor_session";
 const MAX_AGE = 60 * 60 * 24 * 7; // 7 days
@@ -79,7 +80,7 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // ── Demo mode: read from httpOnly cookie ──
+  // ── Demo mode: read from encrypted httpOnly cookie ──
   const cookie = req.cookies.get(COOKIE_NAME)?.value;
 
   if (!cookie) {
@@ -87,7 +88,8 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const session = JSON.parse(cookie);
+    const decrypted = decrypt(cookie);
+    const session = JSON.parse(decrypted);
     return NextResponse.json({
       user: {
         id: session.id,
@@ -213,7 +215,7 @@ export async function POST(req: NextRequest) {
     };
 
     const response = NextResponse.json({ user, success: true });
-    response.cookies.set(COOKIE_NAME, JSON.stringify(user), cookieOptions());
+    response.cookies.set(COOKIE_NAME, encrypt(JSON.stringify(user)), cookieOptions());
 
     logger.info({ userId: user.id, action: action ?? "login" }, "Session created");
     return response;

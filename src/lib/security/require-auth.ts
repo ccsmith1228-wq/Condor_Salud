@@ -1,10 +1,10 @@
 // ─── API Auth Guard ──────────────────────────────────────────
 // Server-side authentication check for API routes.
-// Reads the httpOnly session cookie (or Supabase session when configured)
+// Reads the httpOnly session cookie (or Supabase / Google OAuth session)
 // and returns 401 if the request is not authenticated.
 //
 // Usage in any API route:
-//   const auth = requireAuth(req);
+//   const auth = await requireAuth(req);
 //   if (auth.error) return auth.error;
 //   // auth.user is now available
 //
@@ -15,6 +15,7 @@ import { jwtVerify } from "jose";
 import { logger } from "@/lib/logger";
 
 const SESSION_COOKIE = "condor_session";
+const GOOGLE_SESSION_COOKIE = "condor_google_session";
 
 interface AuthUser {
   id: string;
@@ -29,24 +30,61 @@ type AuthResult = { error: NextResponse; user?: never } | { error?: never; user:
 
 /**
  * Verify the caller is authenticated.
- * Checks the httpOnly session cookie (demo mode) or Supabase auth (production).
+ * Priority: 1) Demo session cookie  2) Google OAuth session  3) Supabase JWT
  */
 export async function requireAuth(req: NextRequest): Promise<AuthResult> {
-  // ── 1. Check httpOnly session cookie ──
+  // ── 1. Check encrypted httpOnly session cookie ──
   const cookie = req.cookies.get(SESSION_COOKIE)?.value;
   if (cookie) {
     try {
-      const session = JSON.parse(cookie) as AuthUser;
+      const { decrypt } = await import("@/lib/security/crypto");
+      const decrypted = decrypt(cookie);
+      const session = JSON.parse(decrypted) as AuthUser;
       if (session.id && session.email && session.role) {
         return { user: session };
       }
     } catch {
-      // Corrupt cookie — fall through to 401
+      // Corrupt / tampered cookie — fall through
     }
   }
 
-  // ── 2. Check Supabase session (when configured) ──
-  // Look for Supabase auth tokens in cookies (set by @supabase/ssr).
+  // ── 2. Check Google OAuth session cookie ──
+  const googleCookie = req.cookies.get(GOOGLE_SESSION_COOKIE)?.value;
+  if (googleCookie) {
+    try {
+      // The Google session cookie is encrypted with AES-256-GCM.
+      // Import dynamically to avoid circular deps.
+      const { decrypt } = await import("@/lib/security/crypto");
+      const decrypted = decrypt(googleCookie);
+      const googleSession = JSON.parse(decrypted) as {
+        id?: string;
+        email?: string;
+        name?: string;
+        role?: string;
+        clinicId?: string;
+        clinicName?: string;
+        access_token?: string;
+        refresh_token?: string;
+      };
+      if (googleSession.id && googleSession.email) {
+        return {
+          user: {
+            id: googleSession.id,
+            email: googleSession.email,
+            name: googleSession.name ?? "Google User",
+            role: googleSession.role ?? "medico",
+            clinicId: googleSession.clinicId ?? "pending",
+            clinicName: googleSession.clinicName ?? "Sin asignar",
+          },
+        };
+      }
+    } catch {
+      // Corrupt / expired encrypted cookie — fall through
+      logger.debug("Google OAuth session cookie decryption failed");
+    }
+  }
+
+  // ── 3. Check Supabase session (when configured) ──
   const supabaseAuth =
     req.cookies.get("sb-access-token")?.value ||
     req.cookies.getAll().find((c) => c.name.startsWith("sb-") && c.name.endsWith("-auth-token"))
@@ -78,10 +116,9 @@ export async function requireAuth(req: NextRequest): Promise<AuthResult> {
         logger.warn({ err, route: req.nextUrl.pathname }, "JWT verification failed");
         // Fall through to 401
       }
-    } else {
-      // No JWT secret configured — trust the Supabase cookie presence
-      // (middleware already validated the session server-side)
-      logger.debug("SUPABASE_JWT_SECRET not set — skipping JWT signature check");
+    } else if (process.env.NODE_ENV !== "production") {
+      // Dev-only: trust Supabase cookie presence when no JWT secret
+      logger.debug("SUPABASE_JWT_SECRET not set — skipping JWT check (dev only)");
       return {
         user: {
           id: "supabase-user",
@@ -92,10 +129,13 @@ export async function requireAuth(req: NextRequest): Promise<AuthResult> {
           clinicName: "Unknown Clinic",
         },
       };
+    } else {
+      // Production: require JWT verification — refuse to trust unsigned cookies
+      logger.warn("SUPABASE_JWT_SECRET not set in production — Supabase auth cannot be verified");
     }
   }
 
-  // ── 3. Not authenticated ──
+  // ── 4. Not authenticated ──
   logger.warn(
     { route: req.nextUrl.pathname, ip: req.headers.get("x-forwarded-for") },
     "Unauthenticated API access attempt",

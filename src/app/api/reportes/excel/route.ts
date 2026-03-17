@@ -22,11 +22,21 @@ import {
   getRechazosKPIs,
 } from "@/lib/services/data";
 import { logger } from "@/lib/security/api-guard";
+import { requireAuth } from "@/lib/security/require-auth";
+import { checkRateLimit } from "@/lib/security/api-guard";
 
 const REPORT_TYPES = ["facturacion", "rechazos", "nomenclador", "inventario", "pacientes"] as const;
 type ExcelType = (typeof REPORT_TYPES)[number];
 
 export async function POST(request: NextRequest) {
+  // Auth check — only authenticated users can generate reports
+  const auth = await requireAuth(request);
+  if (auth.error) return auth.error;
+
+  // Rate limit — 5 reports per minute per IP
+  const limited = checkRateLimit(request, "report-excel", { limit: 5, windowSec: 60 });
+  if (limited) return limited;
+
   try {
     const body = await request.json();
     const type = body.type as ExcelType;
