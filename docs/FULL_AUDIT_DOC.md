@@ -240,30 +240,30 @@ src/
 
 ### Provider Dashboard (22 routes)
 
-| Route                       | Module | Description                                                      |
-| --------------------------- | ------ | ---------------------------------------------------------------- |
-| `/dashboard`                | —      | Executive dashboard (KPIs, financiador table, agenda, audit)     |
-| `/dashboard/pacientes`      | Mod 1  | Patient registry (search, filter, CRUD)                          |
-| `/dashboard/agenda`         | Mod 2  | Appointment scheduling (week grid + list, Google Calendar sync)  |
-| `/dashboard/verificacion`   | Mod 3  | Insurance coverage verification by DNI/CUIL                      |
-| `/dashboard/inventario`     | Mod 4  | Medical supply inventory (stock, alerts, movements)              |
-| `/dashboard/facturacion`    | Mod 5  | Invoice management (filter, export PDF/Excel)                    |
-| `/dashboard/rechazos`       | Mod 6  | Claim rejection management (reprocesar, descartar)               |
-| `/dashboard/financiadores`  | Mod 7  | Insurance entity analytics (cobro %, payment days)               |
-| `/dashboard/inflacion`      | Mod 8  | Inflation impact tracker (IPC vs billing cycles)                 |
-| `/dashboard/pagos`          | Mod 9  | Redirects → `/dashboard/configuracion/pagos`                     |
-| `/dashboard/auditoria`      | Mod 10 | Pre-submission audit (code validation, duplicates)               |
-| `/dashboard/nomenclador`    | Mod 11 | Medical procedure code browser (SSS, PAMI, OSDE values)          |
-| `/dashboard/reportes`       | Mod 12 | Report generation center (10 report types, PDF/Excel)            |
-| `/dashboard/alertas`        | Mod 13 | Alert center (pagos, rechazos, aranceles, inventario)            |
-| `/dashboard/farmacia`       | Mod 14 | Online pharmacy (catalog, prescriptions, delivery, copago)       |
-| `/dashboard/telemedicina`   | Mod 15 | Telemedicine (waiting room, video, auto-billing, prescriptions)  |
-| `/dashboard/directorio`     | Mod 16 | Medical directory (search, availability, TopDoctors integration) |
-| `/dashboard/triage`         | Mod 17 | AI triage system (symptoms, routing, clinical notes)             |
-| `/dashboard/interconsultas` | Mod 18 | Physician referral network (interconsultas, study requests)      |
-| `/dashboard/nubix`          | Mod 19 | RIS/PACS imaging (studies, DICOM viewer, reports)                |
-| `/dashboard/wizard`         | —      | Interactive onboarding tour                                      |
-| `/dashboard/configuracion`  | —      | Settings hub (10 sub-pages)                                      |
+| Route                       | Module | Description                                                           |
+| --------------------------- | ------ | --------------------------------------------------------------------- |
+| `/dashboard`                | —      | Executive dashboard (KPIs, financiador table, agenda, audit)          |
+| `/dashboard/pacientes`      | Mod 1  | Patient registry (search, filter, CRUD)                               |
+| `/dashboard/agenda`         | Mod 2  | Appointment scheduling (week grid + list, Google Calendar sync)       |
+| `/dashboard/verificacion`   | Mod 3  | Coverage verification by DNI via API (Supabase + static fallback)     |
+| `/dashboard/inventario`     | Mod 4  | Medical supply inventory (stock, alerts, movements, Excel export)     |
+| `/dashboard/facturacion`    | Mod 5  | Invoice management (filter, export PDF/Excel)                         |
+| `/dashboard/rechazos`       | Mod 6  | Claim rejection management (reprocesar, descartar)                    |
+| `/dashboard/financiadores`  | Mod 7  | Insurance entity analytics (cobro %, payment days, PDF/Excel export)  |
+| `/dashboard/inflacion`      | Mod 8  | Inflation impact tracker (IPC vs billing cycles, PDF/Excel export)    |
+| `/dashboard/pagos`          | Mod 9  | Redirects → `/dashboard/configuracion/pagos`                          |
+| `/dashboard/auditoria`      | Mod 10 | Pre-submission audit (code validation, duplicates)                    |
+| `/dashboard/nomenclador`    | Mod 11 | Medical procedure code browser (SSS, PAMI, OSDE values, Excel export) |
+| `/dashboard/reportes`       | Mod 12 | Report generation center (10 report types, PDF/Excel)                 |
+| `/dashboard/alertas`        | Mod 13 | Alert center with SWR live data, mark-read/dismiss via API            |
+| `/dashboard/farmacia`       | Mod 14 | Online pharmacy (catalog, prescriptions, delivery, copago)            |
+| `/dashboard/telemedicina`   | Mod 15 | Telemedicine (waiting room, video, auto-billing, prescriptions)       |
+| `/dashboard/directorio`     | Mod 16 | Medical directory (search, availability, TopDoctors integration)      |
+| `/dashboard/triage`         | Mod 17 | AI triage system (symptoms, routing, clinical notes)                  |
+| `/dashboard/interconsultas` | Mod 18 | Physician referral network (interconsultas, study requests)           |
+| `/dashboard/nubix`          | Mod 19 | RIS/PACS imaging (studies, DICOM viewer, reports)                     |
+| `/dashboard/wizard`         | —      | Interactive onboarding tour                                           |
+| `/dashboard/configuracion`  | —      | Settings hub (10 sub-pages)                                           |
 
 ### Configuration Sub-Pages
 
@@ -332,8 +332,16 @@ src/
 
 | Endpoint                   | Methods | Auth | Rate Limit | Description                                                                |
 | -------------------------- | ------- | ---- | ---------- | -------------------------------------------------------------------------- |
-| `POST /api/reportes/pdf`   | POST    | ✅   | 5/60s      | Generate PDF (facturación, rechazos, KPI dashboard)                        |
-| `POST /api/reportes/excel` | POST    | ✅   | 5/60s      | Generate Excel (facturación, rechazos, nomenclador, inventario, pacientes) |
+| `POST /api/reportes/pdf`   | POST    | ✅   | 5/60s      | Generate PDF (facturacion, rechazos, KPI dashboard)                        |
+| `POST /api/reportes/excel` | POST    | ✅   | 5/60s      | Generate Excel (facturacion, rechazos, nomenclador, inventario, pacientes) |
+
+### Alertas & Verificacion APIs
+
+| Endpoint                | Methods | Auth | Rate Limit | Description                                                   |
+| ----------------------- | ------- | ---- | ---------- | ------------------------------------------------------------- |
+| `GET /api/alertas`      | GET     | ✅   | 30/60s     | Fetch clinic alerts (Supabase + demo fallback)                |
+| `PATCH /api/alertas`    | PATCH   | ✅   | 15/60s     | Mark-read, mark-all-read, or dismiss alerts                   |
+| `GET /api/verificacion` | GET     | ✅   | 20/60s     | Coverage lookup by DNI (Supabase pacientes + static fallback) |
 
 ### Google Integration APIs
 

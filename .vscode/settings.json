@@ -7,18 +7,29 @@
   "less.validate": false,
   "scss.validate": false,
 
-  // Treat .css as Tailwind so IntelliSense works correctly
+  // File associations — Tailwind for CSS, PostgreSQL for Supabase migrations
   "files.associations": {
-    "*.css": "tailwindcss"
+    "*.css": "tailwindcss",
+    "**/supabase/migrations/*.sql": "postgres",
+    "**/supabase/*.sql": "postgres"
   },
 
-  // PostgreSQL migrations — disable MSSQL diagnostics for .sql files
+  // PostgreSQL migrations — fully disable MSSQL extension for .sql files
   "mssql.intelliSense.enableIntelliSense": false,
+  "mssql.intelliSense.enableSuggestions": false,
+  "mssql.enableQueryHistoryCapture": false,
+
+  // Disable MSSQL language service diagnostics on SQL files
   "[sql]": {
-    "editor.defaultFormatter": null
+    "editor.defaultFormatter": null,
+    "editor.quickSuggestions": {
+      "other": false,
+      "comments": false,
+      "strings": false
+    }
   },
 
-  // Exclude supabase SQL from MSSQL linting
+  // Exclude supabase temp files
   "files.exclude": {
     "supabase/.temp": true
   },
