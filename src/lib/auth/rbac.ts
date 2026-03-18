@@ -24,6 +24,14 @@ export const ROUTE_PERMISSIONS: Record<string, Permission> = {
   "/dashboard/alertas": "pacientes:read",
   "/dashboard/verificacion": "pacientes:read",
   "/dashboard/configuracion": "configuracion:read",
+  "/dashboard/telemedicina": "pacientes:read",
+  "/dashboard/farmacia": "inventario:read",
+  "/dashboard/pagos": "facturacion:read",
+  "/dashboard/nubix": "pacientes:read",
+  "/dashboard/directorio": "pacientes:read",
+  "/dashboard/triage": "pacientes:read",
+  "/dashboard/wizard": "configuracion:read",
+  "/dashboard/interconsultas": "pacientes:read",
 };
 
 // ─── Check if a role can access a route ──────────────────────

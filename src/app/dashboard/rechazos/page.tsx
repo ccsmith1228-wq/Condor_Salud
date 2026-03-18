@@ -60,7 +60,7 @@ export default function RechazosPage() {
       <PageHeader
         title="Gestión de Rechazos"
         description="Auditoría y reprocesamiento de facturas rechazadas"
-        breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Rechazos" }]}
+        breadcrumbs={[{ label: "Panel", href: "/dashboard" }, { label: "Rechazos" }]}
         actions={
           <div className="flex gap-2">
             <button

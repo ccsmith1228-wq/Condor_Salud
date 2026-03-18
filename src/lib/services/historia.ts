@@ -301,7 +301,7 @@ function getDemoHistoria(filter?: HistoriaFilter): HistoriaEvent[] {
       title: "Análisis de orina",
       description: "Sin particularidades.",
       doctor: "Dra. Laura Méndez",
-      date: "2024-12-10",
+      date: "2026-02-10",
       details: ["pH: 6.0", "Proteínas: negativo", "Glucosa: negativo", "Sedimento: normal"],
     },
   ];

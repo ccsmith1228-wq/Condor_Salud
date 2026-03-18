@@ -150,8 +150,8 @@ const translations: Dict = {
     en: "The entire system works in Spanish and English. Cora is available 24/7 in both.",
   },
   "pstats.source": {
-    es: "Red Cóndor Salud · Datos actualizados a 2025",
-    en: "Cóndor Salud network · Data updated to 2025",
+    es: "Red Cóndor Salud · Datos actualizados a 2026",
+    en: "Cóndor Salud network · Data updated to 2026",
   },
 
   // ── Problem ─────────────────────────────────────────────────

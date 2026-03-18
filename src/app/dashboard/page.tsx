@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth/context";
 import { usePlanSafe } from "@/lib/plan-context";
 import { PRESETS, formatARS } from "@/lib/plan-config";
+import { whatsappUrl } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import { StatusBadge } from "@/components/ui";
 import {
@@ -243,7 +244,7 @@ export default function DashboardPage() {
                 Iniciar recorrido
               </Link>
               <a
-                href="https://wa.me/5491155140371?text=Hola%2C%20quiero%20agendar%20una%20demo%20en%20vivo%20de%20C%C3%B3ndor%20Salud."
+                href={whatsappUrl("Hola, quiero agendar una demo en vivo de Cóndor Salud.")}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-5 py-2.5 text-xs font-medium border border-celeste-200 text-celeste-dark rounded-lg hover:bg-celeste-50 transition flex items-center gap-1.5"

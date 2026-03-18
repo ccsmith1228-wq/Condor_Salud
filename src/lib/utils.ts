@@ -115,3 +115,11 @@ export function delay(ms: number): Promise<void> {
 export function generateId(): string {
   return crypto.randomUUID().replace(/-/g, "").substring(0, 11);
 }
+
+// ─── WhatsApp contact ────────────────────────────────────────
+export const WHATSAPP_NUMBER = "5491155140371";
+
+/** Build a wa.me deep-link with an optional pre-filled message */
+export function whatsappUrl(message: string): string {
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+}

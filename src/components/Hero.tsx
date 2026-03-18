@@ -119,7 +119,7 @@ export default function Hero() {
 
         {/* Dashboard preview — segment-aware */}
         <div className="relative max-w-[800px] mx-auto mb-10">
-          <div className="bg-gradient-to-b from-celeste-pale to-white border border-border rounded-xl overflow-hidden shadow-lg">
+          <div className="bg-celeste-pale border border-border rounded-xl overflow-hidden shadow-lg">
             {/* Browser chrome */}
             <div className="bg-white/80 backdrop-blur border-b border-border px-5 py-3 flex items-center gap-3">
               <div className="flex gap-1.5">

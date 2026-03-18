@@ -90,6 +90,7 @@ export default function NomencladorPage() {
             <input
               type="text"
               placeholder="Buscar por código o descripción..."
+              aria-label="Buscar por código o descripción"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-80 px-4 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark transition"

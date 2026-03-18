@@ -189,6 +189,7 @@ export default function HistoriaClinicaPage() {
           <input
             type="text"
             placeholder="Buscar en historia..."
+            aria-label="Buscar en historia clínica"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9 pr-4 py-1.5 border border-border rounded-[4px] text-sm focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark w-48"

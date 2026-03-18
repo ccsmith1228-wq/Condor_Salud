@@ -16,7 +16,7 @@ interface Integracion {
 const integraciones: Integracion[] = [
   {
     id: "INT-01",
-    nombre: "PAMI -- Webservice",
+    nombre: "PAMI · Webservice",
     tipo: "Obra Social",
     estado: "Conectado",
     ultimaSync: "07/03/2026 16:00",
@@ -26,7 +26,7 @@ const integraciones: Integracion[] = [
   },
   {
     id: "INT-02",
-    nombre: "AFIP -- Factura Electronica",
+    nombre: "AFIP · Factura Electrónica",
     tipo: "Fiscal",
     estado: "Conectado",
     ultimaSync: "07/03/2026 14:30",
@@ -36,7 +36,7 @@ const integraciones: Integracion[] = [
   },
   {
     id: "INT-03",
-    nombre: "Swiss Medical -- API",
+    nombre: "Swiss Medical · API",
     tipo: "Obra Social",
     estado: "Conectado",
     ultimaSync: "06/03/2026 22:00",
@@ -46,7 +46,7 @@ const integraciones: Integracion[] = [
   },
   {
     id: "INT-04",
-    nombre: "OSDE -- Portal Prestadores",
+    nombre: "OSDE · Portal Prestadores",
     tipo: "Obra Social",
     estado: "Conectado",
     ultimaSync: "06/03/2026 23:00",
@@ -55,7 +55,7 @@ const integraciones: Integracion[] = [
   },
   {
     id: "INT-05",
-    nombre: "Galeno -- Webservice",
+    nombre: "Galeno · Webservice",
     tipo: "Obra Social",
     estado: "Error",
     ultimaSync: "04/03/2026 10:15",
@@ -65,7 +65,7 @@ const integraciones: Integracion[] = [
   },
   {
     id: "INT-06",
-    nombre: "WhatsApp Business -- Turnos",
+    nombre: "WhatsApp Business · Turnos",
     tipo: "Comunicacion",
     estado: "Conectado",
     ultimaSync: "07/03/2026 17:00",
@@ -75,19 +75,19 @@ const integraciones: Integracion[] = [
   },
   {
     id: "INT-07",
-    nombre: "IOMA -- Portal Web",
+    nombre: "IOMA · Portal Web",
     tipo: "Obra Social",
     estado: "Desconectado",
-    ultimaSync: "--",
+    ultimaSync: "—",
     descripcion: "Integracion pendiente de configuracion. Actualmente se gestiona manualmente.",
     icon: "ioma",
   },
   {
     id: "INT-08",
-    nombre: "Medife -- API Prestadores",
+    nombre: "Medife · API Prestadores",
     tipo: "Obra Social",
     estado: "Pendiente",
-    ultimaSync: "--",
+    ultimaSync: "—",
     descripcion: "En proceso de habilitacion. Esperando credenciales de produccion.",
     icon: "medife",
   },

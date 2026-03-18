@@ -87,6 +87,7 @@ export default function FinanciadoresPage() {
               <input
                 type="text"
                 placeholder="Buscar financiador..."
+                aria-label="Buscar financiador"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-9 pr-3 py-1.5 text-xs border border-border rounded-[4px] outline-none focus:border-celeste-dark transition bg-white text-ink w-52"

@@ -11,6 +11,20 @@ import React from "react";
 import { Document, Page, Text, View, StyleSheet, renderToStream, Font } from "@react-pdf/renderer";
 import type { Factura, Rechazo, KPI } from "@/lib/types";
 
+// ─── Register Brand Font (DM Sans) ──────────────────────────
+Font.register({
+  family: "DM Sans",
+  fonts: [
+    {
+      src: "https://fonts.gstatic.com/s/dmsans/v15/rP2Yp2ywxg089UriI5-g4vlH9VoD8CmcqZG40F9JadbnoEwAkpFhRQ.ttf",
+    },
+    {
+      src: "https://fonts.gstatic.com/s/dmsans/v15/rP2Yp2ywxg089UriI5-g4vlH9VoD8CmcqZG40F9JadbnoEwAop5hRQ.ttf",
+      fontWeight: "bold",
+    },
+  ],
+});
+
 // ─── Brand Colors ────────────────────────────────────────────
 const COLORS = {
   celeste: "#75AADB",
@@ -30,7 +44,7 @@ const styles = StyleSheet.create({
   page: {
     padding: 40,
     fontSize: 10,
-    fontFamily: "Helvetica",
+    fontFamily: "DM Sans",
     color: COLORS.ink,
   },
   // Header
@@ -44,7 +58,8 @@ const styles = StyleSheet.create({
   },
   brandName: {
     fontSize: 20,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "DM Sans",
+    fontWeight: "bold",
     color: COLORS.celesteDark,
     letterSpacing: 0.5,
   },
@@ -62,7 +77,8 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 14,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "DM Sans",
+    fontWeight: "bold",
     color: COLORS.ink,
     marginTop: 2,
   },
@@ -84,7 +100,8 @@ const styles = StyleSheet.create({
   },
   metaValue: {
     fontSize: 11,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "DM Sans",
+    fontWeight: "bold",
     color: COLORS.ink,
   },
   // Tables
@@ -99,7 +116,8 @@ const styles = StyleSheet.create({
   },
   tableHeaderCell: {
     fontSize: 8,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "DM Sans",
+    fontWeight: "bold",
     color: COLORS.white,
     textTransform: "uppercase",
     letterSpacing: 0.5,
@@ -125,7 +143,8 @@ const styles = StyleSheet.create({
   },
   tableCellBold: {
     fontSize: 9,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "DM Sans",
+    fontWeight: "bold",
     color: COLORS.ink,
   },
   // KPI cards
@@ -151,7 +170,8 @@ const styles = StyleSheet.create({
   },
   kpiValue: {
     fontSize: 18,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "DM Sans",
+    fontWeight: "bold",
     color: COLORS.ink,
   },
   kpiChange: {
@@ -168,7 +188,8 @@ const styles = StyleSheet.create({
   },
   summaryTitle: {
     fontSize: 11,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "DM Sans",
+    fontWeight: "bold",
     color: COLORS.ink,
     marginBottom: 8,
   },
@@ -195,7 +216,8 @@ const styles = StyleSheet.create({
   // Section title
   sectionTitle: {
     fontSize: 12,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "DM Sans",
+    fontWeight: "bold",
     color: COLORS.ink,
     marginBottom: 10,
     marginTop: 8,
@@ -205,7 +227,8 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: 3,
     fontSize: 8,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "DM Sans",
+    fontWeight: "bold",
   },
 });
 

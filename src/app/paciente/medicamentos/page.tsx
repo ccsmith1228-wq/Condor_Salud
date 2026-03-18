@@ -95,7 +95,7 @@ const medications: Medication[] = [
     dose: "1 cápsula",
     frequency: "Cada 24 horas - Antes del desayuno",
     prescribedBy: "Dra. Laura Méndez",
-    startDate: "01/11/2024",
+    startDate: "01/01/2026",
     remaining: 0,
     refillable: false,
     coverage: "70%",
@@ -234,6 +234,7 @@ export default function MedicamentosPage() {
             <input
               type="text"
               placeholder="Buscar medicamento..."
+              aria-label="Buscar medicamento"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-9 pr-4 py-2 border border-border-light rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark w-64"

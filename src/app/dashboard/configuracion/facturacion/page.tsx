@@ -197,14 +197,14 @@ export default function FacturacionConfigPage() {
                 estado: "Pagado",
               },
               {
-                fecha: "01/12/2025",
-                concepto: "Plan Pro — Diciembre 2025",
+                fecha: "01/02/2026",
+                concepto: "Plan Pro — Febrero 2026",
                 monto: "$62.000",
                 estado: "Pagado",
               },
               {
-                fecha: "01/11/2025",
-                concepto: "Plan Pro — Noviembre 2025",
+                fecha: "01/01/2026",
+                concepto: "Plan Pro — Enero 2026",
                 monto: "$62.000",
                 estado: "Pagado",
               },

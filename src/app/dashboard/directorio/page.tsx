@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useDemoAction } from "@/components/DemoModal";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Star, StarHalf } from "lucide-react";
 import { useDoctors, useDirectorioKPIs } from "@/lib/hooks/useModules";
 import type { Doctor } from "@/lib/types";
 import {
@@ -73,11 +73,16 @@ export default function DirectorioPage() {
   const renderStars = (rating: number) => {
     const full = Math.floor(rating);
     const half = rating % 1 >= 0.5;
+    const empty = 5 - full - (half ? 1 : 0);
     return (
-      <span className="text-gold text-xs">
-        {"★".repeat(full)}
-        {half ? "½" : ""}
-        {"☆".repeat(5 - full - (half ? 1 : 0))}
+      <span className="inline-flex items-center gap-0.5 text-gold">
+        {Array.from({ length: full }, (_, i) => (
+          <Star key={`f${i}`} className="w-3 h-3 fill-current" />
+        ))}
+        {half && <StarHalf key="h" className="w-3 h-3 fill-current" />}
+        {Array.from({ length: empty }, (_, i) => (
+          <Star key={`e${i}`} className="w-3 h-3 text-border" />
+        ))}
       </span>
     );
   };
@@ -192,6 +197,7 @@ export default function DirectorioPage() {
             <input
               type="text"
               placeholder="Buscar médico o especialidad..."
+              aria-label="Buscar médico o especialidad"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="px-4 py-2.5 border border-border rounded text-sm focus:outline-none focus:border-celeste-dark"

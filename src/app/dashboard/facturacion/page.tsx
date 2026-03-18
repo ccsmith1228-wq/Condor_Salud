@@ -100,7 +100,7 @@ export default function FacturacionPage() {
       <PageHeader
         title="Facturación"
         description="Gestión de facturas por financiador"
-        breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Facturación" }]}
+        breadcrumbs={[{ label: "Panel", href: "/dashboard" }, { label: "Facturación" }]}
         actions={
           <div className="flex gap-2">
             <button

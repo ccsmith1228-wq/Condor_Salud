@@ -290,6 +290,7 @@ export default function InterconsultasPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Buscar por nombre, especialidad o institución..."
+                aria-label="Buscar por nombre, especialidad o institución"
                 className="w-full pl-10 pr-4 py-2.5 border border-border rounded-xl text-sm
                            focus:outline-none focus:ring-2 focus:ring-celeste/30 focus:border-celeste"
               />

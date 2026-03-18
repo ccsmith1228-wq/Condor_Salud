@@ -531,7 +531,7 @@ const FINANCIADORES: Financiador[] = [
 // ─── Inflación ───────────────────────────────────────────────
 const INFLACION: InflacionMes[] = [
   {
-    mes: "Oct 2025",
+    mes: "Ene 2026",
     ipc: 3.5,
     facturado: 8200000,
     cobrado: 6890000,
@@ -540,7 +540,7 @@ const INFLACION: InflacionMes[] = [
     perdidaPorcentaje: 3.5,
   },
   {
-    mes: "Nov 2025",
+    mes: "Feb 2026",
     ipc: 3.2,
     facturado: 8450000,
     cobrado: 7100000,
@@ -549,7 +549,7 @@ const INFLACION: InflacionMes[] = [
     perdidaPorcentaje: 3.2,
   },
   {
-    mes: "Dic 2025",
+    mes: "Mar 2026",
     ipc: 4.1,
     facturado: 9100000,
     cobrado: 7500000,

@@ -71,7 +71,7 @@ const historial = [
     estado: "Cobrada",
   },
   {
-    fecha: "20/12/2025",
+    fecha: "20/02/2026",
     tipo: "Laboratorio",
     profesional: "Dra. Pérez",
     descripcion: "Perfil tiroideo completo.",
@@ -109,7 +109,7 @@ const facturacion = [
   { periodo: "Mar 2026", facturas: 1, total: "$18.500", cobrado: "$0", pendiente: "$18.500" },
   { periodo: "Feb 2026", facturas: 3, total: "$52.200", cobrado: "$33.700", pendiente: "$18.500" },
   { periodo: "Ene 2026", facturas: 2, total: "$36.400", cobrado: "$36.400", pendiente: "$0" },
-  { periodo: "Dic 2025", facturas: 1, total: "$15.800", cobrado: "$15.800", pendiente: "$0" },
+  { periodo: "Feb 2026", facturas: 1, total: "$15.800", cobrado: "$15.800", pendiente: "$0" },
 ];
 
 export default function PacienteDetailPage() {

@@ -115,7 +115,7 @@ const alertas: Alerta[] = [
     id: "ALR-009",
     titulo: "Demora en pago — Galeno",
     descripcion:
-      "El pago de Galeno correspondiente a diciembre 2025 supera los 90 días. Monto pendiente: $342.600.",
+      "El pago de Galeno correspondiente a enero 2026 supera los 90 días. Monto pendiente: $342.600.",
     categoria: "Pagos",
     prioridad: "Urgente",
     fecha: "03/03/2026 09:00",

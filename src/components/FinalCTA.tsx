@@ -18,7 +18,7 @@ export default function FinalCTA() {
   }));
 
   return (
-    <section className="px-6 py-20 bg-gradient-to-b from-celeste-pale/40 to-white border-t border-border">
+    <section className="px-6 py-20 bg-celeste-pale/40 border-t border-border">
       <div className="max-w-[800px] mx-auto text-center">
         <p className="text-[11px] font-bold tracking-[2px] text-celeste uppercase mb-3">
           {t("cta.label")}

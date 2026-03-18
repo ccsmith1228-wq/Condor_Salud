@@ -67,7 +67,7 @@ export async function middleware(request: NextRequest) {
         if (role) {
           const { canAccessRoute } = await import("@/lib/auth/rbac");
           const validRoles = ["admin", "medico", "facturacion", "recepcion"];
-          const userRole = validRoles.includes(role) ? role : "admin";
+          const userRole = validRoles.includes(role) ? role : "recepcion";
           if (
             !canAccessRoute(userRole as "admin" | "medico" | "facturacion" | "recepcion", pathname)
           ) {

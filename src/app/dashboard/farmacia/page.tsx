@@ -143,6 +143,7 @@ export default function FarmaciaPage() {
             <input
               type="text"
               placeholder="Buscar medicamento o laboratorio..."
+              aria-label="Buscar medicamento o laboratorio"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="flex-1 px-4 py-2.5 border border-border rounded text-sm focus:outline-none focus:border-celeste-dark"

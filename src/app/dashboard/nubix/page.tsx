@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Check } from "lucide-react";
 import { useDemoAction } from "@/components/DemoModal";
 import {
   useNubixStudies,
@@ -214,6 +215,7 @@ export default function NubixPage() {
             <input
               type="text"
               placeholder="Buscar por paciente, accesión o descripción..."
+              aria-label="Buscar por paciente, accesión o descripción"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="flex-1 px-4 py-2.5 border border-border rounded text-sm focus:outline-none focus:border-celeste-dark"
@@ -304,7 +306,9 @@ export default function NubixPage() {
                         </td>
                         <td className="px-4 py-3">
                           {study.reportStatus === "signed" ? (
-                            <span className="text-xs text-green-600 font-medium">✓ Firmado</span>
+                            <span className="inline-flex items-center gap-1 text-xs text-green-600 font-medium">
+                              <Check className="w-3 h-3" /> Firmado
+                            </span>
                           ) : study.reportStatus === "draft" ? (
                             <span className="text-xs text-yellow-600 font-medium">Borrador</span>
                           ) : (

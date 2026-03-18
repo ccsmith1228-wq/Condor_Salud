@@ -62,7 +62,7 @@ const navIcons: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 const navSections = [
-  { title: null, items: [{ label: "Dashboard", href: "/dashboard" }] },
+  { title: null, items: [{ label: "Panel", href: "/dashboard" }] },
   {
     title: "GESTION CLINICA",
     items: [

@@ -263,6 +263,7 @@ export default function MedicosPage() {
           <input
             type="text"
             placeholder="Buscar por nombre o especialidad..."
+            aria-label="Buscar por nombre o especialidad"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-9 pr-4 py-2.5 border border-border-light rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark"

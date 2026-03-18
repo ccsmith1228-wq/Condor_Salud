@@ -178,6 +178,7 @@ export default function InventarioPage() {
             <input
               type="text"
               placeholder="Buscar por nombre o código..."
+              aria-label="Buscar por nombre o código"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-64 px-4 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark transition"

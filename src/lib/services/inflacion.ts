@@ -32,7 +32,7 @@ export interface InflacionStats {
 
 const DEMO_MESES: InflacionMes[] = [
   {
-    mes: "Oct 2025",
+    mes: "Ene 2026",
     ipc: 3.5,
     facturado: 3200000,
     cobrado: 2350000,
@@ -41,7 +41,7 @@ const DEMO_MESES: InflacionMes[] = [
     perdidaPorcentaje: 8.4,
   },
   {
-    mes: "Nov 2025",
+    mes: "Feb 2026",
     ipc: 3.2,
     facturado: 3450000,
     cobrado: 2580000,
@@ -50,7 +50,7 @@ const DEMO_MESES: InflacionMes[] = [
     perdidaPorcentaje: 7.2,
   },
   {
-    mes: "Dic 2025",
+    mes: "Mar 2026",
     ipc: 3.8,
     facturado: 3600000,
     cobrado: 2720000,

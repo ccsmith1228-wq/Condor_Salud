@@ -224,7 +224,7 @@ export default function PacientesPage() {
       <PageHeader
         title="Pacientes"
         description={`${pacientes.length} pacientes registrados`}
-        breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Pacientes" }]}
+        breadcrumbs={[{ label: "Panel", href: "/dashboard" }, { label: "Pacientes" }]}
         actions={<Button onClick={() => showDemo("Nuevo paciente")}>+ Nuevo paciente</Button>}
       />
 
