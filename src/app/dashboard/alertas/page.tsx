@@ -202,7 +202,7 @@ export default function AlertasPage() {
                     </span>
                     {TIPO_TO_URL[a.tipo] && (
                       <Link
-                        href={TIPO_TO_URL[a.tipo]}
+                        href={TIPO_TO_URL[a.tipo] as string}
                         className="text-[10px] text-celeste-dark font-semibold hover:underline"
                       >
                         {TIPO_TO_LABEL[a.tipo]}
