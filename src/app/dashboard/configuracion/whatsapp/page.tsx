@@ -293,9 +293,9 @@ export default function WhatsAppConfigPage() {
 
       setDirty(false);
       refresh();
-      showToast("Configuracion guardada", "success");
+      showToast("Configuracion guardada");
     } catch {
-      showToast("Error al guardar", "error");
+      showToast("Error al guardar");
     }
   };
 

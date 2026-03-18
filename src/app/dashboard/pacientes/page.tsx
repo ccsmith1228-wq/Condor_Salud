@@ -905,10 +905,10 @@ function LeadDetailPanel({
   const handleStatusChange = async (newEstado: LeadEstado) => {
     try {
       await updateLead({ estado: newEstado });
-      showToast(`Movido a "${newEstado}"`, "success");
+      showToast(`Movido a "${newEstado}"`);
       refreshLeads();
     } catch {
-      showToast("Error al actualizar", "error");
+      showToast("Error al actualizar");
     }
   };
 
