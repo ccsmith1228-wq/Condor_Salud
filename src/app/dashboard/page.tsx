@@ -265,7 +265,7 @@ export default function DashboardPage() {
       {/* Page title */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-ink">Dashboard</h1>
+          <h1 className="text-2xl font-bold text-ink">Panel principal</h1>
           <p className="text-sm text-ink-muted mt-0.5">
             Vista ejecutiva · {user?.clinicName || "Centro Médico San Martín"}
           </p>

@@ -32,13 +32,13 @@ export default function manifest(): MetadataRoute.Manifest {
         src: "/screenshots/mobile.png",
         sizes: "750x1334",
         type: "image/png",
-        label: "Vista mobile del dashboard",
+        label: "Vista mobile del panel",
       },
     ] as any,
     shortcuts: [
       {
-        name: "Dashboard",
-        short_name: "Dashboard",
+        name: "Panel",
+        short_name: "Panel",
         url: "/dashboard",
         icons: [{ src: "/icon-192.png", sizes: "192x192" }],
       },
