@@ -1,11 +1,12 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { useDemoAction } from "@/components/DemoModal";
+import { useToast } from "@/components/Toast";
+import { useWhatsAppConfig, useSaveWhatsAppConfig } from "@/lib/hooks/useCRM";
+import type { WhatsAppTemplate } from "@/lib/types";
 
 /* ---------- Types ---------- */
-interface ReminderConfig {
-  enabled: boolean;
+interface ReminderSettings {
   hoursBeforeFirst: number;
   hoursBeforeSecond: number;
   confirmationReply: boolean;
@@ -16,122 +17,114 @@ interface ReminderConfig {
   includePreparation: boolean;
 }
 
-interface MessageTemplate {
-  id: string;
+interface PageTemplate {
   name: string;
   trigger: string;
-  template: string;
+  body_template: string;
   active: boolean;
 }
 
-/* ---------- Data ---------- */
-const CLINIC_ADDRESS = "Av. San Martín 1520, Piso 2°, CABA";
-const CLINIC_PHONE = "(011) 4523-8800";
-const CLINIC_NAME = "Centro Médico San Martín";
-const GMAPS_LINK = "https://maps.google.com/?q=Av+San+Martin+1520+CABA+Argentina";
+/* ---------- Defaults (shown in demo + pre-filled for new users) ---------- */
+const DEFAULT_CLINIC_ADDRESS = "Av. San Martin 1520, Piso 2, CABA";
+const DEFAULT_CLINIC_PHONE = "(011) 4523-8800";
+const DEFAULT_CLINIC_NAME = "Centro Medico San Martin";
+const DEFAULT_GMAPS = "https://maps.google.com/?q=Av+San+Martin+1520+CABA+Argentina";
 
-const defaultTemplates: MessageTemplate[] = [
+const DEFAULT_REMINDER_SETTINGS: ReminderSettings = {
+  hoursBeforeFirst: 24,
+  hoursBeforeSecond: 2,
+  confirmationReply: true,
+  cancellationReply: true,
+  rescheduleReply: true,
+  includeGoogleMaps: true,
+  includeClinicPhone: true,
+  includePreparation: false,
+};
+
+const DEFAULT_TEMPLATES: PageTemplate[] = [
   {
-    id: "reminder-24h",
-    name: "Recordatorio 24 horas",
+    name: "reminder-24h",
     trigger: "24 horas antes del turno",
-    template:
-      `Hola {{paciente_nombre}}, te recordamos tu turno en *${CLINIC_NAME}*:\n\n` +
-      `Fecha: *{{turno_fecha}}*\n` +
-      `Hora: *{{turno_hora}}*\n` +
-      `Profesional: *{{profesional_nombre}}*\n` +
-      `Tipo: {{turno_tipo}}\n\n` +
-      `Cómo llegar: ${GMAPS_LINK}\n\n` +
-      `Respondé:\n` +
-      `*1* - Confirmar turno\n` +
-      `*2* - Cancelar turno\n` +
-      `*3* - Reprogramar`,
+    body_template:
+      `Hola {{paciente_nombre}}, te recordamos tu turno en *${DEFAULT_CLINIC_NAME}*:\n\n` +
+      `Fecha: *{{turno_fecha}}*\nHora: *{{turno_hora}}*\n` +
+      `Profesional: *{{profesional_nombre}}*\nTipo: {{turno_tipo}}\n\n` +
+      `Como llegar: ${DEFAULT_GMAPS}\n\n` +
+      `Responde:\n*1* - Confirmar turno\n*2* - Cancelar turno\n*3* - Reprogramar`,
     active: true,
   },
   {
-    id: "reminder-2h",
-    name: "Recordatorio 2 horas",
+    name: "reminder-2h",
     trigger: "2 horas antes del turno",
-    template:
+    body_template:
       `Hola {{paciente_nombre}}, tu turno es *hoy a las {{turno_hora}}* con {{profesional_nombre}}.\n\n` +
-      `Dirección: ${CLINIC_ADDRESS}\n` +
-      `Abrir en Google Maps: ${GMAPS_LINK}\n\n` +
-      `Te esperamos!`,
+      `Direccion: ${DEFAULT_CLINIC_ADDRESS}\nAbrir en Google Maps: ${DEFAULT_GMAPS}\n\nTe esperamos!`,
     active: true,
   },
   {
-    id: "confirmation",
-    name: "Confirmación de turno",
+    name: "confirmation",
     trigger: "Al agendar un turno nuevo",
-    template:
+    body_template:
       `Hola {{paciente_nombre}}, tu turno fue agendado:\n\n` +
-      `Fecha: *{{turno_fecha}}*\n` +
-      `Hora: *{{turno_hora}}*\n` +
-      `Profesional: *{{profesional_nombre}}*\n` +
-      `Tipo: {{turno_tipo}}\n` +
+      `Fecha: *{{turno_fecha}}*\nHora: *{{turno_hora}}*\n` +
+      `Profesional: *{{profesional_nombre}}*\nTipo: {{turno_tipo}}\n` +
       `Financiador: {{financiador}}\n\n` +
-      `Dirección: ${CLINIC_ADDRESS}\n` +
-      `Google Maps: ${GMAPS_LINK}\n\n` +
-      `24 hs antes te enviaremos un recordatorio. Respondé *CANCELAR* si necesitás cancelar.`,
+      `Direccion: ${DEFAULT_CLINIC_ADDRESS}\nGoogle Maps: ${DEFAULT_GMAPS}\n\n` +
+      `24 hs antes te enviaremos un recordatorio. Responde *CANCELAR* si necesitas cancelar.`,
     active: true,
   },
   {
-    id: "cancellation",
-    name: "Confirmación de cancelación",
+    name: "cancellation",
     trigger: "Al cancelar un turno",
-    template:
+    body_template:
       `Hola {{paciente_nombre}}, tu turno del *{{turno_fecha}}* a las *{{turno_hora}}* fue cancelado correctamente.\n\n` +
-      `Para agendar uno nuevo, contactanos al ${CLINIC_PHONE} o respondé *TURNO*.`,
+      `Para agendar uno nuevo, contactanos al ${DEFAULT_CLINIC_PHONE} o responde *TURNO*.`,
     active: true,
   },
   {
-    id: "reschedule",
-    name: "Turno reprogramado",
+    name: "reschedule",
     trigger: "Al reprogramar un turno",
-    template:
+    body_template:
       `Hola {{paciente_nombre}}, tu turno fue reprogramado:\n\n` +
-      `Nueva fecha: *{{turno_fecha}}*\n` +
-      `Nueva hora: *{{turno_hora}}*\n` +
+      `Nueva fecha: *{{turno_fecha}}*\nNueva hora: *{{turno_hora}}*\n` +
       `Profesional: *{{profesional_nombre}}*\n\n` +
-      `Dirección: ${CLINIC_ADDRESS}\n` +
-      `Google Maps: ${GMAPS_LINK}`,
+      `Direccion: ${DEFAULT_CLINIC_ADDRESS}\nGoogle Maps: ${DEFAULT_GMAPS}`,
     active: true,
   },
   {
-    id: "post-visit",
-    name: "Post-consulta",
-    trigger: "1 hora después de la consulta",
-    template:
-      `Hola {{paciente_nombre}}, gracias por visitarnos en *${CLINIC_NAME}*.\n\n` +
-      `Si necesitás un nuevo turno o tenés consultas, escribinos por acá o llamanos al ${CLINIC_PHONE}.`,
+    name: "post-visit",
+    trigger: "1 hora despues de la consulta",
+    body_template:
+      `Hola {{paciente_nombre}}, gracias por visitarnos en *${DEFAULT_CLINIC_NAME}*.\n\n` +
+      `Si necesitas un nuevo turno o tenes consultas, escribinos por aca o llamanos al ${DEFAULT_CLINIC_PHONE}.`,
     active: false,
   },
 ];
 
-const recentReminders = [
+const DEMO_RECENT = [
   {
-    paciente: "González, María Elena",
+    paciente: "Gonzalez, Maria Elena",
     turno: "10/03 08:00",
     estado: "Confirmado",
     enviado: "09/03 08:00",
     respuesta: "1 - Confirmar",
   },
   {
-    paciente: "López, Juan Carlos",
+    paciente: "Lopez, Juan Carlos",
     turno: "10/03 08:30",
     estado: "Confirmado",
     enviado: "09/03 08:30",
     respuesta: "1 - Confirmar",
   },
   {
-    paciente: "Ramírez, Sofía",
+    paciente: "Ramirez, Sofia",
     turno: "10/03 09:00",
     estado: "Sin respuesta",
     enviado: "09/03 09:00",
-    respuesta: "—",
+    respuesta: "---",
   },
   {
-    paciente: "Díaz, Roberto",
+    paciente: "Diaz, Roberto",
     turno: "10/03 10:00",
     estado: "Cancelado",
     enviado: "09/03 10:00",
@@ -145,29 +138,29 @@ const recentReminders = [
     respuesta: "3 - Reprogramar",
   },
   {
-    paciente: "Suárez, Héctor",
+    paciente: "Suarez, Hector",
     turno: "11/03 08:00",
     estado: "Pendiente",
     enviado: "Prog. 10/03 08:00",
-    respuesta: "—",
+    respuesta: "---",
   },
   {
-    paciente: "Romero, Lucía",
+    paciente: "Romero, Lucia",
     turno: "11/03 09:30",
     estado: "Pendiente",
     enviado: "Prog. 10/03 09:30",
-    respuesta: "—",
+    respuesta: "---",
   },
   {
     paciente: "Torres, Miguel",
     turno: "11/03 11:00",
     estado: "Pendiente",
     enviado: "Prog. 10/03 11:00",
-    respuesta: "—",
+    respuesta: "---",
   },
 ];
 
-const estadoColor: Record<string, string> = {
+const ESTADO_COLOR: Record<string, string> = {
   Confirmado: "bg-green-50 text-green-700",
   "Sin respuesta": "bg-amber-50 text-amber-700",
   Cancelado: "bg-red-50 text-red-600",
@@ -177,46 +170,164 @@ const estadoColor: Record<string, string> = {
 
 /* ---------- Component ---------- */
 export default function WhatsAppConfigPage() {
-  const { showDemo } = useDemoAction();
-  const [config, setConfig] = useState<ReminderConfig>({
-    enabled: true,
-    hoursBeforeFirst: 24,
-    hoursBeforeSecond: 2,
-    confirmationReply: true,
-    cancellationReply: true,
-    rescheduleReply: true,
-    includeGoogleMaps: true,
-    includeClinicPhone: true,
-    includePreparation: false,
-  });
-  const [templates, setTemplates] = useState(defaultTemplates);
+  const { showToast } = useToast();
+  const {
+    config: savedConfig,
+    templates: savedTemplates,
+    isLoading,
+    refresh,
+  } = useWhatsAppConfig();
+  const { trigger: saveConfig, isMutating: saving } = useSaveWhatsAppConfig();
+
+  // ── Local state ────────────────────────────────────────
+  const [autoReply, setAutoReply] = useState(true);
+  const [whatsappNumber, setWhatsappNumber] = useState("");
+  const [displayName, setDisplayName] = useState(DEFAULT_CLINIC_NAME);
+  const [welcomeMessage, setWelcomeMessage] = useState(
+    "Hola! Gracias por comunicarte con nosotros. Un miembro de nuestro equipo te respondera a la brevedad. En que podemos ayudarte?",
+  );
+  const [outOfHoursMessage, setOutOfHoursMessage] = useState(
+    "Nuestro horario de atencion es de 8:00 a 20:00. Te responderemos a primera hora.",
+  );
+  const [notifyOnNewLead, setNotifyOnNewLead] = useState(true);
+  const [reminderSettings, setReminderSettings] =
+    useState<ReminderSettings>(DEFAULT_REMINDER_SETTINGS);
+  const [templates, setTemplates] = useState<PageTemplate[]>(DEFAULT_TEMPLATES);
   const [previewTemplate, setPreviewTemplate] = useState<string | null>("reminder-24h");
+  const [dirty, setDirty] = useState(false);
 
-  const toggle = (key: keyof ReminderConfig) =>
-    setConfig((prev) => ({ ...prev, [key]: !prev[key] }));
+  // ── Hydrate from DB when data arrives ──────────────────
+  useEffect(() => {
+    if (!savedConfig) return;
+    setAutoReply(savedConfig.auto_reply);
+    setWhatsappNumber(savedConfig.whatsapp_number);
+    setDisplayName(savedConfig.display_name || DEFAULT_CLINIC_NAME);
+    if (savedConfig.welcome_message) setWelcomeMessage(savedConfig.welcome_message);
+    if (savedConfig.out_of_hours_message) setOutOfHoursMessage(savedConfig.out_of_hours_message);
+    setNotifyOnNewLead(savedConfig.notify_on_new_lead);
 
-  const toggleTemplate = (id: string) =>
-    setTemplates((prev) => prev.map((t) => (t.id === id ? { ...t, active: !t.active } : t)));
+    // Parse reminder settings from business_hours JSON
+    try {
+      const bh = JSON.parse(savedConfig.business_hours);
+      if (bh && typeof bh === "object" && bh.hoursBeforeFirst !== undefined) {
+        setReminderSettings({
+          hoursBeforeFirst: bh.hoursBeforeFirst ?? 24,
+          hoursBeforeSecond: bh.hoursBeforeSecond ?? 2,
+          confirmationReply: bh.confirmationReply ?? true,
+          cancellationReply: bh.cancellationReply ?? true,
+          rescheduleReply: bh.rescheduleReply ?? true,
+          includeGoogleMaps: bh.includeGoogleMaps ?? true,
+          includeClinicPhone: bh.includeClinicPhone ?? true,
+          includePreparation: bh.includePreparation ?? false,
+        });
+      }
+    } catch {
+      // Not JSON — keep defaults
+    }
+  }, [savedConfig]);
 
-  const previewMsg = templates.find((t) => t.id === previewTemplate);
-  const previewText = previewMsg?.template
-    .replace(/\{\{paciente_nombre\}\}/g, "María Elena")
+  useEffect(() => {
+    if (savedTemplates.length === 0) return;
+    // Merge DB templates into local state
+    setTemplates((prev) =>
+      prev.map((local) => {
+        const db = savedTemplates.find((t: WhatsAppTemplate) => t.name === local.name);
+        if (!db) return local;
+        return {
+          ...local,
+          body_template: db.body_template,
+          active: db.active,
+        };
+      }),
+    );
+  }, [savedTemplates]);
+
+  // ── Mark dirty on any change ───────────────────────────
+  const markDirty = useCallback(() => setDirty(true), []);
+
+  const toggleReminder = (key: keyof ReminderSettings) => {
+    setReminderSettings((prev) => ({ ...prev, [key]: !prev[key] }));
+    markDirty();
+  };
+
+  const toggleTemplate = (name: string) => {
+    setTemplates((prev) => prev.map((t) => (t.name === name ? { ...t, active: !t.active } : t)));
+    markDirty();
+  };
+
+  // ── Save ───────────────────────────────────────────────
+  const handleSave = async () => {
+    try {
+      const businessHoursJson = JSON.stringify({
+        hours: "08:00-20:00",
+        ...reminderSettings,
+      });
+
+      await saveConfig({
+        config: {
+          whatsapp_number: whatsappNumber || "+5491100000000",
+          display_name: displayName,
+          welcome_message: welcomeMessage,
+          auto_reply: autoReply,
+          business_hours: businessHoursJson,
+          out_of_hours_message: outOfHoursMessage,
+          notify_on_new_lead: notifyOnNewLead,
+        },
+        templates: templates.map((t) => ({
+          name: t.name,
+          category: "utility",
+          language: "es_AR",
+          body_template: t.body_template,
+          variables: [
+            "paciente_nombre",
+            "turno_fecha",
+            "turno_hora",
+            "profesional_nombre",
+            "turno_tipo",
+            "financiador",
+          ],
+          header_text: t.trigger,
+          active: t.active,
+        })),
+      });
+
+      setDirty(false);
+      refresh();
+      showToast("Configuracion guardada", "success");
+    } catch {
+      showToast("Error al guardar", "error");
+    }
+  };
+
+  // ── Derived values ─────────────────────────────────────
+  const previewMsg = templates.find((t) => t.name === previewTemplate);
+  const previewText = previewMsg?.body_template
+    .replace(/\{\{paciente_nombre\}\}/g, "Maria Elena")
     .replace(/\{\{turno_fecha\}\}/g, "Martes 11/03/2026")
     .replace(/\{\{turno_hora\}\}/g, "08:00")
-    .replace(/\{\{profesional_nombre\}\}/g, "Dr. Martín Rodríguez")
-    .replace(/\{\{turno_tipo\}\}/g, "Control cardiológico")
+    .replace(/\{\{profesional_nombre\}\}/g, "Dr. Martin Rodriguez")
+    .replace(/\{\{turno_tipo\}\}/g, "Control cardiologico")
     .replace(/\{\{financiador\}\}/g, "PAMI");
 
   const activeCount = templates.filter((t) => t.active).length;
-  const confirmados = recentReminders.filter((r) => r.estado === "Confirmado").length;
-  const sinResp = recentReminders.filter((r) => r.estado === "Sin respuesta").length;
+  const confirmados = DEMO_RECENT.filter((r) => r.estado === "Confirmado").length;
+  const sinResp = DEMO_RECENT.filter((r) => r.estado === "Sin respuesta").length;
+  const isConnected = !!savedConfig?.whatsapp_number;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64 text-ink-muted text-sm">
+        Cargando configuracion...
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-ink-muted">
         <Link href="/dashboard/configuracion" className="hover:text-celeste-dark transition">
-          Configuración
+          Configuracion
         </Link>
         <span>/</span>
         <span className="text-ink font-medium">WhatsApp Turnos</span>
@@ -227,21 +338,22 @@ export default function WhatsAppConfigPage() {
         <div>
           <h1 className="text-2xl font-bold text-ink">WhatsApp Turnos</h1>
           <p className="text-sm text-ink-muted mt-0.5">
-            Recordatorios automáticos y confirmaciones de turnos vía WhatsApp
+            Recordatorios automaticos y confirmaciones de turnos via WhatsApp
           </p>
         </div>
         <div className="flex gap-2">
           <button
-            onClick={() => showDemo("Enviar recordatorio de prueba")}
+            onClick={() => showToast("Mensaje de prueba enviado (simulado)", "info")}
             className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
           >
             Enviar prueba
           </button>
           <button
-            onClick={() => showDemo("Guardar configuración de WhatsApp")}
-            className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
+            onClick={handleSave}
+            disabled={saving}
+            className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition disabled:opacity-50"
           >
-            Guardar cambios
+            {saving ? "Guardando..." : dirty ? "Guardar cambios *" : "Guardar cambios"}
           </button>
         </div>
       </div>
@@ -278,13 +390,55 @@ export default function WhatsAppConfigPage() {
             <div>
               <h3 className="text-sm font-bold text-ink">WhatsApp Business API</h3>
               <p className="text-[10px] text-ink-muted">
-                Conectado · Línea: +54 9 11 4523-8800 · Última actividad: hace 5 min
+                {isConnected
+                  ? `Conectado -- Linea: ${savedConfig?.whatsapp_number} -- ${displayName}`
+                  : `Demo -- Configure su numero para activar`}
               </p>
             </div>
           </div>
-          <span className="px-2.5 py-1 text-[10px] font-bold rounded bg-green-50 text-green-700 border border-green-200">
-            Conectado
+          <span
+            className={`px-2.5 py-1 text-[10px] font-bold rounded border ${
+              isConnected
+                ? "bg-green-50 text-green-700 border-green-200"
+                : "bg-amber-50 text-amber-700 border-amber-200"
+            }`}
+          >
+            {isConnected ? "Conectado" : "Demo"}
           </span>
+        </div>
+
+        {/* Number config (editable) */}
+        <div className="mt-4 grid sm:grid-cols-2 gap-3">
+          <div>
+            <label className="text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+              Numero WhatsApp
+            </label>
+            <input
+              type="text"
+              value={whatsappNumber}
+              onChange={(e) => {
+                setWhatsappNumber(e.target.value);
+                markDirty();
+              }}
+              placeholder="+5491155551234"
+              className="mt-1 w-full px-3 py-2 text-sm border border-border rounded focus:outline-none focus:ring-1 focus:ring-celeste"
+            />
+          </div>
+          <div>
+            <label className="text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+              Nombre para mostrar
+            </label>
+            <input
+              type="text"
+              value={displayName}
+              onChange={(e) => {
+                setDisplayName(e.target.value);
+                markDirty();
+              }}
+              placeholder="Clinica San Martin"
+              className="mt-1 w-full px-3 py-2 text-sm border border-border rounded focus:outline-none focus:ring-1 focus:ring-celeste"
+            />
+          </div>
         </div>
       </div>
 
@@ -294,42 +448,37 @@ export default function WhatsAppConfigPage() {
           {/* Reminder settings */}
           <div className="bg-white border border-border rounded-lg p-5">
             <h3 className="text-xs font-bold tracking-wider text-ink-muted uppercase mb-4">
-              Recordatorios Automáticos
+              Recordatorios Automaticos
             </h3>
             <div className="space-y-4">
               {/* Master toggle */}
-              <div className="flex items-center justify-between py-2 border-b border-border-light">
-                <div>
-                  <p className="text-xs font-semibold text-ink">Recordatorios activos</p>
-                  <p className="text-[10px] text-ink-muted">
-                    Enviar recordatorios automáticos antes de cada turno
-                  </p>
-                </div>
-                <button
-                  onClick={() => toggle("enabled")}
-                  role="switch"
-                  aria-checked={config.enabled ? "true" : "false"}
-                  aria-label="Recordatorios activos"
-                  className={`w-10 h-5 rounded-full transition relative ${config.enabled ? "bg-[#25D366]" : "bg-border"}`}
-                >
-                  <span
-                    className={`block w-4 h-4 rounded-full bg-white shadow absolute top-0.5 transition ${config.enabled ? "left-5" : "left-0.5"}`}
-                  />
-                </button>
-              </div>
+              <ToggleRow
+                label="Recordatorios activos"
+                desc="Enviar recordatorios automaticos antes de cada turno"
+                value={autoReply}
+                onChange={() => {
+                  setAutoReply(!autoReply);
+                  markDirty();
+                }}
+                color="bg-[#25D366]"
+              />
 
               {/* Timing */}
               <div className="flex items-center justify-between py-2 border-b border-border-light">
                 <div>
                   <p className="text-xs font-semibold text-ink">Primer recordatorio</p>
-                  <p className="text-[10px] text-ink-muted">Cuántas horas antes del turno</p>
+                  <p className="text-[10px] text-ink-muted">Cuantas horas antes del turno</p>
                 </div>
                 <select
-                  value={config.hoursBeforeFirst}
-                  onChange={(e) =>
-                    setConfig({ ...config, hoursBeforeFirst: Number(e.target.value) })
-                  }
-                  aria-label="Primer recordatorio — horas antes"
+                  value={reminderSettings.hoursBeforeFirst}
+                  onChange={(e) => {
+                    setReminderSettings((s) => ({
+                      ...s,
+                      hoursBeforeFirst: Number(e.target.value),
+                    }));
+                    markDirty();
+                  }}
+                  aria-label="Primer recordatorio - horas antes"
                   className="text-xs border border-border rounded px-2 py-1.5 text-ink"
                 >
                   <option value={48}>48 horas</option>
@@ -344,11 +493,15 @@ export default function WhatsAppConfigPage() {
                   <p className="text-[10px] text-ink-muted">Recordatorio corto previo al turno</p>
                 </div>
                 <select
-                  value={config.hoursBeforeSecond}
-                  onChange={(e) =>
-                    setConfig({ ...config, hoursBeforeSecond: Number(e.target.value) })
-                  }
-                  aria-label="Segundo recordatorio — horas antes"
+                  value={reminderSettings.hoursBeforeSecond}
+                  onChange={(e) => {
+                    setReminderSettings((s) => ({
+                      ...s,
+                      hoursBeforeSecond: Number(e.target.value),
+                    }));
+                    markDirty();
+                  }}
+                  aria-label="Segundo recordatorio - horas antes"
                   className="text-xs border border-border rounded px-2 py-1.5 text-ink"
                 >
                   <option value={4}>4 horas</option>
@@ -358,100 +511,107 @@ export default function WhatsAppConfigPage() {
               </div>
 
               {/* Google Maps */}
-              <div className="flex items-center justify-between py-2 border-b border-border-light">
-                <div>
-                  <p className="text-xs font-semibold text-ink flex items-center gap-1.5">
-                    <svg
-                      className="w-3.5 h-3.5 text-red-500"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-                    </svg>
-                    Incluir Google Maps
-                  </p>
-                  <p className="text-[10px] text-ink-muted">
-                    Link con direcciones a la clínica en cada recordatorio
-                  </p>
-                </div>
-                <button
-                  onClick={() => toggle("includeGoogleMaps")}
-                  role="switch"
-                  aria-checked={config.includeGoogleMaps ? "true" : "false"}
-                  aria-label="Incluir Google Maps"
-                  className={`w-10 h-5 rounded-full transition relative ${config.includeGoogleMaps ? "bg-[#25D366]" : "bg-border"}`}
-                >
-                  <span
-                    className={`block w-4 h-4 rounded-full bg-white shadow absolute top-0.5 transition ${config.includeGoogleMaps ? "left-5" : "left-0.5"}`}
-                  />
-                </button>
-              </div>
+              <ToggleRow
+                label="Incluir Google Maps"
+                desc="Link con direcciones a la clinica en cada recordatorio"
+                value={reminderSettings.includeGoogleMaps}
+                onChange={() => toggleReminder("includeGoogleMaps")}
+              />
 
-              {/* Clinic address display */}
-              {config.includeGoogleMaps && (
+              {reminderSettings.includeGoogleMaps && (
                 <div className="bg-[#F8FAFB] rounded-lg p-3">
                   <p className="text-[10px] font-bold tracking-wider text-ink-muted uppercase mb-1.5">
-                    Dirección configurada
+                    Direccion configurada
                   </p>
-                  <p className="text-xs font-semibold text-ink">{CLINIC_ADDRESS}</p>
+                  <p className="text-xs font-semibold text-ink">{DEFAULT_CLINIC_ADDRESS}</p>
                   <a
-                    href={GMAPS_LINK}
+                    href={DEFAULT_GMAPS}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[10px] text-celeste-dark font-medium hover:underline mt-1 inline-flex items-center gap-1"
+                    className="text-[10px] text-celeste-dark font-medium hover:underline mt-1 inline-block"
                   >
-                    <svg className="w-3 h-3 text-red-500" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-                    </svg>
                     Ver en Google Maps
                   </a>
                 </div>
               )}
 
-              {/* Reply options */}
+              {/* Reply options + misc toggles */}
               {[
                 {
                   key: "confirmationReply" as const,
-                  label: "Respuesta de confirmación",
+                  label: "Respuesta de confirmacion",
                   desc: "Paciente puede confirmar respondiendo '1'",
                 },
                 {
                   key: "cancellationReply" as const,
-                  label: "Respuesta de cancelación",
+                  label: "Respuesta de cancelacion",
                   desc: "Paciente puede cancelar respondiendo '2'",
                 },
                 {
                   key: "rescheduleReply" as const,
-                  label: "Respuesta de reprogramación",
+                  label: "Respuesta de reprogramacion",
                   desc: "Paciente puede pedir reprogramar respondiendo '3'",
                 },
                 {
                   key: "includeClinicPhone" as const,
-                  label: "Incluir teléfono clínica",
-                  desc: `Agregar ${CLINIC_PHONE} en los mensajes`,
+                  label: "Incluir telefono clinica",
+                  desc: `Agregar ${DEFAULT_CLINIC_PHONE} en los mensajes`,
                 },
               ].map((opt) => (
-                <div
+                <ToggleRow
                   key={opt.key}
-                  className="flex items-center justify-between py-2 border-b border-border-light last:border-0"
-                >
-                  <div>
-                    <p className="text-xs font-semibold text-ink">{opt.label}</p>
-                    <p className="text-[10px] text-ink-muted">{opt.desc}</p>
-                  </div>
-                  <button
-                    onClick={() => toggle(opt.key)}
-                    role="switch"
-                    aria-checked={config[opt.key] ? "true" : "false"}
-                    aria-label={opt.label}
-                    className={`w-10 h-5 rounded-full transition relative ${config[opt.key] ? "bg-celeste-dark" : "bg-border"}`}
-                  >
-                    <span
-                      className={`block w-4 h-4 rounded-full bg-white shadow absolute top-0.5 transition ${config[opt.key] ? "left-5" : "left-0.5"}`}
-                    />
-                  </button>
-                </div>
+                  label={opt.label}
+                  desc={opt.desc}
+                  value={reminderSettings[opt.key]}
+                  onChange={() => toggleReminder(opt.key)}
+                />
               ))}
+            </div>
+          </div>
+
+          {/* Auto-reply messages */}
+          <div className="bg-white border border-border rounded-lg p-5">
+            <h3 className="text-xs font-bold tracking-wider text-ink-muted uppercase mb-4">
+              Mensajes Automaticos
+            </h3>
+            <div className="space-y-3">
+              <div>
+                <label className="text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+                  Mensaje de bienvenida
+                </label>
+                <textarea
+                  value={welcomeMessage}
+                  onChange={(e) => {
+                    setWelcomeMessage(e.target.value);
+                    markDirty();
+                  }}
+                  rows={3}
+                  className="mt-1 w-full px-3 py-2 text-sm border border-border rounded focus:outline-none focus:ring-1 focus:ring-celeste resize-none"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+                  Mensaje fuera de horario
+                </label>
+                <textarea
+                  value={outOfHoursMessage}
+                  onChange={(e) => {
+                    setOutOfHoursMessage(e.target.value);
+                    markDirty();
+                  }}
+                  rows={2}
+                  className="mt-1 w-full px-3 py-2 text-sm border border-border rounded focus:outline-none focus:ring-1 focus:ring-celeste resize-none"
+                />
+              </div>
+              <ToggleRow
+                label="Notificar nuevos leads"
+                desc="Recibir alerta cuando un nuevo contacto escriba por WhatsApp"
+                value={notifyOnNewLead}
+                onChange={() => {
+                  setNotifyOnNewLead(!notifyOnNewLead);
+                  markDirty();
+                }}
+              />
             </div>
           </div>
 
@@ -463,13 +623,13 @@ export default function WhatsAppConfigPage() {
             <div className="space-y-2">
               {templates.map((t) => (
                 <div
-                  key={t.id}
+                  key={t.name}
                   className={`flex items-center justify-between p-3 rounded-lg border transition cursor-pointer ${
-                    previewTemplate === t.id
+                    previewTemplate === t.name
                       ? "border-celeste bg-celeste-pale/20"
                       : "border-border-light hover:border-border"
                   }`}
-                  onClick={() => setPreviewTemplate(t.id)}
+                  onClick={() => setPreviewTemplate(t.name)}
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
@@ -485,8 +645,11 @@ export default function WhatsAppConfigPage() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      toggleTemplate(t.id);
+                      toggleTemplate(t.name);
                     }}
+                    role="switch"
+                    aria-checked={t.active}
+                    aria-label={`Toggle ${t.name}`}
                     className={`w-9 h-5 rounded-full transition relative shrink-0 ${t.active ? "bg-[#25D366]" : "bg-border"}`}
                   >
                     <span
@@ -516,8 +679,8 @@ export default function WhatsAppConfigPage() {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-white text-xs font-semibold">{CLINIC_NAME}</p>
-                  <p className="text-white/60 text-[10px]">en línea</p>
+                  <p className="text-white text-xs font-semibold">{displayName}</p>
+                  <p className="text-white/60 text-[10px]">en linea</p>
                 </div>
               </div>
               {/* Message bubble */}
@@ -537,14 +700,14 @@ export default function WhatsAppConfigPage() {
               {/* Auto-reply */}
               <div className="bg-white rounded-lg p-3 shadow-sm mt-2">
                 <p className="text-xs text-ink leading-relaxed">
-                  Perfecto María Elena, tu turno del *Martes 11/03* a las *08:00* queda confirmado.
+                  Perfecto Maria Elena, tu turno del *Martes 11/03* a las *08:00* queda confirmado.
                   Te esperamos!
                 </p>
                 <p className="text-[10px] text-ink-muted text-right mt-1.5">08:02</p>
               </div>
             </div>
             <p className="text-[10px] text-ink-muted text-center mt-3">
-              Seleccioná una plantilla de la lista para ver su vista previa
+              Selecciona una plantilla de la lista para ver su vista previa
             </p>
           </div>
 
@@ -572,7 +735,7 @@ export default function WhatsAppConfigPage() {
                 </tr>
               </thead>
               <tbody>
-                {recentReminders.map((r, i) => (
+                {DEMO_RECENT.map((r, i) => (
                   <tr
                     key={i}
                     className="border-t border-border-light hover:bg-celeste-pale/30 transition"
@@ -582,7 +745,7 @@ export default function WhatsAppConfigPage() {
                     <td className="px-4 py-2.5 text-[10px] text-ink-muted">{r.enviado}</td>
                     <td className="px-4 py-2.5 text-center">
                       <span
-                        className={`px-2 py-0.5 text-[10px] font-bold rounded ${estadoColor[r.estado]}`}
+                        className={`px-2 py-0.5 text-[10px] font-bold rounded ${ESTADO_COLOR[r.estado]}`}
                       >
                         {r.estado}
                       </span>
@@ -595,6 +758,41 @@ export default function WhatsAppConfigPage() {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ---------- Toggle Row ---------- */
+function ToggleRow({
+  label,
+  desc,
+  value,
+  onChange,
+  color = "bg-celeste-dark",
+}: {
+  label: string;
+  desc: string;
+  value: boolean;
+  onChange: () => void;
+  color?: string;
+}) {
+  return (
+    <div className="flex items-center justify-between py-2 border-b border-border-light last:border-0">
+      <div>
+        <p className="text-xs font-semibold text-ink">{label}</p>
+        <p className="text-[10px] text-ink-muted">{desc}</p>
+      </div>
+      <button
+        onClick={onChange}
+        role="switch"
+        aria-checked={value}
+        aria-label={label}
+        className={`w-10 h-5 rounded-full transition relative ${value ? color : "bg-border"}`}
+      >
+        <span
+          className={`block w-4 h-4 rounded-full bg-white shadow absolute top-0.5 transition ${value ? "left-5" : "left-0.5"}`}
+        />
+      </button>
     </div>
   );
 }

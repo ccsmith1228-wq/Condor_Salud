@@ -235,12 +235,12 @@ const ESTADO_COLORS: Record<LeadEstado, string> = {
 
 const FUENTE_OPTIONS = [
   { value: "", label: "Todas las fuentes" },
-  { value: "whatsapp", label: "📱 WhatsApp" },
-  { value: "web", label: "🌐 Web" },
-  { value: "referido", label: "👥 Referido" },
-  { value: "chatbot", label: "🤖 Chatbot" },
-  { value: "landing", label: "📄 Landing" },
-  { value: "manual", label: "✏️ Manual" },
+  { value: "whatsapp", label: "WhatsApp" },
+  { value: "web", label: "Web" },
+  { value: "referido", label: "Referido" },
+  { value: "chatbot", label: "Chatbot" },
+  { value: "landing", label: "Landing" },
+  { value: "manual", label: "Manual" },
 ];
 
 // ─── Tab type ────────────────────────────────────────────────
@@ -336,17 +336,17 @@ export default function PacientesPage() {
           onClick={() => setActiveTab("leads")}
           badge={leadTotal > 0 ? leadTotal : undefined}
         >
-          📱 Consultas nuevas
+          Consultas nuevas
         </TabButton>
         <TabButton active={activeTab === "pacientes"} onClick={() => setActiveTab("pacientes")}>
-          👥 Pacientes
+          Pacientes
         </TabButton>
         <TabButton
           active={activeTab === "inbox"}
           onClick={() => setActiveTab("inbox")}
           badge={unreadCount > 0 ? unreadCount : undefined}
         >
-          💬 Mensajes
+          Mensajes
         </TabButton>
       </div>
 
@@ -871,17 +871,20 @@ function LeadCard({
 }
 
 function FuenteIcon({ fuente }: { fuente: string }) {
-  const icons: Record<string, string> = {
-    whatsapp: "📱",
-    web: "🌐",
-    referido: "👥",
-    chatbot: "🤖",
-    landing: "📄",
-    manual: "✏️",
+  const labels: Record<string, string> = {
+    whatsapp: "WA",
+    web: "Web",
+    referido: "Ref",
+    chatbot: "Bot",
+    landing: "LP",
+    manual: "Man",
   };
   return (
-    <span className="text-sm" title={fuente}>
-      {icons[fuente] || "❓"}
+    <span
+      className="text-[10px] font-bold text-ink-muted bg-surface-alt rounded px-1.5 py-0.5"
+      title={fuente}
+    >
+      {labels[fuente] || fuente}
     </span>
   );
 }
@@ -921,9 +924,9 @@ function LeadDetailPanel({
         <div className="space-y-2">
           <div className="text-lg font-semibold">{lead.nombre || "Sin nombre"}</div>
           <div className="text-sm text-ink-muted space-y-1">
-            <div>📱 {lead.telefono}</div>
-            {lead.email && <div>📧 {lead.email}</div>}
-            {lead.financiador && <div>🏥 {lead.financiador}</div>}
+            <div>Tel: {lead.telefono}</div>
+            {lead.email && <div>Email: {lead.email}</div>}
+            {lead.financiador && <div>Financiador: {lead.financiador}</div>}
           </div>
         </div>
 

@@ -359,13 +359,30 @@ export interface WhatsAppConfig {
   id: string;
   clinic_id: string;
   whatsapp_number: string;
-  display_name: string | null;
+  display_name: string;
+  twilio_sid: string | null;
+  twilio_token: string | null;
   welcome_message: string | null;
   auto_reply: boolean;
-  business_hours: Record<string, unknown>;
+  business_hours: string; // JSON string with schedule + reminder settings
   out_of_hours_message: string | null;
-  is_verified: boolean;
-  twilio_messaging_sid: string | null;
+  notify_on_new_lead: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WhatsAppTemplate {
+  id: string;
+  clinic_id: string;
+  name: string;
+  category: "utility" | "marketing" | "authentication";
+  language: string;
+  body_template: string;
+  variables: string[];
+  header_text: string | null;
+  footer_text: string | null;
+  active: boolean;
+  approved: boolean;
   created_at: string;
   updated_at: string;
 }

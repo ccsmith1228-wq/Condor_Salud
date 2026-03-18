@@ -9,7 +9,16 @@
 
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
-import type { Lead, LeadStats, LeadEstado, LeadFuente, Conversation, Message } from "@/lib/types";
+import type {
+  Lead,
+  LeadStats,
+  LeadEstado,
+  LeadFuente,
+  Conversation,
+  Message,
+  WhatsAppConfig,
+  WhatsAppTemplate,
+} from "@/lib/types";
 
 // ─── Types ───────────────────────────────────────────────────
 
@@ -170,4 +179,39 @@ export function useConvertLead(leadId: string) {
 /** Send a message in a conversation */
 export function useSendMessage(conversationId: string) {
   return useSWRMutation(`/api/crm/conversations/${conversationId}`, postJson);
+}
+
+// ─── WhatsApp Config ─────────────────────────────────────────
+
+interface WhatsAppConfigResponse {
+  config: WhatsAppConfig | null;
+  templates: WhatsAppTemplate[];
+}
+
+/** Fetch the clinic's WhatsApp config + templates */
+export function useWhatsAppConfig() {
+  const { data, error, isLoading, mutate } = useSWR<WhatsAppConfigResponse>("/api/whatsapp/config");
+
+  return {
+    config: data?.config ?? null,
+    templates: data?.templates ?? [],
+    isLoading,
+    error,
+    refresh: mutate,
+  };
+}
+
+/** Save WhatsApp config + templates via PUT */
+export function useSaveWhatsAppConfig() {
+  return useSWRMutation("/api/whatsapp/config", putJson);
+}
+
+async function putJson(url: string, { arg }: { arg: Record<string, unknown> }) {
+  const res = await fetch(url, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(arg),
+  });
+  if (!res.ok) throw new Error(`PUT ${url} failed: ${res.status}`);
+  return res.json();
 }
