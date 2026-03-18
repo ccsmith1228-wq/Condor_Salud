@@ -27,8 +27,8 @@ const translations: Dict = {
 
   // ── Hero ────────────────────────────────────────────────────
   "hero.badge": {
-    es: "Nuevo: Integración con Google Calendar y TopDoctors.com.ar",
-    en: "New: Google Calendar & TopDoctors.com.ar integration",
+    es: "Nuevo: Integración con Google Calendar y Doctoraliar.com",
+    en: "New: Google Calendar & Doctoraliar.com integration",
   },
   "hero.title1": { es: "Todo tu sistema de salud.", en: "Your entire health system." },
   "hero.title2": { es: "Una sola vista.", en: "One single view." },
@@ -643,8 +643,8 @@ const translations: Dict = {
   // that lean even harder into clinic-owner language.
 
   "hero.badge@provider": {
-    es: "Nuevo: Integración con PAMI, receta digital y TopDoctors",
-    en: "New: PAMI integration, digital prescriptions & TopDoctors",
+    es: "Nuevo: Integración con PAMI, receta digital y Doctoraliar",
+    en: "New: PAMI integration, digital prescriptions & Doctoraliar",
   },
   "hero.title1@provider": {
     es: "Gestioná tu clínica.",

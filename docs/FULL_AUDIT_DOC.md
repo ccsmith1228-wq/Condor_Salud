@@ -1153,7 +1153,6 @@ Logger auto-redacts: email, DNI, CUIL, password, token, secret, authorization
 | **Upstash Redis**      | Rate limiting                     | `UPSTASH_REDIS_URL`, `UPSTASH_REDIS_TOKEN`                                         |
 | **Nubix Cloud**        | RIS/PACS DICOM imaging            | `NUBIX_API_URL`, `NUBIX_API_KEY`, `NUBIX_TENANT_ID`                                |
 | **Doctoraliar**        | Doctor directory & booking        | `DOCTORALIAR_CLIENT_ID`, `DOCTORALIAR_CLIENT_SECRET` (OAuth2 client_credentials)   |
-| **TopDoctors**         | Doctor directory (legacy)         | URL-based integration (no API key) — replaced by Doctoraliar in v0.8.0             |
 | **PAMI API**           | National health insurance         | `PAMI_API_URL`, `PAMI_API_TOKEN`                                                   |
 | **AFIP WSFEV1**        | Electronic invoicing              | `AFIP_CERT_PATH`, `AFIP_KEY_PATH`, `AFIP_CUIT`                                     |
 | **Swiss Medical**      | Private insurance API             | `SWISS_MEDICAL_CLIENT_ID`, `SWISS_MEDICAL_CLIENT_SECRET`                           |
@@ -1452,7 +1451,7 @@ condor-salud/
 │   └── lib/
 │       ├── analytics.ts, chatbot-engine.ts, env.ts, google.ts
 │       ├── logger.ts, plan-config.ts, plan-context.tsx, posthog.tsx
-│       ├── segments.ts, swr.tsx, topdoctors.ts, types.ts, utils.ts
+│       ├── doctoraliar.ts, segments.ts, swr.tsx, types.ts, utils.ts
 │       ├── ai/ (claude.ts)
 │       ├── auth/ (context.tsx, rbac.ts)
 │       ├── hooks/ (useGeolocation, useModules, useNearbyServices, usePatientName)

@@ -206,7 +206,7 @@ export interface Doctor {
   /** Doctoraliar profile URL (when API is configured) */
   profileUrl?: string;
   /** Source of the listing */
-  source?: "local" | "doctoraliar" | "topdoctors";
+  source?: "local" | "doctoraliar";
 }
 
 export interface DoctorReview {

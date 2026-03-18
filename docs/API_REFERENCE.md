@@ -19,8 +19,7 @@
 11. [Nubix Cloud (RIS/PACS — Medical Imaging)](#11-nubix-cloud)
 12. [AFIP WSFE v1 (Electronic Invoicing — Argentina)](#12-afip-wsfe-v1)
 13. [PAMI (Public Health Insurance — Argentina)](#13-pami)
-14. [TopDoctors (Legacy)](#14-topdoctors-legacy)
-15. [Doctoraliar / Docplanner](#15-doctoraliar-docplanner)
+14. [Doctoraliar / Docplanner](#14-doctoraliar-docplanner)
 
 ---
 
@@ -1080,22 +1079,14 @@ SISA may be a better integration point for coverage verification:
 
 ---
 
-## 14. TopDoctors (Legacy)
-
-**Website**: <https://www.topdoctors.com.ar>
-**Status**: Replaced by Doctoraliar integration (v0.8.0)
-**Used for**: Legacy redirect-only links (no API)
-
----
-
-## 15. Doctoraliar (Docplanner)
+## 14. Doctoraliar (Docplanner)
 
 **Website**: <https://www.doctoraliar.com>
 **API Docs**: <https://integrations.docplanner.com/docs/>
 **Guide**: <https://integrations.docplanner.com/guide/>
 **Used for**: Doctor directory, appointment slots, booking, insurance verification
 
-### 15.1 API Overview
+### 14.1 API Overview
 
 Doctoraliar is the Argentine branch of Docplanner Group (110,000+ professionals).
 The REST API v3 uses OAuth2 `client_credentials` flow.
@@ -1109,7 +1100,7 @@ The REST API v3 uses OAuth2 `client_credentials` flow.
 | Rate Limit POST | 40 req/minute (2,400/hour)                                  |
 | Content-Type    | `application/vnd.docplanner+json; charset=UTF-8`            |
 
-### 15.2 Resources
+### 14.2 Resources
 
 | Endpoint                                                              | Method | Description                            |
 | --------------------------------------------------------------------- | ------ | -------------------------------------- |
@@ -1128,7 +1119,7 @@ The REST API v3 uses OAuth2 `client_credentials` flow.
 | `/facilities/{fid}/doctors/{did}/addresses/{aid}/insurance-providers` | GET    | Insurance at address                   |
 | `/notifications/multiple`                                             | GET    | Pull notification queue                |
 
-### 15.3 Extensions (query param `with`)
+### 14.3 Extensions (query param `with`)
 
 - `doctor.profile_url` — Doctor's Doctoraliar profile URL
 - `doctor.specializations` — Specialization list
@@ -1139,14 +1130,14 @@ The REST API v3 uses OAuth2 `client_credentials` flow.
 - `booking.patient` — Patient data on bookings
 - `booking.address_service` — Service details on bookings
 
-### 15.4 Environment Variables
+### 14.4 Environment Variables
 
 ```env
 DOCTORALIAR_CLIENT_ID=          # OAuth2 client ID from Docplanner
 DOCTORALIAR_CLIENT_SECRET=      # OAuth2 client secret
 ```
 
-### 15.5 Internal API Route
+### 14.5 Internal API Route
 
 `/api/doctoraliar` — Proxies requests to Doctoraliar API with auth + rate limiting.
 

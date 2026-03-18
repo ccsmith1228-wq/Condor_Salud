@@ -19,12 +19,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **Directorio page** — All external links now point to Doctoraliar.com instead of TopDoctors.com.ar. Uses `doc.profileUrl` when available from API, falls back to Doctoraliar search URL.
-- **Patient medicos page** — All booking and profile links updated from TopDoctors to Doctoraliar
-- **API_REFERENCE.md** — Added section 15 (Doctoraliar/Docplanner) with full endpoint reference, extensions, rate limits. TopDoctors section marked as legacy.
+- **Patient medicos page** — All booking and profile links updated to Doctoraliar
+- **Hero banner translations** — Updated badge text from TopDoctors to Doctoraliar (both patient and provider segments, ES/EN)
+- **API_REFERENCE.md** — Doctoraliar section renumbered to §14 (TopDoctors legacy section removed entirely)
+- **FEATURES.md** — Integrations table updated to Doctoraliar with full API description
 
 ### Removed
 
-- TopDoctors redirect-only integration replaced by proper Doctoraliar REST API with real slot/booking capability
+- **`src/lib/topdoctors.ts`** — Deleted entirely. All TopDoctors URL builders, `TopDoctorsDoctor` interface, and `enrichWithTopDoctors()` function removed.
+- **TopDoctors references** — Purged from translations, types, docs (FEATURES, API_REFERENCE, FULL_AUDIT_DOC). `"topdoctors"` removed from `Doctor.source` union type.
 
 ## [0.7.0] — 2026-03-17
 
