@@ -595,6 +595,7 @@ const ALERTAS: Alerta[] = [
     detalle: "15 facturas del lote #2026-089 fueron rechazadas por nomenclador desactualizado",
     fecha: "2026-03-10T09:15:00",
     acento: "gold",
+    read: false,
   },
   {
     id: "a2",
@@ -603,6 +604,7 @@ const ALERTAS: Alerta[] = [
     detalle: "8 facturas de Swiss Medical vencen en 5 días (plazo 60 días)",
     fecha: "2026-03-10T08:30:00",
     acento: "gold",
+    read: false,
   },
   {
     id: "a3",
@@ -611,6 +613,7 @@ const ALERTAS: Alerta[] = [
     detalle: "OSDE publicó nuevos valores para marzo 2026 — 342 códigos actualizados",
     fecha: "2026-03-09T14:00:00",
     acento: "celeste",
+    read: false,
   },
   {
     id: "a4",
@@ -619,6 +622,7 @@ const ALERTAS: Alerta[] = [
     detalle: "Transferencia $1.280.000 acreditada. Corresponde a lote #2026-072",
     fecha: "2026-03-09T11:20:00",
     acento: "celeste",
+    read: false,
   },
   {
     id: "a5",
@@ -627,6 +631,7 @@ const ALERTAS: Alerta[] = [
     detalle: "La pérdida estimada por demora en cobros este mes es de $227.650",
     fecha: "2026-03-08T16:45:00",
     acento: "gold",
+    read: false,
   },
   {
     id: "a6",
@@ -635,6 +640,7 @@ const ALERTAS: Alerta[] = [
     detalle: "Factura FC-2026-001828 rechazada: densitometría requiere autorización previa",
     fecha: "2026-03-07T10:00:00",
     acento: "gold",
+    read: false,
   },
   {
     id: "a7",
@@ -643,6 +649,7 @@ const ALERTAS: Alerta[] = [
     detalle: "22 facturas pendientes de cobro superan los 75 días de demora promedio",
     fecha: "2026-03-06T09:00:00",
     acento: "gold",
+    read: false,
   },
   {
     id: "a8",
@@ -651,6 +658,7 @@ const ALERTAS: Alerta[] = [
     detalle: "3 códigos que usás frecuentemente serán discontinuados en abril 2026",
     fecha: "2026-03-05T13:30:00",
     acento: "celeste",
+    read: false,
   },
   {
     id: "a9",
@@ -659,6 +667,7 @@ const ALERTAS: Alerta[] = [
     detalle: "Guantes estériles Lote L-2024-156 vence el 15/03/2026 — 45 unidades",
     fecha: "2026-03-04T08:00:00",
     acento: "gold",
+    read: false,
   },
   {
     id: "a10",
@@ -667,6 +676,7 @@ const ALERTAS: Alerta[] = [
     detalle: "Transferencia $442.000 acreditada. Corresponde a lote #2026-068",
     fecha: "2026-03-03T15:10:00",
     acento: "celeste",
+    read: false,
   },
 ];
 

@@ -129,6 +129,7 @@ function mapAlerta(row: AlertaRow): Alerta {
     detalle: row.detalle,
     fecha: row.fecha,
     acento: row.acento as Alerta["acento"],
+    read: row.read ?? false,
   };
 }
 
