@@ -23,6 +23,7 @@ import {
 import { useToast } from "@/components/Toast";
 import { getTopDoctorsSearchUrl, getTopDoctorsBookingUrl } from "@/lib/topdoctors";
 import { useGeolocation, type GeoCoords } from "@/lib/hooks/useGeolocation";
+import { useLocale } from "@/lib/i18n/context";
 
 /* ── types ────────────────────────────────────────────── */
 interface Doctor {
@@ -210,6 +211,7 @@ const locations = ["Todas", "Belgrano", "Palermo", "Recoleta", "Microcentro", "C
 export default function MedicosPage() {
   const { showToast } = useToast();
   const router = useRouter();
+  const { locale } = useLocale();
   const [search, setSearch] = useState("");
   const [specialty, setSpecialty] = useState("Todas");
   const [location, setLocation] = useState("Todas");
@@ -403,7 +405,7 @@ export default function MedicosPage() {
                     {doctor.education}
                   </span>
                   <a
-                    href={getTopDoctorsSearchUrl(doctor.name)}
+                    href={getTopDoctorsSearchUrl(doctor.name, locale)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-1 text-celeste-dark hover:underline"
@@ -453,7 +455,7 @@ export default function MedicosPage() {
                 Ver perfil
               </button>
               <a
-                href={getTopDoctorsBookingUrl(doctor.specialty, doctor.name)}
+                href={getTopDoctorsBookingUrl(doctor.specialty, doctor.name, locale)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1 text-sm font-semibold text-white bg-celeste-dark hover:bg-celeste-700 py-2 rounded-[4px] transition text-center"
@@ -516,7 +518,7 @@ export default function MedicosPage() {
                   Obras sociales: {selectedDoctor.insurance.join(", ")}
                 </div>
                 <a
-                  href={getTopDoctorsSearchUrl(selectedDoctor.name)}
+                  href={getTopDoctorsSearchUrl(selectedDoctor.name, locale)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-celeste-dark hover:underline text-sm"
@@ -534,7 +536,11 @@ export default function MedicosPage() {
                   Cerrar
                 </button>
                 <a
-                  href={getTopDoctorsBookingUrl(selectedDoctor.specialty, selectedDoctor.name)}
+                  href={getTopDoctorsBookingUrl(
+                    selectedDoctor.specialty,
+                    selectedDoctor.name,
+                    locale,
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1 bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold py-2.5 rounded-[4px] transition text-center"

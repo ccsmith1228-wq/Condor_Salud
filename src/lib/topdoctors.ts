@@ -11,6 +11,17 @@
 
 const TOPDOCTORS_BASE = "https://www.topdoctors.com.ar";
 
+/**
+ * Append locale hint to a TopDoctors URL.
+ * TopDoctors.com.ar renders in Spanish by default; the `?hl=en`
+ * query parameter switches the UI to English when available.
+ */
+function withLocale(url: string, locale?: string): string {
+  if (!locale || locale.startsWith("es")) return url;
+  const sep = url.includes("?") ? "&" : "?";
+  return `${url}${sep}hl=${encodeURIComponent(locale.slice(0, 2))}`;
+}
+
 // ── Specialty → TopDoctors category slug mapping ─────────────
 const SPECIALTY_SLUGS: Record<string, string> = {
   Cardiología: "cardiologia-adultos",
@@ -34,29 +45,42 @@ const SPECIALTY_SLUGS: Record<string, string> = {
 /**
  * Get the TopDoctors category page URL for a specialty.
  * Falls back to a search query if no slug mapping exists.
+ * @param locale - Pass "en" to switch TopDoctors UI to English.
  */
-export function getTopDoctorsSpecialtyUrl(specialty: string): string {
+export function getTopDoctorsSpecialtyUrl(specialty: string, locale?: string): string {
   const slug = SPECIALTY_SLUGS[specialty];
-  if (slug) return `${TOPDOCTORS_BASE}/${slug}/`;
-  return `${TOPDOCTORS_BASE}/buscar-especialistas/?q=${encodeURIComponent(specialty)}`;
+  if (slug) return withLocale(`${TOPDOCTORS_BASE}/${slug}/`, locale);
+  return withLocale(
+    `${TOPDOCTORS_BASE}/buscar-especialistas/?q=${encodeURIComponent(specialty)}`,
+    locale,
+  );
 }
 
 /**
  * Get the TopDoctors search URL for a specific doctor name.
+ * @param locale - Pass "en" to switch TopDoctors UI to English.
  */
-export function getTopDoctorsSearchUrl(doctorName: string): string {
-  return `${TOPDOCTORS_BASE}/buscar-especialistas/?q=${encodeURIComponent(doctorName)}`;
+export function getTopDoctorsSearchUrl(doctorName: string, locale?: string): string {
+  return withLocale(
+    `${TOPDOCTORS_BASE}/buscar-especialistas/?q=${encodeURIComponent(doctorName)}`,
+    locale,
+  );
 }
 
 /**
  * Get the TopDoctors booking URL — specialty page with intent to book.
  * This is the URL for the "Reservar turno" action.
+ * @param locale - Pass "en" to switch TopDoctors UI to English.
  */
-export function getTopDoctorsBookingUrl(specialty: string, doctorName?: string): string {
+export function getTopDoctorsBookingUrl(
+  specialty: string,
+  doctorName?: string,
+  locale?: string,
+): string {
   if (doctorName) {
-    return getTopDoctorsSearchUrl(doctorName);
+    return getTopDoctorsSearchUrl(doctorName, locale);
   }
-  return getTopDoctorsSpecialtyUrl(specialty);
+  return getTopDoctorsSpecialtyUrl(specialty, locale);
 }
 
 /**
@@ -84,26 +108,30 @@ export interface TopDoctorsDoctor {
 
 /**
  * Enrich a basic doctor record with TopDoctors URLs.
+ * @param locale - Pass "en" to switch TopDoctors UI to English.
  */
-export function enrichWithTopDoctors(doc: {
-  id: string;
-  name: string;
-  specialty: string;
-  location: string;
-  address: string;
-  financiadores: string[];
-  rating: number;
-  reviews: number;
-  nextSlot: string;
-  available: boolean;
-  teleconsulta: boolean;
-  experience: string;
-  languages: string[];
-}): TopDoctorsDoctor {
+export function enrichWithTopDoctors(
+  doc: {
+    id: string;
+    name: string;
+    specialty: string;
+    location: string;
+    address: string;
+    financiadores: string[];
+    rating: number;
+    reviews: number;
+    nextSlot: string;
+    available: boolean;
+    teleconsulta: boolean;
+    experience: string;
+    languages: string[];
+  },
+  locale?: string,
+): TopDoctorsDoctor {
   return {
     ...doc,
-    topDoctorsUrl: getTopDoctorsSearchUrl(doc.name),
-    bookingUrl: getTopDoctorsBookingUrl(doc.specialty, doc.name),
+    topDoctorsUrl: getTopDoctorsSearchUrl(doc.name, locale),
+    bookingUrl: getTopDoctorsBookingUrl(doc.specialty, doc.name, locale),
     source: "topdoctors" as const,
   };
 }

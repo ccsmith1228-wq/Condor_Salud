@@ -40,6 +40,8 @@ export interface InfoCard {
   directionsUrl?: string;
   /** Google Maps link for viewing a place */
   mapUrl?: string;
+  /** If true, auto-open the action URL when the card is rendered (delivery deep-links) */
+  autoOpen?: boolean;
 }
 
 interface IntentMatch {
@@ -1059,34 +1061,40 @@ function buildTriageResponse(entry: TriageEntry, lang?: string): Partial<ChatMes
                   action: { label: "Ver profesionales", url: "/paciente/medicos" },
                 },
             ...(entry.otcMeds.length > 0
-              ? [
-                  {
-                    title: isEnglish
-                      ? "Rappi — Delivered to your door"
-                      : "Rappi — Te lo llevan a casa",
-                    body: isEnglish
-                      ? "Order OTC medications via Rappi in minutes."
-                      : "Pedí los medicamentos de venta libre por Rappi en minutos.",
-                    icon: "truck" as const,
-                    action: {
-                      label: isEnglish ? "Order on Rappi" : "Pedir en Rappi",
-                      url: "https://www.rappi.com.ar/farmacias",
+              ? (() => {
+                  const medQuery = entry.otcMeds.map((m) => m.name).join(", ");
+                  const firstMedName = entry.otcMeds[0]?.name ?? medQuery;
+                  const rappiQ = `https://www.rappi.com.ar/farmacias?q=${encodeURIComponent(firstMedName)}`;
+                  const pedidosQ = `https://www.pedidosya.com.ar/farmacias?q=${encodeURIComponent(firstMedName)}`;
+                  return [
+                    {
+                      title: isEnglish ? `Rappi — Order ${medQuery}` : `Rappi — Pedí ${medQuery}`,
+                      body: isEnglish
+                        ? "Opens Rappi with your medicine pre-loaded. Delivered in 30-60 min."
+                        : "Abre Rappi con tu medicamento pre-cargado. Llega en 30-60 min.",
+                      icon: "truck" as const,
+                      action: {
+                        label: isEnglish ? "Order on Rappi" : "Pedir en Rappi",
+                        url: rappiQ,
+                      },
+                      autoOpen: true,
                     },
-                  },
-                  {
-                    title: isEnglish
-                      ? "PedidosYa — Pharmacy delivery"
-                      : "PedidosYa — Farmacia a domicilio",
-                    body: isEnglish
-                      ? "Buy OTC meds and get them delivered."
-                      : "Comprá sin receta y recibilo en tu casa.",
-                    icon: "truck" as const,
-                    action: {
-                      label: isEnglish ? "Order on PedidosYa" : "Pedir en PedidosYa",
-                      url: "https://www.pedidosya.com.ar/farmacias",
+                    {
+                      title: isEnglish
+                        ? `PedidosYa — Order ${medQuery}`
+                        : `PedidosYa — Pedí ${medQuery}`,
+                      body: isEnglish
+                        ? "Opens PedidosYa with your medicine pre-loaded."
+                        : "Abre PedidosYa con tu medicamento pre-cargado.",
+                      icon: "truck" as const,
+                      autoOpen: true,
+                      action: {
+                        label: isEnglish ? "Order on PedidosYa" : "Pedir en PedidosYa",
+                        url: pedidosQ,
+                      },
                     },
-                  },
-                ]
+                  ];
+                })()
               : []),
           ];
 
@@ -1278,6 +1286,7 @@ function generateMedicationResponse(lang?: string): Partial<ChatMessage> {
           title: "Rappi — Pharmacy Delivery",
           body: "Order over-the-counter medications delivered in minutes.",
           icon: "truck",
+          autoOpen: true,
           action: {
             label: "Open Rappi",
             url: "https://www.rappi.com.ar/farmacias",
@@ -1287,6 +1296,7 @@ function generateMedicationResponse(lang?: string): Partial<ChatMessage> {
           title: "PedidosYa — Pharmacy Delivery",
           body: "Buy non-prescription meds and get them delivered home.",
           icon: "truck",
+          autoOpen: true,
           action: { label: "Open PedidosYa", url: "https://www.pedidosya.com.ar/farmacias" },
         },
       ],
@@ -1307,6 +1317,7 @@ function generateMedicationResponse(lang?: string): Partial<ChatMessage> {
         title: "Rappi — Farmacia a domicilio",
         body: "Pedí medicamentos de venta libre y te los llevan en minutos.",
         icon: "truck",
+        autoOpen: true,
         action: {
           label: "Abrir Rappi",
           url: "https://www.rappi.com.ar/farmacias",
@@ -1316,6 +1327,7 @@ function generateMedicationResponse(lang?: string): Partial<ChatMessage> {
         title: "PedidosYa — Farmacia a domicilio",
         body: "Comprá remedios sin receta y recibilos en tu casa.",
         icon: "truck",
+        autoOpen: true,
         action: { label: "Abrir PedidosYa", url: "https://www.pedidosya.com.ar/farmacias" },
       },
     ],
@@ -1331,14 +1343,15 @@ function generateDeliveryResponse(
   medNames?: string[],
 ): Partial<ChatMessage> {
   // Smart deep-links: pre-fill search with medication name if available
-  const firstMed = medNames?.[0];
-  const rappiUrl = firstMed
-    ? `https://www.rappi.com.ar/farmacias?q=${encodeURIComponent(firstMed)}${coords ? `&lat=${coords.lat}&lng=${coords.lng}` : ""}`
+  const allMeds = medNames?.length ? medNames.join(", ") : null;
+  const rappiUrl = allMeds
+    ? `https://www.rappi.com.ar/farmacias?q=${encodeURIComponent(allMeds)}${coords ? `&lat=${coords.lat}&lng=${coords.lng}` : ""}`
     : coords
       ? `https://www.rappi.com.ar/farmacias?lat=${coords.lat}&lng=${coords.lng}`
       : "https://www.rappi.com.ar/farmacias";
-  const pedidosYaUrl = firstMed
-    ? `https://www.pedidosya.com.ar/farmacias?q=${encodeURIComponent(firstMed)}`
+  const allMedQuery = medNames?.length ? medNames.join(", ") : null;
+  const pedidosYaUrl = allMedQuery
+    ? `https://www.pedidosya.com.ar/farmacias?q=${encodeURIComponent(allMedQuery)}`
     : "https://www.pedidosya.com.ar/farmacias";
 
   if (en(lang)) {
@@ -1359,12 +1372,14 @@ function generateDeliveryResponse(
         title: "Rappi — Pharmacy",
         body: "Over-the-counter meds delivered to your door in 30–60 min.",
         icon: "truck",
+        autoOpen: true,
         action: { label: "Order on Rappi", url: rappiUrl },
       },
       {
         title: "PedidosYa — Pharmacy",
         body: "Nearby pharmacies with delivery. Live tracking.",
         icon: "truck",
+        autoOpen: true,
         action: { label: "Order on PedidosYa", url: pedidosYaUrl },
       },
     ];
@@ -1406,12 +1421,14 @@ function generateDeliveryResponse(
       title: "Rappi — Farmacia",
       body: "Medicamentos sin receta a domicilio. Envío en 30-60 min.",
       icon: "truck",
+      autoOpen: true,
       action: { label: "Pedir en Rappi", url: rappiUrl },
     },
     {
       title: "PedidosYa — Farmacia",
       body: "Farmacias cerca tuyo con delivery. Seguimiento en vivo.",
       icon: "truck",
+      autoOpen: true,
       action: { label: "Pedir en PedidosYa", url: pedidosYaUrl },
     },
   ];

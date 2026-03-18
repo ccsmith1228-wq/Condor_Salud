@@ -16,6 +16,7 @@ import {
   getTopDoctorsBookingUrl,
   getTopDoctorsSpecialtyUrl,
 } from "@/lib/topdoctors";
+import { useLocale } from "@/lib/i18n/context";
 
 const specialties = ["Todas", ...specialtiesData];
 const financiadores = ["Todos", ...financiadoresOptions];
@@ -25,6 +26,7 @@ type Tab = "busqueda" | "disponibilidad" | "perfiles" | "cobertura" | "recomenda
 
 export default function DirectorioPage() {
   const { showDemo } = useDemoAction();
+  const { locale } = useLocale();
   const [tab, setTab] = useState<Tab>("busqueda");
   const [search, setSearch] = useState("");
   const [specialtyFilter, setSpecialtyFilter] = useState("Todas");
@@ -299,7 +301,7 @@ export default function DirectorioPage() {
                     </span>
                     <div className="flex items-center gap-2">
                       <a
-                        href={getTopDoctorsSearchUrl(doc.name)}
+                        href={getTopDoctorsSearchUrl(doc.name, locale)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="px-3 py-1.5 text-xs font-medium text-celeste-dark border border-celeste-dark/30 rounded hover:bg-celeste-pale transition flex items-center gap-1"
@@ -307,7 +309,7 @@ export default function DirectorioPage() {
                         <ExternalLink className="w-3 h-3" /> TopDoctors
                       </a>
                       <a
-                        href={getTopDoctorsBookingUrl(doc.specialty, doc.name)}
+                        href={getTopDoctorsBookingUrl(doc.specialty, doc.name, locale)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className={`px-4 py-1.5 text-xs font-semibold rounded transition inline-block text-center ${
@@ -553,7 +555,11 @@ export default function DirectorioPage() {
                 </div>
 
                 <a
-                  href={getTopDoctorsBookingUrl(selectedDoctor.specialty, selectedDoctor.name)}
+                  href={getTopDoctorsBookingUrl(
+                    selectedDoctor.specialty,
+                    selectedDoctor.name,
+                    locale,
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-6 inline-block px-6 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition text-center"
@@ -561,7 +567,7 @@ export default function DirectorioPage() {
                   Reservar turno vía TopDoctors
                 </a>
                 <a
-                  href={getTopDoctorsSearchUrl(selectedDoctor.name)}
+                  href={getTopDoctorsSearchUrl(selectedDoctor.name, locale)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-3 inline-flex items-center gap-1.5 text-sm text-celeste-dark hover:underline"
@@ -768,7 +774,7 @@ export default function DirectorioPage() {
                   <div className="text-right shrink-0">
                     <p className="text-xs font-medium text-success-600 mb-2">{doc.nextSlot}</p>
                     <a
-                      href={getTopDoctorsBookingUrl(doc.specialty, doc.name)}
+                      href={getTopDoctorsBookingUrl(doc.specialty, doc.name, locale)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="px-4 py-2 text-xs font-semibold bg-celeste-dark text-white rounded hover:bg-celeste transition inline-block text-center"

@@ -259,6 +259,25 @@ export default function Chatbot() {
     }
   }, [messages, isTyping]);
 
+  // Auto-open delivery deep-links when a card has autoOpen flag
+  const autoOpenedRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    const lastMsg = messages[messages.length - 1];
+    if (!lastMsg || lastMsg.role !== "bot" || !lastMsg.cards) return;
+    for (const card of lastMsg.cards) {
+      if (card.autoOpen && card.action?.url) {
+        const key = `${lastMsg.id}-${card.action.url}`;
+        if (!autoOpenedRef.current.has(key)) {
+          autoOpenedRef.current.add(key);
+          // Small delay so user sees the card first
+          setTimeout(() => {
+            window.open(card.action!.url, "_blank", "noopener,noreferrer");
+          }, 600);
+        }
+      }
+    }
+  }, [messages]);
+
   // UM-08: Save messages to sessionStorage on change
   useEffect(() => {
     try {
@@ -281,14 +300,28 @@ export default function Chatbot() {
     }
   }, [isOpen]);
 
-  // Auto-show new message indicator after 3s if chat is closed
+  // Auto-show new message indicator after 3s if chat is closed and never opened this session
+  const [bannerDismissed, setBannerDismissed] = useState(() => {
+    if (typeof window !== "undefined" && typeof sessionStorage !== "undefined") {
+      return sessionStorage.getItem("condor_chat_opened") === "1";
+    }
+    return false;
+  });
   useEffect(() => {
-    if (!isOpen) {
+    if (!isOpen && !bannerDismissed) {
       const timer = setTimeout(() => setHasNewMessage(true), 3000);
       return () => clearTimeout(timer);
     }
+    if (isOpen && !bannerDismissed) {
+      setBannerDismissed(true);
+      try {
+        sessionStorage.setItem("condor_chat_opened", "1");
+      } catch {
+        /* ignore */
+      }
+    }
     setHasNewMessage(false);
-  }, [isOpen]);
+  }, [isOpen, bannerDismissed]);
 
   const sendMessage = useCallback(
     async (text: string) => {
@@ -664,7 +697,18 @@ export default function Chatbot() {
       {/* ── Floating Bubble ─────────────────────────────────── */}
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          setIsOpen((prev) => !prev);
+          setHasNewMessage(false);
+          if (!bannerDismissed) {
+            setBannerDismissed(true);
+            try {
+              sessionStorage.setItem("condor_chat_opened", "1");
+            } catch {
+              /* ignore */
+            }
+          }
+        }}
         className={`fixed bottom-6 right-6 z-[96] w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 ${
           isOpen
             ? "bg-ink-700 hover:bg-ink-600 rotate-0"
@@ -718,7 +762,18 @@ export default function Chatbot() {
       {/* ── New message tooltip ─────────────────────────────── */}
       {!isOpen && hasNewMessage && (
         <div
-          onClick={() => setIsOpen(true)}
+          onClick={() => {
+            setIsOpen(true);
+            setHasNewMessage(false);
+            if (!bannerDismissed) {
+              setBannerDismissed(true);
+              try {
+                sessionStorage.setItem("condor_chat_opened", "1");
+              } catch {
+                /* ignore */
+              }
+            }
+          }}
           className="fixed bottom-[84px] right-6 z-[96] bg-white border border-border rounded-xl shadow-lg px-4 py-2.5 max-w-[220px] cursor-pointer hover:shadow-xl transition animate-chatMsg"
         >
           <p className="text-[12px] text-ink font-medium">
