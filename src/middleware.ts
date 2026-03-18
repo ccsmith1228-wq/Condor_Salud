@@ -9,6 +9,7 @@ const PUBLIC_API_PREFIXES = [
   "/api/waitlist",
   "/api/auth",
   "/api/csp-report",
+  "/api/webhooks", // Twilio WhatsApp (auth via signature validation)
 ];
 
 /** SM-01: Validate redirect param — only allow relative paths to prevent open redirects */

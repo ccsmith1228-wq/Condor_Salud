@@ -275,3 +275,118 @@ export interface TriageKPIs {
   routed: number;
   highSeverity: number;
 }
+
+// ─── CRM / WhatsApp Types ────────────────────────────────────
+
+export type LeadEstado =
+  | "nuevo"
+  | "contactado"
+  | "interesado"
+  | "turno_agendado"
+  | "convertido"
+  | "perdido";
+
+export type LeadFuente = "whatsapp" | "web" | "referido" | "landing" | "chatbot" | "manual";
+
+export type ConversationStatus = "open" | "pending" | "resolved" | "archived";
+export type ConversationChannel = "whatsapp" | "web_chat" | "email" | "telefono";
+export type MessageDirection = "inbound" | "outbound";
+export type MessageSenderType = "patient" | "lead" | "staff" | "system" | "bot";
+
+export interface Lead {
+  id: string;
+  clinic_id: string;
+  paciente_id: string | null;
+  nombre: string | null;
+  telefono: string;
+  email: string | null;
+  motivo: string | null;
+  fuente: LeadFuente;
+  estado: LeadEstado;
+  prioridad: number;
+  assigned_to: string | null;
+  tags: string[];
+  financiador: string | null;
+  notas: string | null;
+  first_contact_at: string | null;
+  last_message_at: string | null;
+  converted_at: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+  // Joined relations
+  paciente?: { id: string; nombre: string; telefono: string; financiador: string | null };
+  conversations?: Conversation[];
+}
+
+export interface Conversation {
+  id: string;
+  clinic_id: string;
+  lead_id: string | null;
+  paciente_id: string | null;
+  channel: ConversationChannel;
+  status: ConversationStatus;
+  subject: string | null;
+  assigned_to: string | null;
+  unread_count: number;
+  last_message_at: string | null;
+  resolved_at: string | null;
+  created_at: string;
+  updated_at: string;
+  // Joined relations
+  lead?: Pick<Lead, "id" | "nombre" | "telefono" | "estado" | "tags" | "financiador">;
+  paciente?: { id: string; nombre: string; telefono: string; financiador: string | null };
+}
+
+export interface Message {
+  id: string;
+  clinic_id: string;
+  conversation_id: string;
+  direction: MessageDirection;
+  sender_type: MessageSenderType;
+  sender_id: string | null;
+  sender_name: string | null;
+  body: string;
+  media_url: string | null;
+  media_type: string | null;
+  twilio_sid: string | null;
+  status: "queued" | "sent" | "delivered" | "read" | "failed";
+  metadata: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface WhatsAppConfig {
+  id: string;
+  clinic_id: string;
+  whatsapp_number: string;
+  display_name: string | null;
+  welcome_message: string | null;
+  auto_reply: boolean;
+  business_hours: Record<string, unknown>;
+  out_of_hours_message: string | null;
+  is_verified: boolean;
+  twilio_messaging_sid: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface LeadStats {
+  total: number;
+  nuevo: number;
+  contactado: number;
+  interesado: number;
+  turno_agendado: number;
+  convertido: number;
+  perdido: number;
+  byFuente: Record<LeadFuente, number>;
+  conversionRate: number;
+  avgTimeToConvert: number | null;
+}
+
+export interface CRMKPIs {
+  leadsToday: number;
+  openConversations: number;
+  unreadMessages: number;
+  conversionRate: number;
+  topFuente: LeadFuente;
+}

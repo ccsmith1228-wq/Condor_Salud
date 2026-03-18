@@ -35,6 +35,7 @@ import {
   UserSearch,
   Stethoscope,
   Network,
+  MessageSquare,
 } from "lucide-react";
 
 const navIcons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -59,6 +60,7 @@ const navIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   "/dashboard/directorio": UserSearch,
   "/dashboard/interconsultas": Network,
   "/dashboard/triage": Stethoscope,
+  "/dashboard/crm": MessageSquare,
 };
 
 const navSections = [
@@ -66,6 +68,7 @@ const navSections = [
   {
     title: "GESTION CLINICA",
     items: [
+      { label: "CRM / Leads", href: "/dashboard/crm" },
       { label: "Pacientes", href: "/dashboard/pacientes" },
       { label: "Agenda", href: "/dashboard/agenda" },
       { label: "Verificacion", href: "/dashboard/verificacion" },
@@ -130,6 +133,7 @@ const ROUTE_MODULE_MAP: Record<string, ModuleId> = {
   "/dashboard/directorio": "directorio",
   "/dashboard/interconsultas": "interconsultas",
   "/dashboard/triage": "triage",
+  "/dashboard/crm": "crm" as ModuleId,
 };
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
