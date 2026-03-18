@@ -79,6 +79,10 @@ const serverSchema = z.object({
     .length(64, "SESSION_ENCRYPTION_KEY must be a 64-char hex string (32 bytes)")
     .optional(),
 
+  // ── Doctoraliar / Docplanner (Directorio Médico) ────────────
+  DOCTORALIAR_CLIENT_ID: z.string().optional(),
+  DOCTORALIAR_CLIENT_SECRET: z.string().optional(),
+
   // ── Google Maps (server-side proxy) ────────────────────────
   GOOGLE_MAPS_API_KEY: z.string().optional(),
 

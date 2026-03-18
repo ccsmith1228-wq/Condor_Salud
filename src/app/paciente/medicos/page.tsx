@@ -21,7 +21,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
-import { getTopDoctorsSearchUrl, getTopDoctorsBookingUrl } from "@/lib/topdoctors";
+import { getDoctoraliarSearchUrl } from "@/lib/doctoraliar";
 import { useGeolocation, type GeoCoords } from "@/lib/hooks/useGeolocation";
 import { useLocale } from "@/lib/i18n/context";
 
@@ -405,13 +405,13 @@ export default function MedicosPage() {
                     {doctor.education}
                   </span>
                   <a
-                    href={getTopDoctorsSearchUrl(doctor.name, locale)}
+                    href={getDoctoraliarSearchUrl(doctor.name)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-1 text-celeste-dark hover:underline"
                   >
                     <ExternalLink className="w-3 h-3" />
-                    TopDoctors
+                    Doctoraliar
                   </a>
                 </div>
 
@@ -455,7 +455,7 @@ export default function MedicosPage() {
                 Ver perfil
               </button>
               <a
-                href={getTopDoctorsBookingUrl(doctor.specialty, doctor.name, locale)}
+                href={getDoctoraliarSearchUrl(doctor.name)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1 text-sm font-semibold text-white bg-celeste-dark hover:bg-celeste-700 py-2 rounded-[4px] transition text-center"
@@ -518,13 +518,13 @@ export default function MedicosPage() {
                   Obras sociales: {selectedDoctor.insurance.join(", ")}
                 </div>
                 <a
-                  href={getTopDoctorsSearchUrl(selectedDoctor.name, locale)}
+                  href={getDoctoraliarSearchUrl(selectedDoctor.name)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-celeste-dark hover:underline text-sm"
                 >
                   <ExternalLink className="w-4 h-4 shrink-0" />
-                  Ver perfil en TopDoctors.com.ar
+                  Ver perfil en Doctoraliar.com
                 </a>
               </div>
 
@@ -536,16 +536,12 @@ export default function MedicosPage() {
                   Cerrar
                 </button>
                 <a
-                  href={getTopDoctorsBookingUrl(
-                    selectedDoctor.specialty,
-                    selectedDoctor.name,
-                    locale,
-                  )}
+                  href={getDoctoraliarSearchUrl(selectedDoctor.name)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1 bg-celeste-dark hover:bg-celeste-700 text-white text-sm font-semibold py-2.5 rounded-[4px] transition text-center"
                 >
-                  Sacar turno vía TopDoctors
+                  Sacar turno vía Doctoraliar
                 </a>
               </div>
             </div>

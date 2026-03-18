@@ -1,5 +1,7 @@
 // ─── Directorio Médico Service Layer ─────────────────────────
 // Real Supabase queries with mock fallback when not configured.
+// When DOCTORALIAR_CLIENT_ID is set, enriches results with
+// Doctoraliar profile URLs and available slots.
 
 import { isSupabaseConfigured } from "@/lib/env";
 import type { Doctor, DoctorReview } from "@/lib/types";

@@ -11,11 +11,7 @@ import {
   locationOptions,
   symptomToSpecialty,
 } from "@/lib/services/directorio";
-import {
-  getTopDoctorsSearchUrl,
-  getTopDoctorsBookingUrl,
-  getTopDoctorsSpecialtyUrl,
-} from "@/lib/topdoctors";
+import { getDoctoraliarSearchUrl, getDoctoraliarSpecialtyUrl } from "@/lib/doctoraliar";
 import { useLocale } from "@/lib/i18n/context";
 
 const specialties = ["Todas", ...specialtiesData];
@@ -162,16 +158,16 @@ export default function DirectorioPage() {
         ))}
       </div>
 
-      {/* TopDoctors attribution */}
+      {/* Doctoraliar attribution */}
       <div className="flex items-center gap-2 text-[11px] text-ink-muted">
         <span>Turnos y perfiles profesionales vía</span>
         <a
-          href="https://www.topdoctors.com.ar"
+          href="https://www.doctoraliar.com"
           target="_blank"
           rel="noopener noreferrer"
           className="font-semibold text-celeste-dark hover:underline inline-flex items-center gap-0.5"
         >
-          TopDoctors.com.ar <ExternalLink className="w-3 h-3" />
+          Doctoraliar.com <ExternalLink className="w-3 h-3" />
         </a>
       </div>
 
@@ -301,15 +297,15 @@ export default function DirectorioPage() {
                     </span>
                     <div className="flex items-center gap-2">
                       <a
-                        href={getTopDoctorsSearchUrl(doc.name, locale)}
+                        href={doc.profileUrl || getDoctoraliarSearchUrl(doc.name)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="px-3 py-1.5 text-xs font-medium text-celeste-dark border border-celeste-dark/30 rounded hover:bg-celeste-pale transition flex items-center gap-1"
                       >
-                        <ExternalLink className="w-3 h-3" /> TopDoctors
+                        <ExternalLink className="w-3 h-3" /> Doctoraliar
                       </a>
                       <a
-                        href={getTopDoctorsBookingUrl(doc.specialty, doc.name, locale)}
+                        href={doc.profileUrl || getDoctoraliarSearchUrl(doc.name)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className={`px-4 py-1.5 text-xs font-semibold rounded transition inline-block text-center ${
@@ -555,25 +551,21 @@ export default function DirectorioPage() {
                 </div>
 
                 <a
-                  href={getTopDoctorsBookingUrl(
-                    selectedDoctor.specialty,
-                    selectedDoctor.name,
-                    locale,
-                  )}
+                  href={selectedDoctor.profileUrl || getDoctoraliarSearchUrl(selectedDoctor.name)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-6 inline-block px-6 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition text-center"
                 >
-                  Reservar turno vía TopDoctors
+                  Reservar turno vía Doctoraliar
                 </a>
                 <a
-                  href={getTopDoctorsSearchUrl(selectedDoctor.name, locale)}
+                  href={selectedDoctor.profileUrl || getDoctoraliarSearchUrl(selectedDoctor.name)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-3 inline-flex items-center gap-1.5 text-sm text-celeste-dark hover:underline"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
-                  Ver perfil en TopDoctors.com.ar
+                  Ver perfil en Doctoraliar.com
                 </a>
               </div>
             </div>
@@ -774,7 +766,7 @@ export default function DirectorioPage() {
                   <div className="text-right shrink-0">
                     <p className="text-xs font-medium text-success-600 mb-2">{doc.nextSlot}</p>
                     <a
-                      href={getTopDoctorsBookingUrl(doc.specialty, doc.name, locale)}
+                      href={doc.profileUrl || getDoctoraliarSearchUrl(doc.name)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="px-4 py-2 text-xs font-semibold bg-celeste-dark text-white rounded hover:bg-celeste transition inline-block text-center"

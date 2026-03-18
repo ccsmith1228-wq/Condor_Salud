@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] — 2026-03-18
+
+### Added
+
+- **Doctoraliar API client** (`src/lib/doctoraliar.ts`) — Full OAuth2 client for Docplanner v3 API (Argentina's doctoraliar.com): facilities, doctors, addresses, slots, bookings, insurance providers, services, notifications. Cached 24h token with automatic refresh.
+- **Doctoraliar API route** (`/api/doctoraliar`) — Server-side proxy with auth + rate limiting. GET: facilities, doctors, doctor detail, addresses, services, slots, bookings, insurances, address-insurances. POST: book slot, cancel booking.
+- **Env vars**: `DOCTORALIAR_CLIENT_ID`, `DOCTORALIAR_CLIENT_SECRET` added to server schema
+- **Doctor type extended**: `profileUrl?` and `source?` fields added to `Doctor` interface
+
+### Changed
+
+- **Directorio page** — All external links now point to Doctoraliar.com instead of TopDoctors.com.ar. Uses `doc.profileUrl` when available from API, falls back to Doctoraliar search URL.
+- **Patient medicos page** — All booking and profile links updated from TopDoctors to Doctoraliar
+- **API_REFERENCE.md** — Added section 15 (Doctoraliar/Docplanner) with full endpoint reference, extensions, rate limits. TopDoctors section marked as legacy.
+
+### Removed
+
+- TopDoctors redirect-only integration replaced by proper Doctoraliar REST API with real slot/booking capability
+
 ## [0.7.0] — 2026-03-17
 
 ### Added

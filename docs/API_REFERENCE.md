@@ -19,7 +19,8 @@
 11. [Nubix Cloud (RIS/PACS — Medical Imaging)](#11-nubix-cloud)
 12. [AFIP WSFE v1 (Electronic Invoicing — Argentina)](#12-afip-wsfe-v1)
 13. [PAMI (Public Health Insurance — Argentina)](#13-pami)
-14. [TopDoctors (Doctor Directory)](#14-topdoctors)
+14. [TopDoctors (Legacy)](#14-topdoctors-legacy)
+15. [Doctoraliar / Docplanner](#15-doctoraliar-docplanner)
 
 ---
 
@@ -1079,27 +1080,81 @@ SISA may be a better integration point for coverage verification:
 
 ---
 
-## 14. TopDoctors
+## 14. TopDoctors (Legacy)
 
-**Website**: <https://www.topdoctors.com.ar>  
-**API Docs**: ⚠️ **No public API** — booking platform, contact for partnership  
-**Contact**: <info@topdoctors.com.ar>, +54 (11) 68419961  
-**Used for**: Doctor directory enrichment, specialist search
+**Website**: <https://www.topdoctors.com.ar>
+**Status**: Replaced by Doctoraliar integration (v0.8.0)
+**Used for**: Legacy redirect-only links (no API)
 
-### 14.1 Platform Features
+---
 
-- Specialist doctor search and booking
-- Doctor profiles with reviews, ratings, specialties
-- Online appointment scheduling
-- Telemedicine booking
-- Available in Argentina, Spain, Mexico, Colombia, Chile, Italy, UK, USA
+## 15. Doctoraliar (Docplanner)
 
-### 14.2 Integration Strategy
+**Website**: <https://www.doctoraliar.com>
+**API Docs**: <https://integrations.docplanner.com/docs/>
+**Guide**: <https://integrations.docplanner.com/guide/>
+**Used for**: Doctor directory, appointment slots, booking, insurance verification
 
-1. **Partnership API** — Contact TopDoctors for B2B API access
-2. **Embed/Redirect** — Link to TopDoctors profiles for specialist referrals
-3. **Manual sync** — Staff-managed directory data
-4. **Alternative**: Use Google Places API for basic provider directory
+### 15.1 API Overview
+
+Doctoraliar is the Argentine branch of Docplanner Group (110,000+ professionals).
+The REST API v3 uses OAuth2 `client_credentials` flow.
+
+| Detail          | Value                                                       |
+| --------------- | ----------------------------------------------------------- |
+| Base URL        | `https://www.doctoraliar.com/api/v3/integration/{resource}` |
+| Token URL       | `https://www.doctoraliar.com/oauth/v2/token`                |
+| Auth            | OAuth2 `client_credentials` (24h token)                     |
+| Rate Limit GET  | 8,000 req/hour                                              |
+| Rate Limit POST | 40 req/minute (2,400/hour)                                  |
+| Content-Type    | `application/vnd.docplanner+json; charset=UTF-8`            |
+
+### 15.2 Resources
+
+| Endpoint                                                              | Method | Description                            |
+| --------------------------------------------------------------------- | ------ | -------------------------------------- |
+| `/facilities`                                                         | GET    | List partner facilities                |
+| `/facilities/{fid}/doctors`                                           | GET    | List doctors in a facility             |
+| `/facilities/{fid}/doctors/{did}`                                     | GET    | Doctor detail (profile URL, addresses) |
+| `/facilities/{fid}/doctors/{did}/addresses`                           | GET    | Doctor office locations                |
+| `/facilities/{fid}/doctors/{did}/addresses/{aid}/services`            | GET    | Services offered at address            |
+| `/facilities/{fid}/doctors/{did}/addresses/{aid}/slots`               | GET    | Available appointment slots            |
+| `/facilities/{fid}/doctors/{did}/addresses/{aid}/slots/{start}/book`  | POST   | Book a slot                            |
+| `/facilities/{fid}/doctors/{did}/addresses/{aid}/bookings`            | GET    | List bookings                          |
+| `/facilities/{fid}/doctors/{did}/addresses/{aid}/bookings/{bid}`      | DELETE | Cancel booking                         |
+| `/facilities/{fid}/doctors/{did}/addresses/{aid}/bookings/{bid}/move` | POST   | Move booking                           |
+| `/insurance-providers`                                                | GET    | List insurance providers               |
+| `/insurance-providers/{pid}/plans`                                    | GET    | Plans for a provider                   |
+| `/facilities/{fid}/doctors/{did}/addresses/{aid}/insurance-providers` | GET    | Insurance at address                   |
+| `/notifications/multiple`                                             | GET    | Pull notification queue                |
+
+### 15.3 Extensions (query param `with`)
+
+- `doctor.profile_url` — Doctor's Doctoraliar profile URL
+- `doctor.specializations` — Specialization list
+- `doctor.addresses` — All addresses for a doctor
+- `address.online_only` — Video consultation flag
+- `address.insurance_support` — Insurance type (`private`, `insurance`, `private_and_insurance`)
+- `slot.services` — Services attached to slots
+- `booking.patient` — Patient data on bookings
+- `booking.address_service` — Service details on bookings
+
+### 15.4 Environment Variables
+
+```env
+DOCTORALIAR_CLIENT_ID=          # OAuth2 client ID from Docplanner
+DOCTORALIAR_CLIENT_SECRET=      # OAuth2 client secret
+```
+
+### 15.5 Internal API Route
+
+`/api/doctoraliar` — Proxies requests to Doctoraliar API with auth + rate limiting.
+
+| Param      | GET Resources                                                                                                       |
+| ---------- | ------------------------------------------------------------------------------------------------------------------- |
+| `resource` | `facilities`, `doctors`, `doctor`, `addresses`, `services`, `slots`, `bookings`, `insurances`, `address-insurances` |
+
+POST actions: `book` (book a slot), `cancel` (cancel a booking).
 
 ---
 
@@ -1155,6 +1210,10 @@ AFIP_KEY_PATH=
 AFIP_WSAA_URL=
 AFIP_WSFE_URL=
 AFIP_ENVIRONMENT=              # "production" or "homologacion"
+
+# Doctoraliar (Docplanner)
+DOCTORALIAR_CLIENT_ID=
+DOCTORALIAR_CLIENT_SECRET=
 ```
 
 ---
@@ -1170,6 +1229,7 @@ AFIP_ENVIRONMENT=              # "production" or "homologacion"
 | **Google APIs** | Varies by API                                | Calendar: 1M queries/day, Places: varies |
 | **Twilio**      | 1 msg/s (WhatsApp sandbox)                   | Higher in production                     |
 | **Upstash**     | 1000 req/s (free), higher on paid            | Per database                             |
+| **Doctoraliar** | 8,000 GET/hour, 40 POST/minute               | Per OAuth2 client, adjustable on request |
 
 ---
 
@@ -1188,3 +1248,4 @@ AFIP_ENVIRONMENT=              # "production" or "homologacion"
 | **Sentry**        | DSN + Auth Token               | DSN in client config, Auth Token for API            |
 | **Nubix**         | API Key + Tenant               | `Authorization: Bearer {key}`, `X-Tenant-ID: {id}`  |
 | **AFIP**          | X.509 Certificate + WSAA Token | SOAP headers with Token + Sign                      |
+| **Doctoraliar**   | OAuth2 Bearer                  | `Authorization: Bearer {access_token}`              |
