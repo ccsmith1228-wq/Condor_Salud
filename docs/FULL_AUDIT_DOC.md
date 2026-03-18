@@ -16,12 +16,12 @@
 6. [Authentication & Authorization](#6-authentication--authorization)
 7. [Middleware](#7-middleware)
 8. [Database Schema (Supabase/PostgreSQL)](#8-database-schema)
-9. [Row-Level Security (RLS) Policies](#9-row-level-security-policies)
-10. [Dashboard Modules (1–15)](#10-dashboard-modules)
+9. [Row-Level Security (RLS) Policies](#9-row-level-security-rls-policies)
+10. [Dashboard Modules (1–15+)](#10-dashboard-modules-115)
 11. [Patient Portal](#11-patient-portal)
 12. [Landing Page & Marketing](#12-landing-page--marketing)
-13. [AI & Chatbot System (Cora)](#13-ai--chatbot-system)
-14. [Service Layer (All Services)](#14-service-layer)
+13. [AI & Chatbot System (Cora)](#13-ai--chatbot-system-cora)
+14. [Service Layer (All Services)](#14-service-layer-all-services)
 15. [Custom React Hooks](#15-custom-react-hooks)
 16. [UI Component Library](#16-ui-component-library)
 17. [Security Implementation](#17-security-implementation)
@@ -34,7 +34,7 @@
 24. [Environment Variables](#24-environment-variables)
 25. [Testing Infrastructure](#25-testing-infrastructure)
 26. [Deployment & Docker](#26-deployment--docker)
-27. [File Tree (Full)](#27-file-tree)
+27. [File Tree (Full)](#27-file-tree-full)
 
 ---
 
@@ -150,7 +150,7 @@ All dashboard pages are **browsable without authentication** using hardcoded dem
 
 ### App Router Structure
 
-```
+```text
 src/
 ├── app/                  # Next.js App Router pages
 │   ├── layout.tsx        # Root layout (providers, metadata)
@@ -171,7 +171,7 @@ src/
 
 ### Provider Hierarchy (Root Layout)
 
-```
+```text
 <PostHogProvider>
   <LanguageProvider>          # i18n (ES/EN + segment overrides)
     <SWRProvider>             # Global SWR config
@@ -189,7 +189,7 @@ src/
 
 ### Dashboard Layout Provider Hierarchy
 
-```
+```text
 <SWRProvider>
   <ToastProvider>
     <DemoModalProvider>
@@ -380,7 +380,7 @@ The app supports **three authentication strategies** (checked in priority order 
 
 ### Auth Flow
 
-```
+```text
 Login → POST /api/auth/session → Creates encrypted cookie OR Supabase session
 Google → /api/auth/google/callback → Token exchange → Encrypted cookie + public user cookie
 Supabase → Standard Supabase Auth flow → SSR cookie management
@@ -389,35 +389,37 @@ Supabase → Standard Supabase Auth flow → SSR cookie management
 ### Role-Based Access Control (RBAC)
 
 **4 Roles:**
-| Role | Display Name | Description |
-|---|---|---|
-| `admin` | Administrador | Full access to all modules |
-| `medico` | Médico | Patients, agenda, reports, audit |
-| `facturacion` | Facturación | Billing, rejections, reports, inventory |
-| `recepcion` | Recepción | Patients, agenda, inventory |
+
+| Role          | Display Name  | Description                             |
+| ------------- | ------------- | --------------------------------------- |
+| `admin`       | Administrador | Full access to all modules              |
+| `medico`      | Médico        | Patients, agenda, reports, audit        |
+| `facturacion` | Facturación   | Billing, rejections, reports, inventory |
+| `recepcion`   | Recepción     | Patients, agenda, inventory             |
 
 **13 Granular Permissions:**
-| Permission | Admin | Médico | Facturación | Recepción |
-|---|---|---|---|---|
-| `pacientes:read` | ✅ | ✅ | ✅ | ✅ |
-| `pacientes:write` | ✅ | ✅ | — | ✅ |
-| `facturacion:read` | ✅ | — | ✅ | — |
-| `facturacion:write` | ✅ | — | ✅ | — |
-| `agenda:read` | ✅ | ✅ | — | ✅ |
-| `agenda:write` | ✅ | ✅ | — | ✅ |
-| `inventario:read` | ✅ | — | ✅ | ✅ |
-| `inventario:write` | ✅ | — | — | — |
-| `reportes:read` | ✅ | ✅ | ✅ | — |
-| `auditoria:read` | ✅ | ✅ | ✅ | — |
-| `configuracion:read` | ✅ | — | — | — |
-| `configuracion:write` | ✅ | — | — | — |
-| `equipo:manage` | ✅ | — | — | — |
+
+| Permission            | Admin | Médico | Facturación | Recepción |
+| --------------------- | ----- | ------ | ----------- | --------- |
+| `pacientes:read`      | ✅    | ✅     | ✅          | ✅        |
+| `pacientes:write`     | ✅    | ✅     | —           | ✅        |
+| `facturacion:read`    | ✅    | —      | ✅          | —         |
+| `facturacion:write`   | ✅    | —      | ✅          | —         |
+| `agenda:read`         | ✅    | ✅     | —           | ✅        |
+| `agenda:write`        | ✅    | ✅     | —           | ✅        |
+| `inventario:read`     | ✅    | —      | ✅          | ✅        |
+| `inventario:write`    | ✅    | —      | —           | —         |
+| `reportes:read`       | ✅    | ✅     | ✅          | —         |
+| `auditoria:read`      | ✅    | ✅     | ✅          | —         |
+| `configuracion:read`  | ✅    | —      | —           | —         |
+| `configuracion:write` | ✅    | —      | —           | —         |
+| `equipo:manage`       | ✅    | —      | —           | —         |
 
 ### RBAC Route Protection
 
 Routes are mapped to required permissions in `rbac.ts`:
 
-```
+```text
 /dashboard/pacientes → pacientes:read
 /dashboard/agenda → agenda:read
 /dashboard/facturacion → facturacion:read
@@ -554,7 +556,7 @@ Matches all routes except: `_next/static`, `_next/image`, `favicon.ico`, `logos/
 
 | Table             | Purpose                 | Key Columns                                                                    |
 | ----------------- | ----------------------- | ------------------------------------------------------------------------------ |
-| `coverage_plans`  | Insurance coverage data | provider*key (UNIQUE), provider_name, covers*_ (7 booleans), copay\__          |
+| `coverage_plans`  | Insurance coverage data | `provider_key` (UNIQUE), `provider_name`, `covers_*` (7 booleans), `copay_*`   |
 | `available_slots` | Booking slots           | clinic_id, doctor_profile_id, slot_date, slot_time, is_telemedicine, is_booked |
 | `appointments`    | Chatbot bookings        | slot_id, patient_id, status (confirmed/cancelled/completed/no_show)            |
 | `waitlist`        | Marketing waitlist      | email (UNIQUE), source, segment                                                |
@@ -864,7 +866,7 @@ The landing page detects visitor type and shows different content:
 
 ### Architecture
 
-```
+```text
 User Message → Emergency Detection (rule-based, never skipped)
             → Claude AI (if API key configured)
             → Rule-based Engine (fallback)
@@ -1067,7 +1069,7 @@ User Message → Emergency Detection (rule-based, never skipped)
 
 ### CSP Policy Details
 
-```
+```text
 default-src 'self'
 script-src 'self' 'unsafe-inline'
 style-src 'self' 'unsafe-inline' fonts.googleapis.com
@@ -1157,7 +1159,7 @@ Logger auto-redacts: email, DNI, CUIL, password, token, secret, authorization
 
 ## 19. Internationalization
 
-### Architecture
+### i18n Architecture
 
 - `LanguageProvider` context supports ES (default) and EN
 - Visitor segment detection: `proveedor` (healthcare), `turista` (patient), `desconocido`
@@ -1215,40 +1217,44 @@ Logger auto-redacts: email, DNI, CUIL, password, token, secret, authorization
 20 modules across 4 categories:
 
 **Gestión Clínica:**
-| ID | Module | Price (ARS/month) | Phase |
-|---|---|---|---|
-| pacientes | Pacientes | $3,500 | 1 |
-| agenda | Agenda | $4,000 | 1 |
-| verificacion | Verificación de Cobertura | $2,500 | 1 |
-| inventario | Inventario | $3,000 | 1 |
+
+| ID           | Module                    | Price (ARS/month) | Phase |
+| ------------ | ------------------------- | ----------------- | ----- |
+| pacientes    | Pacientes                 | $3,500            | 1     |
+| agenda       | Agenda                    | $4,000            | 1     |
+| verificacion | Verificación de Cobertura | $2,500            | 1     |
+| inventario   | Inventario                | $3,000            | 1     |
 
 **Finanzas:**
-| ID | Module | Price (ARS/month) | Phase |
-|---|---|---|---|
-| facturacion | Facturación | $5,000 | 1 |
-| rechazos | Gestión de Rechazos | $4,500 | 1 |
-| financiadores | Financiadores | $3,500 | 1 |
-| inflacion | Tracker de Inflación | $2,000 | 2 |
-| pagos | Pagos y Cobros | $3,000 | 2 |
+
+| ID            | Module               | Price (ARS/month) | Phase |
+| ------------- | -------------------- | ----------------- | ----- |
+| facturacion   | Facturación          | $5,000            | 1     |
+| rechazos      | Gestión de Rechazos  | $4,500            | 1     |
+| financiadores | Financiadores        | $3,500            | 1     |
+| inflacion     | Tracker de Inflación | $2,000            | 2     |
+| pagos         | Pagos y Cobros       | $3,000            | 2     |
 
 **Inteligencia:**
-| ID | Module | Price (ARS/month) | Phase |
-|---|---|---|---|
-| auditoria | Auditoría Pre-Presentación | $5,500 | 2 |
-| nomenclador | Nomenclador Unificado | $2,000 | 1 |
-| reportes | Reportes | $3,000 | 1 |
-| alertas | Alertas Inteligentes | $1,500 | 1 |
-| wizard | Recorrido Guiado | $0 | 1 |
+
+| ID          | Module                     | Price (ARS/month) | Phase |
+| ----------- | -------------------------- | ----------------- | ----- |
+| auditoria   | Auditoría Pre-Presentación | $5,500            | 2     |
+| nomenclador | Nomenclador Unificado      | $2,000            | 1     |
+| reportes    | Reportes                   | $3,000            | 1     |
+| alertas     | Alertas Inteligentes       | $1,500            | 1     |
+| wizard      | Recorrido Guiado           | $0                | 1     |
 
 **Servicios:**
-| ID | Module | Price (ARS/month) | Phase |
-|---|---|---|---|
-| farmacia | Farmacia Online | $6,000 | 3 |
-| telemedicina | Telemedicina | $7,000 | 3 |
-| directorio | Directorio Médico | $2,500 | 3 |
-| interconsultas | Red de Interconsultas | $4,000 | 3 |
-| triage | Triage Inteligente | $5,000 | 3 |
-| nubix | Nubix Cloud (RIS/PACS) | $8,000 | 4 |
+
+| ID             | Module                 | Price (ARS/month) | Phase |
+| -------------- | ---------------------- | ----------------- | ----- |
+| farmacia       | Farmacia Online        | $6,000            | 3     |
+| telemedicina   | Telemedicina           | $7,000            | 3     |
+| directorio     | Directorio Médico      | $2,500            | 3     |
+| interconsultas | Red de Interconsultas  | $4,000            | 3     |
+| triage         | Triage Inteligente     | $5,000            | 3     |
+| nubix          | Nubix Cloud (RIS/PACS) | $8,000            | 4     |
 
 ### Preset Plans
 
@@ -1392,7 +1398,7 @@ const { isExporting, exportError, exportPDF, exportExcel } = useExport();
 
 ## 27. File Tree (Full)
 
-```
+```text
 condor-salud/
 ├── src/
 │   ├── middleware.ts
