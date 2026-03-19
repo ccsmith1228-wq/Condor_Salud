@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.4] — 2026-03-19
+
+### Fixed
+
+- **Geolocation now works in Cora chatbot**
+  - `Permissions-Policy` header changed from `geolocation=()` (deny-all) to `geolocation=(self)` — the browser was blocking the Geolocation API before it even prompted the user
+  - Service worker cache bumped to v2 so returning visitors drop stale cached responses with the old deny-all header
+  - Added English regex patterns for all geolocation intents (`shared_location`, `nearby_doctor`, `nearby_pharmacy`, `nearby_guardia`, `directions`, `location`) — previously only Spanish patterns existed, so English messages like "I shared my location" fell through to the fallback response
+  - Geolocation errors (permission denied, timeout, unavailable) now display as a bot message in chat instead of being silently swallowed — users see what went wrong and get quick replies to retry or search the directory
+
 ## [0.9.3] — 2026-03-19
 
 ### Changed

@@ -432,6 +432,25 @@ export default function Chatbot() {
       sendMessage(isEn ? "I shared my location" : "Compartí mi ubicación");
     } else if (geo.error && !geo.loading) {
       setLocationRequested(false);
+      // Show the geolocation error as a bot message so the user knows what went wrong
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `bot-geo-err-${Date.now()}`,
+          role: "bot" as const,
+          timestamp: Date.now(),
+          text: geo.error!,
+          quickReplies: isEn
+            ? [
+                { label: "Try again", value: "I want to share my location" },
+                { label: "Search directory", value: "I want to see the doctor directory" },
+              ]
+            : [
+                { label: "Reintentar", value: "Quiero compartir mi ubicación" },
+                { label: "Buscar en directorio", value: "Quiero ver el directorio médico" },
+              ],
+        },
+      ]);
     }
   }, [locationRequested, geo.coords, geo.error, geo.loading, isTyping, isEn, sendMessage]);
 

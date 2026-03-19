@@ -5,7 +5,7 @@
  * Provides offline caching + network-first strategy for API calls.
  */
 
-const CACHE_NAME = "condor-salud-v1";
+const CACHE_NAME = "condor-salud-v2";
 const STATIC_ASSETS = [
   "/",
   "/dashboard",

@@ -315,6 +315,9 @@ const INTENTS: {
     patterns: [
       /(?:d[oó]nde\s+(?:est[aá]n?|queda)|direcci[oó]n|sucursal|oficina)/i,
       /(?:(?:qu[eé]\s+)?(?:zona|barrio|localidad|provincia))/i,
+      // English
+      /(?:where\s+(?:are\s+you|is\s+it)|address|office|branch|location)/i,
+      /(?:what\s+(?:area|zone|neighborhood|city))/i,
     ],
   },
   // ── Geolocation-aware intents ─────────────────────────────
@@ -325,6 +328,10 @@ const INTENTS: {
       /(?:cerca|cercan|pr[oó]xim).*(?:m[eé]dico|doctor|profesional|consultor)/i,
       /(?:buscar|encontrar).*(?:m[eé]dico|doctor).*(?:cerca|zona)/i,
       /(?:consultor|cl[ií]nica|centro\s+m[eé]dico).*(?:cerca|pr[oó]xim)/i,
+      // English
+      /(?:doctor|physician|clinic|provider).*(?:near|nearby|close|around)/i,
+      /(?:near|nearby|close).*(?:doctor|physician|clinic|provider)/i,
+      /(?:find|search|look\s+for).*(?:doctor|physician|clinic).*(?:near|nearby)/i,
     ],
   },
   {
@@ -334,6 +341,10 @@ const INTENTS: {
       /(?:cerca|cercan|pr[oó]xim).*farmacia/i,
       /(?:farmacia\s+de\s+(?:turno|guardia))/i,
       /(?:d[oó]nde.*(?:compro|consigo).*(?:remedio|medicamento))/i,
+      // English
+      /(?:pharmacy|pharmacies|drugstore).*(?:near|nearby|close|around|on[\s-]?duty)/i,
+      /(?:near|nearby|close).*(?:pharmacy|drugstore)/i,
+      /(?:where.*(?:buy|get).*(?:medicine|medication|meds))/i,
     ],
   },
   {
@@ -343,6 +354,11 @@ const INTENTS: {
       /(?:cerca|cercan|pr[oó]xim).*(?:guardia|emergencia|urgencia|hospital)/i,
       /(?:d[oó]nde.*guardia|guardia.*d[oó]nde)/i,
       /(?:necesito.*(?:guardia|hospital|emergencia))/i,
+      // English
+      /(?:emergency|ER|hospital|urgent\s*care).*(?:near|nearby|close|closest|nearest)/i,
+      /(?:near|nearby|closest|nearest).*(?:emergency|ER|hospital|urgent\s*care)/i,
+      /(?:where.*(?:emergency|ER|hospital))/i,
+      /(?:need.*(?:emergency|hospital|urgent\s*care))/i,
     ],
   },
   {
@@ -352,6 +368,9 @@ const INTENTS: {
       /(?:direcciones|navegaci[oó]n|GPS|google\s*maps)/i,
       /(?:llev[aá]me|guiame|gui[aá]me|ir\s+(?:a|al|hasta))/i,
       /(?:abrir\s+google\s*maps|farmacias?\s+en\s+google|m[eé]dicos?\s+en\s+google)/i,
+      // English
+      /(?:how\s+(?:do\s+I|to)\s+get\s+to|directions?\s+to|navigate\s+to|route\s+to)/i,
+      /(?:take\s+me\s+to|get\s+directions|open\s+(?:google\s*)?maps)/i,
     ],
   },
   {
@@ -359,6 +378,10 @@ const INTENTS: {
     patterns: [
       /(?:compart[ií]\s+(?:mi\s+)?ubicaci[oó]n)/i,
       /(?:ya\s+compart[ií]|activ[eé]\s+(?:la\s+)?ubicaci[oó]n|habilit[eé]\s+(?:el\s+)?GPS)/i,
+      // English
+      /(?:I\s+shared\s+my\s+location)/i,
+      /(?:shared\s+(?:my\s+)?location|enabled?\s+(?:my\s+)?(?:location|GPS))/i,
+      /(?:location\s+shared|GPS\s+(?:is\s+)?on)/i,
     ],
   },
 ];
