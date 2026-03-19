@@ -10,6 +10,9 @@ import {
   generateNomencladorExcel,
   generateInventarioExcel,
   generatePacientesExcel,
+  generateFinanciadoresExcel,
+  generateInflacionExcel,
+  generateAgendaExcel,
 } from "@/lib/services/excel";
 import type { ExcelMeta } from "@/lib/services/excel";
 import {
@@ -20,12 +23,25 @@ import {
   getPacientes,
   getFacturacionKPIs,
   getRechazosKPIs,
+  getFinanciadores,
+  getTurnos,
 } from "@/lib/services/data";
+import { getFinanciadoresExtended } from "@/lib/services/financiadores";
+import { getInflacionMensual, getFinanciadoresInflacion } from "@/lib/services/inflacion";
 import { logger } from "@/lib/security/api-guard";
 import { requireAuth } from "@/lib/security/require-auth";
 import { checkRateLimit } from "@/lib/security/api-guard";
 
-const REPORT_TYPES = ["facturacion", "rechazos", "nomenclador", "inventario", "pacientes"] as const;
+const REPORT_TYPES = [
+  "facturacion",
+  "rechazos",
+  "nomenclador",
+  "inventario",
+  "pacientes",
+  "financiadores",
+  "inflacion",
+  "agenda",
+] as const;
 type ExcelType = (typeof REPORT_TYPES)[number];
 
 export async function POST(request: NextRequest) {
@@ -85,6 +101,27 @@ export async function POST(request: NextRequest) {
         const pacientes = await getPacientes();
         buffer = await generatePacientesExcel(pacientes, meta);
         filename = `pacientes-${slug}.xlsx`;
+        break;
+      }
+      case "financiadores": {
+        const financiadores = await getFinanciadoresExtended();
+        buffer = await generateFinanciadoresExcel(financiadores, meta);
+        filename = `financiadores-${slug}.xlsx`;
+        break;
+      }
+      case "inflacion": {
+        const [meses, finInflacion] = await Promise.all([
+          getInflacionMensual({ period: "6m" }),
+          getFinanciadoresInflacion(),
+        ]);
+        buffer = await generateInflacionExcel(meses, finInflacion, meta);
+        filename = `inflacion-${slug}.xlsx`;
+        break;
+      }
+      case "agenda": {
+        const turnos = await getTurnos();
+        buffer = await generateAgendaExcel(turnos, meta);
+        filename = `agenda-${slug}.xlsx`;
         break;
       }
     }

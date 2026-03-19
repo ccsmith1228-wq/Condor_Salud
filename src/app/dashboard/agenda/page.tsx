@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { useToast } from "@/components/Toast";
 import { RequirePermission } from "@/components/RequirePermission";
+import { useExport } from "@/lib/services/export";
 import {
   createTurno,
   cancelTurno,
@@ -12,7 +13,7 @@ import {
 } from "@/lib/services/turnos";
 import type { Turno } from "@/lib/services/data";
 import { useTurnos } from "@/hooks/use-data";
-import { Calendar, Plus, X, Check, Clock, Ban, Loader2, Video } from "lucide-react";
+import { Calendar, Plus, X, Check, Clock, Ban, Loader2, Video, Download } from "lucide-react";
 
 // ─── Google Calendar hook ────────────────────────────────────
 
@@ -133,6 +134,7 @@ const financiadoresOptions = [
 export default function AgendaPage() {
   const { showToast } = useToast();
   const { data: turnos, isLoading, mutate } = useTurnos();
+  const { exportPDF, exportExcel, isExporting } = useExport();
   const { events: gCalEvents } = useGoogleCalendarEvents();
   const [vista, setVista] = useState<"semana" | "lista">("semana");
   const [profFilter, setProfFilter] = useState("");
@@ -251,6 +253,22 @@ export default function AgendaPage() {
           </p>
         </div>
         <div className="flex gap-2">
+          <button
+            onClick={() => exportPDF("agenda")}
+            disabled={isExporting}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition disabled:opacity-50"
+          >
+            <Download className="w-3.5 h-3.5" />
+            {isExporting ? "..." : "PDF"}
+          </button>
+          <button
+            onClick={() => exportExcel("agenda")}
+            disabled={isExporting}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition disabled:opacity-50"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Excel
+          </button>
           <button
             onClick={() => setVista("semana")}
             className={`px-4 py-2 text-sm rounded-[4px] font-medium transition ${vista === "semana" ? "bg-celeste-dark text-white" : "border border-border text-ink-light hover:border-celeste-dark"}`}

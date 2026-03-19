@@ -77,7 +77,7 @@ export default function InflacionPage() {
                 ))}
               </div>
               <button
-                onClick={() => exportPDF("kpi")}
+                onClick={() => exportPDF("inflacion")}
                 disabled={isExporting}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition disabled:opacity-50"
               >
@@ -85,7 +85,7 @@ export default function InflacionPage() {
                 {isExporting ? "..." : "Exportar PDF"}
               </button>
               <button
-                onClick={() => exportExcel("facturacion")}
+                onClick={() => exportExcel("inflacion")}
                 disabled={isExporting}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition disabled:opacity-50"
               >
@@ -198,7 +198,7 @@ export default function InflacionPage() {
             <div className="px-5 py-4 border-b border-border flex items-center justify-between">
               <div className="text-xs text-ink-muted">Detalle mensual</div>
               <button
-                onClick={() => exportExcel("facturacion")}
+                onClick={() => exportExcel("inflacion")}
                 disabled={isExporting}
                 className="text-xs text-celeste-dark font-medium hover:underline flex items-center gap-1"
               >

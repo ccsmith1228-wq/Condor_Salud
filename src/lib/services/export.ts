@@ -7,13 +7,22 @@
 
 "use client";
 
-export type PDFReportType = "facturacion" | "rechazos" | "kpi";
+export type PDFReportType =
+  | "facturacion"
+  | "rechazos"
+  | "kpi"
+  | "financiadores"
+  | "inflacion"
+  | "agenda";
 export type ExcelReportType =
   | "facturacion"
   | "rechazos"
   | "nomenclador"
   | "inventario"
-  | "pacientes";
+  | "pacientes"
+  | "financiadores"
+  | "inflacion"
+  | "agenda";
 
 interface ExportMeta {
   clinicName?: string;

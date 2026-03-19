@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useToast } from "@/components/Toast";
 import { useDemoAction } from "@/components/DemoModal";
+import { useExport } from "@/lib/services/export";
 import { Card, CardContent, StatusBadge, PageHeader, Input, Select, Button } from "@/components/ui";
 import {
   useLeads,
@@ -257,6 +258,7 @@ export default function PacientesPage() {
 
   const { showToast } = useToast();
   const { showDemo } = useDemoAction();
+  const { exportPDF, exportExcel, isExporting } = useExport();
   const [activeTab, setActiveTab] = useState<PacientesTab>(initialTab);
 
   // Patient data: real from Supabase or demo
@@ -348,7 +350,23 @@ export default function PacientesPage() {
           activeTab === "leads" ? (
             <Button onClick={() => showDemo("Nuevo lead manual")}>+ Nueva consulta</Button>
           ) : activeTab === "pacientes" ? (
-            <Button onClick={() => showDemo("Nuevo paciente")}>+ Nuevo paciente</Button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => exportPDF("kpi")}
+                disabled={isExporting}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition disabled:opacity-50"
+              >
+                {isExporting ? "..." : "PDF"}
+              </button>
+              <button
+                onClick={() => exportExcel("pacientes")}
+                disabled={isExporting}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition disabled:opacity-50"
+              >
+                Excel
+              </button>
+              <Button onClick={() => showDemo("Nuevo paciente")}>+ Nuevo paciente</Button>
+            </div>
           ) : null
         }
       />

@@ -463,3 +463,289 @@ export async function generatePacientesExcel(
 
 // ─── Export types ────────────────────────────────────────────
 export type { ExcelMeta };
+
+// ─── 6. Financiadores Excel ──────────────────────────────────
+export async function generateFinanciadoresExcel(
+  financiadores: Financiador[],
+  meta: ExcelMeta,
+): Promise<Buffer> {
+  const wb = new ExcelJS.Workbook();
+  wb.creator = "Cóndor Salud";
+
+  const ws = wb.addWorksheet("Financiadores");
+  addTitleSheet(ws, "Análisis de Financiadores", meta);
+
+  const h = ws.addRow([
+    "Financiador",
+    "Tipo",
+    "Facturado",
+    "Cobrado",
+    "% Cobro",
+    "Tasa Rechazo",
+    "Días Prom. Pago",
+    "Facturas Pend.",
+  ]);
+  applyHeaderStyle(h);
+
+  financiadores.forEach((f, i) => {
+    const cobro = f.facturado > 0 ? ((f.cobrado / f.facturado) * 100).toFixed(1) : "0";
+    const row = ws.addRow([
+      f.name,
+      f.type,
+      f.facturado,
+      f.cobrado,
+      `${cobro}%`,
+      `${f.tasaRechazo}%`,
+      f.diasPromedioPago,
+      f.facturasPendientes,
+    ]);
+    [3, 4].forEach((c) => {
+      row.getCell(c).numFmt = '"$ "#,##0';
+    });
+    // Color-coded rechazo
+    const rechazoCell = row.getCell(6);
+    rechazoCell.font = {
+      bold: true,
+      color: { argb: f.tasaRechazo > 10 ? RED : f.tasaRechazo > 5 ? GOLD : GREEN },
+    };
+    if (i % 2 === 1) {
+      row.eachCell((cell) => {
+        cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: SURFACE } };
+      });
+    }
+  });
+
+  // Summary row
+  ws.addRow([]);
+  const totalFact = financiadores.reduce((s, f) => s + f.facturado, 0);
+  const totalCob = financiadores.reduce((s, f) => s + f.cobrado, 0);
+  const summRow = ws.addRow([
+    "TOTAL",
+    "",
+    totalFact,
+    totalCob,
+    totalFact > 0 ? `${((totalCob / totalFact) * 100).toFixed(1)}%` : "0%",
+    "",
+    "",
+    "",
+  ]);
+  summRow.getCell(1).font = { bold: true, size: 11 };
+  [3, 4].forEach((c) => {
+    summRow.getCell(c).numFmt = '"$ "#,##0';
+    summRow.getCell(c).font = { bold: true, size: 11 };
+  });
+  autoWidth(ws);
+
+  return (await wb.xlsx.writeBuffer()) as unknown as Buffer;
+}
+
+// ─── 7. Inflación Excel ──────────────────────────────────────
+export async function generateInflacionExcel(
+  meses: {
+    mes: string;
+    ipc: number;
+    facturado: number;
+    cobrado: number;
+    diasDemora: number;
+    perdidaReal: number;
+    perdidaPorcentaje: number;
+  }[],
+  financiadoresInflacion: {
+    name: string;
+    diasPromedio: number;
+    perdidaPorDia: number;
+    perdidaTotal: number;
+    montoAfectado: number;
+  }[],
+  meta: ExcelMeta,
+): Promise<Buffer> {
+  const wb = new ExcelJS.Workbook();
+  wb.creator = "Cóndor Salud";
+
+  // ── Monthly detail sheet ──
+  const ws = wb.addWorksheet("Inflación Mensual");
+  addTitleSheet(ws, "Tracker de Inflación", meta);
+
+  const h = ws.addRow([
+    "Mes",
+    "IPC %",
+    "Facturado",
+    "Cobrado",
+    "Días Demora",
+    "Pérdida Real",
+    "% Pérdida",
+  ]);
+  applyHeaderStyle(h);
+
+  meses.forEach((m, i) => {
+    const row = ws.addRow([
+      m.mes,
+      `${m.ipc}%`,
+      m.facturado,
+      m.cobrado,
+      m.diasDemora,
+      m.perdidaReal,
+      `${m.perdidaPorcentaje}%`,
+    ]);
+    [3, 4, 6].forEach((c) => {
+      row.getCell(c).numFmt = '"$ "#,##0';
+    });
+    const perdCell = row.getCell(6);
+    perdCell.font = { bold: true, color: { argb: RED } };
+    if (i % 2 === 1) {
+      row.eachCell((cell) => {
+        cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: SURFACE } };
+      });
+    }
+  });
+
+  // Totals
+  ws.addRow([]);
+  const totalPerdida = meses.reduce((s, m) => s + m.perdidaReal, 0);
+  const summRow = ws.addRow(["TOTAL", "", "", "", "", totalPerdida, ""]);
+  summRow.getCell(1).font = { bold: true, size: 11 };
+  summRow.getCell(6).numFmt = '"$ "#,##0';
+  summRow.getCell(6).font = { bold: true, size: 11, color: { argb: RED } };
+  autoWidth(ws);
+
+  // ── Per-financiador impact sheet ──
+  if (financiadoresInflacion.length > 0) {
+    const pws = wb.addWorksheet("Impacto por Financiador");
+    addTitleSheet(pws, "Impacto Inflacionario por Financiador", meta);
+
+    const ph = pws.addRow([
+      "Financiador",
+      "Días Promedio",
+      "Pérdida/Día %",
+      "Pérdida Total %",
+      "Monto Afectado",
+      "Pérdida Estimada",
+    ]);
+    applyHeaderStyle(ph);
+
+    financiadoresInflacion.forEach((f, i) => {
+      const perdidaEstimada = Math.round(f.montoAfectado * (f.perdidaTotal / 100));
+      const row = pws.addRow([
+        f.name,
+        f.diasPromedio,
+        `${f.perdidaPorDia}%`,
+        `${f.perdidaTotal}%`,
+        f.montoAfectado,
+        perdidaEstimada,
+      ]);
+      [5, 6].forEach((c) => {
+        row.getCell(c).numFmt = '"$ "#,##0';
+      });
+      row.getCell(6).font = { bold: true, color: { argb: RED } };
+      if (i % 2 === 1) {
+        row.eachCell((cell) => {
+          cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: SURFACE } };
+        });
+      }
+    });
+    autoWidth(pws);
+  }
+
+  return (await wb.xlsx.writeBuffer()) as unknown as Buffer;
+}
+
+// ─── 8. Agenda Excel ─────────────────────────────────────────
+export async function generateAgendaExcel(
+  turnos: {
+    hora: string;
+    paciente: string;
+    tipo: string;
+    financiador: string;
+    profesional: string;
+    estado: string;
+    notas?: string;
+  }[],
+  meta: ExcelMeta,
+): Promise<Buffer> {
+  const wb = new ExcelJS.Workbook();
+  wb.creator = "Cóndor Salud";
+
+  // ── Summary sheet ──
+  const sws = wb.addWorksheet("Resumen");
+  addTitleSheet(sws, "Resumen de Agenda", meta);
+
+  const total = turnos.length;
+  const confirmados = turnos.filter((t) => t.estado === "confirmado").length;
+  const pendientes = turnos.filter((t) => t.estado === "pendiente").length;
+  const atendidos = turnos.filter((t) => t.estado === "atendido").length;
+  const cancelados = turnos.filter((t) => t.estado === "cancelado").length;
+
+  const sh = sws.addRow(["Indicador", "Valor"]);
+  applyHeaderStyle(sh);
+  sws.addRow(["Total turnos", total]);
+  sws.addRow(["Confirmados", confirmados]);
+  sws.addRow(["Pendientes", pendientes]);
+  sws.addRow(["Atendidos", atendidos]);
+  sws.addRow(["Cancelados", cancelados]);
+  autoWidth(sws);
+
+  // ── Detail sheet ──
+  const ws = wb.addWorksheet("Turnos");
+  addTitleSheet(ws, "Detalle de Agenda", meta);
+
+  const h = ws.addRow([
+    "Hora",
+    "Paciente",
+    "Tipo",
+    "Financiador",
+    "Profesional",
+    "Estado",
+    "Notas",
+  ]);
+  applyHeaderStyle(h);
+
+  turnos.forEach((t, i) => {
+    const row = ws.addRow([
+      t.hora,
+      t.paciente,
+      t.tipo,
+      t.financiador,
+      t.profesional,
+      t.estado.charAt(0).toUpperCase() + t.estado.slice(1),
+      t.notas || "",
+    ]);
+    const estadoCell = row.getCell(6);
+    estadoCell.font = {
+      bold: true,
+      color: {
+        argb:
+          t.estado === "confirmado"
+            ? GREEN
+            : t.estado === "pendiente"
+              ? GOLD
+              : t.estado === "cancelado"
+                ? RED
+                : INK,
+      },
+    };
+    if (i % 2 === 1) {
+      row.eachCell((cell) => {
+        cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: SURFACE } };
+      });
+    }
+  });
+
+  // By profesional pivot
+  const pws = wb.addWorksheet("Por Profesional");
+  addTitleSheet(pws, "Turnos por Profesional", meta);
+  const ph = pws.addRow(["Profesional", "Turnos", "% del Total"]);
+  applyHeaderStyle(ph);
+
+  const byProf: Record<string, number> = {};
+  turnos.forEach((t) => {
+    byProf[t.profesional] = (byProf[t.profesional] || 0) + 1;
+  });
+  Object.entries(byProf)
+    .sort((a, b) => b[1] - a[1])
+    .forEach(([prof, count]) => {
+      pws.addRow([prof, count, total > 0 ? `${((count / total) * 100).toFixed(1)}%` : "0%"]);
+    });
+  autoWidth(pws);
+
+  return (await wb.xlsx.writeBuffer()) as unknown as Buffer;
+}

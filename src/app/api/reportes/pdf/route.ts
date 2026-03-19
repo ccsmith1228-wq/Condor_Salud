@@ -4,7 +4,14 @@
 // Returns: PDF stream with Content-Disposition header.
 
 import { NextRequest, NextResponse } from "next/server";
-import { renderFacturaPDF, renderRechazosPDF, renderKPIDashboardPDF } from "@/lib/services/pdf";
+import {
+  renderFacturaPDF,
+  renderRechazosPDF,
+  renderKPIDashboardPDF,
+  renderFinanciadoresPDF,
+  renderInflacionPDF,
+  renderAgendaPDF,
+} from "@/lib/services/pdf";
 import type { ReportMeta } from "@/lib/services/pdf";
 import {
   getFacturas,
@@ -15,12 +22,23 @@ import {
   getPacientesKPIs,
   getAgendaKPIs,
   getInventarioKPIs,
+  getFinanciadores,
+  getTurnos,
 } from "@/lib/services/data";
+import { getFinanciadoresExtended } from "@/lib/services/financiadores";
+import { getInflacionMensual, getFinanciadoresInflacion } from "@/lib/services/inflacion";
 import { logger } from "@/lib/security/api-guard";
 import { requireAuth } from "@/lib/security/require-auth";
 import { checkRateLimit } from "@/lib/security/api-guard";
 
-const REPORT_TYPES = ["facturacion", "rechazos", "kpi"] as const;
+const REPORT_TYPES = [
+  "facturacion",
+  "rechazos",
+  "kpi",
+  "financiadores",
+  "inflacion",
+  "agenda",
+] as const;
 type ReportType = (typeof REPORT_TYPES)[number];
 
 export async function POST(request: NextRequest) {
@@ -84,6 +102,27 @@ export async function POST(request: NextRequest) {
         ];
         stream = await renderKPIDashboardPDF(sections, meta);
         filename = `kpi-ejecutivo-${meta.periodo.toLowerCase().replace(/\s/g, "-")}.pdf`;
+        break;
+      }
+      case "financiadores": {
+        const financiadores = await getFinanciadoresExtended();
+        stream = await renderFinanciadoresPDF(financiadores, meta);
+        filename = `financiadores-${meta.periodo.toLowerCase().replace(/\s/g, "-")}.pdf`;
+        break;
+      }
+      case "inflacion": {
+        const [meses, finInflacion] = await Promise.all([
+          getInflacionMensual({ period: "6m" }),
+          getFinanciadoresInflacion(),
+        ]);
+        stream = await renderInflacionPDF(meses, finInflacion, meta);
+        filename = `inflacion-${meta.periodo.toLowerCase().replace(/\s/g, "-")}.pdf`;
+        break;
+      }
+      case "agenda": {
+        const turnos = await getTurnos();
+        stream = await renderAgendaPDF(turnos, meta);
+        filename = `agenda-${meta.periodo.toLowerCase().replace(/\s/g, "-")}.pdf`;
         break;
       }
     }

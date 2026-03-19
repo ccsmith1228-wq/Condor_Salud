@@ -66,7 +66,7 @@ export default function FinanciadoresPage() {
             </div>
             <div className="flex gap-2">
               <button
-                onClick={() => exportPDF("facturacion")}
+                onClick={() => exportPDF("financiadores")}
                 disabled={isExporting}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition disabled:opacity-50"
               >
@@ -74,7 +74,7 @@ export default function FinanciadoresPage() {
                 {isExporting ? "..." : "Exportar PDF"}
               </button>
               <button
-                onClick={() => exportExcel("facturacion")}
+                onClick={() => exportExcel("financiadores")}
                 disabled={isExporting}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition disabled:opacity-50"
               >
