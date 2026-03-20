@@ -574,12 +574,24 @@ export default function PagosConfigPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
-                <th className="text-left px-4 py-2">Paciente</th>
-                <th className="text-left px-4 py-2">Tipo</th>
-                <th className="text-left px-4 py-2">Detalle</th>
-                <th className="text-center px-4 py-2">Auto-cobro</th>
-                <th className="text-left px-4 py-2">Agregado</th>
-                <th className="text-center px-4 py-2">Acciones</th>
+                <th scope="col" className="text-left px-4 py-2">
+                  Paciente
+                </th>
+                <th scope="col" className="text-left px-4 py-2">
+                  Tipo
+                </th>
+                <th scope="col" className="text-left px-4 py-2">
+                  Detalle
+                </th>
+                <th scope="col" className="text-center px-4 py-2">
+                  Auto-cobro
+                </th>
+                <th scope="col" className="text-left px-4 py-2">
+                  Agregado
+                </th>
+                <th scope="col" className="text-center px-4 py-2">
+                  Acciones
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -678,13 +690,27 @@ export default function PagosConfigPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
-                <th className="text-left px-4 py-2">ID</th>
-                <th className="text-left px-4 py-2">Fecha</th>
-                <th className="text-left px-4 py-2">Paciente</th>
-                <th className="text-left px-4 py-2">Concepto</th>
-                <th className="text-right px-4 py-2">Monto</th>
-                <th className="text-left px-4 py-2">Método</th>
-                <th className="text-center px-4 py-2">Estado</th>
+                <th scope="col" className="text-left px-4 py-2">
+                  ID
+                </th>
+                <th scope="col" className="text-left px-4 py-2">
+                  Fecha
+                </th>
+                <th scope="col" className="text-left px-4 py-2">
+                  Paciente
+                </th>
+                <th scope="col" className="text-left px-4 py-2">
+                  Concepto
+                </th>
+                <th scope="col" className="text-right px-4 py-2">
+                  Monto
+                </th>
+                <th scope="col" className="text-left px-4 py-2">
+                  Método
+                </th>
+                <th scope="col" className="text-center px-4 py-2">
+                  Estado
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -775,11 +801,21 @@ export default function PagosConfigPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
-                  <th className="text-left px-4 py-2">Financiador</th>
-                  <th className="text-left px-4 py-2">Copago</th>
-                  <th className="text-left px-4 py-2">Monto</th>
-                  <th className="text-center px-4 py-2">Cobro automático</th>
-                  <th className="text-center px-4 py-2">Acciones</th>
+                  <th scope="col" className="text-left px-4 py-2">
+                    Financiador
+                  </th>
+                  <th scope="col" className="text-left px-4 py-2">
+                    Copago
+                  </th>
+                  <th scope="col" className="text-left px-4 py-2">
+                    Monto
+                  </th>
+                  <th scope="col" className="text-center px-4 py-2">
+                    Cobro automático
+                  </th>
+                  <th scope="col" className="text-center px-4 py-2">
+                    Acciones
+                  </th>
                 </tr>
               </thead>
               <tbody>

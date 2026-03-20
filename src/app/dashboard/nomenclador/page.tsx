@@ -120,15 +120,39 @@ export default function NomencladorPage() {
             <table className="w-full text-sm min-w-[800px]">
               <thead>
                 <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
-                  <th className="text-left px-5 py-2.5">Código</th>
-                  <th className="text-left px-5 py-2.5">Prestación</th>
-                  <th className="text-left px-5 py-2.5">Capítulo</th>
-                  <th className="text-left px-5 py-2.5">Módulo</th>
-                  <th className="text-right px-5 py-2.5">Valor SSS</th>
-                  <th className="text-right px-5 py-2.5">Valor PAMI</th>
-                  {comparar && <th className="text-right px-5 py-2.5">OSDE</th>}
-                  {comparar && <th className="text-right px-5 py-2.5">Swiss Med.</th>}
-                  {comparar && <th className="text-right px-5 py-2.5">Δ PAMI vs SSS</th>}
+                  <th scope="col" className="text-left px-5 py-2.5">
+                    Código
+                  </th>
+                  <th scope="col" className="text-left px-5 py-2.5">
+                    Prestación
+                  </th>
+                  <th scope="col" className="text-left px-5 py-2.5">
+                    Capítulo
+                  </th>
+                  <th scope="col" className="text-left px-5 py-2.5">
+                    Módulo
+                  </th>
+                  <th scope="col" className="text-right px-5 py-2.5">
+                    Valor SSS
+                  </th>
+                  <th scope="col" className="text-right px-5 py-2.5">
+                    Valor PAMI
+                  </th>
+                  {comparar && (
+                    <th scope="col" className="text-right px-5 py-2.5">
+                      OSDE
+                    </th>
+                  )}
+                  {comparar && (
+                    <th scope="col" className="text-right px-5 py-2.5">
+                      Swiss Med.
+                    </th>
+                  )}
+                  {comparar && (
+                    <th scope="col" className="text-right px-5 py-2.5">
+                      Δ PAMI vs SSS
+                    </th>
+                  )}
                 </tr>
               </thead>
               <tbody>

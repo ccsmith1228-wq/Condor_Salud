@@ -125,18 +125,20 @@ export default function FacturacionConfigPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
-              <th className="text-left px-5 py-2.5">Característica</th>
-              <th className="text-center px-5 py-2.5">
+              <th scope="col" className="text-left px-5 py-2.5">
+                Característica
+              </th>
+              <th scope="col" className="text-center px-5 py-2.5">
                 Starter
                 <br />
                 <span className="text-celeste-dark font-normal normal-case">$25K/mes</span>
               </th>
-              <th className="text-center px-5 py-2.5 bg-celeste-pale/30">
+              <th scope="col" className="text-center px-5 py-2.5 bg-celeste-pale/30">
                 Pro
                 <br />
                 <span className="text-celeste-dark font-normal normal-case">$75K/mes</span>
               </th>
-              <th className="text-center px-5 py-2.5">
+              <th scope="col" className="text-center px-5 py-2.5">
                 Enterprise
                 <br />
                 <span className="text-celeste-dark font-normal normal-case">$180K/mes</span>
@@ -177,11 +179,21 @@ export default function FacturacionConfigPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
-              <th className="text-left px-5 py-2.5">Fecha</th>
-              <th className="text-left px-5 py-2.5">Concepto</th>
-              <th className="text-right px-5 py-2.5">Monto</th>
-              <th className="text-center px-5 py-2.5">Estado</th>
-              <th className="text-right px-5 py-2.5">Comprobante</th>
+              <th scope="col" className="text-left px-5 py-2.5">
+                Fecha
+              </th>
+              <th scope="col" className="text-left px-5 py-2.5">
+                Concepto
+              </th>
+              <th scope="col" className="text-right px-5 py-2.5">
+                Monto
+              </th>
+              <th scope="col" className="text-center px-5 py-2.5">
+                Estado
+              </th>
+              <th scope="col" className="text-right px-5 py-2.5">
+                Comprobante
+              </th>
             </tr>
           </thead>
           <tbody>

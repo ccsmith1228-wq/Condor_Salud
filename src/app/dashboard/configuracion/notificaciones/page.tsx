@@ -88,7 +88,7 @@ export default function NotificacionesConfigPage() {
                 role="switch"
                 aria-checked={prefs[n.key as keyof typeof prefs] ? "true" : "false"}
                 aria-label={n.label}
-                className={`w-10 h-5 rounded-full transition relative ${prefs[n.key as keyof typeof prefs] ? "bg-celeste-dark" : "bg-border"}`}
+                className={`w-10 h-5 rounded-full transition relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-celeste-dark focus-visible:ring-offset-2 ${prefs[n.key as keyof typeof prefs] ? "bg-celeste-dark" : "bg-border"}`}
               >
                 <span
                   className={`block w-4 h-4 rounded-full bg-white shadow absolute top-0.5 transition ${prefs[n.key as keyof typeof prefs] ? "left-5" : "left-0.5"}`}
@@ -122,7 +122,7 @@ export default function NotificacionesConfigPage() {
                 role="switch"
                 aria-checked={prefs[n.key as keyof typeof prefs] ? "true" : "false"}
                 aria-label={n.label}
-                className={`w-10 h-5 rounded-full transition relative ${prefs[n.key as keyof typeof prefs] ? "bg-celeste-dark" : "bg-border"}`}
+                className={`w-10 h-5 rounded-full transition relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-celeste-dark focus-visible:ring-offset-2 ${prefs[n.key as keyof typeof prefs] ? "bg-celeste-dark" : "bg-border"}`}
               >
                 <span
                   className={`block w-4 h-4 rounded-full bg-white shadow absolute top-0.5 transition ${prefs[n.key as keyof typeof prefs] ? "left-5" : "left-0.5"}`}
@@ -165,7 +165,7 @@ export default function NotificacionesConfigPage() {
                 role="switch"
                 aria-checked={prefs[n.key as keyof typeof prefs] ? "true" : "false"}
                 aria-label={n.label}
-                className={`w-10 h-5 rounded-full transition relative ${prefs[n.key as keyof typeof prefs] ? "bg-celeste-dark" : "bg-border"}`}
+                className={`w-10 h-5 rounded-full transition relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-celeste-dark focus-visible:ring-offset-2 ${prefs[n.key as keyof typeof prefs] ? "bg-celeste-dark" : "bg-border"}`}
               >
                 <span
                   className={`block w-4 h-4 rounded-full bg-white shadow absolute top-0.5 transition ${prefs[n.key as keyof typeof prefs] ? "left-5" : "left-0.5"}`}

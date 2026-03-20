@@ -270,16 +270,36 @@ export default function InventarioPage() {
             <table className="w-full text-sm min-w-[900px]">
               <thead>
                 <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
-                  <th className="text-left px-5 py-2.5">Código</th>
-                  <th className="text-left px-5 py-2.5">Nombre</th>
-                  <th className="text-left px-5 py-2.5">Categoría</th>
-                  <th className="text-left px-5 py-2.5">Presentación</th>
-                  <th className="text-right px-5 py-2.5">Stock</th>
-                  <th className="text-right px-5 py-2.5">Mín.</th>
-                  <th className="text-right px-5 py-2.5">Precio Unit.</th>
-                  <th className="text-left px-5 py-2.5">Proveedor</th>
-                  <th className="text-center px-5 py-2.5">Vto.</th>
-                  <th className="text-center px-5 py-2.5">Estado</th>
+                  <th scope="col" className="text-left px-5 py-2.5">
+                    Código
+                  </th>
+                  <th scope="col" className="text-left px-5 py-2.5">
+                    Nombre
+                  </th>
+                  <th scope="col" className="text-left px-5 py-2.5">
+                    Categoría
+                  </th>
+                  <th scope="col" className="text-left px-5 py-2.5">
+                    Presentación
+                  </th>
+                  <th scope="col" className="text-right px-5 py-2.5">
+                    Stock
+                  </th>
+                  <th scope="col" className="text-right px-5 py-2.5">
+                    Mín.
+                  </th>
+                  <th scope="col" className="text-right px-5 py-2.5">
+                    Precio Unit.
+                  </th>
+                  <th scope="col" className="text-left px-5 py-2.5">
+                    Proveedor
+                  </th>
+                  <th scope="col" className="text-center px-5 py-2.5">
+                    Vto.
+                  </th>
+                  <th scope="col" className="text-center px-5 py-2.5">
+                    Estado
+                  </th>
                 </tr>
               </thead>
               <tbody>

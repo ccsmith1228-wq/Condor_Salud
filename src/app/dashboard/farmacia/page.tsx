@@ -170,15 +170,31 @@ export default function FarmaciaPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-[#F8FAFB] text-xs text-ink-muted">
-                  <th className="text-left font-medium px-5 py-3">Medicamento</th>
-                  <th className="text-left font-medium px-5 py-3">Laboratorio</th>
-                  <th className="text-left font-medium px-5 py-3">Categoría</th>
-                  <th className="text-right font-medium px-5 py-3">Precio</th>
-                  <th className="text-center font-medium px-5 py-3">PAMI</th>
-                  <th className="text-center font-medium px-5 py-3">OS</th>
-                  <th className="text-center font-medium px-5 py-3">Prepaga</th>
-                  <th className="text-center font-medium px-5 py-3">Stock</th>
-                  <th className="text-right font-medium px-5 py-3"></th>
+                  <th scope="col" className="text-left font-medium px-5 py-3">
+                    Medicamento
+                  </th>
+                  <th scope="col" className="text-left font-medium px-5 py-3">
+                    Laboratorio
+                  </th>
+                  <th scope="col" className="text-left font-medium px-5 py-3">
+                    Categoría
+                  </th>
+                  <th scope="col" className="text-right font-medium px-5 py-3">
+                    Precio
+                  </th>
+                  <th scope="col" className="text-center font-medium px-5 py-3">
+                    PAMI
+                  </th>
+                  <th scope="col" className="text-center font-medium px-5 py-3">
+                    OS
+                  </th>
+                  <th scope="col" className="text-center font-medium px-5 py-3">
+                    Prepaga
+                  </th>
+                  <th scope="col" className="text-center font-medium px-5 py-3">
+                    Stock
+                  </th>
+                  <th scope="col" className="text-right font-medium px-5 py-3"></th>
                 </tr>
               </thead>
               <tbody>
@@ -422,11 +438,21 @@ export default function FarmaciaPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-[#F8FAFB] text-xs text-ink-muted">
-                  <th className="text-left font-medium px-5 py-3">Medicamento</th>
-                  <th className="text-right font-medium px-5 py-3">Precio lista</th>
-                  <th className="text-center font-medium px-5 py-3">Cobertura</th>
-                  <th className="text-right font-medium px-5 py-3">Descuento</th>
-                  <th className="text-right font-bold px-5 py-3">Copago</th>
+                  <th scope="col" className="text-left font-medium px-5 py-3">
+                    Medicamento
+                  </th>
+                  <th scope="col" className="text-right font-medium px-5 py-3">
+                    Precio lista
+                  </th>
+                  <th scope="col" className="text-center font-medium px-5 py-3">
+                    Cobertura
+                  </th>
+                  <th scope="col" className="text-right font-medium px-5 py-3">
+                    Descuento
+                  </th>
+                  <th scope="col" className="text-right font-bold px-5 py-3">
+                    Copago
+                  </th>
                 </tr>
               </thead>
               <tbody>

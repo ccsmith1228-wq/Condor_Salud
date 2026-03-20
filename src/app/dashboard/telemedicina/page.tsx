@@ -208,12 +208,22 @@ export default function TelemedicinPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-[#F8FAFB] text-xs text-ink-muted">
-                  <th className="text-left font-medium px-5 py-3">Paciente</th>
-                  <th className="text-left font-medium px-5 py-3">Doctor</th>
-                  <th className="text-left font-medium px-5 py-3">Especialidad</th>
-                  <th className="text-center font-medium px-5 py-3">Hora</th>
-                  <th className="text-center font-medium px-5 py-3">Financiador</th>
-                  <th className="text-right font-medium px-5 py-3"></th>
+                  <th scope="col" className="text-left font-medium px-5 py-3">
+                    Paciente
+                  </th>
+                  <th scope="col" className="text-left font-medium px-5 py-3">
+                    Doctor
+                  </th>
+                  <th scope="col" className="text-left font-medium px-5 py-3">
+                    Especialidad
+                  </th>
+                  <th scope="col" className="text-center font-medium px-5 py-3">
+                    Hora
+                  </th>
+                  <th scope="col" className="text-center font-medium px-5 py-3">
+                    Financiador
+                  </th>
+                  <th scope="col" className="text-right font-medium px-5 py-3"></th>
                 </tr>
               </thead>
               <tbody>
@@ -308,14 +318,28 @@ export default function TelemedicinPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-[#F8FAFB] text-xs text-ink-muted">
-                  <th className="text-left font-medium px-5 py-3">ID</th>
-                  <th className="text-left font-medium px-5 py-3">Paciente</th>
-                  <th className="text-left font-medium px-5 py-3">Doctor</th>
-                  <th className="text-left font-medium px-5 py-3">Especialidad</th>
-                  <th className="text-center font-medium px-5 py-3">Fecha</th>
-                  <th className="text-center font-medium px-5 py-3">Duración</th>
-                  <th className="text-center font-medium px-5 py-3">Estado</th>
-                  <th className="text-right font-medium px-5 py-3"></th>
+                  <th scope="col" className="text-left font-medium px-5 py-3">
+                    ID
+                  </th>
+                  <th scope="col" className="text-left font-medium px-5 py-3">
+                    Paciente
+                  </th>
+                  <th scope="col" className="text-left font-medium px-5 py-3">
+                    Doctor
+                  </th>
+                  <th scope="col" className="text-left font-medium px-5 py-3">
+                    Especialidad
+                  </th>
+                  <th scope="col" className="text-center font-medium px-5 py-3">
+                    Fecha
+                  </th>
+                  <th scope="col" className="text-center font-medium px-5 py-3">
+                    Duración
+                  </th>
+                  <th scope="col" className="text-center font-medium px-5 py-3">
+                    Estado
+                  </th>
+                  <th scope="col" className="text-right font-medium px-5 py-3"></th>
                 </tr>
               </thead>
               <tbody>
@@ -375,12 +399,22 @@ export default function TelemedicinPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-[#F8FAFB] text-xs text-ink-muted">
-                  <th className="text-left font-medium px-5 py-3">Consulta</th>
-                  <th className="text-left font-medium px-5 py-3">Paciente</th>
-                  <th className="text-left font-medium px-5 py-3">Doctor</th>
-                  <th className="text-center font-medium px-5 py-3">Cód. nomenclador</th>
-                  <th className="text-center font-medium px-5 py-3">Facturado</th>
-                  <th className="text-right font-medium px-5 py-3"></th>
+                  <th scope="col" className="text-left font-medium px-5 py-3">
+                    Consulta
+                  </th>
+                  <th scope="col" className="text-left font-medium px-5 py-3">
+                    Paciente
+                  </th>
+                  <th scope="col" className="text-left font-medium px-5 py-3">
+                    Doctor
+                  </th>
+                  <th scope="col" className="text-center font-medium px-5 py-3">
+                    Cód. nomenclador
+                  </th>
+                  <th scope="col" className="text-center font-medium px-5 py-3">
+                    Facturado
+                  </th>
+                  <th scope="col" className="text-right font-medium px-5 py-3"></th>
                 </tr>
               </thead>
               <tbody>

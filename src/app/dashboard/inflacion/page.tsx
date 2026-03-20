@@ -208,13 +208,27 @@ export default function InflacionPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
-                  <th className="text-left px-5 py-2.5">Mes</th>
-                  <th className="text-right px-5 py-2.5">IPC</th>
-                  <th className="text-right px-5 py-2.5">Facturado</th>
-                  <th className="text-right px-5 py-2.5">Cobrado</th>
-                  <th className="text-right px-5 py-2.5">Días demora</th>
-                  <th className="text-right px-5 py-2.5">Pérdida real</th>
-                  <th className="text-right px-5 py-2.5">% Pérdida</th>
+                  <th scope="col" className="text-left px-5 py-2.5">
+                    Mes
+                  </th>
+                  <th scope="col" className="text-right px-5 py-2.5">
+                    IPC
+                  </th>
+                  <th scope="col" className="text-right px-5 py-2.5">
+                    Facturado
+                  </th>
+                  <th scope="col" className="text-right px-5 py-2.5">
+                    Cobrado
+                  </th>
+                  <th scope="col" className="text-right px-5 py-2.5">
+                    Días demora
+                  </th>
+                  <th scope="col" className="text-right px-5 py-2.5">
+                    Pérdida real
+                  </th>
+                  <th scope="col" className="text-right px-5 py-2.5">
+                    % Pérdida
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -274,12 +288,24 @@ export default function InflacionPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
-                  <th className="text-left px-5 py-2.5">Financiador</th>
-                  <th className="text-right px-5 py-2.5">Días promedio</th>
-                  <th className="text-right px-5 py-2.5">Pérdida/día</th>
-                  <th className="text-right px-5 py-2.5">Pérdida total</th>
-                  <th className="text-right px-5 py-2.5">Monto afectado</th>
-                  <th className="text-right px-5 py-2.5">Pérdida estimada</th>
+                  <th scope="col" className="text-left px-5 py-2.5">
+                    Financiador
+                  </th>
+                  <th scope="col" className="text-right px-5 py-2.5">
+                    Días promedio
+                  </th>
+                  <th scope="col" className="text-right px-5 py-2.5">
+                    Pérdida/día
+                  </th>
+                  <th scope="col" className="text-right px-5 py-2.5">
+                    Pérdida total
+                  </th>
+                  <th scope="col" className="text-right px-5 py-2.5">
+                    Monto afectado
+                  </th>
+                  <th scope="col" className="text-right px-5 py-2.5">
+                    Pérdida estimada
+                  </th>
                 </tr>
               </thead>
               <tbody>

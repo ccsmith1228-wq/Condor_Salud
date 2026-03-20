@@ -117,12 +117,24 @@ export default function EquipoPage() {
         <table className="w-full text-sm min-w-[700px]">
           <thead>
             <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
-              <th className="text-left px-5 py-2.5">Miembro</th>
-              <th className="text-left px-5 py-2.5">Rol</th>
-              <th className="text-left px-5 py-2.5">Especialidad</th>
-              <th className="text-left px-5 py-2.5">Matrícula</th>
-              <th className="text-center px-5 py-2.5">Estado</th>
-              <th className="text-right px-5 py-2.5">Último acceso</th>
+              <th scope="col" className="text-left px-5 py-2.5">
+                Miembro
+              </th>
+              <th scope="col" className="text-left px-5 py-2.5">
+                Rol
+              </th>
+              <th scope="col" className="text-left px-5 py-2.5">
+                Especialidad
+              </th>
+              <th scope="col" className="text-left px-5 py-2.5">
+                Matrícula
+              </th>
+              <th scope="col" className="text-center px-5 py-2.5">
+                Estado
+              </th>
+              <th scope="col" className="text-right px-5 py-2.5">
+                Último acceso
+              </th>
             </tr>
           </thead>
           <tbody>

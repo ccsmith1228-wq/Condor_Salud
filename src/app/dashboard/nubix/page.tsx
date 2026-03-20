@@ -262,14 +262,30 @@ export default function NubixPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-muted border-b border-border">
-                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Accesión</th>
-                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Paciente</th>
-                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Modalidad</th>
-                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Descripción</th>
-                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Fecha</th>
-                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Estado</th>
-                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Informe</th>
-                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Acciones</th>
+                    <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
+                      Accesión
+                    </th>
+                    <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
+                      Paciente
+                    </th>
+                    <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
+                      Modalidad
+                    </th>
+                    <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
+                      Descripción
+                    </th>
+                    <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
+                      Fecha
+                    </th>
+                    <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
+                      Estado
+                    </th>
+                    <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
+                      Informe
+                    </th>
+                    <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
+                      Acciones
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -370,14 +386,30 @@ export default function NubixPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-muted border-b border-border">
-                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Hora</th>
-                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Paciente</th>
-                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Estudio</th>
-                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Modalidad</th>
-                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Sala</th>
-                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Derivante</th>
-                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Financiador</th>
-                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Estado</th>
+                    <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
+                      Hora
+                    </th>
+                    <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
+                      Paciente
+                    </th>
+                    <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
+                      Estudio
+                    </th>
+                    <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
+                      Modalidad
+                    </th>
+                    <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
+                      Sala
+                    </th>
+                    <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
+                      Derivante
+                    </th>
+                    <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
+                      Financiador
+                    </th>
+                    <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
+                      Estado
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -465,13 +497,27 @@ export default function NubixPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-muted border-b border-border">
-                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Estudio</th>
-                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Canal</th>
-                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Destinatario</th>
-                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Contacto</th>
-                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Enviado</th>
-                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Abierto</th>
-                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Estado</th>
+                    <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
+                      Estudio
+                    </th>
+                    <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
+                      Canal
+                    </th>
+                    <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
+                      Destinatario
+                    </th>
+                    <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
+                      Contacto
+                    </th>
+                    <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
+                      Enviado
+                    </th>
+                    <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
+                      Abierto
+                    </th>
+                    <th scope="col" className="text-left px-4 py-3 font-medium text-ink-muted">
+                      Estado
+                    </th>
                   </tr>
                 </thead>
                 <tbody>

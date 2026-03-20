@@ -73,12 +73,24 @@ export default function DemoPacientesPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
-                  <th className="text-left px-5 py-2.5">Nombre</th>
-                  <th className="text-left px-5 py-2.5">DNI</th>
-                  <th className="text-left px-5 py-2.5">Financiador</th>
-                  <th className="text-left px-5 py-2.5">Plan</th>
-                  <th className="text-left px-5 py-2.5">Teléfono</th>
-                  <th className="text-left px-5 py-2.5">Estado</th>
+                  <th scope="col" className="text-left px-5 py-2.5">
+                    Nombre
+                  </th>
+                  <th scope="col" className="text-left px-5 py-2.5">
+                    DNI
+                  </th>
+                  <th scope="col" className="text-left px-5 py-2.5">
+                    Financiador
+                  </th>
+                  <th scope="col" className="text-left px-5 py-2.5">
+                    Plan
+                  </th>
+                  <th scope="col" className="text-left px-5 py-2.5">
+                    Teléfono
+                  </th>
+                  <th scope="col" className="text-left px-5 py-2.5">
+                    Estado
+                  </th>
                 </tr>
               </thead>
               <tbody>

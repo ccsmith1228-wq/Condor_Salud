@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0] — 2026-03-20
+
+### Accessibility — Phase 3
+
+- **A-06: Toggle focus rings** — Added `focus-visible:ring-2 focus-visible:ring-celeste-dark focus-visible:ring-offset-2` to 6 inline toggle buttons across `configuracion/notificaciones`, `configuracion/whatsapp`, and `configuracion/recordatorios` pages. Keyboard users can now see which toggle is focused (WCAG 2.4.7 Focus Visible).
+- **A-08: Table header scope** — Added `scope="col"` to 250 `<th>` elements across 28 files. Screen readers can now properly associate data cells with their column headers (WCAG 1.3.1 Info and Relationships).
+
+### Audit Verification — Items Already Resolved in Prior Releases
+
+- **A-01** (skip-to-content link): Already fixed — `<a href="#main-content">` with sr-only + focus styles in `layout.tsx`
+- **A-02** (DemoModal): Already fixed — `role="dialog"`, `aria-modal="true"`, focus trap, Escape handler, focus restore
+- **A-03** (FAQ accordion): Already fixed — `aria-expanded`, `aria-controls`, unique panel IDs, `aria-labelledby`
+- **A-04/A-07** (form labels): Already fixed — sr-only `<label>` on Waitlist inputs, `aria-label` on verificacion DNI input
+- **A-05** (Toast): Already fixed — `role="status"` + `aria-live="polite"` on container, `role="alert"` on each toast
+- **A-09** (focus-visible ring): Already fixed — all `focus:outline-none` paired with `focus:ring`/`focus:border`; global `*:focus-visible` outline in `globals.css`
+- **AM-01** (prefers-reduced-motion): Already fixed — `@media (prefers-reduced-motion: reduce)` zeroes all animation/transition durations in `globals.css`
+
 ## [0.12.0] — 2026-03-20
 
 ### Security — Phase 2 Auth & Safety

@@ -477,12 +477,24 @@ export default function TriagePage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-[#F8FAFB] text-xs text-ink-muted">
-                  <th className="text-left font-medium px-5 py-3">ID</th>
-                  <th className="text-left font-medium px-5 py-3">Paciente</th>
-                  <th className="text-left font-medium px-5 py-3">Síntomas</th>
-                  <th className="text-center font-medium px-5 py-3">Severidad</th>
-                  <th className="text-left font-medium px-5 py-3">Derivado a</th>
-                  <th className="text-center font-medium px-5 py-3">Estado</th>
+                  <th scope="col" className="text-left font-medium px-5 py-3">
+                    ID
+                  </th>
+                  <th scope="col" className="text-left font-medium px-5 py-3">
+                    Paciente
+                  </th>
+                  <th scope="col" className="text-left font-medium px-5 py-3">
+                    Síntomas
+                  </th>
+                  <th scope="col" className="text-center font-medium px-5 py-3">
+                    Severidad
+                  </th>
+                  <th scope="col" className="text-left font-medium px-5 py-3">
+                    Derivado a
+                  </th>
+                  <th scope="col" className="text-center font-medium px-5 py-3">
+                    Estado
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -680,9 +692,13 @@ export default function TriagePage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-[#F8FAFB] text-xs text-ink-muted">
-                      <th className="text-left font-medium px-5 py-3">Síntoma</th>
-                      <th className="text-left font-medium px-5 py-3">Especialidad sugerida</th>
-                      <th className="text-right font-medium px-5 py-3"></th>
+                      <th scope="col" className="text-left font-medium px-5 py-3">
+                        Síntoma
+                      </th>
+                      <th scope="col" className="text-left font-medium px-5 py-3">
+                        Especialidad sugerida
+                      </th>
+                      <th scope="col" className="text-right font-medium px-5 py-3"></th>
                     </tr>
                   </thead>
                   <tbody>

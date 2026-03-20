@@ -77,12 +77,24 @@ export default function DemoRechazosPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
-                  <th className="text-left px-5 py-2.5">Factura</th>
-                  <th className="text-left px-5 py-2.5">Paciente</th>
-                  <th className="text-left px-5 py-2.5">Financiador</th>
-                  <th className="text-left px-5 py-2.5">Motivo</th>
-                  <th className="text-right px-5 py-2.5">Monto</th>
-                  <th className="text-left px-5 py-2.5">Estado</th>
+                  <th scope="col" className="text-left px-5 py-2.5">
+                    Factura
+                  </th>
+                  <th scope="col" className="text-left px-5 py-2.5">
+                    Paciente
+                  </th>
+                  <th scope="col" className="text-left px-5 py-2.5">
+                    Financiador
+                  </th>
+                  <th scope="col" className="text-left px-5 py-2.5">
+                    Motivo
+                  </th>
+                  <th scope="col" className="text-right px-5 py-2.5">
+                    Monto
+                  </th>
+                  <th scope="col" className="text-left px-5 py-2.5">
+                    Estado
+                  </th>
                 </tr>
               </thead>
               <tbody>

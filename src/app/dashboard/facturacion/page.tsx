@@ -247,28 +247,28 @@ export default function FacturacionPage() {
           <table className="w-full text-sm" aria-label="Facturas">
             <thead>
               <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
-                <th className="text-left px-5 py-3" scope="col">
+                <th scope="col" className="text-left px-5 py-3">
                   Número
                 </th>
-                <th className="text-left px-5 py-3" scope="col">
+                <th scope="col" className="text-left px-5 py-3">
                   Fecha
                 </th>
-                <th className="text-left px-5 py-3" scope="col">
+                <th scope="col" className="text-left px-5 py-3">
                   Financiador
                 </th>
-                <th className="text-left px-5 py-3" scope="col">
+                <th scope="col" className="text-left px-5 py-3">
                   Paciente
                 </th>
-                <th className="text-left px-5 py-3" scope="col">
+                <th scope="col" className="text-left px-5 py-3">
                   Prestación
                 </th>
-                <th className="text-right px-5 py-3" scope="col">
+                <th scope="col" className="text-right px-5 py-3">
                   Monto
                 </th>
-                <th className="text-center px-5 py-3" scope="col">
+                <th scope="col" className="text-center px-5 py-3">
                   Estado
                 </th>
-                <th className="text-center px-5 py-3" scope="col">
+                <th scope="col" className="text-center px-5 py-3">
                   Acción
                 </th>
               </tr>

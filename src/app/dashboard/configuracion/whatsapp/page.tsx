@@ -650,7 +650,7 @@ export default function WhatsAppConfigPage() {
                     role="switch"
                     aria-checked={t.active}
                     aria-label={`Toggle ${t.name}`}
-                    className={`w-9 h-5 rounded-full transition relative shrink-0 ${t.active ? "bg-[#25D366]" : "bg-border"}`}
+                    className={`w-9 h-5 rounded-full transition relative shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-celeste-dark focus-visible:ring-offset-2 ${t.active ? "bg-[#25D366]" : "bg-border"}`}
                   >
                     <span
                       className={`block w-3.5 h-3.5 rounded-full bg-white shadow absolute top-[3px] transition ${t.active ? "left-[18px]" : "left-[3px]"}`}
@@ -727,11 +727,21 @@ export default function WhatsAppConfigPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
-                  <th className="text-left px-4 py-2">Paciente</th>
-                  <th className="text-left px-4 py-2">Turno</th>
-                  <th className="text-left px-4 py-2">Enviado</th>
-                  <th className="text-center px-4 py-2">Estado</th>
-                  <th className="text-left px-4 py-2">Respuesta</th>
+                  <th scope="col" className="text-left px-4 py-2">
+                    Paciente
+                  </th>
+                  <th scope="col" className="text-left px-4 py-2">
+                    Turno
+                  </th>
+                  <th scope="col" className="text-left px-4 py-2">
+                    Enviado
+                  </th>
+                  <th scope="col" className="text-center px-4 py-2">
+                    Estado
+                  </th>
+                  <th scope="col" className="text-left px-4 py-2">
+                    Respuesta
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -787,7 +797,7 @@ function ToggleRow({
         role="switch"
         aria-checked={value}
         aria-label={label}
-        className={`w-10 h-5 rounded-full transition relative ${value ? color : "bg-border"}`}
+        className={`w-10 h-5 rounded-full transition relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-celeste-dark focus-visible:ring-offset-2 ${value ? color : "bg-border"}`}
       >
         <span
           className={`block w-4 h-4 rounded-full bg-white shadow absolute top-0.5 transition ${value ? "left-5" : "left-0.5"}`}

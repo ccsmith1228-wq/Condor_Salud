@@ -365,12 +365,24 @@ export default function DirectorioPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-xs text-ink-muted">
-                  <th className="text-left font-medium px-5 py-3">Médico</th>
-                  <th className="text-center font-medium px-5 py-3">Lun 10</th>
-                  <th className="text-center font-medium px-5 py-3">Mar 11</th>
-                  <th className="text-center font-medium px-5 py-3">Mié 12</th>
-                  <th className="text-center font-medium px-5 py-3">Jue 13</th>
-                  <th className="text-center font-medium px-5 py-3">Vie 14</th>
+                  <th scope="col" className="text-left font-medium px-5 py-3">
+                    Médico
+                  </th>
+                  <th scope="col" className="text-center font-medium px-5 py-3">
+                    Lun 10
+                  </th>
+                  <th scope="col" className="text-center font-medium px-5 py-3">
+                    Mar 11
+                  </th>
+                  <th scope="col" className="text-center font-medium px-5 py-3">
+                    Mié 12
+                  </th>
+                  <th scope="col" className="text-center font-medium px-5 py-3">
+                    Jue 13
+                  </th>
+                  <th scope="col" className="text-center font-medium px-5 py-3">
+                    Vie 14
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -655,11 +667,21 @@ export default function DirectorioPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-[#F8FAFB] text-xs text-ink-muted">
-                  <th className="text-left font-medium px-5 py-3">Paciente</th>
-                  <th className="text-left font-medium px-5 py-3">Médico</th>
-                  <th className="text-center font-medium px-5 py-3">Financiador</th>
-                  <th className="text-center font-medium px-5 py-3">Cobertura</th>
-                  <th className="text-center font-medium px-5 py-3">Verificación</th>
+                  <th scope="col" className="text-left font-medium px-5 py-3">
+                    Paciente
+                  </th>
+                  <th scope="col" className="text-left font-medium px-5 py-3">
+                    Médico
+                  </th>
+                  <th scope="col" className="text-center font-medium px-5 py-3">
+                    Financiador
+                  </th>
+                  <th scope="col" className="text-center font-medium px-5 py-3">
+                    Cobertura
+                  </th>
+                  <th scope="col" className="text-center font-medium px-5 py-3">
+                    Verificación
+                  </th>
                 </tr>
               </thead>
               <tbody>

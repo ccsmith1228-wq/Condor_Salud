@@ -258,12 +258,24 @@ export default function ReportesPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
-                    <th className="text-left px-5 py-2.5">Fecha</th>
-                    <th className="text-left px-5 py-2.5">Reporte</th>
-                    <th className="text-center px-5 py-2.5">Formato</th>
-                    <th className="text-left px-5 py-2.5">Usuario</th>
-                    <th className="text-center px-5 py-2.5">Estado</th>
-                    <th className="text-right px-5 py-2.5">Acción</th>
+                    <th scope="col" className="text-left px-5 py-2.5">
+                      Fecha
+                    </th>
+                    <th scope="col" className="text-left px-5 py-2.5">
+                      Reporte
+                    </th>
+                    <th scope="col" className="text-center px-5 py-2.5">
+                      Formato
+                    </th>
+                    <th scope="col" className="text-left px-5 py-2.5">
+                      Usuario
+                    </th>
+                    <th scope="col" className="text-center px-5 py-2.5">
+                      Estado
+                    </th>
+                    <th scope="col" className="text-right px-5 py-2.5">
+                      Acción
+                    </th>
                   </tr>
                 </thead>
                 <tbody>

@@ -352,13 +352,27 @@ export default function AgendaPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
-                <th className="text-left px-5 py-2.5">Hora</th>
-                <th className="text-left px-5 py-2.5">Paciente</th>
-                <th className="text-left px-5 py-2.5">Profesional</th>
-                <th className="text-left px-5 py-2.5">Tipo</th>
-                <th className="text-left px-5 py-2.5">Financiador</th>
-                <th className="text-center px-5 py-2.5">Estado</th>
-                <th className="text-center px-5 py-2.5">Acciones</th>
+                <th scope="col" className="text-left px-5 py-2.5">
+                  Hora
+                </th>
+                <th scope="col" className="text-left px-5 py-2.5">
+                  Paciente
+                </th>
+                <th scope="col" className="text-left px-5 py-2.5">
+                  Profesional
+                </th>
+                <th scope="col" className="text-left px-5 py-2.5">
+                  Tipo
+                </th>
+                <th scope="col" className="text-left px-5 py-2.5">
+                  Financiador
+                </th>
+                <th scope="col" className="text-center px-5 py-2.5">
+                  Estado
+                </th>
+                <th scope="col" className="text-center px-5 py-2.5">
+                  Acciones
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -438,7 +452,10 @@ export default function AgendaPage() {
           <table className="w-full min-w-[800px] text-sm">
             <thead>
               <tr className="border-b border-border">
-                <th className="w-16 px-3 py-2 text-[10px] font-bold tracking-wider text-ink-muted uppercase bg-[#F8FAFB]">
+                <th
+                  scope="col"
+                  className="w-16 px-3 py-2 text-[10px] font-bold tracking-wider text-ink-muted uppercase bg-[#F8FAFB]"
+                >
                   Hora
                 </th>
                 {diasSemana.map((d, i) => (

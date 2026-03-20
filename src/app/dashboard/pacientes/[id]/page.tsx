@@ -342,12 +342,24 @@ export default function PacienteDetailPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
-                <th className="text-left px-5 py-2.5">Fecha</th>
-                <th className="text-left px-5 py-2.5">Tipo</th>
-                <th className="text-left px-5 py-2.5">Profesional</th>
-                <th className="text-left px-5 py-2.5">Descripción</th>
-                <th className="text-left px-5 py-2.5">Código</th>
-                <th className="text-center px-5 py-2.5">Estado</th>
+                <th scope="col" className="text-left px-5 py-2.5">
+                  Fecha
+                </th>
+                <th scope="col" className="text-left px-5 py-2.5">
+                  Tipo
+                </th>
+                <th scope="col" className="text-left px-5 py-2.5">
+                  Profesional
+                </th>
+                <th scope="col" className="text-left px-5 py-2.5">
+                  Descripción
+                </th>
+                <th scope="col" className="text-left px-5 py-2.5">
+                  Código
+                </th>
+                <th scope="col" className="text-center px-5 py-2.5">
+                  Estado
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -397,11 +409,21 @@ export default function PacienteDetailPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
-              <th className="text-left px-5 py-2.5">Período</th>
-              <th className="text-center px-5 py-2.5">Facturas</th>
-              <th className="text-right px-5 py-2.5">Total</th>
-              <th className="text-right px-5 py-2.5">Cobrado</th>
-              <th className="text-right px-5 py-2.5">Pendiente</th>
+              <th scope="col" className="text-left px-5 py-2.5">
+                Período
+              </th>
+              <th scope="col" className="text-center px-5 py-2.5">
+                Facturas
+              </th>
+              <th scope="col" className="text-right px-5 py-2.5">
+                Total
+              </th>
+              <th scope="col" className="text-right px-5 py-2.5">
+                Cobrado
+              </th>
+              <th scope="col" className="text-right px-5 py-2.5">
+                Pendiente
+              </th>
             </tr>
           </thead>
           <tbody>

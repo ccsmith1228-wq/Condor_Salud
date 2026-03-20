@@ -274,7 +274,7 @@ export default function RecordatoriosConfigPage() {
                   role="switch"
                   aria-checked={activeTemplates[t.id] ? "true" : "false"}
                   aria-label={`${activeTemplates[t.id] ? "Desactivar" : "Activar"} ${t.nombre}`}
-                  className={`mt-0.5 w-10 h-5 rounded-full transition relative shrink-0 ${activeTemplates[t.id] ? "bg-green-500" : "bg-gray-200"}`}
+                  className={`mt-0.5 w-10 h-5 rounded-full transition relative shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-celeste-dark focus-visible:ring-offset-2 ${activeTemplates[t.id] ? "bg-green-500" : "bg-gray-200"}`}
                 >
                   <span
                     className={`block w-4 h-4 rounded-full bg-white shadow absolute top-0.5 transition ${activeTemplates[t.id] ? "left-5" : "left-0.5"}`}
@@ -358,12 +358,24 @@ export default function RecordatoriosConfigPage() {
           <table className="w-full text-sm min-w-[700px]">
             <thead>
               <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
-                <th className="text-left px-5 py-2.5">Enviado</th>
-                <th className="text-left px-5 py-2.5">Paciente</th>
-                <th className="text-left px-5 py-2.5">Teléfono</th>
-                <th className="text-left px-5 py-2.5">Plantilla</th>
-                <th className="text-left px-5 py-2.5">Turno</th>
-                <th className="text-center px-5 py-2.5">Respuesta</th>
+                <th scope="col" className="text-left px-5 py-2.5">
+                  Enviado
+                </th>
+                <th scope="col" className="text-left px-5 py-2.5">
+                  Paciente
+                </th>
+                <th scope="col" className="text-left px-5 py-2.5">
+                  Teléfono
+                </th>
+                <th scope="col" className="text-left px-5 py-2.5">
+                  Plantilla
+                </th>
+                <th scope="col" className="text-left px-5 py-2.5">
+                  Turno
+                </th>
+                <th scope="col" className="text-center px-5 py-2.5">
+                  Respuesta
+                </th>
               </tr>
             </thead>
             <tbody>
