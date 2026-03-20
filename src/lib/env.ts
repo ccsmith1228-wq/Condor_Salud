@@ -71,6 +71,35 @@ const serverSchema = z.object({
   // ── Resend (Email) ──────────────────────────────────────────
   RESEND_API_KEY: z.string().optional(),
 
+  // ── SendGrid (Email — v3) ──────────────────────────────────
+  SENDGRID_API_KEY: z.string().optional(),
+  SENDGRID_FROM_EMAIL: z.string().email().optional(),
+  SENDGRID_FROM_NAME: z.string().optional(),
+  SG_TPL_BOOKING_CONFIRMATION: z.string().optional(),
+  SG_TPL_BOOKING_REMINDER: z.string().optional(),
+  SG_TPL_BOOKING_CANCELLED: z.string().optional(),
+  SG_TPL_BOOKING_CONFIRMED: z.string().optional(),
+  SG_TPL_WELCOME_PATIENT: z.string().optional(),
+  SG_TPL_WELCOME_DOCTOR: z.string().optional(),
+  SG_TPL_RESET_PASSWORD: z.string().optional(),
+  SG_TPL_NEW_REVIEW: z.string().optional(),
+
+  // ── Firebase (Firestore + Storage — v3) ────────────────────
+  FIREBASE_PROJECT_ID: z.string().optional(),
+  FIREBASE_CLIENT_EMAIL: z.string().email().optional(),
+  FIREBASE_PRIVATE_KEY: z.string().optional(),
+  FIREBASE_STORAGE_BUCKET: z.string().optional(),
+
+  // ── JWT (Patient/Doctor auth — v3) ─────────────────────────
+  JWT_SECRET: z.string().optional(),
+
+  // ── Admin panel (v3) ───────────────────────────────────────
+  ADMIN_EMAIL: z.string().email().optional(),
+  ADMIN_PASSWORD_HASH: z.string().optional(),
+
+  // ── MercadoPago Webhook (v3) ───────────────────────────────
+  MP_WEBHOOK_SECRET: z.string().optional(),
+
   // ── PostHog (Analytics) ─────────────────────────────────────
   NEXT_PUBLIC_POSTHOG_KEY: z.string().optional(),
   NEXT_PUBLIC_POSTHOG_HOST: z.string().url().optional(),

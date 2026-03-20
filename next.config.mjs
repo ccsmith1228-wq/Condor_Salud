@@ -9,6 +9,14 @@ const withBundleAnalyzer = bundleAnalyzer({
 const nextConfig = {
   poweredByHeader: false,
   output: process.env.DOCKER === "true" ? "standalone" : undefined,
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "storage.googleapis.com" },
+      { protocol: "https", hostname: "*.googleusercontent.com" },
+      { protocol: "https", hostname: "lh3.googleusercontent.com" },
+      { protocol: "https", hostname: "maps.googleapis.com" },
+    ],
+  },
   async headers() {
     return [
       {
