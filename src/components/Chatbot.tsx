@@ -7,6 +7,7 @@ import { getWelcomeMessage } from "@/lib/chatbot-engine";
 import { useGeolocation } from "@/lib/hooks/useGeolocation";
 import { useLocale } from "@/lib/i18n/context";
 import { analytics } from "@/lib/analytics";
+import RideQuickLinks from "@/components/RideQuickLinks";
 
 // Web Speech API type shim (webkit-prefixed)
 interface SpeechRecognitionLike extends EventTarget {
@@ -155,6 +156,16 @@ function CardList({ cards }: { cards: InfoCard[] }) {
               </a>
             )}
           </div>
+          {card.rideAddress && (
+            <div className="mt-1.5 pt-1.5 border-t border-border-light/60">
+              <RideQuickLinks
+                name={card.title}
+                address={card.rideAddress}
+                lat={card.rideLat}
+                lng={card.rideLng}
+              />
+            </div>
+          )}
         </div>
       ))}
     </div>

@@ -30,6 +30,7 @@ import {
   Building,
   Cross,
 } from "lucide-react";
+import RideQuickLinks from "@/components/RideQuickLinks";
 
 /* ── static data ──────────────────────────────────────── */
 const quickActions = [
@@ -358,24 +359,34 @@ export default function PatientDashboard() {
                 </p>
                 <div className="space-y-2">
                   {nearby.results.providers.slice(0, 3).map((doc) => (
-                    <div key={doc.id} className="flex items-center justify-between">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-8 h-8 rounded-lg bg-celeste-50 flex items-center justify-center shrink-0">
-                          <Heart className="w-4 h-4 text-celeste-dark" />
+                    <div key={doc.id} className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-8 h-8 rounded-lg bg-celeste-50 flex items-center justify-center shrink-0">
+                            <Heart className="w-4 h-4 text-celeste-dark" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-ink truncate">{doc.name}</p>
+                            <p className="text-xs text-ink-muted">{doc.specialty}</p>
+                          </div>
                         </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold text-ink truncate">{doc.name}</p>
-                          <p className="text-xs text-ink-muted">{doc.specialty}</p>
+                        <div className="text-right shrink-0 ml-3">
+                          <span className="text-xs font-medium text-celeste-dark flex items-center gap-1">
+                            <MapPin className="w-3 h-3" />
+                            {formatDistance(doc.distanceKm)}
+                          </span>
+                          {doc.availableToday && (
+                            <span className="text-[10px] text-success-600">Disponible hoy</span>
+                          )}
                         </div>
                       </div>
-                      <div className="text-right shrink-0 ml-3">
-                        <span className="text-xs font-medium text-celeste-dark flex items-center gap-1">
-                          <MapPin className="w-3 h-3" />
-                          {formatDistance(doc.distanceKm)}
-                        </span>
-                        {doc.availableToday && (
-                          <span className="text-[10px] text-success-600">Disponible hoy</span>
-                        )}
+                      <div className="pl-11">
+                        <RideQuickLinks
+                          name={doc.name}
+                          address={doc.address}
+                          lat={doc.lat}
+                          lng={doc.lng}
+                        />
                       </div>
                     </div>
                   ))}
@@ -397,22 +408,34 @@ export default function PatientDashboard() {
                 </p>
                 <div className="space-y-2">
                   {nearby.results.pharmacies.slice(0, 3).map((ph) => (
-                    <div key={ph.id} className="flex items-center justify-between">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-8 h-8 rounded-lg bg-success-50 flex items-center justify-center shrink-0">
-                          <Cross className="w-4 h-4 text-success-600" />
+                    <div key={ph.id} className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-8 h-8 rounded-lg bg-success-50 flex items-center justify-center shrink-0">
+                            <Cross className="w-4 h-4 text-success-600" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-ink truncate">{ph.name}</p>
+                            <p className="text-xs text-ink-muted">{ph.address}</p>
+                          </div>
                         </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold text-ink truncate">{ph.name}</p>
-                          <p className="text-xs text-ink-muted">{ph.address}</p>
+                        <div className="text-right shrink-0 ml-3">
+                          <span className="text-xs font-medium text-celeste-dark flex items-center gap-1">
+                            <MapPin className="w-3 h-3" />
+                            {formatDistance(ph.distanceKm)}
+                          </span>
+                          {ph.open24h && (
+                            <span className="text-[10px] text-success-600">24 hs</span>
+                          )}
                         </div>
                       </div>
-                      <div className="text-right shrink-0 ml-3">
-                        <span className="text-xs font-medium text-celeste-dark flex items-center gap-1">
-                          <MapPin className="w-3 h-3" />
-                          {formatDistance(ph.distanceKm)}
-                        </span>
-                        {ph.open24h && <span className="text-[10px] text-success-600">24 hs</span>}
+                      <div className="pl-11">
+                        <RideQuickLinks
+                          name={ph.name}
+                          address={ph.address}
+                          lat={ph.lat}
+                          lng={ph.lng}
+                        />
                       </div>
                     </div>
                   ))}
@@ -428,32 +451,44 @@ export default function PatientDashboard() {
                 </p>
                 <div className="space-y-2">
                   {nearby.results.centers.slice(0, 3).map((ctr) => (
-                    <div key={ctr.id} className="flex items-center justify-between">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div
-                          className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                            ctr.emergency ? "bg-red-50" : "bg-amber-50"
-                          }`}
-                        >
-                          <Building
-                            className={`w-4 h-4 ${
-                              ctr.emergency ? "text-red-500" : "text-amber-600"
+                    <div key={ctr.id} className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div
+                            className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                              ctr.emergency ? "bg-red-50" : "bg-amber-50"
                             }`}
-                          />
+                          >
+                            <Building
+                              className={`w-4 h-4 ${
+                                ctr.emergency ? "text-red-500" : "text-amber-600"
+                              }`}
+                            />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-ink truncate">{ctr.name}</p>
+                            <p className="text-xs text-ink-muted capitalize">
+                              {ctr.type.replace("_", " ")}
+                            </p>
+                          </div>
                         </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold text-ink truncate">{ctr.name}</p>
-                          <p className="text-xs text-ink-muted capitalize">
-                            {ctr.type.replace("_", " ")}
-                          </p>
+                        <div className="text-right shrink-0 ml-3">
+                          <span className="text-xs font-medium text-celeste-dark flex items-center gap-1">
+                            <MapPin className="w-3 h-3" />
+                            {formatDistance(ctr.distanceKm)}
+                          </span>
+                          {ctr.emergency && (
+                            <span className="text-[10px] text-red-500">Guardia</span>
+                          )}
                         </div>
                       </div>
-                      <div className="text-right shrink-0 ml-3">
-                        <span className="text-xs font-medium text-celeste-dark flex items-center gap-1">
-                          <MapPin className="w-3 h-3" />
-                          {formatDistance(ctr.distanceKm)}
-                        </span>
-                        {ctr.emergency && <span className="text-[10px] text-red-500">Guardia</span>}
+                      <div className="pl-11">
+                        <RideQuickLinks
+                          name={ctr.name}
+                          address={ctr.address}
+                          lat={ctr.lat}
+                          lng={ctr.lng}
+                        />
                       </div>
                     </div>
                   ))}

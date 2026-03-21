@@ -61,6 +61,12 @@ export interface InfoCard {
   mapUrl?: string;
   /** If true, auto-open the action URL when the card is rendered (delivery deep-links) */
   autoOpen?: boolean;
+  /** Place address for ride deep links (Uber/Cabify/InDrive) */
+  rideAddress?: string;
+  /** Destination lat for ride deep links */
+  rideLat?: number;
+  /** Destination lng for ride deep links */
+  rideLng?: number;
 }
 
 interface IntentMatch {
@@ -1935,6 +1941,9 @@ function generateNearbyDoctorResponse(
         action: { label: "Book appointment", url: "/paciente/medicos" },
         directionsUrl: mapsDirectionsUrl(coords.lat, coords.lng, doc.lat, doc.lng),
         mapUrl: mapsPlaceUrl(doc.lat, doc.lng, doc.name),
+        rideAddress: doc.address,
+        rideLat: doc.lat,
+        rideLng: doc.lng,
       };
     });
 
@@ -1966,6 +1975,9 @@ function generateNearbyDoctorResponse(
       action: { label: "Sacar turno", url: "/paciente/medicos" },
       directionsUrl: mapsDirectionsUrl(coords.lat, coords.lng, doc.lat, doc.lng),
       mapUrl: mapsPlaceUrl(doc.lat, doc.lng, doc.name),
+      rideAddress: doc.address,
+      rideLat: doc.lat,
+      rideLng: doc.lng,
     };
   });
 
@@ -2017,6 +2029,9 @@ function generateNearbyPharmacyResponse(
         icon: "pill",
         directionsUrl: mapsDirectionsUrl(coords.lat, coords.lng, ph.lat, ph.lng),
         mapUrl: mapsPlaceUrl(ph.lat, ph.lng, ph.name),
+        rideAddress: ph.address,
+        rideLat: ph.lat,
+        rideLng: ph.lng,
       };
     });
 
@@ -2048,6 +2063,9 @@ function generateNearbyPharmacyResponse(
       icon: "pill",
       directionsUrl: mapsDirectionsUrl(coords.lat, coords.lng, ph.lat, ph.lng),
       mapUrl: mapsPlaceUrl(ph.lat, ph.lng, ph.name),
+      rideAddress: ph.address,
+      rideLat: ph.lat,
+      rideLng: ph.lng,
     };
   });
 
@@ -2115,6 +2133,9 @@ function generateNearbyGuardiaResponse(
         action: g.phone ? { label: `Call`, url: `tel:${g.phone}` } : undefined,
         directionsUrl: mapsDirectionsUrl(coords.lat, coords.lng, g.lat, g.lng),
         mapUrl: mapsPlaceUrl(g.lat, g.lng, g.name),
+        rideAddress: g.address,
+        rideLat: g.lat,
+        rideLng: g.lng,
       };
     });
 
@@ -2145,6 +2166,9 @@ function generateNearbyGuardiaResponse(
       action: g.phone ? { label: `Llamar`, url: `tel:${g.phone}` } : undefined,
       directionsUrl: mapsDirectionsUrl(coords.lat, coords.lng, g.lat, g.lng),
       mapUrl: mapsPlaceUrl(g.lat, g.lng, g.name),
+      rideAddress: g.address,
+      rideLat: g.lat,
+      rideLng: g.lng,
     };
   });
 
@@ -2208,6 +2232,9 @@ function generateDirectionsResponse(
         icon: "navigation",
         directionsUrl: mapsDirectionsUrl(coords.lat, coords.lng, p.lat, p.lng),
         mapUrl: mapsPlaceUrl(p.lat, p.lng, p.name),
+        rideAddress: p.address,
+        rideLat: p.lat,
+        rideLng: p.lng,
       };
     });
 
@@ -2244,6 +2271,9 @@ function generateDirectionsResponse(
       icon: "navigation",
       directionsUrl: mapsDirectionsUrl(coords.lat, coords.lng, p.lat, p.lng),
       mapUrl: mapsPlaceUrl(p.lat, p.lng, p.name),
+      rideAddress: p.address,
+      rideLat: p.lat,
+      rideLng: p.lng,
     };
   });
 

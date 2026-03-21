@@ -5,6 +5,7 @@ import { useDemoAction } from "@/components/DemoModal";
 import { useToast } from "@/components/Toast";
 import { useIsDemo } from "@/lib/auth/context";
 import { ExternalLink, Star, StarHalf } from "lucide-react";
+import RideQuickLinks from "@/components/RideQuickLinks";
 import { useDoctors, useDirectorioKPIs } from "@/lib/hooks/useModules";
 import type { Doctor } from "@/lib/types";
 import {
@@ -296,6 +297,9 @@ export default function DirectorioPage() {
                         Teleconsulta
                       </span>
                     )}
+                  </div>
+                  <div className="mt-2">
+                    <RideQuickLinks name={doc.name} address={doc.address} />
                   </div>
                   <div className="flex items-center justify-between mt-3 pt-3 border-t border-border-light">
                     <span
@@ -593,6 +597,15 @@ export default function DirectorioPage() {
                   <ExternalLink className="w-3.5 h-3.5" />
                   Ver perfil en Google Maps
                 </a>
+
+                <div className="mt-4 p-3 bg-surface rounded-lg">
+                  <p className="text-xs font-semibold text-ink mb-2">Transporte al consultorio</p>
+                  <RideQuickLinks
+                    name={selectedDoctor.name}
+                    address={selectedDoctor.address}
+                    label="Ir con:"
+                  />
+                </div>
               </div>
             </div>
           )}

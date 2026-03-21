@@ -27,6 +27,7 @@ import { useLocale } from "@/lib/i18n/context";
 import { useDoctorDirectory } from "@/hooks/use-patient-data";
 import type { PatientDoctor } from "@/lib/services/patient-data";
 import RideChatbot from "@/components/RideChatbot";
+import RideQuickLinks from "@/components/RideQuickLinks";
 
 /* ── types ────────────────────────────────────────────── */
 type Doctor = PatientDoctor;
@@ -290,6 +291,10 @@ export default function MedicosPage() {
                       {ins}
                     </span>
                   ))}
+                </div>
+
+                <div className="mt-2">
+                  <RideQuickLinks name={doctor.name} address={doctor.address} />
                 </div>
 
                 <div className="flex items-center gap-3 mt-3">
