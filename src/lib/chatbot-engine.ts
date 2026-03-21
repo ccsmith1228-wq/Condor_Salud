@@ -24,6 +24,25 @@ export interface ChatMessage {
   source?: "ai" | "rules";
   /** Triage context key for conversation continuity (e.g. "pain_head") */
   triageContext?: string;
+  /** Ride options for transport intent (Uber, Cabify, InDrive, Remis) */
+  rideOptions?: RideOptionCard[];
+}
+
+/** Ride option returned by Cora for inline transport cards */
+export interface RideOptionCard {
+  app: string;
+  logo: string;
+  color: string;
+  textColor?: string;
+  webLink: string;
+  note: string | null;
+}
+
+/** Fare estimate for ride options */
+export interface RideFareEstimate {
+  display: string | null;
+  duration: number | null;
+  surge: number | null;
 }
 
 export interface QuickReply {
@@ -371,6 +390,25 @@ const INTENTS: {
       // English
       /(?:how\s+(?:do\s+I|to)\s+get\s+to|directions?\s+to|navigate\s+to|route\s+to)/i,
       /(?:take\s+me\s+to|get\s+directions|open\s+(?:google\s*)?maps)/i,
+    ],
+  },
+  {
+    intent: "ride_transport",
+    patterns: [
+      // Spanish
+      /(?:uber|cabify|indrive|in\s*drive|remis|remises)/i,
+      /(?:taxi|taxista|radio\s*taxi)/i,
+      /(?:transporte|movilidad|traslado)/i,
+      /(?:c[oó]mo\s+(?:llego|voy|ir)\s+(?:al|a\s+la|en))/i,
+      /(?:pedir\s+(?:un\s+)?(?:auto|viaje|taxi|uber|cabify|remis))/i,
+      /(?:necesito\s+(?:un\s+)?(?:auto|viaje|taxi|uber|cabify|remis|transporte))/i,
+      /(?:ir\s+(?:al|a\s+la)\s+(?:m[eé]dico|doctor|consultorio|cl[ií]nica|hospital|guardia))/i,
+      /(?:(?:pedir|llamar|buscar)\s+(?:un\s+)?(?:auto|viaje|remis))/i,
+      // English
+      /(?:ride|transport|cab|taxi|rideshare|ride[\s-]?share)/i,
+      /(?:how\s+(?:do\s+I|to)\s+get\s+(?:a\s+)?ride)/i,
+      /(?:(?:need|want|get)\s+(?:a\s+)?(?:ride|car|taxi|uber|cabify))/i,
+      /(?:book\s+(?:a\s+)?(?:ride|car|uber|cabify|taxi))/i,
     ],
   },
   {
@@ -2352,6 +2390,7 @@ const INTENT_PRIORITY: Record<string, number> = {
   nearby_pharmacy: 5,
   nearby_guardia: 5,
   directions: 5,
+  ride_transport: 6,
   shared_location: 5,
   // High priority — medical / triage (symptoms must never be swallowed)
   triage_generic: 8,
@@ -2465,6 +2504,65 @@ export interface LivePlaces {
   doctors?: NearbyServiceItem[];
   pharmacies?: NearbyServiceItem[];
   hospitals?: NearbyServiceItem[];
+}
+
+// ─── Ride / Transport Response ───────────────────────────────
+
+/**
+ * Generate response for ride/transport intent.
+ * Returns a placeholder text + quickReplies; the API route enriches
+ * this with actual ride option deep links when coords are available.
+ */
+function generateRideResponse(
+  coords?: { lat: number; lng: number } | null,
+  lang?: string,
+): Partial<ChatMessage> {
+  const isEn = en(lang);
+
+  if (!coords) {
+    return {
+      text: isEn
+        ? "🚗 I can help you get a ride to your doctor or health center!\n\nTo show you Uber, Cabify, InDrive and Remis options with pre-filled addresses, I need your location first.\n\nPlease share your location using the 📍 button below."
+        : "🚗 ¡Te puedo ayudar a pedir un viaje al médico o centro de salud!\n\nPara mostrarte opciones de Uber, Cabify, InDrive y Remis con la dirección precargada, necesito tu ubicación primero.\n\nCompartí tu ubicación con el botón 📍 abajo del chat.",
+      quickReplies: isEn
+        ? [
+            { label: "Share location", value: "I want to share my location" },
+            { label: "Find nearby doctor", value: "Find a doctor near me" },
+          ]
+        : [
+            { label: "Compartir ubicación", value: "Quiero compartir mi ubicación" },
+            { label: "Buscar médico cerca", value: "Buscar médico cerca mío" },
+          ],
+    };
+  }
+
+  // When coords are present, the API route will inject rideOptions.
+  // This text is the base message shown alongside the ride cards.
+  return {
+    text: isEn
+      ? "🚗 Here are your transport options to get to your appointment.\nTap any option to open the app with the address pre-loaded:"
+      : "🚗 Acá tenés las opciones de transporte para llegar a tu consulta.\nTocá cualquier opción para abrir la app con la dirección precargada:",
+    quickReplies: isEn
+      ? [
+          { label: "Find nearby doctor", value: "Find a doctor near me" },
+          { label: "Book appointment", value: "I want to book an appointment" },
+          { label: "Find pharmacy", value: "Find a pharmacy near me" },
+        ]
+      : [
+          { label: "Buscar médico cerca", value: "Buscar médico cerca mío" },
+          { label: "Sacar turno", value: "Quiero sacar un turno" },
+          { label: "Buscar farmacia", value: "Buscar farmacia cerca mío" },
+        ],
+  };
+}
+
+/**
+ * Detect if a message is about ride/transport — these need special
+ * handling to inject ride option deep links from the ride service.
+ */
+export function detectRideIntent(message: string): boolean {
+  const { intent } = detectIntent(message);
+  return intent === "ride_transport";
 }
 
 export function processMessage(
@@ -2630,6 +2728,8 @@ export function processMessage(
       return generateNearbyGuardiaResponse(coords, lang, hospitals);
     case "directions":
       return generateDirectionsResponse(coords, lang, doctors, pharmacies, hospitals);
+    case "ride_transport":
+      return generateRideResponse(coords, lang);
     case "shared_location":
       return generateSharedLocationResponse(coords, lang);
     default:
@@ -2643,14 +2743,14 @@ export function getWelcomeMessage(lang?: string): ChatMessage {
       id: "welcome",
       role: "bot",
       timestamp: Date.now(),
-      text: "Hi! I'm Cora, your virtual nurse at Cóndor Salud\n\nI'm here to listen and help you just like a nurse would in person. Take your time and tell me what's going on — no question is too small.\n\nI can help you:\n• Understand your symptoms and find the right doctor\n• Recommend over-the-counter medicine from the pharmacy\n• Find doctors, pharmacies & ERs near you ()\n• Order meds to your door via Rappi or PedidosYa\n\nHow are you feeling today?",
+      text: "Hi! I'm Cora, your virtual nurse at Cóndor Salud\n\nI'm here to listen and help you just like a nurse would in person. Take your time and tell me what's going on — no question is too small.\n\nI can help you:\n• Understand your symptoms and find the right doctor\n• Recommend over-the-counter medicine from the pharmacy\n• Find doctors, pharmacies & ERs near you ()\n• Get a ride to your appointment (Uber, Cabify & more)\n• Order meds to your door via Rappi or PedidosYa\n\nHow are you feeling today?",
       quickReplies: [
         { label: "I'm not feeling well", value: "I'm not feeling well" },
         { label: "Book an appointment", value: "I want to book an appointment" },
         { label: "Find nearby", value: "Find a doctor near me" },
+        { label: "🚗 Get a ride", value: "I need a ride to the doctor" },
         { label: "Check my coverage", value: "I want to check my insurance coverage" },
         { label: "Talk to a doctor now", value: "I want a telemedicine consultation" },
-        { label: "How does it work?", value: "How does Cóndor Salud work?" },
       ],
     };
   }
@@ -2659,14 +2759,14 @@ export function getWelcomeMessage(lang?: string): ChatMessage {
     id: "welcome",
     role: "bot",
     timestamp: Date.now(),
-    text: "¡Hola! Soy Cora, tu enfermera virtual de Cóndor Salud\n\nEstoy acá para escucharte y ayudarte como lo haría una enfermera en persona. Contame con tranquilidad qué te está pasando — no te apures, preguntame lo que necesites.\n\nPuedo ayudarte a:\n• Entender tus síntomas y orientarte al médico indicado\n• Recomendarte qué podés tomar de la farmacia\n• Buscar médicos, farmacias y guardias cerca tuyo ()\n• Pedir remedios a tu casa con Rappi o PedidosYa\n\n¿Cómo te sentís hoy?",
+    text: "¡Hola! Soy Cora, tu enfermera virtual de Cóndor Salud\n\nEstoy acá para escucharte y ayudarte como lo haría una enfermera en persona. Contame con tranquilidad qué te está pasando — no te apures, preguntame lo que necesites.\n\nPuedo ayudarte a:\n• Entender tus síntomas y orientarte al médico indicado\n• Recomendarte qué podés tomar de la farmacia\n• Buscar médicos, farmacias y guardias cerca tuyo ()\n• Pedir un viaje al consultorio (Uber, Cabify y más)\n• Pedir remedios a tu casa con Rappi o PedidosYa\n\n¿Cómo te sentís hoy?",
     quickReplies: [
       { label: "No me siento bien", value: "No me siento bien" },
       { label: "Necesito un turno", value: "Quiero sacar un turno" },
       { label: "Buscar cerca mío", value: "Buscar médico cerca mío" },
+      { label: "🚗 Pedir un viaje", value: "Necesito un Uber para ir al médico" },
       { label: "Consultar cobertura", value: "Quiero consultar mi cobertura" },
       { label: "Hablar con un médico ya", value: "Quiero una teleconsulta" },
-      { label: "¿Cómo funciona?", value: "¿Cómo funciona Cóndor Salud?" },
     ],
   };
 }
@@ -2716,6 +2816,7 @@ const GEO_INTENTS = new Set([
   "nearby_pharmacy",
   "nearby_guardia",
   "directions",
+  "ride_transport",
   "shared_location",
   "location",
 ]);

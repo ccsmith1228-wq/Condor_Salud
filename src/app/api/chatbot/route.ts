@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { processMessage, detectEmergency, detectGeoIntent } from "@/lib/chatbot-engine";
-import type { LivePlaces } from "@/lib/chatbot-engine";
+import {
+  processMessage,
+  detectEmergency,
+  detectGeoIntent,
+  detectRideIntent,
+} from "@/lib/chatbot-engine";
+import type { LivePlaces, RideOptionCard } from "@/lib/chatbot-engine";
 import { askClaude, isClaudeConfigured } from "@/lib/ai/claude";
 import { checkRateLimit, sanitize, logger } from "@/lib/security/api-guard";
 import { nearbyPlacesSearch } from "@/lib/google";
 import { chatbotMessageSchema } from "@/lib/validations/schemas";
+import { buildRideOptions } from "@/lib/services/ride-service";
 
 /* ── Helper: enrich coverage responses with real data from /api/coverage ── */
 async function enrichCoverageResponse(
@@ -257,6 +263,60 @@ export async function POST(req: NextRequest) {
     // The rule-based engine has livePlaces data for structured card responses
     // with directions + maps.  Claude AI doesn't have this data.
     const isGeoQuery = detectGeoIntent(cleanMessage);
+
+    // ── RIDE INTENT: Enrich with ride options when user asks for transport ──
+    const isRideQuery = detectRideIntent(cleanMessage);
+
+    if (isRideQuery) {
+      const delay = 200 + Math.random() * 400;
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      const rideResponse = processMessage(cleanMessage, coords, lang, livePlaces, triageContext);
+
+      // If user has coords, fetch real ride option deep links
+      let rideOptions: RideOptionCard[] | undefined;
+      if (coords) {
+        try {
+          // Build ride options using the nearest doctor/clinic as destination
+          // When no specific destination, use a generic health center query
+          const nearestDoctor = livePlaces?.doctors?.[0];
+          const nearestHospital = livePlaces?.hospitals?.[0];
+          const destination = nearestDoctor ?? nearestHospital;
+
+          const result = await buildRideOptions({
+            doctorName:
+              destination?.name ?? (lang?.startsWith("en") ? "Health center" : "Centro de salud"),
+            clinicAddress: destination?.address ?? "",
+            clinicLat: destination?.lat ?? null,
+            clinicLng: destination?.lng ?? null,
+            patientLat: coords.lat,
+            patientLng: coords.lng,
+            specialty: "",
+          });
+
+          rideOptions = result.options
+            .filter((o) => o.available)
+            .map((o) => ({
+              app: o.app,
+              logo: o.logo,
+              color: o.color,
+              textColor: o.textColor,
+              webLink: o.webLink || o.smartLink,
+              note: o.note,
+            }));
+        } catch (err) {
+          logger.warn({ err }, "Failed to fetch ride options, returning text-only response");
+        }
+      }
+
+      return NextResponse.json({
+        id: `bot-${Date.now()}`,
+        role: "bot",
+        timestamp: Date.now(),
+        source: "rules" as const,
+        ...rideResponse,
+        ...(rideOptions?.length ? { rideOptions } : {}),
+      });
+    }
 
     if (isGeoQuery) {
       const delay = 200 + Math.random() * 400;

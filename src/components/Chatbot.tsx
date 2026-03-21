@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
-import type { ChatMessage, QuickReply, InfoCard } from "@/lib/chatbot-engine";
+import type { ChatMessage, QuickReply, InfoCard, RideOptionCard } from "@/lib/chatbot-engine";
 import { getWelcomeMessage } from "@/lib/chatbot-engine";
 import { useGeolocation } from "@/lib/hooks/useGeolocation";
 import { useLocale } from "@/lib/i18n/context";
@@ -157,6 +157,75 @@ function CardList({ cards }: { cards: InfoCard[] }) {
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+const RIDE_APP_COLORS: Record<string, string> = {
+  uber: "bg-black text-white hover:bg-gray-800",
+  cabify: "bg-violet-600 text-white hover:bg-violet-500",
+  indrive: "bg-[#CCFF00] text-black hover:bg-[#d4ff33]",
+  remis: "bg-green-600 text-white hover:bg-green-500",
+};
+
+const RIDE_APP_ICONS: Record<string, string> = {
+  uber: "U",
+  cabify: "C",
+  indrive: "iD",
+  remis: "R",
+};
+
+function RideCards({ options }: { options: RideOptionCard[] }) {
+  return (
+    <div className="pl-9 animate-chatMsg">
+      <div className="border border-border rounded-xl overflow-hidden bg-white">
+        <div className="flex items-center gap-2 px-3 py-2 bg-surface/60 border-b border-border">
+          <span className="text-sm" aria-hidden="true">
+            🚗
+          </span>
+          <span className="text-[12px] font-semibold text-ink">Transporte disponible</span>
+        </div>
+        <div className="divide-y divide-border-light">
+          {options.map((opt) => (
+            <a
+              key={opt.app}
+              href={opt.webLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 px-3 py-2.5 hover:bg-surface/50 transition text-left"
+              style={{ borderLeftWidth: 3, borderLeftColor: opt.color }}
+            >
+              {/* Logo badge */}
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${RIDE_APP_COLORS[opt.logo] || "bg-ink-100 text-ink"}`}
+              >
+                <span className="text-[11px] font-bold">
+                  {RIDE_APP_ICONS[opt.logo] || opt.app[0]}
+                </span>
+              </div>
+              {/* Name + note */}
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] font-medium text-ink">{opt.app}</p>
+                {opt.note && <p className="text-[11px] text-ink-muted truncate">{opt.note}</p>}
+              </div>
+              {/* Arrow */}
+              <svg
+                viewBox="0 0 24 24"
+                className="w-3.5 h-3.5 text-ink-200 shrink-0"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                <polyline points="15 3 21 3 21 9" />
+                <line x1="10" y1="14" x2="21" y2="3" />
+              </svg>
+            </a>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
@@ -549,6 +618,9 @@ export default function Chatbot() {
               <div key={msg.id}>
                 <MessageBubble msg={msg} />
                 {msg.cards && <CardList cards={msg.cards} />}
+                {msg.rideOptions && msg.rideOptions.length > 0 && (
+                  <RideCards options={msg.rideOptions} />
+                )}
                 {/* Show quick replies only for the last bot message */}
                 {msg.role === "bot" &&
                   msg.quickReplies &&
