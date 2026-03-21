@@ -85,7 +85,7 @@ function buildDefaultSystem(context?: ChatContext): string {
   return `Sos el asistente de Cóndor Salud, una app médica argentina para Buenos Aires.
 Tu trabajo es ayudar a pacientes con:
 1. Información sobre su turno médico
-2. Cómo llegar al consultorio (Uber, Cabify, InDrive, remis)
+2. Cómo llegar al consultorio (Uber, Cabify, InDrive)
 3. Dudas generales sobre obras sociales y prepagas argentinas
 4. Preguntas básicas de salud (remitir siempre al médico para diagnósticos)
 
@@ -114,7 +114,7 @@ REGLAS:
 function fallbackReply(message: string): string {
   const lower = message.toLowerCase();
 
-  if (/uber|cabify|taxi|remis|transporte|llegar|viaje/.test(lower)) {
+  if (/uber|cabify|taxi|transporte|llegar|viaje/.test(lower)) {
     return 'Para pedir un viaje al consultorio, tocá el botón "Pedir Uber", "Pedir Cabify" o "Pedir InDrive" que aparece en la confirmación de tu turno. La dirección ya está precargada.';
   }
   if (/turno|fecha|hora|cuándo|cuando/.test(lower)) {

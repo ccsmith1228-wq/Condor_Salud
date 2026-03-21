@@ -51,7 +51,6 @@ const APP_COLORS: Record<string, string> = {
   uber: "bg-black text-white",
   cabify: "bg-violet-600 text-white",
   indrive: "bg-[#CCFF00] text-black",
-  remis: "bg-green-500 text-white",
 };
 
 const QUICK_REPLIES = [
@@ -76,8 +75,8 @@ export default function RideChatbot({ preloadContext, onClose }: Props) {
       id: "0",
       role: "assistant",
       text: preloadContext
-        ? `Hola 👋 Tu turno con **${preloadContext.doctorName}** es el ${preloadContext.bookingDate || "—"} a las ${preloadContext.bookingTime || "—"}. ¿Necesitás ayuda para llegar al consultorio?`
-        : "¡Hola! Soy el asistente de Cóndor Salud. Puedo ayudarte a pedir un Uber, Cabify o remis al consultorio. ¿En qué puedo ayudarte?",
+        ? `Hola, tu turno con **${preloadContext.doctorName}** es el ${preloadContext.bookingDate || "—"} a las ${preloadContext.bookingTime || "—"}. ¿Necesitás ayuda para llegar al consultorio?`
+        : "¡Hola! Soy el asistente de Cóndor Salud. Puedo ayudarte a pedir un Uber o Cabify al consultorio. ¿En qué puedo ayudarte?",
       timestamp: new Date(),
     };
     setMessages([greeting]);
@@ -162,7 +161,7 @@ export default function RideChatbot({ preloadContext, onClose }: Props) {
 
       try {
         const isRideRequest =
-          /uber|cabify|indrive|remis|taxi|viaje|llego|llegar|transporte|cómo voy/i.test(text);
+          /uber|cabify|indrive|taxi|viaje|llego|llegar|transporte|cómo voy/i.test(text);
 
         if (isRideRequest && preloadContext) {
           const opts = await fetchRideOptions(preloadContext);

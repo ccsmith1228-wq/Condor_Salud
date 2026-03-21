@@ -1,7 +1,7 @@
 /**
  * Ride Service — v0.17.0
  *
- * Builds pre-filled deep links for Uber, Cabify, InDrive, and Remises
+ * Builds pre-filled deep links for Uber, Cabify, and InDrive
  * with the doctor/clinic address as the destination.
  *
  * Also optionally fetches Uber fare estimates using the
@@ -122,7 +122,6 @@ export async function buildRideOptions(params: BuildRideOptionsParams): Promise<
       destLng,
       pickupAddress: patientAddress ?? null,
     }),
-    buildRemisesLink({ clinicAddress }),
   ];
 
   // Optionally fetch Uber fare estimate
@@ -268,25 +267,6 @@ function buildInDriveLink(p: {
     smartLink: link,
     available: true,
     note: "Negociá el precio",
-  };
-}
-
-// ─── Remises / taxi fallback (WhatsApp) ──────────────────────
-
-function buildRemisesLink(p: { clinicAddress: string }): RideOption {
-  const remisesNumber = process.env.REMISES_WHATSAPP_NUMBER || "5491100000000";
-  const message = `Hola, necesito un remis para ir a: ${p.clinicAddress}`;
-  const waUrl = `https://wa.me/${remisesNumber}?text=${encodeURIComponent(message)}`;
-
-  return {
-    app: "Remis",
-    logo: "remis",
-    color: "#25D366",
-    deepLink: waUrl,
-    webLink: waUrl,
-    smartLink: waUrl,
-    available: !!process.env.REMISES_WHATSAPP_NUMBER,
-    note: "Vía WhatsApp",
   };
 }
 

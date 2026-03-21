@@ -116,10 +116,9 @@ const serverSchema = z.object({
   // ── Anthropic (Claude AI for Cora chatbot) ─────────────────
   ANTHROPIC_API_KEY: z.string().optional(),
 
-  // ── Rides (Uber / Remises — v0.17.0) ───────────────────────
+  // ── Rides (Uber — v0.17.0) ─────────────────────────────────
   UBER_CLIENT_ID: z.string().optional(),
   UBER_SERVER_TOKEN: z.string().optional(),
-  REMISES_WHATSAPP_NUMBER: z.string().optional(),
 
   // ── Google OAuth ────────────────────────────────────────────
   NEXT_PUBLIC_GOOGLE_CLIENT_ID: z

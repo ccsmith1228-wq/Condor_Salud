@@ -1,7 +1,7 @@
 /**
  * RideOptionsCard — Web component (ported from React Native)
  *
- * Shows Uber, Cabify, InDrive, Remis deep links pre-filled
+ * Shows Uber, Cabify, InDrive deep links pre-filled
  * with the doctor's address. Includes fare estimate badge.
  */
 
@@ -15,14 +15,12 @@ const APP_LOGOS: Record<string, string> = {
   uber: "U",
   cabify: "C",
   indrive: "iD",
-  remis: "R",
 };
 
 const APP_COLORS: Record<string, string> = {
   uber: "bg-black text-white",
   cabify: "bg-violet-600 text-white",
   indrive: "bg-[#CCFF00] text-black",
-  remis: "bg-green-500 text-white",
 };
 
 interface Props {

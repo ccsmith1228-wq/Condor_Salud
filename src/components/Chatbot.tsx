@@ -165,14 +165,12 @@ const RIDE_APP_COLORS: Record<string, string> = {
   uber: "bg-black text-white hover:bg-gray-800",
   cabify: "bg-violet-600 text-white hover:bg-violet-500",
   indrive: "bg-[#CCFF00] text-black hover:bg-[#d4ff33]",
-  remis: "bg-green-600 text-white hover:bg-green-500",
 };
 
 const RIDE_APP_ICONS: Record<string, string> = {
   uber: "U",
   cabify: "C",
   indrive: "iD",
-  remis: "R",
 };
 
 function RideCards({ options }: { options: RideOptionCard[] }) {
@@ -180,9 +178,6 @@ function RideCards({ options }: { options: RideOptionCard[] }) {
     <div className="pl-9 animate-chatMsg">
       <div className="border border-border rounded-xl overflow-hidden bg-white">
         <div className="flex items-center gap-2 px-3 py-2 bg-surface/60 border-b border-border">
-          <span className="text-sm" aria-hidden="true">
-            🚗
-          </span>
           <span className="text-[12px] font-semibold text-ink">Transporte disponible</span>
         </div>
         <div className="divide-y divide-border-light">
@@ -587,7 +582,7 @@ export default function Chatbot() {
             <div className="flex items-center gap-1">
               {hasLocation && (
                 <span className="text-white/60 text-[10px] mr-1" title="Ubicación compartida">
-                  📍
+                  loc
                 </span>
               )}
               <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />

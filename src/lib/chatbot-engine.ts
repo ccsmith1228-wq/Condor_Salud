@@ -24,7 +24,7 @@ export interface ChatMessage {
   source?: "ai" | "rules";
   /** Triage context key for conversation continuity (e.g. "pain_head") */
   triageContext?: string;
-  /** Ride options for transport intent (Uber, Cabify, InDrive, Remis) */
+  /** Ride options for transport intent (Uber, Cabify, InDrive) */
   rideOptions?: RideOptionCard[];
 }
 
@@ -396,14 +396,14 @@ const INTENTS: {
     intent: "ride_transport",
     patterns: [
       // Spanish
-      /(?:uber|cabify|indrive|in\s*drive|remis|remises)/i,
+      /(?:uber|cabify|indrive|in\s*drive)/i,
       /(?:taxi|taxista|radio\s*taxi)/i,
       /(?:transporte|movilidad|traslado)/i,
       /(?:c[oó]mo\s+(?:llego|voy|ir)\s+(?:al|a\s+la|en))/i,
-      /(?:pedir\s+(?:un\s+)?(?:auto|viaje|taxi|uber|cabify|remis))/i,
-      /(?:necesito\s+(?:un\s+)?(?:auto|viaje|taxi|uber|cabify|remis|transporte))/i,
+      /(?:pedir\s+(?:un\s+)?(?:auto|viaje|taxi|uber|cabify))/i,
+      /(?:necesito\s+(?:un\s+)?(?:auto|viaje|taxi|uber|cabify|transporte))/i,
       /(?:ir\s+(?:al|a\s+la)\s+(?:m[eé]dico|doctor|consultorio|cl[ií]nica|hospital|guardia))/i,
-      /(?:(?:pedir|llamar|buscar)\s+(?:un\s+)?(?:auto|viaje|remis))/i,
+      /(?:(?:pedir|llamar|buscar)\s+(?:un\s+)?(?:auto|viaje))/i,
       // English
       /(?:ride|transport|cab|taxi|rideshare|ride[\s-]?share)/i,
       /(?:how\s+(?:do\s+I|to)\s+get\s+(?:a\s+)?ride)/i,
@@ -2309,7 +2309,7 @@ function generateSharedLocationResponse(
           { label: "Doctor nearby", value: "Find a doctor near me" },
           { label: "Pharmacy nearby", value: "Pharmacy near me" },
           { label: "Nearest ER", value: "Nearest emergency room" },
-          { label: "🚗 Get a ride", value: "I need a ride to the doctor" },
+          { label: "Get a ride", value: "I need a ride to the doctor" },
         ],
       };
     }
@@ -2328,7 +2328,7 @@ function generateSharedLocationResponse(
         { label: "Médico cerca", value: "Buscar médico cerca mío" },
         { label: "Farmacia cerca", value: "Farmacia cerca mío" },
         { label: "Guardia más cercana", value: "Guardia más cercana" },
-        { label: "🚗 Transporte", value: "Necesito transporte al médico" },
+        { label: "Transporte", value: "Necesito transporte al médico" },
       ],
     };
   }
@@ -2522,8 +2522,8 @@ function generateRideResponse(
   if (!coords) {
     return {
       text: isEn
-        ? "🚗 I can help you get a ride to your doctor or health center!\n\nTo show you Uber, Cabify, InDrive and Remis options with pre-filled addresses, I need your location first.\n\nPlease share your location using the 📍 button below."
-        : "🚗 ¡Te puedo ayudar a pedir un viaje al médico o centro de salud!\n\nPara mostrarte opciones de Uber, Cabify, InDrive y Remis con la dirección precargada, necesito tu ubicación primero.\n\nCompartí tu ubicación con el botón 📍 abajo del chat.",
+        ? "I can help you get a ride to your doctor or health center!\n\nTo show you Uber, Cabify and InDrive options with pre-filled addresses, I need your location first.\n\nPlease share your location using the location button below."
+        : "¡Te puedo ayudar a pedir un viaje al médico o centro de salud!\n\nPara mostrarte opciones de Uber, Cabify e InDrive con la dirección precargada, necesito tu ubicación primero.\n\nCompartí tu ubicación con el botón de ubicación abajo del chat.",
       // Tag with ride context so the client can auto-send a ride
       // message after the user shares their location
       triageContext: "ride_transport",
@@ -2543,8 +2543,8 @@ function generateRideResponse(
   // This text is the base message shown alongside the ride cards.
   return {
     text: isEn
-      ? "🚗 Here are your transport options to get to your appointment.\nTap any option to open the app with the address pre-loaded:"
-      : "🚗 Acá tenés las opciones de transporte para llegar a tu consulta.\nTocá cualquier opción para abrir la app con la dirección precargada:",
+      ? "Here are your transport options to get to your appointment.\nTap any option to open the app with the address pre-loaded:"
+      : "Acá tenés las opciones de transporte para llegar a tu consulta.\nTocá cualquier opción para abrir la app con la dirección precargada:",
     quickReplies: isEn
       ? [
           { label: "Find nearby doctor", value: "Find a doctor near me" },
@@ -2751,7 +2751,7 @@ export function getWelcomeMessage(lang?: string): ChatMessage {
         { label: "I'm not feeling well", value: "I'm not feeling well" },
         { label: "Book an appointment", value: "I want to book an appointment" },
         { label: "Find nearby", value: "Find a doctor near me" },
-        { label: "🚗 Get a ride", value: "I need a ride to the doctor" },
+        { label: "Get a ride", value: "I need a ride to the doctor" },
         { label: "Check my coverage", value: "I want to check my insurance coverage" },
         { label: "Talk to a doctor now", value: "I want a telemedicine consultation" },
       ],
@@ -2767,7 +2767,7 @@ export function getWelcomeMessage(lang?: string): ChatMessage {
       { label: "No me siento bien", value: "No me siento bien" },
       { label: "Necesito un turno", value: "Quiero sacar un turno" },
       { label: "Buscar cerca mío", value: "Buscar médico cerca mío" },
-      { label: "🚗 Pedir un viaje", value: "Necesito un Uber para ir al médico" },
+      { label: "Pedir un viaje", value: "Necesito un Uber para ir al médico" },
       { label: "Consultar cobertura", value: "Quiero consultar mi cobertura" },
       { label: "Hablar con un médico ya", value: "Quiero una teleconsulta" },
     ],
