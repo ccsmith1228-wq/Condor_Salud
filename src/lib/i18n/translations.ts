@@ -27,14 +27,14 @@ const translations: Dict = {
 
   // ── Hero ────────────────────────────────────────────────────
   "hero.badge": {
-    es: "Nuevo: Directorio médico con Google Places, turnos y teleconsulta",
-    en: "New: Doctor directory with Google Places, bookings & telehealth",
+    es: "Nuevo: Turnos online con MercadoPago, notificaciones push y disponibilidad médica",
+    en: "New: Online bookings with MercadoPago, push notifications & doctor availability",
   },
   "hero.title1": { es: "Todo tu sistema de salud.", en: "Your entire health system." },
   "hero.title2": { es: "Una sola vista.", en: "One single view." },
   "hero.subtitle": {
-    es: "Conectamos PAMI, obras sociales, prepagas y AFIP en una plataforma unificada. Verificá cobertura, facturá automáticamente, y dejá de perder plata por inflación.",
-    en: "We connect PAMI, social health plans, private insurers and AFIP in one unified platform. Verify coverage, bill automatically, and stop losing money to inflation.",
+    es: "Conectamos PAMI, obras sociales, prepagas y AFIP en una plataforma unificada. Turnos online con pago integrado, notificaciones push, recordatorios automáticos y facturación sin errores.",
+    en: "We connect PAMI, social health plans, private insurers and AFIP in one unified platform. Online bookings with integrated payments, push notifications, automated reminders and error-free billing.",
   },
   "hero.cta1": { es: "Empezar gratis — 14 días", en: "Start free — 14 days" },
   "hero.cta2": { es: "Ver demo en vivo", en: "Watch live demo" },
@@ -61,16 +61,16 @@ const translations: Dict = {
   "hero.mockDelayChange": { es: "-45 días demora", en: "-45 days delay" },
   "hero.mockAlertsTitle": { es: "Alertas de hoy", en: "Today's alerts" },
   "hero.mockAlert1": {
-    es: "PAMI rechazó 3 facturas por código inválido — Reprocesar",
-    en: "PAMI rejected 3 invoices for invalid code — Reprocess",
+    es: "MercadoPago: 8 pagos de consultas acreditados hoy — $124.000",
+    en: "MercadoPago: 8 consultation payments credited today — $124,000",
   },
   "hero.mockAlert2": {
-    es: "Swiss Medical pagó $2.1M — Cobro acreditado",
-    en: "Swiss Medical paid $2.1M — Payment credited",
+    es: "Recordatorios automáticos enviados: 23 turnos de mañana notificados",
+    en: "Auto-reminders sent: 23 tomorrow's appointments notified",
   },
   "hero.mockAlert3": {
-    es: "12 verificaciones de cobertura completadas automáticamente",
-    en: "12 coverage verifications completed automatically",
+    es: "Push: 47 pacientes recibieron confirmación de turno en tiempo real",
+    en: "Push: 47 patients received real-time booking confirmations",
   },
   "hero.mockPatients": { es: "Pacientes hoy", en: "Patients today" },
   "hero.mockPatientsVal": { es: "47", en: "47" },
@@ -79,13 +79,13 @@ const translations: Dict = {
   "hero.mockAgendaVal": { es: "94%", en: "94%" },
   "hero.mockAgendaChange": { es: "3 slots libres", en: "3 slots free" },
   "hero.mockAutoTitle": { es: "Automatizaciones activas", en: "Active automations" },
-  "hero.mockAuto1": { es: "Verificación de padrón", en: "Registry verification" },
-  "hero.mockAuto2": { es: "Facturación electrónica", en: "Electronic billing" },
-  "hero.mockAuto3": { es: "Ajuste por inflación", en: "Inflation adjustment" },
-  "hero.mockAuto4": { es: "Alertas de vencimiento", en: "Expiry alerts" },
+  "hero.mockAuto1": { es: "Cobro automático MercadoPago", en: "Auto MercadoPago payments" },
+  "hero.mockAuto2": { es: "Push de confirmación de turno", en: "Booking confirmation push" },
+  "hero.mockAuto3": { es: "Recordatorios 24h antes", en: "24h advance reminders" },
+  "hero.mockAuto4": { es: "Disponibilidad semanal sync", en: "Weekly availability sync" },
   "hero.mockAlert4": {
-    es: "Galeno: 5 autorizaciones pendientes vencen mañana",
-    en: "Galeno: 5 pending authorizations expire tomorrow",
+    es: "Disponibilidad: Dra. González actualizó 32 slots para la semana",
+    en: "Availability: Dr. González updated 32 slots for the week",
   },
   "hero.mockRevenueTitle": { es: "Meta mensual", en: "Monthly target" },
   "hero.mockRevenuePercent": { es: "78%", en: "78%" },
@@ -131,23 +131,23 @@ const translations: Dict = {
   // ── Patient Stats (tourist segment) ─────────────────────────
   "pstats.label0": { es: "Médicos en la red", en: "Doctors in the network" },
   "pstats.detail0": {
-    es: "Profesionales disponibles para turnos, teleconsulta y guardia en toda Argentina.",
-    en: "Professionals available for appointments, teleconsults and ER across Argentina.",
+    es: "Profesionales con turnos online, pago MercadoPago y notificaciones push integradas.",
+    en: "Professionals with online bookings, MercadoPago payment and push notifications built-in.",
   },
-  "pstats.label1": { es: "Tiempo de respuesta", en: "Response time" },
+  "pstats.label1": { es: "Confirmación push", en: "Push confirmation" },
   "pstats.detail1": {
-    es: "Desde que escribís a Cora hasta que tenés un turno confirmado o teleconsulta.",
-    en: "From messaging Cora to having a confirmed appointment or teleconsult.",
+    es: "Reservá turno y recibí confirmación push en segundos + recordatorio 24h antes.",
+    en: "Book an appointment and get push confirmation in seconds + a 24h reminder.",
   },
   "pstats.label2": { es: "Farmacias con delivery", en: "Pharmacies with delivery" },
   "pstats.detail2": {
     es: "Farmacias habilitadas que envían medicamentos a tu domicilio en CABA y GBA.",
     en: "Licensed pharmacies delivering medications to your door in Buenos Aires metro.",
   },
-  "pstats.label3": { es: "Idiomas disponibles", en: "Languages available" },
+  "pstats.label3": { es: "Pago integrado", en: "Integrated payment" },
   "pstats.detail3": {
-    es: "Todo el sistema funciona en español e inglés. Cora atiende 24/7 en ambos idiomas.",
-    en: "The entire system works in Spanish and English. Cora is available 24/7 in both.",
+    es: "Pagá tu consulta con MercadoPago al reservar. Sin efectivo, sin demoras.",
+    en: "Pay your consultation via MercadoPago when booking. No cash, no delays.",
   },
   "pstats.source": {
     es: "Red Cóndor Salud · Datos actualizados a 2026",
@@ -244,15 +244,15 @@ const translations: Dict = {
     en: "One single database.",
   },
   "features.subtitle": {
-    es: "19 módulos integrados que cubren desde la verificación de cobertura hasta el reporte directivo. Sin módulos sueltos, sin integraciones extra, sin costos ocultos.",
-    en: "19 integrated modules covering from coverage verification to executive reporting. No loose modules, no extra integrations, no hidden costs.",
+    es: "25+ módulos integrados: turnos con MercadoPago, notificaciones push, disponibilidad médica, recordatorios automáticos y más. Sin costos ocultos.",
+    en: "25+ integrated modules: bookings with MercadoPago, push notifications, doctor availability, automated reminders and more. No hidden costs.",
   },
-  "features.core0.title": { es: "Verificación Tiempo Real", en: "Real-Time Verification" },
+  "features.core0.title": { es: "Turnos Online con Pago", en: "Online Bookings + Payment" },
   "features.core0.desc": {
-    es: "Verificá cobertura de PAMI, obras sociales y prepagas antes de atender al paciente. Padrón actualizado, copago estimado y autorización online en segundos.",
-    en: "Verify PAMI, social plan and private insurer coverage before seeing the patient. Updated enrollment, estimated copay and online authorization in seconds.",
+    es: "Turnos end-to-end: el paciente reserva, paga con MercadoPago, recibe confirmación push y recordatorio 24h antes. Todo automático.",
+    en: "End-to-end bookings: the patient books, pays via MercadoPago, gets a push confirmation and a 24h reminder. Fully automated.",
   },
-  "features.core0.hl": { es: "Ahorrá 3hs/día en llamadas", en: "Save 3hrs/day on calls" },
+  "features.core0.hl": { es: "MercadoPago + Push integrado", en: "MercadoPago + Push built-in" },
   "features.core1.title": { es: "Facturación Unificada", en: "Unified Billing" },
   "features.core1.desc": {
     es: "Nomenclador SSS + PAMI + arancelarios de cada prepaga en una sola interfaz. Liquidación automática por financiador con validación preventiva de errores.",
@@ -273,43 +273,43 @@ const translations: Dict = {
   "features.core3.hl": { es: "Visibilidad peso x peso", en: "Full financial visibility" },
   "features.core4.title": { es: "Integración Total", en: "Total Integration" },
   "features.core4.desc": {
-    es: "AFIP factura electrónica, receta digital PAMI, SISA, REFEPS y conexión directa con Swiss Medical, OSDE, IOMA, Galeno, Medifé y más de 280 obras sociales.",
-    en: "AFIP electronic invoicing, PAMI digital prescriptions, SISA, REFEPS and direct connection with Swiss Medical, OSDE, IOMA, Galeno, Medifé and 280+ social plans.",
+    es: "MercadoPago, Web Push VAPID, AFIP, PAMI receta digital, SISA, Google Places y 280+ obras sociales. Recordatorios automáticos vía cron a las 10:00 UTC.",
+    en: "MercadoPago, Web Push VAPID, AFIP, PAMI digital prescriptions, SISA, Google Places and 280+ social plans. Auto-reminders via daily cron at 10:00 UTC.",
   },
-  "features.core4.hl": { es: "330+ integraciones", en: "330+ integrations" },
+  "features.core4.hl": { es: "330+ integraciones + Push", en: "330+ integrations + Push" },
   "features.core5.title": { es: "Dashboard Directivo", en: "Executive Dashboard" },
   "features.core5.desc": {
     es: "Ingresos, rechazos, demoras y rendimiento por financiador en una sola vista. Alertas automáticas cuando algo se desvía. Exportá reportes en PDF y Excel.",
     en: "Revenue, rejections, delays and payer performance in one view. Automatic alerts when something deviates. Export PDF & Excel reports.",
   },
   "features.core5.hl": { es: "Decisiones con datos reales", en: "Data-driven decisions" },
-  "features.extra0.title": { es: "Agenda inteligente", en: "Smart scheduling" },
+  "features.extra0.title": { es: "Disponibilidad médica", en: "Doctor availability" },
   "features.extra0.desc": {
-    es: "Turnos con verificación automática de cobertura",
-    en: "Appointments with automatic coverage verification",
+    es: "Grilla semanal de horarios por profesional con CRUD",
+    en: "Weekly schedule grid per doctor with full CRUD",
   },
-  "features.extra1.title": { es: "Farmacia Online", en: "Online Pharmacy" },
+  "features.extra1.title": { es: "Notificaciones push", en: "Push notifications" },
   "features.extra1.desc": {
-    es: "Receta digital + cobertura PAMI integrada",
-    en: "Digital prescription + integrated PAMI coverage",
+    es: "Web Push VAPID para turnos, pagos y recordatorios",
+    en: "Web Push VAPID for bookings, payments & reminders",
   },
-  "features.extra2.title": { es: "Telemedicina", en: "Telemedicine" },
+  "features.extra2.title": { es: "Recordatorios auto", en: "Auto reminders" },
   "features.extra2.desc": {
-    es: "Videoconsulta con facturación automática",
-    en: "Video consultation with automatic billing",
+    es: "Cron diario: email + push 24h antes del turno",
+    en: "Daily cron: email + push 24h before appointment",
   },
-  "features.extra3.title": { es: "Triage IA", en: "AI Triage" },
+  "features.extra3.title": { es: "Pagos MercadoPago", en: "MercadoPago payments" },
   "features.extra3.desc": {
-    es: "Clasificación de urgencias con inteligencia artificial",
-    en: "Urgency classification with artificial intelligence",
+    es: "Cobro en checkout al reservar con confirmación auto",
+    en: "Checkout payment on booking with auto-confirmation",
   },
   "features.extraTitle": {
     es: "Y mucho más incluido en tu plan",
     en: "And much more included in your plan",
   },
   "features.extraSubtitle": {
-    es: "19 módulos totales — todos integrados entre sí, sin costo adicional",
-    en: "19 total modules — all integrated, no extra cost",
+    es: "25+ módulos totales — turnos, pagos, push, agenda, farmacia, telemedicina y más",
+    en: "25+ total modules — bookings, payments, push, scheduling, pharmacy, telehealth & more",
   },
   "features.cta": { es: "Explorá el demo completo", en: "Explore the full demo" },
 
@@ -332,10 +332,13 @@ const translations: Dict = {
     es: "Cóndor Salud se integra automáticamente con PAMI, obras sociales y prepagas. Verificamos padrones y configuramos nomencladores.",
     en: "Cóndor Salud integrates automatically with PAMI, social plans and private insurers. We verify enrollment and set up billing codes.",
   },
-  "how.step2.title": { es: "Facturá y cobrá más rápido", en: "Bill and collect faster" },
+  "how.step2.title": {
+    es: "Turnos, cobros y notificaciones",
+    en: "Bookings, payments & notifications",
+  },
   "how.step2.desc": {
-    es: "Verificá cobertura en tiempo real, facturá sin errores y hacé seguimiento de cada peso. Reducí rechazos desde el primer día.",
-    en: "Verify coverage in real time, bill without errors and track every dollar. Reduce rejections from day one.",
+    es: "Tus pacientes reservan online, pagan con MercadoPago, reciben push de confirmación y recordatorio 24h antes. Vos cobrás sin esfuerzo.",
+    en: "Your patients book online, pay via MercadoPago, get push confirmation and a 24h reminder. You collect effortlessly.",
   },
 
   // ── Integrations ────────────────────────────────────────────
@@ -588,8 +591,8 @@ const translations: Dict = {
     es: "Probá gratis durante 14 días y empezá a facturar sin errores desde el primer día.",
     en: "Try free for 14 days and start billing without errors from day one.",
   },
-  "cta.hl0": { es: "Reducí rechazos 40–60%", en: "Reduce rejections 40–60%" },
-  "cta.hl1": { es: "Cobrá 45 días antes", en: "Collect 45 days sooner" },
+  "cta.hl0": { es: "Turnos + cobro MercadoPago", en: "Bookings + MercadoPago" },
+  "cta.hl1": { es: "Push + recordatorios auto", en: "Push + auto-reminders" },
   "cta.hl2": { es: "14 días gratis, sin tarjeta", en: "14 days free, no card" },
   "cta.primary": { es: "Crear cuenta gratis", en: "Create free account" },
   "cta.secondary": { es: "Ver demo en vivo", en: "Watch live demo" },
@@ -643,8 +646,8 @@ const translations: Dict = {
   // that lean even harder into clinic-owner language.
 
   "hero.badge@provider": {
-    es: "Nuevo: Integración con PAMI, receta digital y directorio médico",
-    en: "New: PAMI integration, digital prescriptions & doctor directory",
+    es: "Nuevo: Turnos con MercadoPago, push notifications y gestión de disponibilidad",
+    en: "New: Bookings with MercadoPago, push notifications & availability management",
   },
   "hero.title1@provider": {
     es: "Gestioná tu clínica.",
@@ -655,8 +658,8 @@ const translations: Dict = {
     en: "Without losing a dime.",
   },
   "hero.subtitle@provider": {
-    es: "Conectamos PAMI, obras sociales, prepagas y AFIP en una plataforma unificada. Verificá cobertura, facturá automáticamente, y dejá de perder plata por inflación.",
-    en: "We connect PAMI, social health plans, private insurers and AFIP in one unified platform. Verify coverage, bill automatically, and stop losing money to inflation.",
+    es: "Turnos online con cobro MercadoPago, notificaciones push en tiempo real, recordatorios automáticos y gestión de disponibilidad. Todo integrado con PAMI, obras sociales y prepagas.",
+    en: "Online bookings with MercadoPago checkout, real-time push notifications, automated reminders and availability management. All integrated with PAMI, social plans and private insurers.",
   },
   "hero.cta1@provider": {
     es: "Empezar gratis — 14 días",
@@ -690,8 +693,8 @@ const translations: Dict = {
     en: "Everything your clinic needs. ",
   },
   "features.titleEm@provider": {
-    es: "Facturación, rechazos, inflación.",
-    en: "Billing, rejections, inflation.",
+    es: "Turnos, pagos, push y más.",
+    en: "Bookings, payments, push & more.",
   },
 
   "how.title@provider": { es: "Empezá a facturar ", en: "Start billing " },
@@ -723,8 +726,8 @@ const translations: Dict = {
   // ── TOURIST (individuals / patients) ───────────────────────
 
   "hero.badge@tourist": {
-    es: "Nuevo: Buscá médicos, farmacias y guardias cerca tuyo",
-    en: "New: Find doctors, pharmacies & ERs near you",
+    es: "Nuevo: Reservá turnos online, pagá con MercadoPago y recibí alertas push",
+    en: "New: Book appointments online, pay with MercadoPago & get push alerts",
   },
   "hero.title1@tourist": {
     es: "Tu salud en Argentina.",
@@ -735,8 +738,8 @@ const translations: Dict = {
     en: "Sorted in minutes.",
   },
   "hero.subtitle@tourist": {
-    es: "¿Necesitás un médico, una farmacia o una guardia? Cóndor Salud te conecta al instante con profesionales, te verifica la cobertura y te permite pedir remedios a domicilio. Todo desde tu celular.",
-    en: "Need a doctor, pharmacy or ER? Cóndor Salud connects you instantly with professionals, verifies your coverage and lets you order medicine to your door. All from your phone.",
+    es: "Reservá turno, pagá con MercadoPago, recibí confirmación push al instante y recordatorio 24h antes. Buscá médicos con GPS, verificá cobertura y pedí remedios. Todo gratis.",
+    en: "Book an appointment, pay with MercadoPago, get instant push confirmation and a 24h reminder. Find doctors with GPS, verify coverage and order meds. All free.",
   },
   "hero.cta1@tourist": {
     es: "Buscar médico cerca mío",
@@ -766,13 +769,13 @@ const translations: Dict = {
 
   // Tourist dashboard mockup – KPI values
   "hero.mockBilledVal@tourist": { es: "3 próximos", en: "3 upcoming" },
-  "hero.mockBilledChange@tourist": { es: "Hoy y esta semana", en: "Today & this week" },
+  "hero.mockBilledChange@tourist": { es: "Pagados con MP", en: "Paid via MP" },
   "hero.mockCollectedVal@tourist": { es: "24/7", en: "24/7" },
   "hero.mockCollectedChange@tourist": { es: "Cora disponible", en: "Cora available" },
   "hero.mockRejectionsVal@tourist": { es: "12 cerca", en: "12 nearby" },
   "hero.mockRejectionsChange@tourist": { es: "< 1 km", en: "< 1 km" },
   "hero.mockDelayVal@tourist": { es: "< 30s", en: "< 30s" },
-  "hero.mockDelayChange@tourist": { es: "IA instantánea", en: "Instant AI" },
+  "hero.mockDelayChange@tourist": { es: "Push instantáneo", en: "Instant push" },
   "hero.mockPatients@tourist": { es: "Cobertura", en: "Coverage" },
   "hero.mockPatientsVal@tourist": { es: "Activa", en: "Active" },
   "hero.mockPatientsChange@tourist": { es: "OSDE 310 verificada", en: "OSDE 310 verified" },
@@ -830,25 +833,25 @@ const translations: Dict = {
   "hero.mockDelayChange@provider": { es: "-45 días demora", en: "-45 days delay" },
   "hero.mockAlertsTitle@provider": { es: "Alertas de hoy", en: "Today's alerts" },
   "hero.mockAlert1@provider": {
-    es: "PAMI rechazó 3 facturas por código inválido — Reprocesar",
-    en: "PAMI rejected 3 invoices for invalid code — Reprocess",
+    es: "MercadoPago: 12 pagos de consultas acreditados — $186.000",
+    en: "MercadoPago: 12 consultation payments credited — $186,000",
   },
   "hero.mockAlert2@provider": {
-    es: "Swiss Medical pagó $2.1M — Cobro acreditado",
-    en: "Swiss Medical paid $2.1M — Payment credited",
+    es: "Cron: 31 recordatorios de turno enviados (email + push)",
+    en: "Cron: 31 appointment reminders sent (email + push)",
   },
   "hero.mockAlert3@provider": {
-    es: "12 verificaciones de cobertura completadas automáticamente",
-    en: "12 coverage verifications completed automatically",
+    es: "Push: 52 confirmaciones de turno entregadas en tiempo real",
+    en: "Push: 52 booking confirmations delivered in real time",
   },
   "hero.mockAutoTitle@provider": { es: "Automatizaciones activas", en: "Active automations" },
-  "hero.mockAuto1@provider": { es: "Verificación de padrón", en: "Registry verification" },
-  "hero.mockAuto2@provider": { es: "Facturación electrónica", en: "Electronic billing" },
-  "hero.mockAuto3@provider": { es: "Ajuste por inflación", en: "Inflation adjustment" },
-  "hero.mockAuto4@provider": { es: "Alertas de vencimiento", en: "Expiry alerts" },
+  "hero.mockAuto1@provider": { es: "Cobro MercadoPago auto", en: "Auto MercadoPago checkout" },
+  "hero.mockAuto2@provider": { es: "Push confirmación turno", en: "Push booking confirmation" },
+  "hero.mockAuto3@provider": { es: "Recordatorio 24h cron", en: "24h cron reminder" },
+  "hero.mockAuto4@provider": { es: "Sync disponibilidad", en: "Availability sync" },
   "hero.mockAlert4@provider": {
-    es: "Galeno: 5 autorizaciones pendientes vencen mañana",
-    en: "Galeno: 5 pending authorizations expire tomorrow",
+    es: "Disponibilidad: 3 médicos actualizaron 96 slots esta semana",
+    en: "Availability: 3 doctors updated 96 slots this week",
   },
   "hero.mockPatients@provider": { es: "Pacientes hoy", en: "Patients today" },
   "hero.mockPatientsVal@provider": { es: "47", en: "47" },
@@ -953,15 +956,15 @@ const translations: Dict = {
     en: "From your phone.",
   },
   "features.subtitle@tourist": {
-    es: "Buscá médicos, verificá cobertura, hacé teleconsultas, pedí remedios a domicilio y encontrá guardias cerca. Todo gratis, todo en español e inglés.",
-    en: "Find doctors, verify coverage, do teleconsults, order meds to your door and find ERs nearby. All free, all in Spanish & English.",
+    es: "Reservá turnos con pago MercadoPago, recibí push de confirmación, recordatorios automáticos, teleconsultas y remedios a domicilio. Todo gratis, en español e inglés.",
+    en: "Book appointments with MercadoPago payment, get push confirmations, auto-reminders, teleconsults and meds delivered. All free, in Spanish & English.",
   },
-  "features.core0.title@tourist": { es: "Buscá médicos cerca tuyo", en: "Find nearby doctors" },
+  "features.core0.title@tourist": { es: "Turnos online con pago", en: "Online bookings + payment" },
   "features.core0.desc@tourist": {
-    es: "Médicos verificados con turnos disponibles hoy. Filtrá por especialidad, idioma, obra social y distancia. Con indicaciones de Google Maps.",
-    en: "Verified doctors with appointments available today. Filter by specialty, language, health plan and distance. With Google Maps directions.",
+    es: "Elegí médico, reservá turno y pagá con MercadoPago. Recibí confirmación push al instante y recordatorio 24h antes por email y notificación.",
+    en: "Choose a doctor, book and pay with MercadoPago. Get instant push confirmation and a 24h reminder via email and notification.",
   },
-  "features.core0.hl@tourist": { es: "Con GPS y Google Maps", en: "GPS + Google Maps" },
+  "features.core0.hl@tourist": { es: "MercadoPago + Push", en: "MercadoPago + Push" },
   "features.core1.title@tourist": {
     es: "Verificá tu cobertura al instante",
     en: "Verify coverage instantly",
@@ -1004,28 +1007,28 @@ const translations: Dict = {
     en: "Everything you need as a patient",
   },
   "features.extraSubtitle@tourist": {
-    es: "Servicios integrados, sin costo, desde tu celular",
-    en: "Integrated services, free of charge, from your phone",
+    es: "Turnos, pagos, push, recordatorios, teleconsulta y farmacia — todo gratis",
+    en: "Bookings, payments, push, reminders, teleconsult & pharmacy — all free",
   },
-  "features.extra0.title@tourist": { es: "Turnos online", en: "Online appointments" },
+  "features.extra0.title@tourist": { es: "Notificaciones push", en: "Push notifications" },
   "features.extra0.desc@tourist": {
-    es: "Reservá turno con el médico que necesitás",
-    en: "Book an appointment with the doctor you need",
+    es: "Confirmación y recordatorio directo a tu celular",
+    en: "Confirmation and reminder straight to your phone",
   },
-  "features.extra1.title@tourist": { es: "Remedios a domicilio", en: "Meds delivery" },
+  "features.extra1.title@tourist": { es: "Pago MercadoPago", en: "MercadoPago payment" },
   "features.extra1.desc@tourist": {
-    es: "Pedí medicamentos directo a tu puerta",
-    en: "Order medications delivered to your door",
+    es: "Pagá la consulta online al reservar el turno",
+    en: "Pay the consultation fee online when booking",
   },
-  "features.extra2.title@tourist": { es: "Videoconsulta", en: "Video consult" },
+  "features.extra2.title@tourist": { es: "Recordatorios auto", en: "Auto reminders" },
   "features.extra2.desc@tourist": {
-    es: "Hablá con un médico desde donde estés",
-    en: "Talk to a doctor from wherever you are",
+    es: "Email + push 24h antes de tu turno",
+    en: "Email + push 24h before your appointment",
   },
   "features.extra3.title@tourist": { es: "Cora 24/7", en: "Cora 24/7" },
   "features.extra3.desc@tourist": {
-    es: "Tu enfermera virtual, siempre disponible",
-    en: "Your virtual nurse, always available",
+    es: "Tu enfermera virtual con IA, siempre disponible",
+    en: "Your AI virtual nurse, always available",
   },
 
   "faq.label@tourist": { es: "Preguntas frecuentes", en: "Frequently asked questions" },
@@ -1047,10 +1050,10 @@ const translations: Dict = {
     es: "Cora te orienta al médico indicado, verifica tu cobertura y te muestra opciones cerca tuyo con Google Maps.",
     en: "Cora guides you to the right doctor, verifies your coverage and shows options near you with Google Maps.",
   },
-  "how.step2.title@tourist": { es: "Resolvé y sentite mejor", en: "Resolve it & feel better" },
+  "how.step2.title@tourist": { es: "Reservá, pagá y listo", en: "Book, pay & done" },
   "how.step2.desc@tourist": {
-    es: "Sacá turno, hacé una teleconsulta o pedí remedios a tu puerta. Todo sin moverte de donde estés.",
-    en: "Book an appointment, do a teleconsult or order meds to your door. All without leaving where you are.",
+    es: "Pagá con MercadoPago, recibí push de confirmación al instante y recordatorio 24h antes. Todo automático.",
+    en: "Pay with MercadoPago, get instant push confirmation and a 24h reminder. Fully automated.",
   },
 
   "pricing.title@tourist": {
@@ -1071,9 +1074,9 @@ const translations: Dict = {
     es: "Hablá con Cora, buscá un médico cerca o hacé una teleconsulta. Todo gratis, todo ahora.",
     en: "Talk to Cora, find a doctor nearby or do a teleconsult. All free, all now.",
   },
-  "cta.hl0@tourist": { es: "Médicos cerca tuyo", en: "Doctors near you" },
-  "cta.hl1@tourist": { es: "Teleconsulta sin espera", en: "Teleconsult, no wait" },
-  "cta.hl2@tourist": { es: "Remedios a domicilio", en: "Meds delivered" },
+  "cta.hl0@tourist": { es: "Turnos con MercadoPago", en: "Bookings + MercadoPago" },
+  "cta.hl1@tourist": { es: "Push de confirmación instant", en: "Instant push confirmation" },
+  "cta.hl2@tourist": { es: "Recordatorio automático 24h", en: "Auto 24h reminders" },
   "cta.primary@tourist": { es: "Hablar con Cora", en: "Talk to Cora" },
   "cta.secondary@tourist": { es: "Buscar médico cerca", en: "Find doctor nearby" },
   "cta.bottom@tourist": {

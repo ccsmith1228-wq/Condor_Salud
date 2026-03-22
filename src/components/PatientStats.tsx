@@ -1,10 +1,10 @@
 "use client";
 
-import { Stethoscope, Video, Pill, Globe } from "lucide-react";
+import { Stethoscope, Bell, Pill, Wallet } from "lucide-react";
 import { useLocale } from "@/lib/i18n/context";
 
-const statIcons = [Stethoscope, Video, Pill, Globe];
-const statValues = ["2,400+", "<15 min", "850+", "ES + EN"];
+const statIcons = [Stethoscope, Bell, Pill, Wallet];
+const statValues = ["2,400+", "< 30s", "850+", "MercadoPago"];
 
 export default function PatientStats() {
   const { t } = useLocale();

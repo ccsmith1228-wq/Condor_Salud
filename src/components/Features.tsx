@@ -8,16 +8,16 @@ import {
   TrendingUp,
   Plug,
   BarChart3,
-  Calendar,
-  Pill,
-  Video,
-  Stethoscope,
+  CalendarClock,
+  Bell,
+  Timer,
+  Wallet,
 } from "lucide-react";
 import { useLocale } from "@/lib/i18n/context";
 
 const coreIcons = [Search, FileText, ShieldCheck, TrendingUp, Plug, BarChart3];
 const coreCeleste = [true, false, true, false, true, false];
-const extraIcons = [Calendar, Pill, Video, Stethoscope];
+const extraIcons = [CalendarClock, Bell, Timer, Wallet];
 
 export default function Features() {
   const { t, segment } = useLocale();
