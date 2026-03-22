@@ -5,6 +5,7 @@ import { PlanProvider } from "@/lib/plan-context";
 import { LanguageProvider } from "@/lib/i18n/context";
 import { SWRProvider } from "@/lib/swr";
 import { PostHogProvider } from "@/lib/posthog";
+import { DemoProvider } from "@/hooks/useDemoConfig";
 import Chatbot from "@/components/Chatbot";
 import InstallPrompt from "@/components/InstallPrompt";
 import "./globals.css";
@@ -102,13 +103,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <PostHogProvider>
           <LanguageProvider>
             <SWRProvider>
-              <PlanProvider>
-                <AuthProvider>
-                  <main id="main-content">{children}</main>
-                  <Chatbot />
-                  <InstallPrompt />
-                </AuthProvider>
-              </PlanProvider>
+              <DemoProvider>
+                <PlanProvider>
+                  <AuthProvider>
+                    <main id="main-content">{children}</main>
+                    <Chatbot />
+                    <InstallPrompt />
+                  </AuthProvider>
+                </PlanProvider>
+              </DemoProvider>
             </SWRProvider>
           </LanguageProvider>
         </PostHogProvider>

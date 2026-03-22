@@ -59,7 +59,6 @@ const INSURANCE_NAMES = [
 const BOOKING_PLATFORMS: { re: RegExp; type: string }[] = [
   { re: /(?:https?:\/\/)?(?:www\.)?calendly\.com\/[\w-]+(\/[\w-]+)?/i, type: "Calendly" },
   { re: /(?:https?:\/\/)?(?:www\.)?cal\.com\/[\w-]+(\/[\w-]+)?/i, type: "Cal.com" },
-  // Docplanner/Doctoralia removed — we use our own booking system with MercadoPago
   { re: /(?:https?:\/\/)?turno\.med\.ec[^\s"'<>]*/i, type: "TurnoMed" },
   { re: /(?:https?:\/\/)?reservo\.online[^\s"'<>]*/i, type: "Reservo" },
   { re: /(?:https?:\/\/)?miturno\.com\.ar[^\s"'<>]*/i, type: "MiTurno" },

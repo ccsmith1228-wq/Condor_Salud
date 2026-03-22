@@ -403,3 +403,83 @@ export function calcPresetSubtotal(preset: PresetDef): number {
 export function formatARS(amount: number): string {
   return formatCurrency(amount);
 }
+
+// ─── Seat-Based Plan Definitions ─────────────────────────────
+// Per-doctor plans for the seat billing model.
+// Coexists with the clinic module system above.
+
+export type SeatPlanId = "free" | "profesional" | "premium";
+
+export interface SeatPlanDef {
+  id: SeatPlanId;
+  name: string;
+  nameEn: string;
+  tagline: string;
+  taglineEn: string;
+  price: number;
+  priceAnnual: number;
+  features: string[];
+  featuresEn: string[];
+}
+
+export const SEAT_PLANS: SeatPlanDef[] = [
+  {
+    id: "free",
+    name: "Gratuito",
+    nameEn: "Free",
+    tagline: "Para empezar",
+    taglineEn: "Get started",
+    price: 0,
+    priceAnnual: 0,
+    features: ["20 turnos por mes", "Perfil en el directorio", "Gestión básica de pacientes"],
+    featuresEn: ["20 appointments per month", "Directory listing", "Basic patient management"],
+  },
+  {
+    id: "profesional",
+    name: "Profesional",
+    nameEn: "Professional",
+    tagline: "Gestión completa",
+    taglineEn: "Complete management",
+    price: 29_000,
+    priceAnnual: 24_650,
+    features: [
+      "Agenda ilimitada",
+      "Recordatorios por WhatsApp",
+      "Verificación de cobertura",
+      "Listado prioritario",
+      "Soporte prioritario",
+    ],
+    featuresEn: [
+      "Unlimited scheduling",
+      "WhatsApp reminders",
+      "Insurance verification",
+      "Priority listing",
+      "Priority support",
+    ],
+  },
+  {
+    id: "premium",
+    name: "Premium",
+    nameEn: "Premium",
+    tagline: "Todo incluido",
+    taglineEn: "All inclusive",
+    price: 59_000,
+    priceAnnual: 50_150,
+    features: [
+      "Todo de Profesional",
+      "Teleconsulta integrada",
+      "Cobro online MercadoPago",
+      "Chatbot IA Cora",
+      "Analítica avanzada",
+      "Facturación electrónica",
+    ],
+    featuresEn: [
+      "Everything in Professional",
+      "Integrated telehealth",
+      "Online MercadoPago billing",
+      "AI Chatbot Cora",
+      "Advanced analytics",
+      "Electronic invoicing",
+    ],
+  },
+];

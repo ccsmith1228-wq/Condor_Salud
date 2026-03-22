@@ -119,6 +119,32 @@ const serverSchema = z.object({
   // ── Rides (Uber — v0.17.0) ─────────────────────────────────
   UBER_CLIENT_ID: z.string().optional(),
   UBER_SERVER_TOKEN: z.string().optional(),
+  REMISES_WHATSAPP_NUMBER: z.string().optional(),
+
+  // ── Google Calendar (Doctor agenda sync) ────────────────────
+  GOOGLE_CALENDAR_CLIENT_ID: z.string().optional(),
+  GOOGLE_CALENDAR_CLIENT_SECRET: z.string().optional(),
+  GOOGLE_CALENDAR_REDIRECT_URI: z.string().url().optional(),
+
+  // ── MercadoPago Subscription Plan IDs ───────────────────────
+  MP_PLAN_ID_PROFESIONAL_MONTHLY: z.string().optional(),
+  MP_PLAN_ID_PROFESIONAL_ANUAL: z.string().optional(),
+  MP_PLAN_ID_PREMIUM_MONTHLY: z.string().optional(),
+  MP_PLAN_ID_PREMIUM_ANUAL: z.string().optional(),
+
+  // ── Push Notifications (Expo) ───────────────────────────────
+  EXPO_ACCESS_TOKEN: z.string().optional(),
+
+  // ── WhatsApp Business API (reminders) ───────────────────────
+  WHATSAPP_BUSINESS_TOKEN: z.string().optional(),
+  WHATSAPP_PHONE_NUMBER_ID: z.string().optional(),
+
+  // ── Demo Mode ───────────────────────────────────────────────
+  DEMO_ADMIN_PASSWORD: z.string().optional(),
+
+  // ── Scraper ─────────────────────────────────────────────────
+  SCRAPER_TIMEOUT_MS: z.string().optional(),
+  SCRAPER_USER_AGENT: z.string().optional(),
 
   // ── Google OAuth ────────────────────────────────────────────
   NEXT_PUBLIC_GOOGLE_CLIENT_ID: z

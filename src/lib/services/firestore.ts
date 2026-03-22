@@ -52,6 +52,9 @@ export const Collections = {
   CLAIM_TOKENS: "claimTokens",
   ADMIN_USERS: "adminUsers",
   PAYMENTS: "payments",
+  DOCTOR_PLANS: "doctorPlans",
+  DEMO_CONFIG: "demoConfig",
+  RESET_TOKENS: "resetTokens",
 } as const;
 
 // ─── Generic CRUD helpers ────────────────────────────────────

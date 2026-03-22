@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cóndor Salud — Panel de Demo</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --teal: #0F6E56; --teal-bg: #E1F5EE; --ink: #0D1F1A;
+  --muted: #6B8C82; --border: rgba(15,110,86,0.15);
+  --amber: #C17D2A; --amber-bg: #FDF3E3;
+  --red: #A32D2D; --red-bg: #FCEBEB;
+  --font: -apple-system, 'Segoe UI', sans-serif;
+}
+body { font-family: var(--font); background: #f5f5f5; color: var(--ink); font-size: 14px; }
+#login { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #0D1F1A; }
+.login-card { background: #fff; border-radius: 16px; padding: 40px 32px; width: 340px; text-align: center; }
+.login-logo { font-size: 28px; font-weight: 800; color: var(--teal); margin-bottom: 6px; }
+.login-sub  { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+.login-card input { width: 100%; height: 42px; border: 1px solid #ddd; border-radius: 9px; padding: 0 14px; font-size: 14px; margin-bottom: 14px; }
+.login-card input:focus { outline: none; border-color: var(--teal); }
+.btn-green { width: 100%; height: 44px; background: var(--teal); color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; }
+.error-msg { color: var(--red); font-size: 13px; margin-bottom: 12px; }
+#app { display: none; min-height: 100vh; }
+.sidebar { width: 240px; background: #0D1F1A; position: fixed; top: 0; left: 0; bottom: 0; overflow-y: auto; }
+.sidebar-logo { padding: 24px 20px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.sidebar-logo h1 { font-size: 16px; font-weight: 700; color: #fff; }
+.sidebar-logo p  { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+.nav-section { padding: 16px 12px 0; }
+.nav-label { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,0.3); padding: 0 8px; margin-bottom: 6px; }
+.nav-item { display: flex; align-items: center; gap: 8px; padding: 9px 10px; border-radius: 8px; cursor: pointer; color: rgba(255,255,255,0.6); font-size: 13px; transition: all .15s; margin-bottom: 2px; }
+.nav-item:hover, .nav-item.active { background: rgba(15,110,86,0.25); color: #fff; }
+.nav-icon { font-size: 15px; width: 20px; text-align: center; }
+.main { margin-left: 240px; padding: 32px; }
+.topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+.topbar h2 { font-size: 20px; font-weight: 700; color: var(--ink); }
+.topbar-actions { display: flex; gap: 10px; }
+.btn { padding: 8px 18px; border-radius: 8px; border: 1px solid; font-family: var(--font); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .15s; }
+.btn:hover { opacity: .85; transform: translateY(-1px); }
+.btn-teal  { background: var(--teal-bg); color: var(--teal); border-color: var(--teal); }
+.btn-solid { background: var(--teal); color: #fff; border-color: var(--teal); }
+.btn-red   { background: var(--red-bg); color: var(--red); border-color: #E24B4A; }
+.btn-ghost { background: #fff; color: #555; border-color: #ddd; }
+.section { background: #fff; border-radius: 14px; border: 1px solid rgba(0,0,0,0.07); padding: 24px; margin-bottom: 20px; display: none; }
+.section.active { display: block; }
+.section-title { font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+.section-sub { font-size: 13px; color: var(--muted); margin-bottom: 22px; }
+.toggle-group { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.toggle-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: #fafafa; border: 1px solid rgba(0,0,0,0.08); border-radius: 10px; }
+.toggle-label { font-size: 13px; font-weight: 500; color: var(--ink); }
+.toggle-sub   { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.switch { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; inset: 0; background: #ccc; border-radius: 22px; cursor: pointer; transition: .2s; }
+.slider::before { content: ''; position: absolute; width: 16px; height: 16px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: .2s; }
+input:checked + .slider { background: var(--teal); }
+input:checked + .slider::before { transform: translateX(18px); }
+.model-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+.model-card { border: 2px solid rgba(0,0,0,0.1); border-radius: 12px; padding: 18px; cursor: pointer; transition: all .2s; }
+.model-card:hover { border-color: var(--teal); }
+.model-card.selected { border-color: var(--teal); background: var(--teal-bg); }
+.model-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 5px; }
+.model-card p  { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.model-check { width: 22px; height: 22px; border-radius: 50%; background: var(--teal); color: #fff; display: none; align-items: center; justify-content: center; font-size: 11px; float: right; margin-top: -2px; }
+.model-card.selected .model-check { display: flex; }
+.price-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+.price-field label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-bottom: 6px; }
+.price-input-wrap { position: relative; }
+.price-input-wrap span { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--muted); pointer-events: none; }
+.price-input-wrap input { width: 100%; height: 40px; border: 1px solid #ddd; border-radius: 9px; padding: 0 12px 0 26px; font-size: 15px; font-weight: 600; color: var(--ink); }
+.price-input-wrap input:focus { outline: none; border-color: var(--teal); }
+.status-banner { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-radius: 12px; margin-bottom: 24px; }
+.status-active   { background: var(--teal-bg); border: 1px solid rgba(15,110,86,0.2); }
+.status-inactive { background: #f5f5f5; border: 1px solid rgba(0,0,0,0.08); }
+.status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.status-dot-on  { background: var(--teal); box-shadow: 0 0 0 3px rgba(15,110,86,0.2); }
+.status-dot-off { background: #aaa; }
+.status-text { flex: 1; font-size: 14px; font-weight: 500; }
+.status-sub  { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--ink); color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; transform: translateY(80px); opacity: 0; transition: all .3s; z-index: 9999; }
+.toast.show { transform: translateY(0); opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<div id="login">
+  <div class="login-card">
+    <div class="login-logo">CS</div>
+    <div class="login-sub">Panel de Demo — Cóndor Salud</div>
+    <div class="error-msg" id="loginErr" style="display:none"></div>
+    <input type="password" id="loginPass" placeholder="Contraseña de demo" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn-green" onclick="doLogin()">Ingresar</button>
+  </div>
+</div>
+
+<!-- App -->
+<div id="app">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <h1>Cóndor Salud</h1>
+      <p>Panel de Demo</p>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Configuración</div>
+      <div class="nav-item active" onclick="showSection('overview')"><span class="nav-icon">🎯</span>Estado del demo</div>
+      <div class="nav-item" onclick="showSection('pricing')"><span class="nav-icon">💰</span>Modelo de precios</div>
+      <div class="nav-item" onclick="showSection('pages')"><span class="nav-icon">📱</span>Páginas y secciones</div>
+      <div class="nav-item" onclick="showSection('features')"><span class="nav-icon">⚙️</span>Funcionalidades</div>
+      <div class="nav-item" onclick="showSection('branding')"><span class="nav-icon">🎨</span>Branding y datos</div>
+    </div>
+    <div class="nav-section" style="position:absolute;bottom:16px;left:0;right:0;padding:0 12px;">
+      <div class="nav-item" onclick="doLogout()"><span class="nav-icon">↩</span>Cerrar sesión</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <h2 id="sectionTitle">Estado del demo</h2>
+      <div class="topbar-actions">
+        <button class="btn btn-red" onclick="resetConfig()">Resetear todo</button>
+        <button class="btn btn-ghost" onclick="loadConfig()">↺ Recargar</button>
+        <button class="btn btn-solid" onclick="saveConfig()">Guardar cambios</button>
+      </div>
+    </div>
+
+    <!-- Overview -->
+    <div class="section active" id="sec-overview">
+      <div id="statusBanner" class="status-banner status-inactive">
+        <div class="status-dot status-dot-off" id="statusDot"></div>
+        <div>
+          <div class="status-text" id="statusText">Demo inactivo</div>
+          <div class="status-sub" id="statusSub">La app muestra el comportamiento normal de producción</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="demoActive" onchange="toggleDemoMode(this)">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="section-title">Activar modo demo</div>
+      <div class="section-sub">Cuando el modo demo está activo, la app y el sitio web leen la configuración de este panel en tiempo real. Podés cambiar todo durante una demo sin redeployar.</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:16px">
+        <div style="background:#fafafa;border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--teal)" id="stat-pages">-</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">Páginas visibles</div>
+        </div>
+        <div style="background:#fafafa;border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--teal)" id="stat-model">-</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">Modelo de precio</div>
+        </div>
+        <div style="background:#fafafa;border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--teal)" id="stat-plans">-</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">Planes visibles</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pricing model -->
+    <div class="section" id="sec-pricing">
+      <div class="section-title">Modelo de precios</div>
+      <div class="section-sub">Elegí qué modelo mostrar durante la demo. Podés cambiar esto en vivo.</div>
+
+      <div class="model-grid">
+        <div class="model-card" id="model-seat" onclick="selectModel('seat')">
+          <span class="model-check">✓</span>
+          <h4>Por puesto (seat)</h4>
+          <p>La clínica es gratis. Cada médico paga su propio plan. Gratuito / Profesional / Premium.</p>
+        </div>
+        <div class="model-card" id="model-clinic" onclick="selectModel('clinic')">
+          <span class="model-check">✓</span>
+          <h4>Por clínica</h4>
+          <p>La clínica paga un plan completo. Esencial / Profesional / Enterprise.</p>
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-top:24px;margin-bottom:8px">Precios — Modelo Seat (por médico/mes)</div>
+      <div class="price-grid" id="pricesSeat">
+        <div class="price-field">
+          <label>Gratuito</label>
+          <div class="price-input-wrap"><span>$</span><input type="number" id="price-free" value="0" readonly style="background:#f5f5f5;color:#aaa"></div>
+        </div>
+        <div class="price-field">
+          <label>Profesional</label>
+          <div class="price-input-wrap"><span>$</span><input type="number" id="price-prof" value="29000"></div>
+        </div>
+        <div class="price-field">
+          <label>Premium</label>
+          <div class="price-input-wrap"><span>$</span><input type="number" id="price-prem" value="59000"></div>
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-top:24px;margin-bottom:8px">Precios — Modelo Clínica (por clínica/mes)</div>
+      <div class="price-grid" id="pricesClinic">
+        <div class="price-field">
+          <label>Esencial</label>
+          <div class="price-input-wrap"><span>$</span><input type="number" id="price-esencial" value="50000"></div>
+        </div>
+        <div class="price-field">
+          <label>Profesional</label>
+          <div class="price-input-wrap"><span>$</span><input type="number" id="price-clinprof" value="111350"></div>
+        </div>
+        <div class="price-field">
+          <label>Enterprise</label>
+          <div class="price-input-wrap"><span>$</span><input type="number" id="price-enterprise" value="159750"></div>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap">
+        <div class="toggle-item" style="width:auto">
+          <div><div class="toggle-label">Ajuste IPC</div><div class="toggle-sub">Mostrar "precio en pesos con ajuste mensual"</div></div>
+          <label class="switch" style="margin-left:16px"><input type="checkbox" id="toggle-ipc" checked><span class="slider"></span></label>
+        </div>
+        <div class="toggle-item" style="width:auto">
+          <div><div class="toggle-label">Toggle anual</div><div class="toggle-sub">Mostrar opción de facturación anual</div></div>
+          <label class="switch" style="margin-left:16px"><input type="checkbox" id="toggle-annual" checked><span class="slider"></span></label>
+        </div>
+        <div class="toggle-item" style="width:auto">
+          <div><div class="toggle-label">Banner "clínica gratis"</div><div class="toggle-sub">Solo para modelo seat</div></div>
+          <label class="switch" style="margin-left:16px"><input type="checkbox" id="toggle-freebanner" checked><span class="slider"></span></label>
+        </div>
+        <div class="toggle-item" style="width:auto">
+          <div><div class="toggle-label">Calculadora</div><div class="toggle-sub">Calculadora de equipo en pricing page</div></div>
+          <label class="switch" style="margin-left:16px"><input type="checkbox" id="toggle-calc" checked><span class="slider"></span></label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pages -->
+    <div class="section" id="sec-pages">
+      <div class="section-title">Páginas y secciones visibles</div>
+      <div class="section-sub">Ocultá secciones que no querés mostrar durante esta demo específica.</div>
+      <div class="toggle-group" id="pagesGrid"></div>
+    </div>
+
+    <!-- Features -->
+    <div class="section" id="sec-features">
+      <div class="section-title">Funcionalidades</div>
+      <div class="section-sub">Mostrá u ocultá capacidades específicas de la plataforma.</div>
+      <div class="toggle-group" id="featGrid"></div>
+    </div>
+
+    <!-- Branding -->
+    <div class="section" id="sec-branding">
+      <div class="section-title">Branding y datos de demo</div>
+      <div class="section-sub">Configurá el nombre y datos de precarga para la demo.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">
+        <div>
+          <label style="display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px">Nombre de la app</label>
+          <input type="text" id="brand-name" value="Cóndor Salud" style="width:100%;height:40px;border:1px solid #ddd;border-radius:9px;padding:0 12px;font-size:14px">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px">Color de acento</label>
+          <input type="color" id="brand-color" value="#0F6E56" style="width:100%;height:40px;border:1px solid #ddd;border-radius:9px;padding:4px;cursor:pointer">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px">Especialidad por defecto en demo</label>
+          <select id="demo-specialty" style="width:100%;height:40px;border:1px solid #ddd;border-radius:9px;padding:0 12px;font-size:14px">
+            <option>Cardiología</option><option>Dermatología</option><option>Ginecología</option>
+            <option>Neurología</option><option>Pediatría</option><option>Psicología</option><option>Traumatología</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px">Ciudad por defecto</label>
+          <input type="text" id="demo-city" value="Buenos Aires" style="width:100%;height:40px;border:1px solid #ddd;border-radius:9px;padding:0 12px;font-size:14px">
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast">Cambios guardados ✓</div>
+
+<script>
+var API = window.location.origin;
+var TOKEN = localStorage.getItem('cs_demo_token') || '';
+var CONFIG = {};
+
+var PAGES_CONFIG = [
+  { key: 'search',     label: 'Búsqueda de médicos',   sub: 'Lista + filtros' },
+  { key: 'map',        label: 'Mapa de médicos',        sub: 'Google Maps + pins' },
+  { key: 'booking',    label: 'Reserva de turnos',      sub: 'Flujo de 4 pasos' },
+  { key: 'telehealth', label: 'Teleconsulta',           sub: 'Video con Google Meet' },
+  { key: 'payments',   label: 'Pagos online',           sub: 'MercadoPago cobro' },
+  { key: 'reviews',    label: 'Reseñas',                sub: 'Rating de pacientes' },
+  { key: 'dashboard',  label: 'Panel del médico',       sub: 'Agenda + estadísticas' },
+  { key: 'chatbot',    label: 'Chatbot IA',             sub: 'Asistente Claude' },
+  { key: 'rides',      label: 'Transporte',             sub: 'Cabify / Uber deep links' },
+  { key: 'adminPanel', label: 'Panel admin',            sub: 'Gestión interna' },
+];
+
+var FEATURES_CONFIG = [
+  { key: 'showRides',      label: 'Rides (Cabify/Uber)',  sub: 'Botones de transporte' },
+  { key: 'showAI',         label: 'Chatbot IA',           sub: 'Asistente para pacientes' },
+  { key: 'showTelehealth', label: 'Teleconsulta',         sub: 'Video integrado' },
+];
+
+/* Auth */
+function doLogin() {
+  var pass = document.getElementById('loginPass').value;
+  var errEl = document.getElementById('loginErr');
+  errEl.style.display = 'none';
+  fetch(API + '/api/demo/login', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password: pass }),
+  }).then(function(res) {
+    if (!res.ok) throw new Error('Contraseña incorrecta');
+    return res.json();
+  }).then(function(data) {
+    TOKEN = data.token;
+    localStorage.setItem('cs_demo_token', TOKEN);
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    loadConfig().then(buildToggles);
+  }).catch(function(err) {
+    errEl.textContent = err.message;
+    errEl.style.display = 'block';
+  });
+}
+
+function doLogout() {
+  TOKEN = '';
+  localStorage.removeItem('cs_demo_token');
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login').style.display = 'flex';
+}
+
+if (TOKEN) {
+  document.getElementById('login').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  loadConfig().then(buildToggles);
+}
+
+/* Config load/save */
+function loadConfig() {
+  return fetch(API + '/api/demo/config', {
+    headers: { Authorization: 'Bearer ' + TOKEN },
+  }).then(function(res) { return res.json(); }).then(function(data) {
+    CONFIG = data;
+    applyConfigToUI();
+    return data;
+  });
+}
+
+function applyConfigToUI() {
+  var active = CONFIG.active || false;
+  document.getElementById('demoActive').checked = active;
+  updateStatusBanner(active);
+  selectModel((CONFIG.pricing && CONFIG.pricing.model) || 'seat', false);
+
+  document.getElementById('price-prof').value       = (CONFIG.pricing && CONFIG.pricing.seats && CONFIG.pricing.seats.profesional)    || 29000;
+  document.getElementById('price-prem').value       = (CONFIG.pricing && CONFIG.pricing.seats && CONFIG.pricing.seats.premium)         || 59000;
+  document.getElementById('price-esencial').value   = (CONFIG.pricing && CONFIG.pricing.clinic && CONFIG.pricing.clinic.esencial)       || 50000;
+  document.getElementById('price-clinprof').value   = (CONFIG.pricing && CONFIG.pricing.clinic && CONFIG.pricing.clinic.profesional)    || 111350;
+  document.getElementById('price-enterprise').value = (CONFIG.pricing && CONFIG.pricing.clinic && CONFIG.pricing.clinic.enterprise)     || 159750;
+
+  document.getElementById('toggle-ipc').checked        = !(CONFIG.pricing && CONFIG.pricing.ipcAdjustment === false);
+  document.getElementById('toggle-annual').checked     = !(CONFIG.pricing && CONFIG.pricing.annualToggle === false);
+  document.getElementById('toggle-freebanner').checked = !(CONFIG.pricing && CONFIG.pricing.freeClinicBanner === false);
+  document.getElementById('toggle-calc').checked       = !(CONFIG.pricing && CONFIG.pricing.showCalculator === false);
+
+  document.getElementById('brand-name').value  = (CONFIG.branding && CONFIG.branding.appName)    || 'Cóndor Salud';
+  document.getElementById('brand-color').value = (CONFIG.branding && CONFIG.branding.accentColor) || '#0F6E56';
+  document.getElementById('demo-specialty').value = (CONFIG.demoData && CONFIG.demoData.preloadSpecialty) || 'Cardiología';
+  document.getElementById('demo-city').value      = (CONFIG.demoData && CONFIG.demoData.preloadCity)      || 'Buenos Aires';
+
+  var pages = CONFIG.showPages ? Object.values(CONFIG.showPages).filter(Boolean).length : 10;
+  var plans  = CONFIG.showPlans ? Object.values(CONFIG.showPlans).filter(Boolean).length : 3;
+  document.getElementById('stat-pages').textContent = pages;
+  document.getElementById('stat-model').textContent = ((CONFIG.pricing && CONFIG.pricing.model) || 'seat') === 'seat' ? 'Seat' : 'Clínica';
+  document.getElementById('stat-plans').textContent = plans;
+
+  buildToggles();
+}
+
+function saveConfig() {
+  var config = {
+    active: document.getElementById('demoActive').checked,
+    pricingModel: document.getElementById('model-seat').classList.contains('selected') ? 'seat' : 'clinic',
+    showPages: {},
+    showPlans: {
+      free:        document.getElementById('plan-free') ? document.getElementById('plan-free').checked : true,
+      profesional: document.getElementById('plan-prof') ? document.getElementById('plan-prof').checked : true,
+      premium:     document.getElementById('plan-prem') ? document.getElementById('plan-prem').checked : true,
+    },
+    pricing: {
+      model:            document.getElementById('model-seat').classList.contains('selected') ? 'seat' : 'clinic',
+      ipcAdjustment:    document.getElementById('toggle-ipc').checked,
+      annualToggle:     document.getElementById('toggle-annual').checked,
+      freeClinicBanner: document.getElementById('toggle-freebanner').checked,
+      showCalculator:   document.getElementById('toggle-calc').checked,
+      seats: {
+        free:        0,
+        profesional: parseInt(document.getElementById('price-prof').value) || 29000,
+        premium:     parseInt(document.getElementById('price-prem').value) || 59000,
+      },
+      clinic: {
+        esencial:    parseInt(document.getElementById('price-esencial').value) || 50000,
+        profesional: parseInt(document.getElementById('price-clinprof').value) || 111350,
+        enterprise:  parseInt(document.getElementById('price-enterprise').value) || 159750,
+      },
+    },
+    branding: {
+      appName:         document.getElementById('brand-name').value,
+      accentColor:     document.getElementById('brand-color').value,
+      showRides:       document.getElementById('feat-showRides') ? document.getElementById('feat-showRides').checked : true,
+      showAI:          document.getElementById('feat-showAI') ? document.getElementById('feat-showAI').checked : true,
+      showTelehealth:  document.getElementById('feat-showTelehealth') ? document.getElementById('feat-showTelehealth').checked : true,
+    },
+    demoData: {
+      preloadSpecialty: document.getElementById('demo-specialty').value,
+      preloadCity:      document.getElementById('demo-city').value,
+    },
+  };
+
+  PAGES_CONFIG.forEach(function(p) {
+    var el = document.getElementById('page-' + p.key);
+    config.showPages[p.key] = el ? el.checked : true;
+  });
+
+  fetch(API + '/api/demo/config', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + TOKEN },
+    body: JSON.stringify(config),
+  }).then(function() {
+    showToast('Cambios guardados ✓');
+    CONFIG = config;
+    applyConfigToUI();
+  });
+}
+
+function resetConfig() {
+  if (!confirm('¿Resetear toda la configuración de demo a los valores por defecto?')) return;
+  fetch(API + '/api/demo/config', {
+    method: 'DELETE', headers: { Authorization: 'Bearer ' + TOKEN },
+  }).then(function() {
+    loadConfig();
+    showToast('Config reseteada ✓');
+  });
+}
+
+/* UI helpers */
+var currentSection = 'overview';
+var SECTION_TITLES = {
+  overview: 'Estado del demo', pricing: 'Modelo de precios',
+  pages: 'Páginas y secciones', features: 'Funcionalidades', branding: 'Branding y datos',
+};
+
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  document.getElementById('sec-' + id).classList.add('active');
+  var navItems = document.querySelectorAll('.nav-item');
+  for (var i = 0; i < navItems.length; i++) {
+    if (navItems[i].getAttribute('onclick') === "showSection('" + id + "')") {
+      navItems[i].classList.add('active');
+      break;
+    }
+  }
+  document.getElementById('sectionTitle').textContent = SECTION_TITLES[id];
+  currentSection = id;
+}
+
+function buildToggles() {
+  var pGrid = document.getElementById('pagesGrid');
+  pGrid.innerHTML = PAGES_CONFIG.map(function(p) {
+    var checked = !(CONFIG.showPages && CONFIG.showPages[p.key] === false);
+    return '<div class="toggle-item"><div><div class="toggle-label">' + p.label + '</div><div class="toggle-sub">' + p.sub + '</div></div>' +
+      '<label class="switch"><input type="checkbox" id="page-' + p.key + '"' + (checked ? ' checked' : '') + '><span class="slider"></span></label></div>';
+  }).join('');
+
+  pGrid.innerHTML += '<div class="toggle-item"><div><div class="toggle-label">Plan Gratuito</div><div class="toggle-sub">Mostrar en pricing page</div></div>' +
+    '<label class="switch"><input type="checkbox" id="plan-free"' + (!(CONFIG.showPlans && CONFIG.showPlans.free === false) ? ' checked' : '') + '><span class="slider"></span></label></div>' +
+    '<div class="toggle-item"><div><div class="toggle-label">Plan Profesional</div><div class="toggle-sub">Mostrar en pricing page</div></div>' +
+    '<label class="switch"><input type="checkbox" id="plan-prof"' + (!(CONFIG.showPlans && CONFIG.showPlans.profesional === false) ? ' checked' : '') + '><span class="slider"></span></label></div>' +
+    '<div class="toggle-item"><div><div class="toggle-label">Plan Premium</div><div class="toggle-sub">Mostrar en pricing page</div></div>' +
+    '<label class="switch"><input type="checkbox" id="plan-prem"' + (!(CONFIG.showPlans && CONFIG.showPlans.premium === false) ? ' checked' : '') + '><span class="slider"></span></label></div>';
+
+  var fGrid = document.getElementById('featGrid');
+  fGrid.innerHTML = FEATURES_CONFIG.map(function(f) {
+    var checked = !(CONFIG.branding && CONFIG.branding[f.key] === false);
+    return '<div class="toggle-item"><div><div class="toggle-label">' + f.label + '</div><div class="toggle-sub">' + f.sub + '</div></div>' +
+      '<label class="switch"><input type="checkbox" id="feat-' + f.key + '"' + (checked ? ' checked' : '') + '><span class="slider"></span></label></div>';
+  }).join('');
+}
+
+var currentModel = 'seat';
+function selectModel(m, update) {
+  currentModel = m;
+  document.getElementById('model-seat').classList.toggle('selected', m === 'seat');
+  document.getElementById('model-clinic').classList.toggle('selected', m === 'clinic');
+  if (update !== false) document.getElementById('stat-model').textContent = m === 'seat' ? 'Seat' : 'Clínica';
+}
+
+function toggleDemoMode(el) {
+  updateStatusBanner(el.checked);
+  if (el.checked) showToast('Modo demo activado — guardá los cambios para aplicar');
+}
+
+function updateStatusBanner(active) {
+  var banner = document.getElementById('statusBanner');
+  var dot    = document.getElementById('statusDot');
+  var text   = document.getElementById('statusText');
+  var sub    = document.getElementById('statusSub');
+  banner.className = 'status-banner ' + (active ? 'status-active' : 'status-inactive');
+  dot.className    = 'status-dot ' + (active ? 'status-dot-on' : 'status-dot-off');
+  text.textContent = active ? 'Modo demo ACTIVO' : 'Demo inactivo';
+  sub.textContent  = active
+    ? 'La app y el sitio web leen esta configuración en tiempo real'
+    : 'La app muestra el comportamiento normal de producción';
+}
+
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 2500);
+}
+</script>
+</body>
+</html>
