@@ -39,9 +39,11 @@ function generateNonce(): string {
 function buildCspHeader(nonce: string): string {
   return [
     "default-src 'self'",
-    // strict-dynamic makes CSP3 browsers trust scripts loaded by nonce'd scripts.
-    // unsafe-inline is a fallback for older browsers (ignored when strict-dynamic present).
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-inline'`,
+    // Nonce is available for any future inline scripts that need it.
+    // NOTE: 'strict-dynamic' was removed because Next.js does not inject the nonce
+    // into its framework <script> tags, causing React hydration to be blocked entirely.
+    // Re-enable strict-dynamic only after implementing proper nonce injection in layout.tsx.
+    `script-src 'self' 'nonce-${nonce}' 'unsafe-inline'`,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob: https:",
