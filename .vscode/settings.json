@@ -20,9 +20,12 @@
   "mssql.intelliSense.enableSuggestions": false,
   "mssql.intelliSense.enableQuickInfo": false,
   "mssql.intelliSense.enableErrorChecking": false,
+  "mssql.intelliSense.enableSyntaxValidation": false,
   "mssql.enableQueryHistoryCapture": false,
   "mssql.enableSqlAuthenticationProvider": false,
   "mssql.ignorePlatformWarning": true,
+  // Disable MSSQL diagnostics on SQL files entirely
+  "mssql.enableLanguageServiceDebugMenu": false,
 
   // Force all SQL files into PostgreSQL language mode
   "[sql]": {
