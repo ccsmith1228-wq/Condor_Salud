@@ -36,14 +36,15 @@ function generateNonce(): string {
   return btoa(Array.from(array, (b) => String.fromCharCode(b)).join(""));
 }
 
-function buildCspHeader(nonce: string): string {
+function buildCspHeader(_nonce: string): string {
   return [
     "default-src 'self'",
-    // Nonce is available for any future inline scripts that need it.
-    // NOTE: 'strict-dynamic' was removed because Next.js does not inject the nonce
-    // into its framework <script> tags, causing React hydration to be blocked entirely.
-    // Re-enable strict-dynamic only after implementing proper nonce injection in layout.tsx.
-    `script-src 'self' 'nonce-${nonce}' 'unsafe-inline'`,
+    // NOTE: Do NOT include a nonce in script-src — the CSP spec says 'unsafe-inline'
+    // is silently ignored when a nonce or hash is present. Next.js emits inline
+    // <script> tags without nonce attributes, so adding a nonce here blocks React
+    // hydration entirely. The nonce is kept in generateNonce() / x-nonce header
+    // for future use (e.g. if Next.js adds nonce propagation support).
+    "script-src 'self' 'unsafe-inline' https://us-assets.i.posthog.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob: https:",
