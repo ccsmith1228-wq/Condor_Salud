@@ -101,64 +101,8 @@ const DEFAULT_TEMPLATES: PageTemplate[] = [
   },
 ];
 
-const DEMO_RECENT = [
-  {
-    paciente: "Gonzalez, Maria Elena",
-    turno: "10/03 08:00",
-    estado: "Confirmado",
-    enviado: "09/03 08:00",
-    respuesta: "1 - Confirmar",
-  },
-  {
-    paciente: "Lopez, Juan Carlos",
-    turno: "10/03 08:30",
-    estado: "Confirmado",
-    enviado: "09/03 08:30",
-    respuesta: "1 - Confirmar",
-  },
-  {
-    paciente: "Ramirez, Sofia",
-    turno: "10/03 09:00",
-    estado: "Sin respuesta",
-    enviado: "09/03 09:00",
-    respuesta: "---",
-  },
-  {
-    paciente: "Diaz, Roberto",
-    turno: "10/03 10:00",
-    estado: "Cancelado",
-    enviado: "09/03 10:00",
-    respuesta: "2 - Cancelar",
-  },
-  {
-    paciente: "Morales, Carolina",
-    turno: "10/03 10:30",
-    estado: "Reprogramado",
-    enviado: "09/03 10:30",
-    respuesta: "3 - Reprogramar",
-  },
-  {
-    paciente: "Suarez, Hector",
-    turno: "11/03 08:00",
-    estado: "Pendiente",
-    enviado: "Prog. 10/03 08:00",
-    respuesta: "---",
-  },
-  {
-    paciente: "Romero, Lucia",
-    turno: "11/03 09:30",
-    estado: "Pendiente",
-    enviado: "Prog. 10/03 09:30",
-    respuesta: "---",
-  },
-  {
-    paciente: "Torres, Miguel",
-    turno: "11/03 11:00",
-    estado: "Pendiente",
-    enviado: "Prog. 10/03 11:00",
-    respuesta: "---",
-  },
-];
+// NOTE: No hardcoded recent reminders. This section is populated
+// from actual WhatsApp delivery logs once the API is connected.
 
 const ESTADO_COLOR: Record<string, string> = {
   Confirmado: "bg-green-50 text-green-700",
@@ -310,8 +254,6 @@ export default function WhatsAppConfigPage() {
     .replace(/\{\{financiador\}\}/g, "PAMI");
 
   const activeCount = templates.filter((t) => t.active).length;
-  const confirmados = DEMO_RECENT.filter((r) => r.estado === "Confirmado").length;
-  const sinResp = DEMO_RECENT.filter((r) => r.estado === "Sin respuesta").length;
   const isConnected = !!savedConfig?.whatsapp_number;
 
   if (isLoading) {
@@ -361,9 +303,9 @@ export default function WhatsAppConfigPage() {
       {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "Mensajes hoy", value: "12", color: "border-celeste" },
-          { label: "Confirmados", value: `${confirmados}`, color: "border-green-400" },
-          { label: "Sin respuesta", value: `${sinResp}`, color: "border-amber-400" },
+          { label: "Mensajes hoy", value: "0", color: "border-celeste" },
+          { label: "Confirmados", value: "0", color: "border-green-400" },
+          { label: "Sin respuesta", value: "0", color: "border-amber-400" },
           { label: "Plantillas activas", value: `${activeCount}/6`, color: "border-celeste" },
         ].map((k) => (
           <div
@@ -711,7 +653,7 @@ export default function WhatsAppConfigPage() {
             </p>
           </div>
 
-          {/* Recent reminders */}
+          {/* Recent reminders — populated from actual WhatsApp delivery logs */}
           <div className="bg-white border border-border rounded-lg overflow-hidden">
             <div className="px-5 py-4 border-b border-border flex items-center justify-between">
               <h3 className="text-xs font-bold tracking-wider text-ink-muted uppercase">
@@ -724,47 +666,13 @@ export default function WhatsAppConfigPage() {
                 Ver agenda
               </Link>
             </div>
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
-                  <th scope="col" className="text-left px-4 py-2">
-                    Paciente
-                  </th>
-                  <th scope="col" className="text-left px-4 py-2">
-                    Turno
-                  </th>
-                  <th scope="col" className="text-left px-4 py-2">
-                    Enviado
-                  </th>
-                  <th scope="col" className="text-center px-4 py-2">
-                    Estado
-                  </th>
-                  <th scope="col" className="text-left px-4 py-2">
-                    Respuesta
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {DEMO_RECENT.map((r, i) => (
-                  <tr
-                    key={i}
-                    className="border-t border-border-light hover:bg-celeste-pale/30 transition"
-                  >
-                    <td className="px-4 py-2.5 text-xs font-semibold text-ink">{r.paciente}</td>
-                    <td className="px-4 py-2.5 font-mono text-[10px] text-ink-muted">{r.turno}</td>
-                    <td className="px-4 py-2.5 text-[10px] text-ink-muted">{r.enviado}</td>
-                    <td className="px-4 py-2.5 text-center">
-                      <span
-                        className={`px-2 py-0.5 text-[10px] font-bold rounded ${ESTADO_COLOR[r.estado]}`}
-                      >
-                        {r.estado}
-                      </span>
-                    </td>
-                    <td className="px-4 py-2.5 text-[10px] text-ink-muted">{r.respuesta}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="py-10 px-6 text-center">
+              <p className="text-sm font-semibold text-ink">Sin actividad reciente</p>
+              <p className="text-xs text-ink-muted mt-1">
+                Los recordatorios enviados a pacientes aparecen aca una vez que conectes WhatsApp
+                Business y agendes turnos.
+              </p>
+            </div>
           </div>
         </div>
       </div>

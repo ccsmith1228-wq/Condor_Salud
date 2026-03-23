@@ -88,18 +88,14 @@ function formatWeekRange(dates: { date: string }[]): string {
   return `${start} — ${end}`;
 }
 
-// ── Demo data ────────────────────────────────────────────────
-const DEMO_DOCTORS: Doctor[] = [
-  { id: "doc-1", name: "Dra. María González", specialty: "Clínica Médica" },
-  { id: "doc-2", name: "Dr. Carlos Ruiz", specialty: "Cardiología" },
-  { id: "doc-3", name: "Dra. Ana Fernández", specialty: "Dermatología" },
-];
+// NOTE: No hardcoded doctors. Real data comes from /api/doctors.
+// New clinics start with an empty list until team members are added.
 
 export default function DisponibilidadPage() {
   const { t, locale } = useLocale();
   const [weekOffset, setWeekOffset] = useState(0);
   const [selectedDoctor, setSelectedDoctor] = useState<string>("");
-  const [doctors, setDoctors] = useState<Doctor[]>(DEMO_DOCTORS);
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [slots, setSlots] = useState<AvailabilitySlot[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);

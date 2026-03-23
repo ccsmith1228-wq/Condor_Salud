@@ -1,6 +1,23 @@
 // ─── Centralized Demo Data Service ───────────────────────────
-// All mock data lives here. Pages import from services, not inline arrays.
-// When Supabase is connected, real DB queries are used automatically.
+//
+// DATA POLICY (read before editing any page)
+// ───────────────────────────────────────────
+//
+// 1. AUTHENTICATED DASHBOARD pages (anything under /dashboard/*)
+//    → Show a BLANK SLATE with <EmptyState> when there is no real data.
+//    → Do NOT define inline mock arrays. Let SWR hooks return [] and
+//      let the UI render empty states with calls-to-action.
+//
+// 2. PUBLIC / MARKETING pages (landing, /planes, /demo, /paciente, etc.)
+//    → MAY use demo data to showcase the product to visitors.
+//
+// 3. THIS FILE (data.ts)
+//    → Mock data here is INTENTIONALLY kept. It serves as the fallback
+//      when isSupabaseConfigured() === false (local dev, CI, demo mode).
+//    → The service layer returns this mock data ONLY in that scenario;
+//      once Supabase is connected, real DB queries run instead.
+//    → This is the SINGLE SOURCE OF TRUTH for demo data. Individual
+//      dashboard pages must NOT duplicate mock arrays inline.
 //
 // Every function returns a Promise to match async DB patterns.
 

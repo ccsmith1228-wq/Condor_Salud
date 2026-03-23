@@ -27,43 +27,8 @@ const estadoColors: Record<string, string> = {
   Vencido: "bg-border-light text-ink-muted",
 };
 
-const movimientos = [
-  {
-    fecha: "07/03/2026",
-    item: "Enalapril 10mg",
-    tipo: "Ingreso",
-    cantidad: "+50 cajas",
-    usuario: "Dr. Rodríguez",
-  },
-  {
-    fecha: "07/03/2026",
-    item: "Guantes nitrilo M",
-    tipo: "Consumo",
-    cantidad: "-10 cajas",
-    usuario: "Enf. López",
-  },
-  {
-    fecha: "06/03/2026",
-    item: "Tiras reactivas",
-    tipo: "Consumo",
-    cantidad: "-7 cajas",
-    usuario: "Dra. Pérez",
-  },
-  {
-    fecha: "05/03/2026",
-    item: "Gel ecográfico",
-    tipo: "Ingreso",
-    cantidad: "+5 bidones",
-    usuario: "Admin",
-  },
-  {
-    fecha: "04/03/2026",
-    item: "Jeringa 5ml",
-    tipo: "Consumo",
-    cantidad: "-2 cajas",
-    usuario: "Enf. López",
-  },
-];
+// NOTE: No hardcoded movimientos. Real movement history comes from
+// the inventory service. New clinics start with an empty log.
 
 export default function InventarioPage() {
   const { showToast } = useToast();
@@ -356,35 +321,7 @@ export default function InventarioPage() {
             </table>
           </div>
 
-          {/* Movimientos recientes (demo mode only) */}
-          {isDemo && (
-            <div className="bg-white border border-border rounded-lg overflow-hidden">
-              <div className="px-5 py-4 border-b border-border">
-                <h3 className="text-xs font-bold tracking-wider text-ink-muted uppercase">
-                  {t("inventory.recentMovements")}
-                </h3>
-              </div>
-              <table className="w-full text-sm">
-                <tbody>
-                  {movimientos.map((m, i) => (
-                    <tr key={i} className="border-t border-border-light first:border-t-0">
-                      <td className="px-5 py-3 font-mono text-[10px] text-ink-muted w-24">
-                        {m.fecha}
-                      </td>
-                      <td className="px-5 py-3 text-xs font-semibold text-ink">{m.item}</td>
-                      <td className="px-5 py-3 text-xs text-ink-light">{m.tipo}</td>
-                      <td
-                        className={`px-5 py-3 text-xs font-bold ${m.cantidad.startsWith("+") ? "text-green-600" : "text-red-600"}`}
-                      >
-                        {m.cantidad}
-                      </td>
-                      <td className="px-5 py-3 text-xs text-ink-muted text-right">{m.usuario}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          {/* Movimientos recientes — populated as stock changes are registered */}
         </>
       )}
 

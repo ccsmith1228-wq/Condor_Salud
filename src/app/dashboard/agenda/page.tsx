@@ -76,32 +76,10 @@ const horas = [
   "17:00",
 ];
 
-const profesionales = [
-  {
-    id: "prof-1",
-    nombre: "Dr. Martín Rodríguez",
-    especialidad: "Cardiología",
-    color: "bg-celeste-pale text-celeste-dark border-celeste",
-  },
-  {
-    id: "prof-2",
-    nombre: "Dra. Laura Pérez",
-    especialidad: "Clínica Médica",
-    color: "bg-celeste-pale text-celeste-dark border-celeste-light",
-  },
-  {
-    id: "prof-3",
-    nombre: "Dr. Carlos Martínez",
-    especialidad: "Ecografía",
-    color: "bg-celeste-pale text-celeste-dark border-celeste",
-  },
-  {
-    id: "prof-4",
-    nombre: "Dra. Ana Fernández",
-    especialidad: "Laboratorio",
-    color: "bg-green-50 text-green-700 border-green-300",
-  },
-];
+// NOTE: No hardcoded profesionales. Real users see their own team
+// from the API. Empty array until team members are added via
+// Configuración → Equipo.
+const profesionales: { id: string; nombre: string; especialidad: string; color: string }[] = [];
 
 const estadoColor: Record<string, string> = {
   confirmado: "bg-green-50 text-green-700",

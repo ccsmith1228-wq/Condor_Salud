@@ -12,12 +12,18 @@ function maskPhone(phone: string): string {
   return phone.replace(/(\d{2}-)(\d{4})(-.*)/, "$1••••$3");
 }
 
-const templates = [
+// ─── NOTE: No hardcoded templates, stats, or history. ────────
+// This page mirrors the WhatsApp config page (which IS wired to
+// the backend via useWhatsAppConfig). For now, we show empty
+// states until this page is connected to the same backend hooks.
+// Marketing/demo mock data lives only in src/lib/services/data.ts.
+
+const DEFAULT_TEMPLATES = [
   {
     id: "reminder-24h",
     nombre: "Recordatorio 24hs",
     mensaje:
-      "Hola {nombre}, te recordamos que tenés turno mañana {fecha} a las {hora} con {profesional} en Centro Médico San Martín. Respondé SI para confirmar o NO para cancelar.",
+      "Hola {nombre}, te recordamos que tenes turno manana {fecha} a las {hora} con {profesional}. Responde SI para confirmar o NO para cancelar.",
     activo: true,
     tipo: "recordatorio" as const,
     timing: "24 horas antes",
@@ -26,24 +32,24 @@ const templates = [
     id: "reminder-2h",
     nombre: "Recordatorio 2hs",
     mensaje:
-      "Hola {nombre}, tu turno es HOY a las {hora} con {profesional}. Te esperamos en Av. San Martín 1520, Piso 2°. Si no podés asistir, avisanos.",
+      "Hola {nombre}, tu turno es HOY a las {hora} con {profesional}. Si no podes asistir, avisanos.",
     activo: true,
     tipo: "recordatorio" as const,
     timing: "2 horas antes",
   },
   {
     id: "confirmation",
-    nombre: "Confirmación recibida",
-    mensaje: "Perfecto {nombre}, tu turno del {fecha} a las {hora} quedó confirmado. Te esperamos!",
+    nombre: "Confirmacion recibida",
+    mensaje: "Perfecto {nombre}, tu turno del {fecha} a las {hora} quedo confirmado.",
     activo: true,
     tipo: "confirmacion" as const,
     timing: "Inmediato",
   },
   {
     id: "cancellation",
-    nombre: "Cancelación",
+    nombre: "Cancelacion",
     mensaje:
-      "Hola {nombre}, tu turno del {fecha} a las {hora} fue cancelado. Podés reprogramar llamando al (011) 4523-8800 o desde la app.",
+      "Hola {nombre}, tu turno del {fecha} a las {hora} fue cancelado. Podes reprogramar desde la app.",
     activo: true,
     tipo: "cancelacion" as const,
     timing: "Inmediato",
@@ -51,88 +57,10 @@ const templates = [
   {
     id: "post-visit",
     nombre: "Post-consulta",
-    mensaje:
-      "Hola {nombre}, gracias por tu visita a Centro Médico San Martín. Si necesitás algo, estamos a disposición. Recordá tu próximo control en {diasProximo} días.",
+    mensaje: "Hola {nombre}, gracias por tu visita. Si necesitas algo, estamos a disposicion.",
     activo: false,
     tipo: "seguimiento" as const,
-    timing: "1 hora después",
-  },
-];
-
-const stats = {
-  enviados: 342,
-  confirmados: 289,
-  cancelados: 18,
-  sinRespuesta: 35,
-  tasaConfirmacion: 84.5,
-  tasaAsistencia: 91.2,
-  ahorro: "$285.000",
-};
-
-const historial = [
-  {
-    fecha: "10/03/2026 08:00",
-    paciente: "González, María E.",
-    telefono: "11-4523-8891",
-    template: "Recordatorio 24hs",
-    estado: "Confirmado",
-    turnoFecha: "11/03/2026 10:00",
-  },
-  {
-    fecha: "10/03/2026 08:00",
-    paciente: "Fernández, Jorge A.",
-    telefono: "11-5567-2234",
-    template: "Recordatorio 24hs",
-    estado: "Confirmado",
-    turnoFecha: "11/03/2026 08:30",
-  },
-  {
-    fecha: "10/03/2026 08:00",
-    paciente: "Martínez, Lucía",
-    telefono: "11-3345-6789",
-    template: "Recordatorio 24hs",
-    estado: "Sin respuesta",
-    turnoFecha: "11/03/2026 09:00",
-  },
-  {
-    fecha: "09/03/2026 08:00",
-    paciente: "López, Carlos R.",
-    telefono: "11-4412-3356",
-    template: "Recordatorio 24hs",
-    estado: "Cancelado",
-    turnoFecha: "10/03/2026 14:00",
-  },
-  {
-    fecha: "09/03/2026 08:00",
-    paciente: "Russo, Ana S.",
-    telefono: "11-6678-4455",
-    template: "Recordatorio 24hs",
-    estado: "Confirmado",
-    turnoFecha: "10/03/2026 10:30",
-  },
-  {
-    fecha: "09/03/2026 14:30",
-    paciente: "Díaz, Roberto",
-    telefono: "11-2234-5678",
-    template: "Recordatorio 2hs",
-    estado: "Confirmado",
-    turnoFecha: "09/03/2026 16:30",
-  },
-  {
-    fecha: "08/03/2026 08:00",
-    paciente: "Herrera, Patricia",
-    telefono: "11-7789-0011",
-    template: "Recordatorio 24hs",
-    estado: "Confirmado",
-    turnoFecha: "09/03/2026 08:30",
-  },
-  {
-    fecha: "08/03/2026 10:15",
-    paciente: "Castro, Fernando",
-    telefono: "11-8890-1122",
-    template: "Post-consulta",
-    estado: "Entregado",
-    turnoFecha: "08/03/2026 09:00",
+    timing: "1 hora despues",
   },
 ];
 
@@ -149,7 +77,10 @@ export default function RecordatoriosConfigPage() {
   const { showToast } = useToast();
   const isDemo = useIsDemo();
   const [activeTemplates, setActiveTemplates] = useState(
-    templates.reduce((acc, t) => ({ ...acc, [t.id]: t.activo }), {} as Record<string, boolean>),
+    DEFAULT_TEMPLATES.reduce(
+      (acc, t) => ({ ...acc, [t.id]: t.activo }),
+      {} as Record<string, boolean>,
+    ),
   );
 
   const toggleTemplate = (id: string) => {
@@ -215,20 +146,13 @@ export default function RecordatoriosConfigPage() {
         </span>
       </div>
 
-      {/* KPI row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+      {/* KPI row — populated from actual WhatsApp delivery data */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "Enviados (mes)", value: stats.enviados, color: "border-celeste" },
-          { label: "Confirmados", value: stats.confirmados, color: "border-green-400" },
-          { label: "Cancelados", value: stats.cancelados, color: "border-red-400" },
-          { label: "Sin respuesta", value: stats.sinRespuesta, color: "border-amber-400" },
-          {
-            label: "Tasa confirmación",
-            value: `${stats.tasaConfirmacion}%`,
-            color: "border-green-400",
-          },
-          { label: "Tasa asistencia", value: `${stats.tasaAsistencia}%`, color: "border-celeste" },
-          { label: "Ahorro estimado", value: stats.ahorro, color: "border-celeste" },
+          { label: "Enviados (mes)", value: "0", color: "border-celeste" },
+          { label: "Confirmados", value: "0", color: "border-green-400" },
+          { label: "Cancelados", value: "0", color: "border-red-400" },
+          { label: "Tasa confirmacion", value: "—", color: "border-green-400" },
         ].map((k) => (
           <div
             key={k.label}
@@ -263,7 +187,7 @@ export default function RecordatoriosConfigPage() {
 
         {/* Message templates */}
         <div className="space-y-3">
-          {templates.map((t) => (
+          {DEFAULT_TEMPLATES.map((t) => (
             <div
               key={t.id}
               className={`border rounded-lg p-4 transition ${activeTemplates[t.id] ? "border-green-200 bg-green-50/30" : "border-border bg-white"}`}
@@ -346,62 +270,20 @@ export default function RecordatoriosConfigPage() {
         </div>
       </div>
 
-      {/* Recent activity */}
+      {/* Recent activity — populated from actual delivery logs */}
       <div className="bg-white border border-border rounded-lg overflow-hidden">
         <div className="px-5 py-4 border-b border-border flex items-center justify-between">
           <h3 className="text-xs font-bold tracking-wider text-ink-muted uppercase">
             Actividad Reciente
           </h3>
-          <span className="text-[10px] text-ink-muted">Últimas 48 horas</span>
+          <span className="text-[10px] text-ink-muted">Ultimas 48 horas</span>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[700px]">
-            <thead>
-              <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
-                <th scope="col" className="text-left px-5 py-2.5">
-                  Enviado
-                </th>
-                <th scope="col" className="text-left px-5 py-2.5">
-                  Paciente
-                </th>
-                <th scope="col" className="text-left px-5 py-2.5">
-                  Teléfono
-                </th>
-                <th scope="col" className="text-left px-5 py-2.5">
-                  Plantilla
-                </th>
-                <th scope="col" className="text-left px-5 py-2.5">
-                  Turno
-                </th>
-                <th scope="col" className="text-center px-5 py-2.5">
-                  Respuesta
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {historial.map((h, i) => (
-                <tr
-                  key={i}
-                  className="border-t border-border-light hover:bg-celeste-pale/30 transition"
-                >
-                  <td className="px-5 py-3 font-mono text-[10px] text-ink-muted">{h.fecha}</td>
-                  <td className="px-5 py-3 text-xs font-semibold text-ink">{h.paciente}</td>
-                  <td className="px-5 py-3 font-mono text-[10px] text-ink-muted">
-                    {maskPhone(h.telefono)}
-                  </td>
-                  <td className="px-5 py-3 text-xs text-ink-light">{h.template}</td>
-                  <td className="px-5 py-3 font-mono text-[10px] text-ink-muted">{h.turnoFecha}</td>
-                  <td className="px-5 py-3 text-center">
-                    <span
-                      className={`px-2 py-0.5 text-[10px] font-bold rounded ${estadoColors[h.estado] || "bg-gray-50 text-gray-600"}`}
-                    >
-                      {h.estado}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="py-10 px-6 text-center">
+          <p className="text-sm font-semibold text-ink">Sin actividad reciente</p>
+          <p className="text-xs text-ink-muted mt-1">
+            Los recordatorios enviados a pacientes aparecen aca una vez que conectes WhatsApp
+            Business y agendes turnos. Podes configurar las plantillas arriba.
+          </p>
         </div>
       </div>
     </div>
