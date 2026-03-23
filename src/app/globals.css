@@ -147,3 +147,56 @@ button {
   background-color: #d4e4f0;
   border-radius: 99px;
 }
+
+/* ── Range Slider (Revenue Calculator) ────────────────────── */
+.range-styled {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+.range-styled::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 9999px;
+  background: #e4f0f9; /* celeste-pale */
+}
+.range-styled::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #4a7faf; /* celeste-dark */
+  border: 3px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  margin-top: -7px;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+.range-styled::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 8px rgba(74, 127, 175, 0.35);
+}
+.range-styled::-moz-range-track {
+  height: 8px;
+  border-radius: 9999px;
+  background: #e4f0f9;
+}
+.range-styled::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #4a7faf;
+  border: 3px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+}
+.range-styled::-moz-range-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 8px rgba(74, 127, 175, 0.35);
+}
+.range-styled:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid #75aadb;
+  outline-offset: 2px;
+}

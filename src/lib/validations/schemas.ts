@@ -307,3 +307,15 @@ export const waitlistSchema = z.object({
 });
 
 export type WaitlistInput = z.infer<typeof waitlistSchema>;
+
+// ─── Partner application schema ──────────────────────────────
+export const partnerSchema = z.object({
+  company: z.string().min(1, "Company name required").max(200),
+  name: z.string().min(1, "Name required").max(200),
+  email: z.string().email("Email inválido").max(254),
+  type: z.enum(["agencia", "aerolinea", "ota", "dmc", "otro"]),
+  volume: z.enum(["lt50", "50-200", "200-500", "500-2000", "gt2000"]),
+  message: z.string().max(2000).optional().default(""),
+});
+
+export type PartnerInput = z.infer<typeof partnerSchema>;

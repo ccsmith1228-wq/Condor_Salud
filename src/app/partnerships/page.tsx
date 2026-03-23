@@ -64,7 +64,7 @@ function RevenueCalculator({ pt }: { pt: (k: string) => string }) {
           step={10}
           value={travelers}
           onChange={(e) => setTravelers(Number(e.target.value))}
-          className="w-full h-2 rounded-full appearance-none cursor-pointer accent-celeste-dark"
+          className="w-full h-2 rounded-full cursor-pointer accent-celeste-dark range-styled"
         />
         <div className="flex justify-between text-[10px] text-ink-muted mt-1">
           <span>10</span>
