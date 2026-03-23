@@ -8,6 +8,7 @@ const ONBOARDING_ROUTE = "/dashboard/wizard";
 const PUBLIC_PAGE_PREFIXES = [
   "/", // Landing
   "/planes", // Pricing
+  "/partners", // B2B travel partnership
   "/privacidad", // Legal
   "/terminos",
   "/status",
