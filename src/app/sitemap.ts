@@ -16,14 +16,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     // Partners page (B2B travel partnership)
     {
-      url: `${BASE_URL}/partners`,
+      url: `${BASE_URL}/partnerships`,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.7,
     },
     // American travelers (embassy endorsement page)
     {
-      url: `${BASE_URL}/american-travelers`,
+      url: `${BASE_URL}/acs`,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.7,

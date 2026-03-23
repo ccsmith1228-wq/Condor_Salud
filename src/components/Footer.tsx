@@ -77,15 +77,12 @@ export default function Footer() {
               {t("footer.waitlist")}
             </Link>
             <Link
-              href="/partners"
+              href="/partnerships"
               className="block text-ink-light hover:text-celeste-dark transition"
             >
               {t("footer.partners")}
             </Link>
-            <Link
-              href="/american-travelers"
-              className="block text-ink-light hover:text-celeste-dark transition"
-            >
+            <Link href="/acs" className="block text-ink-light hover:text-celeste-dark transition">
               {t("footer.embassy")}
             </Link>
           </div>
