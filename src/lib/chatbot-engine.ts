@@ -1032,12 +1032,12 @@ function buildTriageResponse(entry: TriageEntry, lang?: string): Partial<ChatMes
         ? [
             { label: "Call 107 (emergency)", value: "I need the emergency number" },
             { label: "Nearest ER", value: "Where is the nearest ER?" },
-            { label: "🚗 Ride to ER", value: "I need a ride to the emergency room" },
+            { label: "Ride to ER", value: "I need a ride to the emergency room" },
           ]
         : [
             { label: "Llamar al 107 (emergencias)", value: "Necesito el número de emergencias" },
             { label: "Guardia más cercana", value: "¿Dónde queda la guardia más cercana?" },
-            { label: "🚗 Viaje a la guardia", value: "Necesito un Uber para ir a la guardia" },
+            { label: "Viaje a la guardia", value: "Necesito un Uber para ir a la guardia" },
           ]
       : isEnglish
         ? [
@@ -1046,9 +1046,9 @@ function buildTriageResponse(entry: TriageEntry, lang?: string): Partial<ChatMes
               value: `I want an appointment with ${entry.doctorType.split(" / ")[0]}`,
             },
             { label: "Talk to a doctor now", value: "I want a telemedicine consultation now" },
-            { label: "🚗 Get a ride", value: "I need a ride to the doctor" },
+            { label: "Get a ride", value: "I need a ride to the doctor" },
             ...(entry.otcMeds.length > 0
-              ? [{ label: "🛵 Deliver to me", value: "I want home delivery of medications" }]
+              ? [{ label: "Deliver to me", value: "I want home delivery of medications" }]
               : []),
             { label: "Another issue", value: "I'm not feeling well" },
           ]
@@ -1058,9 +1058,9 @@ function buildTriageResponse(entry: TriageEntry, lang?: string): Partial<ChatMes
               value: `Quiero un turno con ${entry.doctorType.split(" / ")[0]}`,
             },
             { label: "Hablar con un médico ya", value: "Quiero una teleconsulta ahora" },
-            { label: "🚗 Pedir un viaje", value: "Necesito un Uber para ir al médico" },
+            { label: "Pedir un viaje", value: "Necesito un Uber para ir al médico" },
             ...(entry.otcMeds.length > 0
-              ? [{ label: "🛵 Que me lo traigan", value: "Quiero pedir remedios a domicilio" }]
+              ? [{ label: "Que me lo traigan", value: "Quiero pedir remedios a domicilio" }]
               : []),
             { label: "Tengo otro problema", value: "No me siento bien" },
           ];
@@ -1957,7 +1957,7 @@ function generateNearbyDoctorResponse(
       cards,
       quickReplies: [
         { label: "See more in directory", value: "I want to see the doctor directory" },
-        { label: "🚗 Get a ride", value: "I need a ride to the doctor" },
+        { label: "Get a ride", value: "I need a ride to the doctor" },
         { label: "Telemedicine now", value: "I want a telemedicine consultation" },
         { label: "Pharmacy nearby", value: "Pharmacy near me" },
       ],
@@ -1993,7 +1993,7 @@ function generateNearbyDoctorResponse(
     cards,
     quickReplies: [
       { label: "Ver más en directorio", value: "Quiero ver el directorio médico" },
-      { label: "🚗 Pedir un viaje", value: "Necesito un Uber para ir al médico" },
+      { label: "Pedir un viaje", value: "Necesito un Uber para ir al médico" },
       { label: "Teleconsulta ahora", value: "Quiero una teleconsulta" },
       { label: "Farmacia cerca", value: "Farmacia cerca mío" },
     ],
@@ -2049,7 +2049,7 @@ function generateNearbyPharmacyResponse(
       cards,
       quickReplies: [
         { label: "View all on map", value: "Pharmacies on Google Maps" },
-        { label: "🚗 Get a ride", value: "I need a ride to the pharmacy" },
+        { label: "Get a ride", value: "I need a ride to the pharmacy" },
         { label: "Doctor nearby", value: "Find a doctor near me" },
         { label: "Nearest ER", value: "Nearest emergency room" },
       ],
@@ -2084,7 +2084,7 @@ function generateNearbyPharmacyResponse(
     cards,
     quickReplies: [
       { label: "Ver todas en mapa", value: "Farmacias en Google Maps" },
-      { label: "🚗 Pedir un viaje", value: "Necesito un Uber para ir a la farmacia" },
+      { label: "Pedir un viaje", value: "Necesito un Uber para ir a la farmacia" },
       { label: "Médico cerca", value: "Buscar médico cerca mío" },
       { label: "Guardia más cercana", value: "Guardia más cercana" },
     ],
@@ -2156,7 +2156,7 @@ function generateNearbyGuardiaResponse(
       cards,
       quickReplies: [
         { label: "Call 107", value: "I need the emergency number" },
-        { label: "🚗 Ride to ER", value: "I need a ride to the emergency room" },
+        { label: "Ride to ER", value: "I need a ride to the emergency room" },
         { label: "Doctor nearby", value: "Find a doctor near me" },
       ],
     };
@@ -2191,7 +2191,7 @@ function generateNearbyGuardiaResponse(
     cards,
     quickReplies: [
       { label: "Llamar al 107", value: "Necesito el número de emergencias" },
-      { label: "🚗 Viaje a la guardia", value: "Necesito un Uber para ir a la guardia" },
+      { label: "Viaje a la guardia", value: "Necesito un Uber para ir a la guardia" },
       { label: "Médico cerca", value: "Buscar médico cerca mío" },
     ],
   };
