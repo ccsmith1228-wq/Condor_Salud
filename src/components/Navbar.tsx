@@ -18,12 +18,14 @@ export default function Navbar() {
         { href: "/paciente/teleconsulta", label: t("nav.teleconsult") },
         { href: "/paciente/medicamentos", label: t("nav.pharmacy") },
         { href: "/paciente/cobertura", label: t("nav.coverage") },
+        { href: "/club", label: t("nav.healthClub") },
       ]
     : [
         { href: "/#problema", label: t("nav.problem") },
         { href: "/#producto", label: t("nav.product") },
         { href: "/#pricing", label: t("nav.pricing") },
         { href: "/planes", label: t("nav.plans") },
+        { href: "/club", label: t("nav.healthClub") },
       ];
 
   // Segment-aware primary CTA

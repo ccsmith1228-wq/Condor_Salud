@@ -23,6 +23,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.7,
     },
+    // Health Club membership plans
+    {
+      url: `${BASE_URL}/club`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
     // American travelers (embassy endorsement page)
     {
       url: `${BASE_URL}/acs`,

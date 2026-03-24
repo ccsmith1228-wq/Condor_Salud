@@ -24,6 +24,7 @@ const translations: Dict = {
   "nav.teleconsult": { es: "Teleconsulta", en: "Teleconsult" },
   "nav.pharmacy": { es: "Farmacia", en: "Pharmacy" },
   "nav.coverage": { es: "Cobertura", en: "Coverage" },
+  "nav.healthClub": { es: "Health Club", en: "Health Club" },
 
   // ── Hero ────────────────────────────────────────────────────
   "hero.badge": {
@@ -662,6 +663,7 @@ const translations: Dict = {
   "footer.patient": { es: "Portal Paciente", en: "Patient Portal" },
   "footer.waitlist": { es: "Waitlist", en: "Waitlist" },
   "footer.partners": { es: "Partners", en: "Partners" },
+  "footer.healthClub": { es: "Health Club", en: "Health Club" },
   "footer.embassy": { es: "Viajeros Americanos", en: "American Travelers" },
   "footer.colAccount": { es: "Cuenta", en: "Account" },
   "footer.login": { es: "Iniciar sesión", en: "Log in" },

@@ -82,6 +82,9 @@ export default function Footer() {
             >
               {t("footer.partners")}
             </Link>
+            <Link href="/club" className="block text-ink-light hover:text-celeste-dark transition">
+              {t("footer.healthClub")}
+            </Link>
             <Link href="/acs" className="block text-ink-light hover:text-celeste-dark transition">
               {t("footer.embassy")}
             </Link>

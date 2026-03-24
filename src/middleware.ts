@@ -9,6 +9,7 @@ const PUBLIC_PAGE_PREFIXES = [
   "/", // Landing
   "/planes", // Pricing
   "/partnerships", // B2B travel partnership
+  "/club", // Health Club marketing page
   "/acs", // Embassy endorsement page
   "/privacidad", // Legal
   "/terminos",
