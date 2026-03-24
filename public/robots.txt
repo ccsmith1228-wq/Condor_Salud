@@ -4,5 +4,6 @@ Allow: /
 Disallow: /dashboard/
 Disallow: /auth/
 Disallow: /api/
+Disallow: /sieczkowski/
 
 Sitemap: https://condorsalud.com/sitemap.xml
