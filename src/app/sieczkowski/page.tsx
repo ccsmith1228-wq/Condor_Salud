@@ -10,10 +10,13 @@ import {
   ChevronDown,
   CreditCard,
   Globe2,
+  Handshake,
   HeartPulse,
+  Landmark,
   Layers,
   Lock,
   MapPin,
+  Medal,
   MessageSquare,
   Pill,
   Plane,
@@ -239,6 +242,7 @@ export default function InvestorPage() {
             ["#traction", "Traction"],
             ["#gtm", "GTM"],
             ["#funds", "Use of Funds"],
+            ["#deal", "Your Deal"],
             ["#faq", "FAQ"],
           ].map(([href, label]) => (
             <a
@@ -1018,6 +1022,244 @@ export default function InvestorPage() {
               </li>
             ))}
           </ul>
+        </div>
+      </Section>
+
+      {/* ══════════════════════════════════════════════════════════ */}
+      {/*  YOUR DEAL — VETERAN FINANCING STRUCTURE                   */}
+      {/* ══════════════════════════════════════════════════════════ */}
+      <Section id="deal" className="bg-gradient-to-br from-gold-50 via-white to-celeste-pale/30">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-12 h-12 rounded-xl bg-gold flex items-center justify-center">
+            <Medal className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <SectionLabel>Tailored for You</SectionLabel>
+            <SectionTitle>Veteran Business Financing — Your Real Asset</SectionTitle>
+          </div>
+        </div>
+        <SectionSub>
+          Your military service unlocks access to preferential business loans at rates that are
+          cheaper than most angel investment, cheaper than SAFEs, and — critically —
+          <strong className="text-ink"> non-dilutive</strong>. This changes the entire deal
+          structure.
+        </SectionSub>
+
+        {/* Programs Table */}
+        <h3 className="font-display text-lg font-bold text-ink mb-3 flex items-center gap-2">
+          <Landmark className="w-5 h-5 text-celeste-dark" />
+          Available Veteran Financing Programs
+        </h3>
+        <div className="overflow-x-auto rounded-xl border border-border mb-10">
+          <table className="w-full text-left">
+            <thead>
+              <TR header cells={["Program", "Amount", "Rate", "Notes"]} />
+            </thead>
+            <tbody>
+              <TR
+                cells={[
+                  "SBA 7(a) Veteran",
+                  "Up to $500K",
+                  "~10–13%",
+                  "Fee waivers for vets, fastest approval",
+                ]}
+              />
+              <TR
+                cells={[
+                  "SBA Express",
+                  "Up to $500K",
+                  "Prime + 4.5%",
+                  "36-hour approval, vet fee waiver",
+                ]}
+              />
+              <TR cells={["Military Reservist EIDL", "Up to $2M", "4%", "If still in reserves"]} />
+              <TR
+                cells={[
+                  "State veteran programs",
+                  "Varies",
+                  "2–5%",
+                  "Depends on state of residence",
+                ]}
+              />
+            </tbody>
+          </table>
+        </div>
+
+        {/* Key Insight */}
+        <div className="bg-gold/10 border border-gold/30 rounded-xl p-5 mb-10">
+          <p className="font-semibold text-sm text-ink">💡 Why This Matters</p>
+          <p className="text-sm text-ink-light mt-2 leading-relaxed">
+            At <strong className="text-ink">4–5% interest</strong> on $100K–$500K, this is genuinely
+            cheap capital — cheaper than most angels (who take 15–25% equity), cheaper than SAFEs,
+            and <strong className="text-ink">non-dilutive</strong> if structured as a loan to the
+            company rather than equity. The cash isn&apos;t the asset — the{" "}
+            <strong className="text-ink">loan access</strong> is.
+          </p>
+        </div>
+
+        {/* Proposed Structure */}
+        <h3 className="font-display text-lg font-bold text-ink mb-4 flex items-center gap-2">
+          <Handshake className="w-5 h-5 text-celeste-dark" />
+          Proposed Deal Structure
+        </h3>
+        <div className="grid md:grid-cols-3 gap-6 mb-10">
+          <div className="bg-white border-2 border-celeste rounded-xl p-6 relative">
+            <div className="absolute -top-3 left-4 bg-celeste text-white text-[10px] font-bold px-3 py-0.5 rounded-full tracking-wider uppercase">
+              Primary
+            </div>
+            <div className="w-10 h-10 rounded-lg bg-celeste-pale flex items-center justify-center mb-3 mt-1">
+              <Landmark className="w-5 h-5 text-celeste-dark" />
+            </div>
+            <h4 className="font-bold text-base text-ink mb-2">Veteran Loan to Company</h4>
+            <p className="text-2xl font-display font-bold text-celeste-dark mb-2">$50K – $200K</p>
+            <ul className="space-y-2">
+              {[
+                "You secure the loan at your preferential veteran rate (4–5%)",
+                "Company pays you back with interest — guaranteed return",
+                "Non-dilutive: no equity given up for the capital",
+                "Structured as a promissory note with defined repayment schedule",
+                "Company uses funds for AFIP/PAMI integration + first sales",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-2">
+                  <Check className="w-3.5 h-3.5 text-celeste-dark mt-0.5 shrink-0" />
+                  <span className="text-xs text-ink-light">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="bg-white border border-border rounded-xl p-6 relative">
+            <div className="absolute -top-3 left-4 bg-gold text-white text-[10px] font-bold px-3 py-0.5 rounded-full tracking-wider uppercase">
+              Equity
+            </div>
+            <div className="w-10 h-10 rounded-lg bg-gold-50 flex items-center justify-center mb-3 mt-1">
+              <TrendingUp className="w-5 h-5 text-gold-dark" />
+            </div>
+            <h4 className="font-bold text-base text-ink mb-2">Sweat + Loyalty Equity</h4>
+            <p className="text-2xl font-display font-bold text-gold-dark mb-2">1 – 2%</p>
+            <ul className="space-y-2">
+              {[
+                "For labor, loyalty, and partnership — not the capital",
+                "4-year vesting schedule with 1-year cliff",
+                "Equity upside if company succeeds at scale",
+                "Completely separate from the loan repayment",
+                "Standard SAFE or stock grant structure",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-2">
+                  <Check className="w-3.5 h-3.5 text-gold-dark mt-0.5 shrink-0" />
+                  <span className="text-xs text-ink-light">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="bg-white border border-border rounded-xl p-6 relative">
+            <div className="absolute -top-3 left-4 bg-success text-white text-[10px] font-bold px-3 py-0.5 rounded-full tracking-wider uppercase">
+              Protection
+            </div>
+            <div className="w-10 h-10 rounded-lg bg-success-50 flex items-center justify-center mb-3 mt-1">
+              <Shield className="w-5 h-5 text-success-600" />
+            </div>
+            <h4 className="font-bold text-base text-ink mb-2">Friendship-Safe Structure</h4>
+            <p className="text-2xl font-display font-bold text-success-600 mb-2">Win / Win</p>
+            <ul className="space-y-2">
+              {[
+                "Your return is a loan — not dependent on an exit",
+                "You get paid back regardless of company outcome",
+                "Equity is bonus upside, not your primary return",
+                "Clear, documented terms — no ambiguity",
+                "Relationship stays intact because the math works",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-2">
+                  <Check className="w-3.5 h-3.5 text-success-600 mt-0.5 shrink-0" />
+                  <span className="text-xs text-ink-light">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        {/* Comparison: Loan vs Angel vs SAFE */}
+        <h3 className="font-display text-lg font-bold text-ink mb-3">
+          Why This Beats Traditional Fundraising
+        </h3>
+        <div className="overflow-x-auto rounded-xl border border-border mb-10">
+          <table className="w-full text-left">
+            <thead>
+              <TR
+                header
+                cells={["Structure", "Cost of Capital", "Dilution", "Your Risk", "Verdict"]}
+              />
+            </thead>
+            <tbody>
+              <TR
+                cells={[
+                  "Veteran Loan (this deal)",
+                  "4–5% interest",
+                  "0%",
+                  "Loan repaid with interest",
+                  "✅ Best option",
+                ]}
+              />
+              <TR
+                cells={[
+                  "Angel investment",
+                  "15–25% equity",
+                  "15–25%",
+                  "Dependent on exit",
+                  "❌ Expensive",
+                ]}
+              />
+              <TR
+                cells={[
+                  "SAFE note",
+                  "Discount + cap",
+                  "10–20%",
+                  "Dependent on exit",
+                  "❌ No guaranteed return",
+                ]}
+              />
+              <TR
+                cells={[
+                  "Credit card / personal",
+                  "18–28% APR",
+                  "0%",
+                  "Personal liability",
+                  "❌ Predatory rate",
+                ]}
+              />
+            </tbody>
+          </table>
+        </div>
+
+        {/* The Real Question */}
+        <div className="bg-ink rounded-xl p-6 text-white">
+          <h3 className="font-display text-lg font-bold text-gold mb-3">The Real Question</h3>
+          <p className="text-sm text-white/70 leading-relaxed mb-4">
+            The $10K cash conversation becomes irrelevant when we look at what you actually have
+            access to. The veteran loan programs are the asset. The questions that matter:
+          </p>
+          <div className="grid sm:grid-cols-3 gap-4">
+            {[
+              {
+                q: "How much can you pull?",
+                d: "SBA 7(a) and Express go up to $500K. Reservist EIDL up to $2M. What's your realistic ceiling?",
+              },
+              {
+                q: "Are you willing to use it for Cóndor?",
+                d: "The company pays you back with interest. You profit from the rate arbitrage + equity upside.",
+              },
+              {
+                q: "What's the timeline?",
+                d: "SBA Express: 36-hour approval. 7(a): 2–4 weeks. We can move fast once you're ready.",
+              },
+            ].map((item) => (
+              <div key={item.q} className="bg-white/5 border border-white/10 rounded-lg p-4">
+                <p className="font-semibold text-sm text-gold mb-1">{item.q}</p>
+                <p className="text-xs text-white/60 leading-relaxed">{item.d}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </Section>
 
