@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   FileText,
@@ -17,7 +16,15 @@ import {
   Landmark,
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
-import { useLocale } from "@/lib/i18n/context";
+
+/** Generate a simple unique token without crypto.randomUUID */
+function generateToken(): string {
+  const s4 = () =>
+    Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  return `${s4()}${s4()}-${s4()}-${s4()}-${s4()}-${s4()}${s4()}${s4()}`;
+}
 
 /* ── Types ──────────────────────────────────────────────── */
 interface Medication {
@@ -52,8 +59,6 @@ const COMMON_MEDS = [
 
 export default function NuevaRecetaPage() {
   const { showToast } = useToast();
-  const { t } = useLocale();
-  const router = useRouter();
 
   const [creating, setCreating] = useState(false);
   const [created, setCreated] = useState<{
@@ -142,11 +147,12 @@ export default function NuevaRecetaPage() {
     } catch {
       // ── Mock mode: generate prescription client-side ──
       const mockId = "RX-" + Math.random().toString(36).slice(2, 10).toUpperCase();
-      const mockToken = crypto.randomUUID();
+      const mockToken = generateToken();
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
       setCreated({
         id: mockId,
         verificationToken: mockToken,
-        verificationUrl: `${window.location.origin}/rx/${mockToken}`,
+        verificationUrl: `${origin}/rx/${mockToken}`,
         patientName: patientName.trim(),
         medications: filteredMeds,
       });
@@ -158,10 +164,12 @@ export default function NuevaRecetaPage() {
 
   function copyVerificationUrl() {
     if (!created) return;
-    const url =
-      created.verificationUrl || `${window.location.origin}/rx/${created.verificationToken}`;
-    navigator.clipboard.writeText(url);
-    showToast("URL de verificacion copiada");
+    try {
+      navigator.clipboard.writeText(created.verificationUrl);
+      showToast("URL de verificacion copiada");
+    } catch {
+      showToast("No se pudo copiar la URL");
+    }
   }
 
   function resetForm() {
@@ -197,10 +205,7 @@ export default function NuevaRecetaPage() {
               <span className="text-sm font-semibold text-ink">Codigo QR de verificacion</span>
             </div>
             <div className="flex items-center gap-2 bg-white border border-border rounded-lg px-3 py-2">
-              <code className="text-xs text-ink/70 flex-1 truncate">
-                {created.verificationUrl ||
-                  `${window.location.origin}/rx/${created.verificationToken}`}
-              </code>
+              <code className="text-xs text-ink/70 flex-1 truncate">{created.verificationUrl}</code>
               <button
                 onClick={copyVerificationUrl}
                 className="p-1.5 hover:bg-surface rounded transition shrink-0"
