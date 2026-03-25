@@ -147,11 +147,11 @@ describe("processMessage — intent classification", () => {
     expect(resp.text).toContain("$180");
   });
 
-  it("Spanish pricing includes Basic/Plus/Enterprise", () => {
+  it("Spanish pricing includes Consultorio/Multi Consultorio/Centro Médico", () => {
     const resp = processMessage("cuánto sale?");
-    expect(resp.text).toContain("Basic");
-    expect(resp.text).toContain("Plus");
-    expect(resp.text).toContain("Enterprise");
+    expect(resp.text).toContain("Consultorio");
+    expect(resp.text).toContain("Multi Consultorio");
+    expect(resp.text).toContain("Centro Médico");
   });
 
   it("responds to coverage questions", () => {

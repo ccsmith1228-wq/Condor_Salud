@@ -23,7 +23,6 @@ export default function Navbar() {
     : [
         { href: "/#problema", label: t("nav.problem") },
         { href: "/#producto", label: t("nav.product") },
-        { href: "/#pricing", label: t("nav.pricing") },
         { href: "/planes", label: t("nav.plans") },
         { href: "/club", label: t("nav.healthClub") },
       ];

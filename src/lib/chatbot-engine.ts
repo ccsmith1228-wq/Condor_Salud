@@ -1569,7 +1569,7 @@ function generateTelemedicineResponse(lang?: string): Partial<ChatMessage> {
 function generatePricingResponse(lang?: string): Partial<ChatMessage> {
   if (en(lang)) {
     return {
-      text: "We have 3 plans:\n\n• Basic — $50/month\n  Unlimited scheduling, WhatsApp, coverage verification\n\n• Plus — $120/month\n  Everything + telemedicine, billing, AI Cora, analytics\n\n• Enterprise — $180/month\n  All-inclusive, multi-location, dedicated support\n\nAll plans include a 14-day free trial, no credit card required.",
+      text: "We have 3 plans:\n\n• Consultorio — $50/month (1 provider seat)\n  Unlimited scheduling, WhatsApp, coverage verification\n\n• Multi Consultorio — $120/month (up to 5 seats)\n  Everything + telemedicine, billing, AI Cora, analytics\n\n• Centro Médico — $180/month (up to 20 seats)\n  All-inclusive, multi-location, dedicated support\n\nAll plans include a 14-day free trial, no credit card required.",
       quickReplies: [
         { label: "Try for free", value: "I want to try it for free" },
         { label: "Compare plans", value: "I want to compare plans in detail" },
@@ -1587,7 +1587,7 @@ function generatePricingResponse(lang?: string): Partial<ChatMessage> {
   }
 
   return {
-    text: "Tenemos 3 planes:\n\n• Basic — USD $50/mes\n  Agenda ilimitada, WhatsApp, verificación de cobertura\n\n• Plus — USD $120/mes\n  Todo + telemedicina, facturación, IA Cora, analytics\n\n• Enterprise — USD $180/mes\n  Todo incluido, multi-sede, soporte dedicado\n\nTodos tienen 14 días de prueba gratis, sin meter tarjeta.",
+    text: "Tenemos 3 planes:\n\n• Consultorio — USD $50/mes (1 profesional)\n  Agenda ilimitada, WhatsApp, verificación de cobertura\n\n• Multi Consultorio — USD $120/mes (hasta 5 profesionales)\n  Todo + telemedicina, facturación, IA Cora, analytics\n\n• Centro Médico — USD $180/mes (hasta 20 profesionales)\n  Todo incluido, multi-sede, soporte dedicado\n\nTodos tienen 14 días de prueba gratis, sin meter tarjeta.",
     quickReplies: [
       { label: "Probar gratis", value: "Quiero probar gratis" },
       { label: "Comparar planes", value: "Quiero comparar los planes en detalle" },

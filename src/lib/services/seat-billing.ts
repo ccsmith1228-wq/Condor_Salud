@@ -3,10 +3,10 @@
 // Each doctor pays for their own plan via MercadoPago PreApproval.
 //
 // Plans:
-//   Gratuito    — $0/mes, 20 turnos/mes, limited features
-//   Basic       — $50 USD/mes (~60,000 ARS), unlimited agenda, reminders, WhatsApp, insurance verification, priority listing
-//   Plus        — $120 USD/mes (~144,000 ARS), everything + telehealth, MercadoPago cobro, AI chatbot, analytics, e-billing
-//   Enterprise  — $180 USD/mes (~216,000 ARS), multi-location, custom integrations, SLA, dedicated CSM
+//   Gratuito         — $0/mes, 20 turnos/mes, limited features
+//   Consultorio      — $50 USD/mes (~60,000 ARS), 1 seat, unlimited agenda, reminders, WhatsApp, insurance verification
+//   Multi Consultorio — $120 USD/mes (~144,000 ARS), up to 5 seats, everything + telehealth, MercadoPago, AI chatbot, analytics
+//   Centro Médico    — $180 USD/mes (~216,000 ARS), up to 20 seats, multi-location, custom integrations, SLA, dedicated CSM
 
 import { createDoc, getDoc, updateDoc } from "@/lib/services/firestore";
 
@@ -54,8 +54,8 @@ export const SEAT_PLANS: SeatPlanDef[] = [
   },
   {
     id: "basic",
-    name: "Basic",
-    nameEn: "Basic",
+    name: "Consultorio",
+    nameEn: "Consultorio",
     price: 60_000, // ~$50 USD/mo
     priceAnnual: 51_000,
     maxBookingsPerMonth: null,
@@ -80,8 +80,8 @@ export const SEAT_PLANS: SeatPlanDef[] = [
   },
   {
     id: "plus",
-    name: "Plus",
-    nameEn: "Plus",
+    name: "Multi Consultorio",
+    nameEn: "Multi Consultorio",
     price: 144_000, // ~$120 USD/mo
     priceAnnual: 122_400,
     maxBookingsPerMonth: null,
@@ -105,8 +105,8 @@ export const SEAT_PLANS: SeatPlanDef[] = [
   },
   {
     id: "enterprise",
-    name: "Enterprise",
-    nameEn: "Enterprise",
+    name: "Centro Médico",
+    nameEn: "Centro Médico",
     price: 216_000, // ~$180 USD/mo
     priceAnnual: 183_600,
     maxBookingsPerMonth: null,

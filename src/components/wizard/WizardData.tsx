@@ -76,20 +76,20 @@ export interface ClinicPlanOption {
 export const CLINIC_PLAN_OPTIONS: ClinicPlanOption[] = [
   {
     id: "basic",
-    name: "Basic",
+    name: "Consultorio",
     price: "$50 USD",
     priceNum: 60_000,
-    description: "Para consultorios individuales o clínicas pequeñas.",
-    features: ["Hasta 5 profesionales", "Agenda de turnos", "Gestión de pacientes", "1 sede"],
+    description: "Para consultorios individuales.",
+    features: ["1 profesional incluido", "Agenda de turnos", "Gestión de pacientes", "1 sede"],
   },
   {
     id: "plus",
-    name: "Plus",
+    name: "Multi Consultorio",
     price: "$120 USD",
     priceNum: 144_000,
-    description: "Para clínicas en crecimiento con múltiples especialidades.",
+    description: "Para clínicas con múltiples especialidades.",
     features: [
-      "Hasta 20 profesionales",
+      "Hasta 5 profesionales incluidos",
       "Facturación electrónica",
       "Verificación de cobertura",
       "Hasta 3 sedes",
@@ -100,17 +100,17 @@ export const CLINIC_PLAN_OPTIONS: ClinicPlanOption[] = [
   },
   {
     id: "enterprise",
-    name: "Enterprise",
+    name: "Centro Médico",
     price: "$180 USD",
     priceNum: 216_000,
     description: "Para centros médicos grandes y policlínicos.",
     features: [
-      "Todo de Plus",
+      "Hasta 20 profesionales incluidos",
+      "Todo de Multi Consultorio",
       "Multi-sucursal consolidado",
       "Integraciones a medida",
       "SLA garantizado",
       "Customer Success dedicado",
-      "API enterprise",
     ],
   },
 ];
