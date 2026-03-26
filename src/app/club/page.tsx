@@ -22,6 +22,7 @@ import {
   Truck,
   Video,
   Zap,
+  ClipboardCheck,
 } from "lucide-react";
 
 /* ═══════════════════════════════════════════════════════════════
@@ -56,6 +57,7 @@ const PLANS: PlanInfo[] = [
     accent: "text-celeste-dark",
     border: "border-celeste/40",
     featuresEs: [
+      "Plan de Bienvenida (chequeo medico)",
       "1 teleconsulta por mes",
       "Acceso a Cora (chatbot IA)",
       "Historia clínica digital",
@@ -63,6 +65,7 @@ const PLANS: PlanInfo[] = [
       "Solicitar historia clínica de médicos externos",
     ],
     featuresEn: [
+      "Welcome Plan (medical screening)",
       "1 teleconsult per month",
       "Access to Cora (AI chatbot)",
       "Digital health record",
@@ -81,6 +84,7 @@ const PLANS: PlanInfo[] = [
     border: "border-gold/60",
     badge: "Popular",
     featuresEs: [
+      "Plan de Bienvenida (chequeo medico)",
       "3 teleconsultas por mes",
       "Delivery de medicamentos",
       "Prioridad con Cora IA",
@@ -89,6 +93,7 @@ const PLANS: PlanInfo[] = [
       "Solicitar historia clínica de médicos externos",
     ],
     featuresEn: [
+      "Welcome Plan (medical screening)",
       "3 teleconsults per month",
       "Medication delivery",
       "Priority Cora AI access",
@@ -107,6 +112,7 @@ const PLANS: PlanInfo[] = [
     accent: "text-celeste-dark",
     border: "border-celeste-dark/50",
     featuresEs: [
+      "Plan de Bienvenida (chequeo medico)",
       "Teleconsultas ilimitadas",
       "Delivery de medicamentos incluido",
       "Prioridad con Cora IA",
@@ -119,6 +125,7 @@ const PLANS: PlanInfo[] = [
       "Soporte prioritario",
     ],
     featuresEn: [
+      "Welcome Plan (medical screening)",
       "Unlimited teleconsultations",
       "Medication delivery included",
       "Priority Cora AI access",
@@ -286,6 +293,98 @@ export default function HealthClubPage() {
                 }
               />
             </div>
+          </div>
+        </section>
+
+        {/* ── Welcome Plan ────────────────────────────────── */}
+        <section className="py-16 md:py-24">
+          <div className="max-w-5xl mx-auto px-6">
+            <div className="flex items-center gap-2 mb-2">
+              <ClipboardCheck className="w-5 h-5 text-celeste-dark" />
+              <p className="text-[11px] font-bold tracking-[2.5px] text-celeste uppercase">
+                {isEn ? "WELCOME PLAN" : "PLAN DE BIENVENIDA"}
+              </p>
+            </div>
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-ink mb-3">
+              {isEn ? "Your medical screening, on us" : "Tu chequeo medico, incluido"}
+            </h2>
+            <p className="text-base text-ink-light max-w-2xl mb-10">
+              {isEn
+                ? "Every Club Salud member — regardless of tier — receives a comprehensive welcome screening tailored to their gender and age."
+                : "Cada miembro del Club Salud — sin importar el plan — recibe un chequeo de bienvenida integral adaptado a su genero y edad."}
+            </p>
+
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Male */}
+              <div className="bg-white border-2 border-celeste/30 rounded-2xl p-6">
+                <h3 className="font-display font-bold text-lg text-ink mb-4 flex items-center gap-2">
+                  <span className="w-8 h-8 rounded-lg bg-celeste/10 flex items-center justify-center text-xs font-bold text-celeste-dark">
+                    M
+                  </span>
+                  {isEn ? "Male Screening" : "Chequeo Masculino"}
+                </h3>
+                <ul className="space-y-2.5">
+                  {[
+                    { es: "Electrocardiograma (ECG)", en: "Electrocardiogram (ECG)" },
+                    { es: "Ecocardiograma", en: "Echocardiogram" },
+                    { es: "Ergometria", en: "Stress Test (Ergometry)" },
+                    { es: "Radiografia de Torax", en: "Chest X-Ray" },
+                  ].map((s) => (
+                    <li key={s.es} className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-celeste-dark mt-0.5 shrink-0" />
+                      <span className="text-sm text-ink-light">{isEn ? s.en : s.es}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-4 bg-celeste-pale/50 rounded-lg p-3">
+                  <p className="text-xs font-semibold text-celeste-dark mb-1">
+                    {isEn ? "Age 45+: Additional studies" : "Mayores de 45: Estudios adicionales"}
+                  </p>
+                  <ul className="space-y-1">
+                    {[
+                      { es: "Ecografia Prostatica", en: "Prostate Ultrasound" },
+                      { es: "Doppler de Vasos de Cuello", en: "Neck Vessels Doppler" },
+                    ].map((s) => (
+                      <li key={s.es} className="flex items-start gap-2">
+                        <Check className="w-3.5 h-3.5 text-celeste mt-0.5 shrink-0" />
+                        <span className="text-xs text-ink/70">{isEn ? s.en : s.es}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Female */}
+              <div className="bg-white border-2 border-gold/30 rounded-2xl p-6">
+                <h3 className="font-display font-bold text-lg text-ink mb-4 flex items-center gap-2">
+                  <span className="w-8 h-8 rounded-lg bg-gold/10 flex items-center justify-center text-xs font-bold text-gold-dark">
+                    F
+                  </span>
+                  {isEn ? "Female Screening" : "Chequeo Femenino"}
+                </h3>
+                <ul className="space-y-2.5">
+                  {[
+                    { es: "Electrocardiograma (ECG)", en: "Electrocardiogram (ECG)" },
+                    { es: "Ecocardiograma", en: "Echocardiogram" },
+                    { es: "Ergometria", en: "Stress Test (Ergometry)" },
+                    { es: "Ecografia Mamaria", en: "Breast Ultrasound" },
+                    { es: "Ecografia Ginecologica", en: "Gynecological Ultrasound" },
+                    { es: "Laboratorio Completo", en: "Complete Bloodwork" },
+                  ].map((s) => (
+                    <li key={s.es} className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-gold-dark mt-0.5 shrink-0" />
+                      <span className="text-sm text-ink-light">{isEn ? s.en : s.es}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <p className="text-center text-sm text-ink-muted mt-6">
+              {isEn
+                ? "Included in all plans: Basico, Plus, and Familiar. Studies are performed at affiliated clinics."
+                : "Incluido en todos los planes: Basico, Plus y Familiar. Los estudios se realizan en clinicas afiliadas."}
+            </p>
           </div>
         </section>
 

@@ -460,6 +460,27 @@ export interface PrescriptionFee {
   createdAt: string;
 }
 
+// ─── Feature: Club Salud — Welcome Plan (Plan de Bienvenida) ─
+
+export type WelcomeStudyGender = "male" | "female" | "all";
+
+export interface WelcomeStudy {
+  id: string;
+  name: string;
+  nameEn: string;
+  category: "cardio" | "imaging" | "lab" | "screening";
+  gender: WelcomeStudyGender;
+  minAge?: number; // only required if age-gated
+  description: string;
+  descriptionEn: string;
+}
+
+export interface WelcomePlanResult {
+  baseStudies: WelcomeStudy[];
+  ageSpecificStudies: WelcomeStudy[];
+  allStudies: WelcomeStudy[];
+}
+
 // ─── Feature: Health Tracker ─────────────────────────────────
 
 export interface HealthTrackerCategory {

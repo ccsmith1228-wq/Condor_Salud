@@ -19,6 +19,7 @@ import {
   BadgeCheck,
   ArrowRight,
   Heart,
+  ClipboardCheck,
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
 import { useLocale } from "@/lib/i18n/context";
@@ -141,6 +142,9 @@ export default function ClubPage() {
 
   function getFeatures(plan: ClubPlan): string[] {
     const features = [];
+    features.push(
+      isEn ? "Welcome Plan (medical screening)" : "Plan de Bienvenida (chequeo medico)",
+    );
     const tc =
       plan.maxTeleconsultas >= 999
         ? isEn
@@ -253,7 +257,7 @@ export default function ClubPage() {
         <h2 className="text-xl font-display font-bold text-ink mb-4">
           {isEn ? "Your Club Experience" : "Tu Experiencia Club"}
         </h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
           {/* Health Tracker */}
           <Link
             href="/paciente/salud"
@@ -336,6 +340,27 @@ export default function ClubPage() {
                 </span>
               </div>
             )}
+          </div>
+
+          {/* Welcome Plan */}
+          <div className="relative bg-gradient-to-br from-emerald-50/60 to-celeste/5 border border-emerald-200/50 rounded-2xl p-5">
+            <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center mb-3">
+              <ClipboardCheck className="w-5 h-5 text-emerald-600" />
+            </div>
+            <h3 className="font-bold text-sm text-ink mb-1">
+              {isEn ? "Welcome Plan" : "Plan de Bienvenida"}
+            </h3>
+            <p className="text-xs text-ink-muted leading-relaxed">
+              {isEn
+                ? "ECG, echocardiogram, stress test, and gender-specific screenings included with your membership."
+                : "ECG, ecocardiograma, ergometria y estudios especificos por genero incluidos con tu membresia."}
+            </p>
+            <div className="mt-2">
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
+                <Check className="w-3 h-3" />
+                {isEn ? "All Tiers" : "Todos los Planes"}
+              </span>
+            </div>
           </div>
         </div>
       </div>

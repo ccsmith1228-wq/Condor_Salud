@@ -232,6 +232,126 @@ export async function recordPrescriptionFee(
   };
 }
 
+// ─── Welcome Plan (Plan de Bienvenida) ───────────────────────
+// Included in ALL tiers. Gender-and-age-specific screening studies.
+
+import type { WelcomeStudy, WelcomePlanResult, WelcomeStudyGender } from "@/lib/types";
+
+const WELCOME_PLAN_STUDIES: WelcomeStudy[] = [
+  // ── Shared (all genders) ──────────────────────────────────
+  {
+    id: "wp-ecg",
+    name: "Electrocardiograma (ECG)",
+    nameEn: "Electrocardiogram (ECG)",
+    category: "cardio",
+    gender: "all",
+    description: "Registro de la actividad eléctrica del corazón en reposo.",
+    descriptionEn: "Recording of the heart's electrical activity at rest.",
+  },
+  {
+    id: "wp-eco",
+    name: "Ecocardiograma",
+    nameEn: "Echocardiogram",
+    category: "cardio",
+    gender: "all",
+    description: "Ecografía cardíaca para evaluar estructura y función del corazón.",
+    descriptionEn: "Cardiac ultrasound to assess heart structure and function.",
+  },
+  {
+    id: "wp-ergo",
+    name: "Ergometría",
+    nameEn: "Stress Test (Ergometry)",
+    category: "cardio",
+    gender: "all",
+    description: "Prueba de esfuerzo en cinta para evaluar respuesta cardiovascular.",
+    descriptionEn: "Treadmill stress test to evaluate cardiovascular response.",
+  },
+
+  // ── Male-specific ─────────────────────────────────────────
+  {
+    id: "wp-rx-torax",
+    name: "Radiografía de Tórax",
+    nameEn: "Chest X-Ray",
+    category: "imaging",
+    gender: "male",
+    description: "Imagen del tórax para evaluar pulmones, corazón y estructuras óseas.",
+    descriptionEn: "Chest image to evaluate lungs, heart, and bone structures.",
+  },
+  {
+    id: "wp-eco-prostatica",
+    name: "Ecografía Prostática",
+    nameEn: "Prostate Ultrasound",
+    category: "screening",
+    gender: "male",
+    minAge: 45,
+    description: "Ecografía transabdominal de próstata. Recomendada a partir de los 45 años.",
+    descriptionEn: "Transabdominal prostate ultrasound. Recommended from age 45.",
+  },
+  {
+    id: "wp-doppler-cuello",
+    name: "Doppler de Vasos de Cuello",
+    nameEn: "Neck Vessels Doppler",
+    category: "cardio",
+    gender: "male",
+    minAge: 45,
+    description:
+      "Ecografía Doppler de arterias carótidas y vertebrales para evaluar flujo sanguíneo.",
+    descriptionEn: "Doppler ultrasound of carotid and vertebral arteries to assess blood flow.",
+  },
+
+  // ── Female-specific ───────────────────────────────────────
+  {
+    id: "wp-eco-mamaria",
+    name: "Ecografía Mamaria",
+    nameEn: "Breast Ultrasound",
+    category: "screening",
+    gender: "female",
+    description: "Ecografía bilateral de mamas para detección temprana.",
+    descriptionEn: "Bilateral breast ultrasound for early detection.",
+  },
+  {
+    id: "wp-eco-gineco",
+    name: "Ecografía Ginecológica",
+    nameEn: "Gynecological Ultrasound",
+    category: "screening",
+    gender: "female",
+    description: "Ecografía pélvica transabdominal para evaluación ginecológica.",
+    descriptionEn: "Transabdominal pelvic ultrasound for gynecological evaluation.",
+  },
+  {
+    id: "wp-lab-fem",
+    name: "Laboratorio Completo",
+    nameEn: "Complete Bloodwork",
+    category: "lab",
+    gender: "female",
+    description: "Hemograma, glucemia, perfil lipídico, función renal, hepática y tiroidea.",
+    descriptionEn: "CBC, glucose, lipid panel, renal, hepatic and thyroid function.",
+  },
+];
+
+/** Get welcome plan studies for a specific patient profile */
+export function getWelcomePlanStudies(gender: WelcomeStudyGender, age?: number): WelcomePlanResult {
+  const genderStudies = WELCOME_PLAN_STUDIES.filter(
+    (s) => s.gender === "all" || s.gender === gender,
+  );
+
+  const baseStudies = genderStudies.filter((s) => !s.minAge);
+  const ageSpecificStudies = genderStudies.filter(
+    (s) => s.minAge !== undefined && age !== undefined && age >= s.minAge,
+  );
+
+  return {
+    baseStudies,
+    ageSpecificStudies,
+    allStudies: [...baseStudies, ...ageSpecificStudies],
+  };
+}
+
+/** Get all welcome plan studies (for display when gender/age unknown) */
+export function getAllWelcomePlanStudies(): WelcomeStudy[] {
+  return WELCOME_PLAN_STUDIES;
+}
+
 // ─── Mappers ─────────────────────────────────────────────────
 
 function mapPlan(row: Record<string, unknown>): ClubPlan {
