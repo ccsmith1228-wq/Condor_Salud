@@ -101,9 +101,13 @@ export default function TurnosOnlinePage() {
           if (typeof window !== "undefined") {
             setPublicUrl(`${window.location.origin}/reservar/${data.slug}`);
           }
+        } else {
+          // Clinic not found — stop loading so we show empty state
+          setLoading(false);
         }
       } catch {
-        // Real API unavailable
+        // Real API unavailable — stop loading
+        setLoading(false);
       }
     }
     getClinicSlug();

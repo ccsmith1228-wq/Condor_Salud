@@ -26,10 +26,10 @@ interface PageTemplate {
 }
 
 /* ---------- Defaults (pre-filled for new users; populated from DB once saved) ---------- */
-const DEFAULT_CLINIC_ADDRESS = "";
-const DEFAULT_CLINIC_PHONE = "";
-const DEFAULT_CLINIC_NAME = "";
-const DEFAULT_GMAPS = "";
+const DEFAULT_CLINIC_ADDRESS = "[Dirección de la clínica]";
+const DEFAULT_CLINIC_PHONE = "[Teléfono de la clínica]";
+const DEFAULT_CLINIC_NAME = "[Nombre de la clínica]";
+const DEFAULT_GMAPS = "[Link Google Maps]";
 
 const DEFAULT_REMINDER_SETTINGS: ReminderSettings = {
   hoursBeforeFirst: 24,

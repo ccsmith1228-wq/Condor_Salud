@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Shield, Upload, CheckCircle, Clock, AlertCircle, FileText, Loader2 } from "lucide-react";
 import { useLocale } from "@/lib/i18n/context";
 
@@ -52,7 +52,7 @@ const statusConfig = {
 export default function VerificarCuentaPage() {
   const { locale } = useLocale();
   const [verification, setVerification] = useState<VerificationStatus | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
   // Form state
@@ -80,9 +80,9 @@ export default function VerificarCuentaPage() {
   }, []);
 
   // Run on mount
-  useState(() => {
+  useEffect(() => {
     checkStatus();
-  });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {

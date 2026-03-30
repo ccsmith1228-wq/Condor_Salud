@@ -29,7 +29,7 @@ interface ReviewForModeration {
 export default function ReviewModerationPage() {
   const { t, locale } = useLocale();
   const [reviews, setReviews] = useState<ReviewForModeration[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"pending" | "approved" | "rejected">("pending");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
