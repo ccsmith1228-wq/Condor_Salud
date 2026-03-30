@@ -135,8 +135,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               setState({ user, isLoading: false, isAuthenticated: true });
             }
           } else if (!cancelled) {
-            // No Supabase session — fall back to demo user
-            setState({ user: DEMO_USER, isLoading: false, isAuthenticated: true });
+            // No Supabase session — user is not logged in
+            setState({ user: null, isLoading: false, isAuthenticated: false });
           }
 
           // Listen for auth state changes (login/logout/token refresh)
@@ -148,7 +148,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               const user = await resolveProfile(supabase, newSession.user);
               setState({ user, isLoading: false, isAuthenticated: true });
             } else {
-              setState({ user: DEMO_USER, isLoading: false, isAuthenticated: true });
+              // Session lost → logged out (don't fall back to demo)
+              setState({ user: null, isLoading: false, isAuthenticated: false });
             }
           });
 
@@ -158,8 +159,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           };
         } catch {
           if (!cancelled) {
-            // Supabase unavailable — fall back to demo user
-            setState({ user: DEMO_USER, isLoading: false, isAuthenticated: true });
+            // Supabase unavailable — treat as logged out
+            setState({ user: null, isLoading: false, isAuthenticated: false });
           }
         }
         return;
@@ -370,9 +371,10 @@ export function useUser() {
  *   2. The authenticated clinic has `demo = true` in the DB
  */
 export function useIsDemo(): boolean {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
+  if (isLoading) return false; // Don't flash demo badge while loading
   if (!isSupabaseConfigured()) return true; // local dev fallback
-  return user?.isDemo ?? true; // no user yet → safe default
+  return user?.isDemo ?? false; // Authenticated user with no clinic → NOT demo
 }
 
 // ─── Helpers ─────────────────────────────────────────────────

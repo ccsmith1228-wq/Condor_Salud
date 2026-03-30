@@ -222,22 +222,31 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const isNavVisible = (href: string): boolean => {
     // Always show: dashboard home
     if (href === "/dashboard") return true;
+    // While user is loading, only show the home link (avoid flash of full sidebar)
+    if (isLoading || !user?.role) return false;
     // Role-based access check
-    if (user?.role && !canAccessRoute(user.role as any, href)) return false;
+    if (!canAccessRoute(user.role as any, href)) return false;
     // Recetas: only admin + medico can prescribe
-    if (href.startsWith("/dashboard/recetas") && user?.role !== "admin" && user?.role !== "medico")
+    if (href.startsWith("/dashboard/recetas") && user.role !== "admin" && user.role !== "medico")
       return false;
     // Configuracion only for admin
-    if (href.startsWith("/dashboard/configuracion") && user?.role !== "admin") return false;
+    if (href.startsWith("/dashboard/configuracion") && user.role !== "admin") return false;
     if (href.startsWith("/dashboard/configuracion")) return true;
     // Alta clínica only for admin
-    if (href === "/dashboard/alta-clinica" && user?.role !== "admin") return false;
+    if (href === "/dashboard/alta-clinica" && user.role !== "admin") return false;
     // Wizard only for admin
-    if (href === "/dashboard/wizard" && user?.role !== "admin") return false;
+    if (href === "/dashboard/wizard" && user.role !== "admin") return false;
     const moduleId = ROUTE_MODULE_MAP[href];
     if (!moduleId) return true; // Unknown routes always visible
     return plan.isModuleSelected(moduleId);
   };
+
+  // Redirect to login if not authenticated (after loading)
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.replace("/auth/login");
+    }
+  }, [isLoading, user, router]);
 
   // Close sidebar on route change (mobile)
   useEffect(() => {
