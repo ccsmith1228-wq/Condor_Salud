@@ -61,10 +61,7 @@ export default function Footer() {
             <p className="font-semibold text-ink text-xs uppercase tracking-wider">
               {t("footer.colPlatform")}
             </p>
-            <Link
-              href="/dashboard"
-              className="block text-ink-light hover:text-celeste-dark transition"
-            >
+            <Link href="/demo" className="block text-ink-light hover:text-celeste-dark transition">
               {t("footer.demo")}
             </Link>
             <Link
@@ -72,6 +69,12 @@ export default function Footer() {
               className="block text-ink-light hover:text-celeste-dark transition"
             >
               {t("footer.patient")}
+            </Link>
+            <Link
+              href="/medicos"
+              className="block text-ink-light hover:text-celeste-dark transition"
+            >
+              {t("footer.doctors")}
             </Link>
             <Link
               href="/#waitlist"

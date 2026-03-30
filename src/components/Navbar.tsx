@@ -89,7 +89,7 @@ export default function Navbar() {
 
           {/* Secondary CTA */}
           <Link
-            href={isTourist ? "/dashboard" : "/auth/login"}
+            href={isTourist ? "/demo" : "/auth/login"}
             className="px-4 py-2 text-[13px] font-medium text-ink-light hover:text-celeste-dark rounded-lg hover:bg-celeste-pale/50 transition"
           >
             {isTourist ? t("nav.demo") : t("nav.login")}
@@ -152,7 +152,7 @@ export default function Navbar() {
             <div className="h-px bg-border/60 my-2" />
 
             <Link
-              href={isTourist ? "/dashboard" : "/auth/login"}
+              href={isTourist ? "/demo" : "/auth/login"}
               onClick={() => setOpen(false)}
               className="px-4 py-3 text-[14px] font-medium text-ink-light hover:text-celeste-dark rounded-xl hover:bg-celeste-pale/50 transition"
             >

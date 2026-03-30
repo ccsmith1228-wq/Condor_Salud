@@ -25,6 +25,8 @@ import {
   Menu,
   X,
   ChevronRight,
+  MapPin,
+  Wallet,
 } from "lucide-react";
 
 const navItems = [
@@ -63,6 +65,8 @@ const navItems = [
     tKey: "nav.medicalHistory",
   },
   { label: "Mi Perfil", href: "/paciente/perfil", icon: User, tKey: "nav.myProfile" },
+  { label: "Mis Pagos", href: "/paciente/pagos", icon: Wallet, tKey: "nav.myPayments" },
+  { label: "Mapa", href: "/paciente/mapa", icon: MapPin, tKey: "nav.map" },
   { label: "Club Salud", href: "/paciente/club", icon: Heart, tKey: "nav.healthClub" },
   { label: "Seguimiento", href: "/paciente/salud", icon: Activity, tKey: "nav.healthTracker" },
 ];

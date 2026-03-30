@@ -50,12 +50,14 @@ import {
   FilePlus2,
   ScanLine,
   CirclePlus,
+  DollarSign,
 } from "lucide-react";
 
 const navIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   "/dashboard": LayoutDashboard,
   "/dashboard/pacientes": Users,
   "/dashboard/agenda": Calendar,
+  "/dashboard/precios": DollarSign,
   "/dashboard/verificacion": Search,
   "/dashboard/inventario": Package,
   "/dashboard/facturacion": FileText,

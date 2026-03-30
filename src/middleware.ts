@@ -19,6 +19,7 @@ const PUBLIC_PAGE_PREFIXES = [
   "/auth", // Auth pages
   "/rx", // Public prescription verification
   "/medicos", // Public doctor profiles
+  "/demo", // Interactive demo (public)
   "/sieczkowski", // Private investor page (unlisted)
 ];
 

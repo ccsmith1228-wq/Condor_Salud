@@ -661,6 +661,7 @@ const translations: Dict = {
   "footer.colPlatform": { es: "Plataforma", en: "Platform" },
   "footer.demo": { es: "Demo", en: "Demo" },
   "footer.patient": { es: "Portal Paciente", en: "Patient Portal" },
+  "footer.doctors": { es: "Directorio Médico", en: "Doctor Directory" },
   "footer.waitlist": { es: "Waitlist", en: "Waitlist" },
   "footer.partners": { es: "Partners", en: "Partners" },
   "footer.doctorPartner": { es: "Red Médica Partner", en: "Doctor Partner Network" },

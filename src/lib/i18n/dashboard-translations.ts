@@ -228,6 +228,8 @@ export const dashboardTranslations: DashTranslation = {
   "nav.checkSymptoms": { es: "Chequear Síntomas", en: "Check Symptoms" },
   "nav.medicalHistory": { es: "Historia Clínica", en: "Medical Records" },
   "nav.myProfile": { es: "Mi Perfil", en: "My Profile" },
+  "nav.myPayments": { es: "Mis Pagos", en: "My Payments" },
+  "nav.map": { es: "Mapa", en: "Map" },
   "nav.myPrescriptions": { es: "Mis Recetas", en: "My Prescriptions" },
   "nav.healthClub": { es: "Club Salud", en: "Club Salud" },
   "nav.healthTracker": { es: "Seguimiento", en: "Health Tracker" },
