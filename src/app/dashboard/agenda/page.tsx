@@ -14,7 +14,7 @@ import {
 } from "@/lib/services/turnos";
 import type { Turno } from "@/lib/services/data";
 import { useTurnos } from "@/hooks/use-data";
-import { Calendar, Plus, X, Check, Clock, Ban, Loader2, Video, Download } from "lucide-react";
+import { Calendar, Plus, X, Check, Clock, Ban, Loader2, Download } from "lucide-react";
 
 // ─── Google Calendar hook ────────────────────────────────────
 

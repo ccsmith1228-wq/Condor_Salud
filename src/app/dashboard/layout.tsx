@@ -11,11 +11,6 @@ import { DemoModalProvider } from "@/components/DemoModal";
 // Lazy-load non-critical UI that is not above the fold
 const WhatsAppFloat = dynamic(() => import("@/components/WhatsAppFloat"), { ssr: false });
 const Chatbot = dynamic(() => import("@/components/Chatbot"), { ssr: false });
-const NotificationCenter = dynamic(() => import("@/components/NotificationCenter"), { ssr: false });
-const PageTourWrapper = dynamic(
-  () => import("@/components/PageTourWrapper").then((m) => ({ default: m.PageTourWrapper })),
-  { ssr: false },
-);
 
 import { SWRProvider } from "@/lib/swr";
 import { useAuth, useIsDemo } from "@/lib/auth/context";
@@ -532,7 +527,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             })}
           </div>
           <div className="flex items-center gap-4 ml-auto">
-            <NotificationCenter />
             <div className="h-5 w-px bg-border" aria-hidden="true" />
             <Link href="/dashboard/configuracion" className="flex items-center gap-2.5 group">
               <span className="text-xs text-ink-muted group-hover:text-ink transition hidden sm:inline">
@@ -568,7 +562,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <DemoModalProvider>{children}</DemoModalProvider>
             </ToastProvider>
           </SWRProvider>
-          <PageTourWrapper />
         </main>
         <WhatsAppFloat />
         <Chatbot />

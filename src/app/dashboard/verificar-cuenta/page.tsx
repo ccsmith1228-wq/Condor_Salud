@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { Shield, Upload, CheckCircle, Clock, AlertCircle, FileText, Loader2 } from "lucide-react";
+import { useToast } from "@/components/Toast";
 import { useLocale } from "@/lib/i18n/context";
 
 // ─── Types ───────────────────────────────────────────────────
@@ -50,6 +51,7 @@ const statusConfig = {
 // ─── Main Component ──────────────────────────────────────────
 
 export default function VerificarCuentaPage() {
+  const { showToast } = useToast();
   const { locale } = useLocale();
   const [verification, setVerification] = useState<VerificationStatus | null>(null);
   const [loading, setLoading] = useState(true);
@@ -108,7 +110,7 @@ export default function VerificarCuentaPage() {
 
       if (!res.ok) {
         const err = await res.json();
-        alert(err.error || "Error al enviar");
+        showToast(err.error || "Error al enviar", "error");
         return;
       }
 
@@ -130,7 +132,7 @@ export default function VerificarCuentaPage() {
 
       await checkStatus();
     } catch {
-      alert("Error al enviar la solicitud");
+      showToast("Error al enviar la solicitud", "error");
     } finally {
       setSubmitting(false);
     }

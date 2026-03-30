@@ -176,7 +176,23 @@ export default function RecetaDetailPage({ params }: { params: Promise<{ id: str
             Repetir
           </Link>
           {rx.status !== "cancelled" && rx.status !== "expired" && rx.status !== "dispensed" && (
-            <button className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-600 border border-red-200 px-3 py-2 rounded-md hover:bg-red-50 transition">
+            <button
+              onClick={async () => {
+                if (!confirm("¿Anular esta receta? Esta acción no se puede deshacer.")) return;
+                try {
+                  const res = await fetch(`/api/prescriptions/${rx.id}/cancel`, { method: "POST" });
+                  if (res.ok) {
+                    setRx((prev) => (prev ? { ...prev, status: "cancelled" } : prev));
+                    showToast("Receta anulada exitosamente");
+                  } else {
+                    showToast("Error al anular la receta", "error");
+                  }
+                } catch {
+                  showToast("Error al anular la receta", "error");
+                }
+              }}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-600 border border-red-200 px-3 py-2 rounded-md hover:bg-red-50 transition"
+            >
               <Ban className="w-3.5 h-3.5" />
               Anular
             </button>
@@ -193,7 +209,26 @@ export default function RecetaDetailPage({ params }: { params: Promise<{ id: str
             </a>
           )}
           {(rx.status === "active" || rx.status === "sent") && (
-            <button className="inline-flex items-center gap-1.5 text-xs font-semibold bg-blue-600 text-white px-3 py-2 rounded-md hover:bg-blue-700 transition">
+            <button
+              onClick={async () => {
+                try {
+                  const res = await fetch(`/api/prescriptions/${rx.id}/send`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ via: ["whatsapp"] }),
+                  });
+                  if (res.ok) {
+                    setRx((prev) => (prev ? { ...prev, status: "sent" } : prev));
+                    showToast("Receta enviada por WhatsApp");
+                  } else {
+                    showToast("Error al enviar la receta", "error");
+                  }
+                } catch {
+                  showToast("Error al enviar la receta", "error");
+                }
+              }}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold bg-blue-600 text-white px-3 py-2 rounded-md hover:bg-blue-700 transition"
+            >
               <Send className="w-3.5 h-3.5" />
               WhatsApp
             </button>

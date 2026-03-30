@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import {
   FileText,
@@ -13,7 +13,6 @@ import {
   Send,
   Save,
   AlertTriangle,
-  Search,
   Calendar,
   CheckSquare,
 } from "lucide-react";

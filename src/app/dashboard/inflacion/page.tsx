@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useDemoAction } from "@/components/DemoModal";
 import { useExport } from "@/lib/services/export";
 import { useInflacionMensual, useFinanciadoresInflacion } from "@/hooks/use-data";
 import { useLocale } from "@/lib/i18n/context";
@@ -23,7 +22,6 @@ type FinFilter = "Todos" | string;
 const formatMonto = formatCurrency;
 
 export default function InflacionPage() {
-  const { showDemo } = useDemoAction();
   const { t } = useLocale();
   const { exportPDF, exportExcel, isExporting } = useExport();
   const [period, setPeriod] = useState<Period>("6m");

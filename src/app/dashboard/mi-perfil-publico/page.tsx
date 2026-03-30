@@ -13,6 +13,7 @@ import {
   BadgeCheck,
   ImagePlus,
 } from "lucide-react";
+import { useToast } from "@/components/Toast";
 
 // ─── Types ───────────────────────────────────────────────────
 
@@ -169,6 +170,7 @@ const defaultForm: ProfileForm = {
 // ─── Main Component ──────────────────────────────────────────
 
 export default function MiPerfilPublicoPage() {
+  const { showToast } = useToast();
   const [form, setForm] = useState<ProfileForm>(defaultForm);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -242,7 +244,7 @@ export default function MiPerfilPublicoPage() {
         setTimeout(() => setSaved(false), 3000);
       }
     } catch {
-      alert("Error al guardar");
+      showToast("Error al guardar", "error");
     } finally {
       setSaving(false);
     }

@@ -5,7 +5,6 @@ import { useExport } from "@/lib/services/export";
 import { useLocale } from "@/lib/i18n/context";
 import { useReportesList } from "@/hooks/use-data";
 import { EmptyState } from "@/components/ui";
-import { useIsDemo } from "@/lib/auth/context";
 import type { PDFReportType, ExcelReportType } from "@/lib/services/export";
 import {
   BarChart3,
@@ -76,7 +75,6 @@ export default function ReportesPage() {
   const { t } = useLocale();
   const { isExporting, exportError, exportPDF, exportExcel } = useExport();
   const { data: reportes = [], isLoading } = useReportesList();
-  const isDemo = useIsDemo();
   const [catFilter, setCatFilter] = useState("Todos");
   const [dateRange, setDateRange] = useState("Marzo 2026");
 
