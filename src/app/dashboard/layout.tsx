@@ -41,6 +41,7 @@ import {
   Stethoscope,
   Network,
   CalendarClock,
+  CalendarCheck,
   QrCode,
   BadgeCheck,
   UserCheck,
@@ -48,6 +49,7 @@ import {
   MessageSquareWarning,
   FilePlus2,
   ScanLine,
+  CirclePlus,
 } from "lucide-react";
 
 const navIcons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -73,6 +75,7 @@ const navIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   "/dashboard/interconsultas": Network,
   "/dashboard/triage": Stethoscope,
   "/dashboard/disponibilidad": CalendarClock,
+  "/dashboard/turnos-online": CalendarCheck,
   "/dashboard/recetas": QrCode,
   "/dashboard/recetas/nueva": FilePlus2,
   "/dashboard/verificaciones": BadgeCheck,
@@ -80,6 +83,7 @@ const navIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   "/dashboard/mi-perfil-publico": FileHeart,
   "/dashboard/moderacion-resenas": MessageSquareWarning,
   "/dashboard/nubix": ScanLine,
+  "/dashboard/alta-clinica": CirclePlus,
 };
 
 const navSections = [
@@ -95,6 +99,7 @@ const navSections = [
       { label: "Pacientes", href: "/dashboard/pacientes", tKey: "nav.patients" },
       { label: "Agenda", href: "/dashboard/agenda", tKey: "nav.appointments" },
       { label: "Disponibilidad", href: "/dashboard/disponibilidad", tKey: "nav.availability" },
+      { label: "Turnos Online", href: "/dashboard/turnos-online", tKey: "nav.onlineBookings" },
       { label: "Verificacion", href: "/dashboard/verificacion", tKey: "nav.verification" },
       { label: "Inventario", href: "/dashboard/inventario", tKey: "nav.inventory" },
     ],
@@ -165,6 +170,7 @@ const navSections = [
     title: "SISTEMA",
     titleKey: "nav.system",
     items: [
+      { label: "Alta Clínica", href: "/dashboard/alta-clinica", tKey: "nav.onboardClinic" },
       { label: "Alertas", href: "/dashboard/alertas", tKey: "nav.alerts" },
       { label: "Configuracion", href: "/dashboard/configuracion", tKey: "nav.settings" },
       { label: "Configuración inicial", href: "/dashboard/wizard", tKey: "nav.wizard" },
@@ -194,6 +200,7 @@ const ROUTE_MODULE_MAP: Record<string, ModuleId> = {
   "/dashboard/triage": "triage",
   "/dashboard/nubix": "nubix",
   "/dashboard/disponibilidad": "agenda",
+  "/dashboard/turnos-online": "agenda",
   "/dashboard/recetas": "recetas-digitales",
   "/dashboard/recetas/nueva": "recetas-digitales",
   "/dashboard/verificaciones": "verificacion-medica",

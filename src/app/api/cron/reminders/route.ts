@@ -122,10 +122,76 @@ export async function GET(req: NextRequest) {
 
     logger.info({ total: appointments.length, emailsSent, pushesSent }, "Cron reminders completed");
 
+    // ── Clinic Bookings (public booking system) ────────────
+    // Also send reminders for clinic_bookings from the public booking flow
+    let clinicRemindersSent = 0;
+    try {
+      const { data: bookings } = await sb
+        .from("clinic_bookings")
+        .select(
+          "id, clinic_id, doctor_id, patient_name, patient_email, patient_phone, patient_language, fecha, hora, hora_fin, specialty, tipo",
+        )
+        .eq("fecha", tomorrowStr)
+        .eq("status", "confirmed")
+        .is("reminder_sent_at", null);
+
+      if (bookings && bookings.length > 0) {
+        const { sendBookingReminder: sendClinicReminder } =
+          await import("@/lib/services/clinic-notifications");
+
+        for (const booking of bookings) {
+          try {
+            const [{ data: clinic }, { data: doctor }] = await Promise.all([
+              sb
+                .from("clinics")
+                .select("name, address, phone")
+                .eq("id", booking.clinic_id)
+                .single(),
+              sb.from("doctors").select("name").eq("id", booking.doctor_id).single(),
+            ]);
+
+            await sendClinicReminder({
+              bookingId: booking.id,
+              clinicName: clinic?.name || "Clínica",
+              clinicAddress: clinic?.address || "",
+              clinicPhone: clinic?.phone || "",
+              doctorName: doctor?.name || "Profesional",
+              patientName: booking.patient_name,
+              patientEmail: booking.patient_email,
+              patientPhone: booking.patient_phone,
+              patientLanguage: booking.patient_language || "es",
+              fecha: booking.fecha,
+              hora: booking.hora,
+              specialty: booking.specialty || "",
+              tipo: booking.tipo || "presencial",
+            });
+
+            await sb
+              .from("clinic_bookings")
+              .update({ reminder_sent_at: new Date().toISOString() })
+              .eq("id", booking.id);
+
+            clinicRemindersSent++;
+          } catch (bErr) {
+            logger.warn(
+              { err: bErr, bookingId: booking.id },
+              "Cron: clinic booking reminder failed",
+            );
+          }
+        }
+      }
+    } catch (cbErr) {
+      logger.warn(
+        { err: cbErr },
+        "Cron: clinic_bookings reminder pass failed (table may not exist yet)",
+      );
+    }
+
     return NextResponse.json({
       total: appointments.length,
       emailsSent,
       pushesSent,
+      clinicRemindersSent,
       date: tomorrowStr,
     });
   } catch (err) {

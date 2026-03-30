@@ -24,6 +24,16 @@ export interface Clinic {
   sedes: number;
   provincia: string;
   localidad: string;
+  slug?: string;
+  description?: string;
+  website?: string;
+  languages?: string[];
+  operatingHours?: Record<string, { open: string; close: string }>;
+  lat?: number;
+  lng?: number;
+  acceptsInsurance?: string[];
+  publicVisible?: boolean;
+  bookingEnabled?: boolean;
 }
 
 export interface Financiador {
@@ -756,4 +766,70 @@ export interface DoctorPublicReview {
   isVerifiedPatient: boolean;
   status: "pending" | "approved" | "rejected" | "flagged";
   createdAt: string;
+}
+
+// ─── Clinic Bookings (public booking system) ──────────────────
+
+export type ClinicBookingStatus =
+  | "pending"
+  | "notified"
+  | "confirmed"
+  | "cancelled"
+  | "completed"
+  | "no_show";
+
+export type BookingChannel = "web" | "whatsapp" | "cora" | "phone" | "dashboard";
+
+export interface ClinicBooking {
+  id: string;
+  clinicId: string;
+  doctorId: string;
+  patientName: string;
+  patientEmail: string | null;
+  patientPhone: string | null;
+  patientLanguage: string;
+  specialty: string;
+  fecha: string;
+  hora: string;
+  horaFin: string | null;
+  tipo: "presencial" | "teleconsulta";
+  status: ClinicBookingStatus;
+  notes: string | null;
+  bookedVia: BookingChannel | null;
+  confirmedAt: string | null;
+  cancelledAt: string | null;
+  completedAt: string | null;
+  reminderSentAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BookingNotification {
+  id: string;
+  bookingId: string;
+  channel: "email" | "whatsapp" | "push";
+  type: "new_booking" | "confirmation" | "cancellation" | "reminder" | "reschedule";
+  recipient: string;
+  status: "sent" | "failed" | "pending";
+  sentAt: string | null;
+  errorMessage: string | null;
+  createdAt: string;
+}
+
+export interface ClinicBookingSettings {
+  id: string;
+  clinicId: string;
+  slotDurationMin: number;
+  maxAdvanceDays: number;
+  minAdvanceHours: number;
+  autoConfirm: boolean;
+  notifyVia: string[];
+  confirmationMessage: string | null;
+  cancellationMessage: string | null;
+  reminderHoursBefore: number;
+  workingDays: number[];
+  breakStart: string | null;
+  breakEnd: string | null;
+  createdAt: string;
+  updatedAt: string;
 }

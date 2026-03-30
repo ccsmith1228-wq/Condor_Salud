@@ -722,7 +722,7 @@ export default function AmericanTravelersPage() {
               {ENDORSEMENT_ASKS.map(({ icon: Icon }, i) => (
                 <div
                   key={i}
-                  className="border-l-[3px] border-celeste bg-white border border-border rounded-lg p-5 hover:shadow-sm transition"
+                  className="border-l-[3px] border-l-celeste bg-white border border-border rounded-lg p-5 hover:shadow-sm transition"
                 >
                   <div className="w-10 h-10 rounded-lg bg-celeste-pale flex items-center justify-center mb-4">
                     <Icon className="w-5 h-5 text-celeste-dark" />

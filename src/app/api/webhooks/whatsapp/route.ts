@@ -15,6 +15,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { processIncomingMessage, type IncomingMessage } from "@/lib/services/whatsapp";
+import { handleBookingReply } from "@/lib/services/whatsapp-booking-confirm";
 import { logger } from "@/lib/logger";
 
 const log = logger.child({ route: "webhooks/whatsapp" });
@@ -98,7 +99,29 @@ export async function POST(req: NextRequest) {
       "WhatsApp webhook received",
     );
 
-    // Process through service layer
+    // ── Intercept booking confirmation keywords ──────────────
+    // If the message is a booking action (CONFIRMAR, CANCELAR, etc.)
+    // handle it here and skip the general CRM flow.
+    try {
+      const bookingHandled = await handleBookingReply(
+        payload.From.replace("whatsapp:", ""),
+        payload.Body,
+      );
+      if (bookingHandled) {
+        log.info(
+          { from: payload.From, body: payload.Body },
+          "WhatsApp message handled as booking reply",
+        );
+        return new NextResponse(`<?xml version="1.0" encoding="UTF-8"?><Response></Response>`, {
+          status: 200,
+          headers: { "Content-Type": "text/xml" },
+        });
+      }
+    } catch (bookingErr) {
+      log.warn({ err: bookingErr }, "Booking reply handler error — falling through to CRM");
+    }
+
+    // Process through service layer (general CRM / chatbot)
     const result = await processIncomingMessage(payload);
 
     if (!result.success) {
