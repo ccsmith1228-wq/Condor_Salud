@@ -47,7 +47,7 @@ export default function ClinicaConfigPage() {
   const fetchClinic = useCallback(async () => {
     if (!isSupabaseConfigured() || !user?.clinicId) {
       setLoading(false);
-      setError("No se pudo cargar la información de la clínica.");
+      setError(t("settings.clinic.loadError"));
       return;
     }
     try {
@@ -60,7 +60,7 @@ export default function ClinicaConfigPage() {
         .single();
 
       if (fetchErr || !data) {
-        setError("Error al cargar datos de la clínica.");
+        setError(t("settings.clinic.fetchError"));
         return;
       }
 
@@ -72,11 +72,11 @@ export default function ClinicaConfigPage() {
       setEmail(c.email || "");
       setAddress(c.address || "");
     } catch {
-      setError("Error de conexión.");
+      setError(t("settings.clinic.connectionError"));
     } finally {
       setLoading(false);
     }
-  }, [user?.clinicId]);
+  }, [user?.clinicId, t]);
 
   useEffect(() => {
     fetchClinic();
@@ -132,7 +132,7 @@ export default function ClinicaConfigPage() {
     return (
       <div className="flex items-center justify-center py-20">
         <Loader2 className="h-6 w-6 animate-spin text-celeste-dark" />
-        <span className="ml-2 text-sm text-ink-muted">Cargando datos de la clínica...</span>
+        <span className="ml-2 text-sm text-ink-muted">{t("settings.clinic.loadingClinic")}</span>
       </div>
     );
   }
@@ -141,9 +141,9 @@ export default function ClinicaConfigPage() {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-3">
         <AlertCircle className="h-8 w-8 text-red-400" />
-        <p className="text-sm text-ink-muted">{error || "Clínica no encontrada."}</p>
+        <p className="text-sm text-ink-muted">{error || t("settings.clinic.notFound")}</p>
         <Link href="/dashboard" className="text-xs text-celeste-dark hover:underline">
-          Volver al dashboard
+          {t("settings.clinic.backToDashboard")}
         </Link>
       </div>
     );
@@ -153,23 +153,23 @@ export default function ClinicaConfigPage() {
     <div className="space-y-5">
       <div className="flex items-center gap-2 text-sm text-ink-muted">
         <Link href="/dashboard/configuracion" className="hover:text-celeste-dark transition">
-          Configuración
+          {t("settings.clinic.breadcrumb")}
         </Link>
         <span>/</span>
-        <span className="text-ink font-medium">Mi Clínica</span>
+        <span className="text-ink font-medium">{t("settings.clinic.breadcrumbCurrent")}</span>
       </div>
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-ink">Mi Clínica</h1>
-          <p className="text-sm text-ink-muted mt-0.5">Datos generales del centro médico</p>
+          <h1 className="text-2xl font-bold text-ink">{t("settings.clinic.heading")}</h1>
+          <p className="text-sm text-ink-muted mt-0.5">{t("settings.clinic.subtitle")}</p>
         </div>
         {!editMode ? (
           <button
             onClick={() => setEditMode(true)}
             className="flex items-center gap-1.5 rounded-[4px] border border-celeste-dark px-4 py-2 text-xs font-bold text-celeste-dark hover:bg-celeste-50 transition"
           >
-            Editar
+            {t("settings.clinic.edit")}
           </button>
         ) : (
           <div className="flex items-center gap-2">
@@ -184,7 +184,7 @@ export default function ClinicaConfigPage() {
               }}
               className="rounded-[4px] border border-gray-300 px-4 py-2 text-xs font-medium text-ink-muted hover:bg-gray-50 transition"
             >
-              Cancelar
+              {t("settings.clinic.cancel")}
             </button>
             <button
               onClick={handleSave}
@@ -196,7 +196,7 @@ export default function ClinicaConfigPage() {
               ) : (
                 <Save className="h-3.5 w-3.5" />
               )}
-              Guardar
+              {t("settings.clinic.save")}
             </button>
           </div>
         )}
@@ -206,13 +206,13 @@ export default function ClinicaConfigPage() {
         {/* General info */}
         <div className="bg-white border border-border rounded-lg p-5 space-y-4">
           <h3 className="text-xs font-bold tracking-wider text-ink-muted uppercase">
-            Información General
+            {t("settings.clinic.generalInfo")}
           </h3>
           {editMode ? (
             <div className="space-y-3">
               <div>
                 <label className="block text-xs text-ink-muted mb-1">
-                  Nombre <span className="text-red-500">*</span>
+                  {t("settings.clinic.name")} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -222,7 +222,7 @@ export default function ClinicaConfigPage() {
                 />
               </div>
               <div>
-                <label className="block text-xs text-ink-muted mb-1">CUIT</label>
+                <label className="block text-xs text-ink-muted mb-1">{t("settings.cuit")}</label>
                 <input
                   type="text"
                   className={inputClass}
@@ -235,10 +235,14 @@ export default function ClinicaConfigPage() {
           ) : (
             <>
               {[
-                { label: "Nombre", value: clinic.name },
-                { label: "CUIT", value: clinic.cuit || "No ingresado", mono: true },
+                { label: t("settings.clinic.name"), value: clinic.name },
                 {
-                  label: "Plan",
+                  label: t("settings.cuit"),
+                  value: clinic.cuit || t("settings.clinic.notEntered"),
+                  mono: true,
+                },
+                {
+                  label: t("settings.clinic.plan"),
                   value:
                     (clinic.plan_tier || "starter").charAt(0).toUpperCase() +
                     (clinic.plan_tier || "starter").slice(1),
@@ -261,12 +265,14 @@ export default function ClinicaConfigPage() {
         {/* Contact */}
         <div className="bg-white border border-border rounded-lg p-5 space-y-4">
           <h3 className="text-xs font-bold tracking-wider text-ink-muted uppercase">
-            Contacto y Ubicación
+            {t("settings.clinic.contactLocation")}
           </h3>
           {editMode ? (
             <div className="space-y-3">
               <div>
-                <label className="block text-xs text-ink-muted mb-1">Dirección</label>
+                <label className="block text-xs text-ink-muted mb-1">
+                  {t("settings.clinic.address")}
+                </label>
                 <input
                   type="text"
                   className={inputClass}
@@ -276,7 +282,9 @@ export default function ClinicaConfigPage() {
                 />
               </div>
               <div>
-                <label className="block text-xs text-ink-muted mb-1">Teléfono</label>
+                <label className="block text-xs text-ink-muted mb-1">
+                  {t("settings.clinic.phone")}
+                </label>
                 <input
                   type="tel"
                   className={inputClass}
@@ -286,7 +294,9 @@ export default function ClinicaConfigPage() {
                 />
               </div>
               <div>
-                <label className="block text-xs text-ink-muted mb-1">Email</label>
+                <label className="block text-xs text-ink-muted mb-1">
+                  {t("settings.clinic.email")}
+                </label>
                 <input
                   type="email"
                   className={inputClass}
@@ -299,9 +309,18 @@ export default function ClinicaConfigPage() {
           ) : (
             <>
               {[
-                { label: "Dirección", value: clinic.address || "No ingresada" },
-                { label: "Teléfono", value: clinic.phone || "No ingresado" },
-                { label: "Email", value: clinic.email || "No ingresado" },
+                {
+                  label: t("settings.clinic.address"),
+                  value: clinic.address || t("settings.clinic.notEnteredF"),
+                },
+                {
+                  label: t("settings.clinic.phone"),
+                  value: clinic.phone || t("settings.clinic.notEntered"),
+                },
+                {
+                  label: t("settings.clinic.email"),
+                  value: clinic.email || t("settings.clinic.notEntered"),
+                },
               ].map((f) => (
                 <div
                   key={f.label}
@@ -318,7 +337,7 @@ export default function ClinicaConfigPage() {
         {/* Specialties */}
         <div className="bg-white border border-border rounded-lg p-5">
           <h3 className="text-xs font-bold tracking-wider text-ink-muted uppercase mb-3">
-            Especialidades
+            {t("settings.clinic.specialties")}
           </h3>
           {clinic.especialidad && clinic.especialidad.length > 0 ? (
             <div className="flex flex-wrap gap-2">
@@ -332,16 +351,14 @@ export default function ClinicaConfigPage() {
               ))}
             </div>
           ) : (
-            <p className="text-xs text-ink-muted">
-              No hay especialidades configuradas. Podés agregarlas desde el wizard de onboarding.
-            </p>
+            <p className="text-xs text-ink-muted">{t("settings.clinic.noSpecialties")}</p>
           )}
         </div>
 
         {/* Plan info */}
         <div className="bg-white border border-border rounded-lg p-5">
           <h3 className="text-xs font-bold tracking-wider text-ink-muted uppercase mb-3">
-            Plan Actual
+            {t("settings.clinic.currentPlan")}
           </h3>
           <div className="flex items-center justify-between">
             <div>
@@ -349,12 +366,10 @@ export default function ClinicaConfigPage() {
                 {(clinic.plan_tier || "starter").charAt(0).toUpperCase() +
                   (clinic.plan_tier || "starter").slice(1)}
               </span>
-              <p className="text-xs text-ink-muted mt-0.5">
-                Podés cambiar de plan en cualquier momento.
-              </p>
+              <p className="text-xs text-ink-muted mt-0.5">{t("settings.clinic.changePlanHint")}</p>
             </div>
             <Link href="/planes" className="text-xs text-celeste-dark font-medium hover:underline">
-              Ver planes
+              {t("settings.clinic.viewPlans")}
             </Link>
           </div>
         </div>

@@ -5,101 +5,96 @@ import { useDemoAction } from "@/components/DemoModal";
 import { useIsDemo } from "@/lib/auth/context";
 import { useLocale } from "@/lib/i18n/context";
 
-interface Integracion {
+interface IntegracionData {
   id: string;
   nombre: string;
-  tipo: string;
-  estado: "Conectado" | "Error" | "Desconectado" | "Pendiente";
+  tipoKey: string;
+  estado: "connected" | "error" | "disconnected" | "pending";
   ultimaSync: string;
-  descripcion: string;
+  descKey: string;
   icon: string;
 }
 
-const integraciones: Integracion[] = [
+const integracionesData: IntegracionData[] = [
   {
     id: "INT-01",
     nombre: "PAMI · Webservice",
-    tipo: "Obra Social",
-    estado: "Conectado",
+    tipoKey: "typeSocialInsurance",
+    estado: "connected",
     ultimaSync: "07/03/2026 16:00",
-    descripcion:
-      "Presentacion electronica de facturacion, verificacion de cobertura y consulta de aranceles.",
+    descKey: "descPami",
     icon: "pami",
   },
   {
     id: "INT-02",
     nombre: "AFIP · Factura Electrónica",
-    tipo: "Fiscal",
-    estado: "Conectado",
+    tipoKey: "typeFiscal",
+    estado: "connected",
     ultimaSync: "07/03/2026 14:30",
-    descripcion:
-      "Emision de comprobantes electronicos (Factura C, Nota de Credito/Debito) via webservice WSFE.",
+    descKey: "descAfip",
     icon: "afip",
   },
   {
     id: "INT-03",
     nombre: "Swiss Medical · API",
-    tipo: "Obra Social",
-    estado: "Conectado",
+    tipoKey: "typeSocialInsurance",
+    estado: "connected",
     ultimaSync: "06/03/2026 22:00",
-    descripcion:
-      "Autorizaciones online, verificacion de cobertura y envio electronico de facturas.",
+    descKey: "descSwiss",
     icon: "swiss",
   },
   {
     id: "INT-04",
     nombre: "OSDE · Portal Prestadores",
-    tipo: "Obra Social",
-    estado: "Conectado",
+    tipoKey: "typeSocialInsurance",
+    estado: "connected",
     ultimaSync: "06/03/2026 23:00",
-    descripcion: "Presentacion electronica, consulta de pagos y verificacion de afiliados.",
+    descKey: "descOsde",
     icon: "osde",
   },
   {
     id: "INT-05",
     nombre: "Galeno · Webservice",
-    tipo: "Obra Social",
-    estado: "Error",
+    tipoKey: "typeSocialInsurance",
+    estado: "error",
     ultimaSync: "04/03/2026 10:15",
-    descripcion:
-      "Conexion intermitente. Ultimo error: Timeout en autenticacion. Reintentando automaticamente.",
+    descKey: "descGaleno",
     icon: "galeno",
   },
   {
     id: "INT-06",
     nombre: "WhatsApp Business · Turnos",
-    tipo: "Comunicacion",
-    estado: "Conectado",
+    tipoKey: "typeCommunication",
+    estado: "connected",
     ultimaSync: "07/03/2026 17:00",
-    descripcion:
-      "Recordatorios automaticos de turnos, confirmacion por mensaje y notificaciones al paciente.",
+    descKey: "descWhatsapp",
     icon: "whatsapp",
   },
   {
     id: "INT-07",
     nombre: "IOMA · Portal Web",
-    tipo: "Obra Social",
-    estado: "Desconectado",
+    tipoKey: "typeSocialInsurance",
+    estado: "disconnected",
     ultimaSync: "—",
-    descripcion: "Integracion pendiente de configuracion. Actualmente se gestiona manualmente.",
+    descKey: "descIoma",
     icon: "ioma",
   },
   {
     id: "INT-08",
     nombre: "Medife · API Prestadores",
-    tipo: "Obra Social",
-    estado: "Pendiente",
+    tipoKey: "typeSocialInsurance",
+    estado: "pending",
     ultimaSync: "—",
-    descripcion: "En proceso de habilitacion. Esperando credenciales de produccion.",
+    descKey: "descMedife",
     icon: "medife",
   },
 ];
 
 const estadoColors: Record<string, string> = {
-  Conectado: "bg-green-50 text-green-700 border-green-200",
-  Error: "bg-red-50 text-red-600 border-red-200",
-  Desconectado: "bg-border-light text-ink-muted border-border",
-  Pendiente: "bg-gold-pale text-[#B8860B] border-gold",
+  connected: "bg-green-50 text-green-700 border-green-200",
+  error: "bg-red-50 text-red-600 border-red-200",
+  disconnected: "bg-border-light text-ink-muted border-border",
+  pending: "bg-gold-pale text-[#B8860B] border-gold",
 };
 
 export default function IntegracionesPage() {
@@ -107,24 +102,42 @@ export default function IntegracionesPage() {
   const { showDemo } = useDemoAction();
   const isDemo = useIsDemo();
   const { t } = useLocale();
-  const activas = integraciones.filter((i) => i.estado === "Conectado").length;
-  const errores = integraciones.filter((i) => i.estado === "Error").length;
+
+  // Translated lookup maps resolved inside component
+  const statusLabels: Record<string, string> = {
+    connected: t("settings.integrations.statusConnected"),
+    error: t("settings.integrations.statusError"),
+    disconnected: t("settings.integrations.statusDisconnected"),
+    pending: t("settings.integrations.statusPending"),
+  };
+
+  const integraciones = integracionesData.map((d) => ({
+    ...d,
+    tipo: t(`settings.integrations.${d.tipoKey}` as Parameters<typeof t>[0]),
+    descripcion: t(`settings.integrations.${d.descKey}` as Parameters<typeof t>[0]),
+    estadoLabel: statusLabels[d.estado],
+  }));
+
+  const activas = integraciones.filter((i) => i.estado === "connected").length;
+  const errores = integraciones.filter((i) => i.estado === "error").length;
 
   return (
     <div className="space-y-5">
       <div className="flex items-center gap-2 text-sm text-ink-muted">
         <Link href="/dashboard/configuracion" className="hover:text-celeste-dark transition">
-          Configuración
+          {t("settings.integrations.breadcrumb")}
         </Link>
         <span>/</span>
-        <span className="text-ink font-medium">Integraciones</span>
+        <span className="text-ink font-medium">{t("settings.integrations.breadcrumbCurrent")}</span>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-ink">Integraciones</h1>
+          <h1 className="text-2xl font-bold text-ink">{t("settings.integrations.heading")}</h1>
           <p className="text-sm text-ink-muted mt-0.5">
-            {activas} activas · {errores} con error
+            {t("settings.integrations.activeCount")
+              .replace("{active}", String(activas))
+              .replace("{errors}", String(errores))}
           </p>
         </div>
         <button
@@ -135,20 +148,28 @@ export default function IntegracionesPage() {
           }
           className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
         >
-          + Nueva integración
+          {t("settings.integrations.newIntegration")}
         </button>
       </div>
 
       {/* Status summary */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "Total", value: integraciones.length, color: "border-celeste" },
-          { label: "Conectadas", value: activas, color: "border-green-400" },
-          { label: "Con error", value: errores, color: "border-red-400" },
           {
-            label: "Pendientes",
+            label: t("settings.integrations.kpiTotal"),
+            value: integraciones.length,
+            color: "border-celeste",
+          },
+          {
+            label: t("settings.integrations.kpiConnected"),
+            value: activas,
+            color: "border-green-400",
+          },
+          { label: t("settings.integrations.kpiErrors"), value: errores, color: "border-red-400" },
+          {
+            label: t("settings.integrations.kpiPending"),
             value: integraciones.filter(
-              (i) => i.estado === "Pendiente" || i.estado === "Desconectado",
+              (i) => i.estado === "pending" || i.estado === "disconnected",
             ).length,
             color: "border-gold",
           },
@@ -182,10 +203,12 @@ export default function IntegracionesPage() {
             />
           </svg>
           <div>
-            <p className="text-sm font-semibold text-red-700">{errores} integración con error</p>
+            <p className="text-sm font-semibold text-red-700">
+              {t("settings.integrations.errorBanner").replace("{count}", String(errores))}
+            </p>
             <p className="text-xs text-red-600 mt-0.5">
               {integraciones
-                .filter((i) => i.estado === "Error")
+                .filter((i) => i.estado === "error")
                 .map((i) => i.nombre)
                 .join(", ")}
             </p>
@@ -198,7 +221,7 @@ export default function IntegracionesPage() {
         {integraciones.map((int) => (
           <div
             key={int.id}
-            className={`bg-white border rounded-lg p-5 transition hover:shadow-sm ${int.estado === "Error" ? "border-red-200" : "border-border"}`}
+            className={`bg-white border rounded-lg p-5 transition hover:shadow-sm ${int.estado === "error" ? "border-red-200" : "border-border"}`}
           >
             <div className="flex items-start gap-4">
               <span className="w-10 h-10 rounded-lg bg-celeste-50 flex items-center justify-center text-sm font-bold text-celeste-700">
@@ -210,7 +233,7 @@ export default function IntegracionesPage() {
                   <span
                     className={`px-2 py-0.5 text-[10px] font-bold rounded border ${estadoColors[int.estado]}`}
                   >
-                    {int.estado}
+                    {int.estadoLabel}
                   </span>
                   <span className="px-2 py-0.5 text-[10px] font-bold tracking-wider rounded bg-[#F8FAFB] text-ink-muted">
                     {int.tipo}
@@ -218,55 +241,63 @@ export default function IntegracionesPage() {
                 </div>
                 <p className="text-xs text-ink-light leading-relaxed">{int.descripcion}</p>
                 <p className="text-[10px] text-ink-muted mt-1.5">
-                  Última sincronización: {int.ultimaSync}
+                  {t("settings.integrations.lastSync")}: {int.ultimaSync}
                 </p>
               </div>
               <div className="flex flex-col gap-1.5">
-                {int.estado === "Conectado" && (
+                {int.estado === "connected" && (
                   <button
-                    onClick={() =>
-                      isDemo
-                        ? showDemo(`Sincronizar ${int.nombre}`)
-                        : showToast(`Sincronizar ${int.nombre}`)
-                    }
+                    onClick={() => {
+                      const msg = t("settings.integrations.syncToast").replace(
+                        "{name}",
+                        int.nombre,
+                      );
+                      isDemo ? showDemo(msg) : showToast(msg);
+                    }}
                     className="px-3 py-1.5 text-xs font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
                   >
-                    Sincronizar
+                    {t("settings.integrations.sync")}
                   </button>
                 )}
-                {int.estado === "Error" && (
+                {int.estado === "error" && (
                   <button
-                    onClick={() =>
-                      isDemo
-                        ? showDemo(`Reintentar ${int.nombre}`)
-                        : showToast(`Reintentar ${int.nombre}`)
-                    }
+                    onClick={() => {
+                      const msg = t("settings.integrations.retryToast").replace(
+                        "{name}",
+                        int.nombre,
+                      );
+                      isDemo ? showDemo(msg) : showToast(msg);
+                    }}
                     className="px-3 py-1.5 text-xs font-semibold bg-red-600 text-white rounded-[4px] hover:bg-red-700 transition"
                   >
-                    Reintentar
+                    {t("settings.integrations.retry")}
                   </button>
                 )}
-                {(int.estado === "Desconectado" || int.estado === "Pendiente") && (
+                {(int.estado === "disconnected" || int.estado === "pending") && (
                   <button
-                    onClick={() =>
-                      isDemo
-                        ? showDemo(`Configurar ${int.nombre}`)
-                        : showToast(`Configurar ${int.nombre}`)
-                    }
+                    onClick={() => {
+                      const msg = t("settings.integrations.configureToast").replace(
+                        "{name}",
+                        int.nombre,
+                      );
+                      isDemo ? showDemo(msg) : showToast(msg);
+                    }}
                     className="px-3 py-1.5 text-xs font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
                   >
-                    Configurar
+                    {t("settings.integrations.configure")}
                   </button>
                 )}
                 <button
-                  onClick={() =>
-                    isDemo
-                      ? showDemo(`Ajustes de ${int.nombre}`)
-                      : showToast(`Ajustes de ${int.nombre}`)
-                  }
+                  onClick={() => {
+                    const msg = t("settings.integrations.settingsToast").replace(
+                      "{name}",
+                      int.nombre,
+                    );
+                    isDemo ? showDemo(msg) : showToast(msg);
+                  }}
                   className="px-3 py-1.5 text-xs font-medium text-ink-muted hover:text-ink transition"
                 >
-                  Ajustes
+                  {t("settings.integrations.settings")}
                 </button>
               </div>
             </div>

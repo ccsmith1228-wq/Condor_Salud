@@ -103,12 +103,12 @@ export default function AuditoriaPage() {
     const result = await runAutoAudit();
     setAutoAuditLoading(false);
     if (result.success) {
-      showToast(`Auditoría completada: ${result.newFindings} facturas analizadas`);
+      showToast(t("audit.auditCompletedMsg").replace("{count}", String(result.newFindings)));
       loadData();
     } else {
       showToast(`${result.error}`);
     }
-  }, [loadData, showToast]);
+  }, [loadData, showToast, t]);
 
   return (
     <div className="space-y-5">
@@ -180,25 +180,35 @@ export default function AuditoriaPage() {
         <span className="text-xs font-bold text-ink-muted uppercase tracking-wider">
           {t("audit.severity")}:
         </span>
-        {["Todos", "Alta", "Media", "Baja"].map((s) => (
+        {[
+          { value: "Todos", label: t("label.all") },
+          { value: "Alta", label: t("audit.severityHigh") },
+          { value: "Media", label: t("audit.severityMedium") },
+          { value: "Baja", label: t("audit.severityLow") },
+        ].map((s) => (
           <button
-            key={s}
-            onClick={() => setSevFilter(s)}
-            className={`px-3 py-1.5 text-xs rounded-[4px] transition ${sevFilter === s ? "bg-ink text-white" : "border border-border text-ink-light hover:border-ink"}`}
+            key={s.value}
+            onClick={() => setSevFilter(s.value)}
+            className={`px-3 py-1.5 text-xs rounded-[4px] transition ${sevFilter === s.value ? "bg-ink text-white" : "border border-border text-ink-light hover:border-ink"}`}
           >
-            {s}
+            {s.label}
           </button>
         ))}
         <span className="text-xs font-bold text-ink-muted uppercase tracking-wider ml-2">
           {t("label.status")}:
         </span>
-        {["Todos", "Pendiente", "Revisado", "Resuelto"].map((e) => (
+        {[
+          { value: "Todos", label: t("label.all") },
+          { value: "Pendiente", label: t("status.pending") },
+          { value: "Revisado", label: t("audit.reviewed") },
+          { value: "Resuelto", label: t("audit.resolvedLabel") },
+        ].map((e) => (
           <button
-            key={e}
-            onClick={() => setEstadoFilter(e)}
-            className={`px-3 py-1.5 text-xs rounded-[4px] transition ${estadoFilter === e ? "bg-ink text-white" : "border border-border text-ink-light hover:border-ink"}`}
+            key={e.value}
+            onClick={() => setEstadoFilter(e.value)}
+            className={`px-3 py-1.5 text-xs rounded-[4px] transition ${estadoFilter === e.value ? "bg-ink text-white" : "border border-border text-ink-light hover:border-ink"}`}
           >
-            {e}
+            {e.label}
           </button>
         ))}
       </div>
@@ -344,12 +354,17 @@ export default function AuditoriaPage() {
             </h3>
             {(["alta", "media", "baja"] as const).map((sev) => {
               const count = items.filter((a) => a.severidad === sev).length;
+              const sevLabel = {
+                alta: t("audit.severityHigh"),
+                media: t("audit.severityMedium"),
+                baja: t("audit.severityLow"),
+              }[sev];
               return (
                 <div
                   key={sev}
                   className="flex items-center justify-between py-1.5 text-xs border-b border-border-light last:border-0"
                 >
-                  <span className="text-ink-light capitalize">{sev}</span>
+                  <span className="text-ink-light">{sevLabel}</span>
                   <span className="font-bold text-ink">{count}</span>
                 </div>
               );
@@ -361,12 +376,17 @@ export default function AuditoriaPage() {
             </h3>
             {(["pendiente", "revisado", "resuelto"] as const).map((est) => {
               const count = items.filter((a) => a.estado === est).length;
+              const estLabel = {
+                pendiente: t("status.pending"),
+                revisado: t("audit.reviewed"),
+                resuelto: t("audit.resolvedLabel"),
+              }[est];
               return (
                 <div
                   key={est}
                   className="flex items-center justify-between py-1.5 text-xs border-b border-border-light last:border-0"
                 >
-                  <span className="text-ink-light capitalize">{est}</span>
+                  <span className="text-ink-light">{estLabel}</span>
                   <span className="font-bold text-ink">{count}</span>
                 </div>
               );

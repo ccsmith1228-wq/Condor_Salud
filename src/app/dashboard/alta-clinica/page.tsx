@@ -80,13 +80,13 @@ interface ClinicForm {
 }
 
 const DAYS = [
-  { key: "lun", label: "Lunes", num: 1 },
-  { key: "mar", label: "Martes", num: 2 },
-  { key: "mie", label: "Miércoles", num: 3 },
-  { key: "jue", label: "Jueves", num: 4 },
-  { key: "vie", label: "Viernes", num: 5 },
-  { key: "sab", label: "Sábado", num: 6 },
-  { key: "dom", label: "Domingo", num: 0 },
+  { key: "lun", tKey: "clinicWizard.dayMon", num: 1 },
+  { key: "mar", tKey: "clinicWizard.dayTue", num: 2 },
+  { key: "mie", tKey: "clinicWizard.dayWed", num: 3 },
+  { key: "jue", tKey: "clinicWizard.dayThu", num: 4 },
+  { key: "vie", tKey: "clinicWizard.dayFri", num: 5 },
+  { key: "sab", tKey: "clinicWizard.daySat", num: 6 },
+  { key: "dom", tKey: "clinicWizard.daySun", num: 0 },
 ];
 
 const INSURANCE_OPTIONS = [
@@ -125,16 +125,17 @@ const SPECIALTIES = [
   "Nutrición",
 ];
 
-const PLAN_LABELS: Record<string, string> = {
-  free: "Free — Básico",
-  starter: "Starter — Consultorio",
-  plus: "Plus — Clínica",
-  enterprise: "Enterprise — Red",
+const PLAN_TKEYS: Record<string, string> = {
+  free: "clinicWizard.planFree",
+  starter: "clinicWizard.planStarter",
+  plus: "clinicWizard.planPlus",
+  enterprise: "clinicWizard.planEnterprise",
 };
 
 // ─── Main Page ───────────────────────────────────────────────
 
 export default function AltaClinicaPage() {
+  const { t } = useLocale();
   return (
     <RequireRole
       roles={["admin"]}
@@ -142,10 +143,8 @@ export default function AltaClinicaPage() {
         <div className="flex items-center justify-center min-h-[50vh]">
           <div className="text-center space-y-2">
             <Shield className="h-12 w-12 text-muted-foreground/40 mx-auto" />
-            <p className="text-lg font-medium text-ink">Acceso restringido</p>
-            <p className="text-sm text-muted-foreground">
-              Solo administradores pueden dar de alta clínicas
-            </p>
+            <p className="text-lg font-medium text-ink">{t("clinicWizard.accessRestricted")}</p>
+            <p className="text-sm text-muted-foreground">{t("clinicWizard.adminOnly")}</p>
           </div>
         </div>
       }
@@ -157,7 +156,7 @@ export default function AltaClinicaPage() {
 
 function OnboardingWizard() {
   const { showToast } = useToast();
-  const { locale } = useLocale();
+  const { t, locale } = useLocale();
   const lang = locale === "en" ? "en" : "es";
 
   const [step, setStep] = useState(0);
@@ -214,10 +213,10 @@ function OnboardingWizard() {
 
   // ─── Steps ─────────────────────────────────────────────
   const steps = [
-    { icon: Building2, label: "Clínica" },
-    { icon: Stethoscope, label: "Profesionales" },
-    { icon: Settings, label: "Configuración" },
-    { icon: CheckCircle2, label: "Revisión" },
+    { icon: Building2, label: t("clinicWizard.stepClinic") },
+    { icon: Stethoscope, label: t("clinicWizard.stepProfessionals") },
+    { icon: Settings, label: t("clinicWizard.stepSettings") },
+    { icon: CheckCircle2, label: t("clinicWizard.stepReview") },
   ];
 
   // ─── Submit ────────────────────────────────────────────
@@ -275,7 +274,7 @@ function OnboardingWizard() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Error al crear clínica");
+        throw new Error(data.error || t("clinicWizard.errorCreating"));
       }
 
       setResult({
@@ -285,9 +284,9 @@ function OnboardingWizard() {
         doctorsCreated: data.doctorsCreated,
       });
       setStep(4); // success step
-      showToast(data.message || "¡Clínica creada!", "success");
+      showToast(data.message || t("clinicWizard.clinicCreated"), "success");
     } catch (err) {
-      showToast(err instanceof Error ? err.message : "Error al crear clínica", "error");
+      showToast(err instanceof Error ? err.message : t("clinicWizard.errorCreating"), "error");
     } finally {
       setSubmitting(false);
     }
@@ -315,11 +314,9 @@ function OnboardingWizard() {
       <div>
         <h1 className="text-2xl font-bold text-ink flex items-center gap-2">
           <Building2 className="h-6 w-6 text-celeste" />
-          Alta de Clínica
+          {t("clinicWizard.title")}
         </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Dar de alta una nueva clínica en el sistema con profesionales y configuración de turnos
-        </p>
+        <p className="text-sm text-muted-foreground mt-1">{t("clinicWizard.subtitle")}</p>
       </div>
 
       {/* Step indicator */}
@@ -373,7 +370,7 @@ function OnboardingWizard() {
             className="flex items-center gap-1.5 px-4 py-2 text-sm text-muted-foreground hover:text-ink disabled:opacity-30 transition"
           >
             <ArrowLeft className="h-4 w-4" />
-            Anterior
+            {t("clinicWizard.previous")}
           </button>
 
           {step < 3 ? (
@@ -382,7 +379,7 @@ function OnboardingWizard() {
               disabled={!canNext()}
               className="flex items-center gap-1.5 px-6 py-2.5 bg-celeste text-white rounded-lg text-sm font-medium hover:bg-celeste/90 disabled:opacity-40 transition"
             >
-              Siguiente
+              {t("clinicWizard.next")}
               <ArrowRight className="h-4 w-4" />
             </button>
           ) : (
@@ -394,12 +391,12 @@ function OnboardingWizard() {
               {submitting ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Creando clínica…
+                  {t("clinicWizard.creatingClinic")}
                 </>
               ) : (
                 <>
                   <CheckCircle2 className="h-4 w-4" />
-                  Confirmar Alta
+                  {t("clinicWizard.confirmCreate")}
                 </>
               )}
             </button>
@@ -421,6 +418,7 @@ function StepClinicInfo({
   form: ClinicForm;
   updateForm: (p: Partial<ClinicForm>) => void;
 }) {
+  const { t } = useLocale();
   const toggleInsurance = (ins: string) => {
     const current = form.acceptsInsurance;
     updateForm({
@@ -466,50 +464,50 @@ function StepClinicInfo({
       <section className="space-y-4">
         <h2 className="text-lg font-semibold text-ink flex items-center gap-2">
           <Building2 className="h-5 w-5 text-celeste" />
-          Datos de la clínica
+          {t("clinicWizard.clinicData")}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
-            label="Nombre *"
+            label={t("clinicWizard.nameLabel")}
             value={form.name}
             onChange={(v) => updateForm({ name: v })}
-            placeholder="Clínica Salud Recoleta"
+            placeholder={t("clinicWizard.namePlaceholder")}
           />
           <Input
-            label="CUIT *"
+            label={t("clinicWizard.cuitLabel")}
             value={form.cuit}
             onChange={(v) => updateForm({ cuit: v })}
-            placeholder="30-71234567-9"
+            placeholder={t("clinicWizard.cuitPlaceholder")}
           />
           <Input
-            label="Teléfono"
+            label={t("clinicWizard.phoneLabel")}
             value={form.phone}
             onChange={(v) => updateForm({ phone: v })}
-            placeholder="+5491145678900"
+            placeholder={t("clinicWizard.phonePlaceholder")}
             icon={<Phone className="h-4 w-4" />}
           />
           <Input
-            label="Email"
+            label={t("clinicWizard.emailLabel")}
             value={form.email}
             onChange={(v) => updateForm({ email: v })}
-            placeholder="turnos@clinica.com"
+            placeholder={t("clinicWizard.emailPlaceholder")}
             icon={<Mail className="h-4 w-4" />}
           />
           <Input
-            label="Dirección"
+            label={t("clinicWizard.addressLabel")}
             value={form.address}
             onChange={(v) => updateForm({ address: v })}
-            placeholder="Av. Callao 1234, Buenos Aires"
+            placeholder={t("clinicWizard.addressPlaceholder")}
             icon={<MapPin className="h-4 w-4" />}
             className="md:col-span-2"
           />
           <Input
-            label="Provincia"
+            label={t("clinicWizard.provinceLabel")}
             value={form.provincia}
             onChange={(v) => updateForm({ provincia: v })}
           />
           <Input
-            label="Localidad"
+            label={t("clinicWizard.cityLabel")}
             value={form.localidad}
             onChange={(v) => updateForm({ localidad: v })}
           />
@@ -520,7 +518,7 @@ function StepClinicInfo({
       <section className="space-y-3">
         <h2 className="text-lg font-semibold text-ink flex items-center gap-2">
           <CreditCard className="h-5 w-5 text-celeste" />
-          Plan
+          {t("clinicWizard.planHeading")}
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
           {(["free", "starter", "plus", "enterprise"] as const).map((tier) => (
@@ -530,7 +528,7 @@ function StepClinicInfo({
               className={`px-4 py-3 rounded-lg border text-sm text-left transition
                 ${form.planTier === tier ? "border-celeste bg-celeste/5 text-celeste font-medium" : "border-border hover:border-celeste/50"}`}
             >
-              {PLAN_LABELS[tier]}
+              {t(PLAN_TKEYS[tier] ?? tier)}
             </button>
           ))}
         </div>
@@ -540,33 +538,35 @@ function StepClinicInfo({
       <section className="space-y-4">
         <h2 className="text-lg font-semibold text-ink flex items-center gap-2">
           <Globe className="h-5 w-5 text-celeste" />
-          Perfil público
+          {t("clinicWizard.publicProfile")}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-ink mb-1">Descripción</label>
+            <label className="block text-sm font-medium text-ink mb-1">
+              {t("clinicWizard.descriptionLabel")}
+            </label>
             <textarea
               value={form.description}
               onChange={(e) => updateForm({ description: e.target.value })}
               rows={3}
-              placeholder="Clínica de atención integral en el corazón de Recoleta..."
+              placeholder={t("clinicWizard.descriptionPlaceholder")}
               className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-celeste/50 focus:border-celeste outline-none resize-none"
             />
           </div>
           <Input
-            label="Sitio web"
+            label={t("clinicWizard.websiteLabel")}
             value={form.website}
             onChange={(v) => updateForm({ website: v })}
-            placeholder="https://clinica.com"
+            placeholder={t("clinicWizard.websitePlaceholder")}
           />
           <div className="flex items-center gap-6">
             <Toggle
-              label="Visible al público"
+              label={t("clinicWizard.publicVisible")}
               checked={form.publicVisible}
               onChange={(v) => updateForm({ publicVisible: v })}
             />
             <Toggle
-              label="Turnos online"
+              label={t("clinicWizard.onlineBooking")}
               checked={form.bookingEnabled}
               onChange={(v) => updateForm({ bookingEnabled: v })}
             />
@@ -578,7 +578,7 @@ function StepClinicInfo({
       <section className="space-y-3">
         <h2 className="text-sm font-semibold text-ink flex items-center gap-2">
           <Languages className="h-4 w-4 text-celeste" />
-          Idiomas
+          {t("clinicWizard.languagesHeading")}
         </h2>
         <div className="flex flex-wrap gap-2">
           {[
@@ -605,7 +605,7 @@ function StepClinicInfo({
       <section className="space-y-3">
         <h2 className="text-sm font-semibold text-ink flex items-center gap-2">
           <Shield className="h-4 w-4 text-celeste" />
-          Obras sociales / Prepagas
+          {t("clinicWizard.insuranceHeading")}
         </h2>
         <div className="flex flex-wrap gap-2">
           {INSURANCE_OPTIONS.map((ins) => (
@@ -625,7 +625,7 @@ function StepClinicInfo({
       <section className="space-y-3">
         <h2 className="text-sm font-semibold text-ink flex items-center gap-2">
           <Clock className="h-4 w-4 text-celeste" />
-          Horarios de atención
+          {t("clinicWizard.operatingHoursHeading")}
         </h2>
         <div className="space-y-2">
           {DAYS.map((day) => {
@@ -637,7 +637,7 @@ function StepClinicInfo({
                   onClick={() => toggleDay(day.key)}
                   className={`w-24 text-left text-sm font-medium transition ${isActive ? "text-ink" : "text-muted-foreground line-through"}`}
                 >
-                  {day.label}
+                  {t(day.tKey)}
                 </button>
                 {isActive && hours ? (
                   <div className="flex items-center gap-2">
@@ -647,7 +647,9 @@ function StepClinicInfo({
                       onChange={(e) => setDayHours(day.key, "open", e.target.value)}
                       className="px-2 py-1 border border-border rounded text-sm focus:ring-1 focus:ring-celeste/50 outline-none"
                     />
-                    <span className="text-muted-foreground text-xs">a</span>
+                    <span className="text-muted-foreground text-xs">
+                      {t("clinicWizard.timeTo")}
+                    </span>
                     <input
                       type="time"
                       value={hours.close}
@@ -656,7 +658,7 @@ function StepClinicInfo({
                     />
                   </div>
                 ) : (
-                  <span className="text-xs text-muted-foreground">Cerrado</span>
+                  <span className="text-xs text-muted-foreground">{t("clinicWizard.closed")}</span>
                 )}
               </div>
             );
@@ -668,17 +670,17 @@ function StepClinicInfo({
       <section className="space-y-3">
         <h2 className="text-sm font-semibold text-ink flex items-center gap-2">
           <MapPin className="h-4 w-4 text-celeste" />
-          Coordenadas (opcional)
+          {t("clinicWizard.coordinatesHeading")}
         </h2>
         <div className="grid grid-cols-2 gap-4">
           <Input
-            label="Latitud"
+            label={t("clinicWizard.latitudeLabel")}
             value={form.lat}
             onChange={(v) => updateForm({ lat: v })}
             placeholder="-34.5957"
           />
           <Input
-            label="Longitud"
+            label={t("clinicWizard.longitudeLabel")}
             value={form.lng}
             onChange={(v) => updateForm({ lng: v })}
             placeholder="-58.3932"
@@ -700,6 +702,7 @@ function StepDoctors({
   form: ClinicForm;
   updateForm: (p: Partial<ClinicForm>) => void;
 }) {
+  const { t } = useLocale();
   const addDoctor = () => {
     updateForm({
       doctors: [
@@ -738,10 +741,10 @@ function StepDoctors({
         <div>
           <h2 className="text-lg font-semibold text-ink flex items-center gap-2">
             <Stethoscope className="h-5 w-5 text-celeste" />
-            Profesionales
+            {t("clinicWizard.professionalsTitle")}
           </h2>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Agregá los médicos de la clínica. Podés agregar más después.
+            {t("clinicWizard.professionalsSubtitle")}
           </p>
         </div>
         <button
@@ -749,20 +752,20 @@ function StepDoctors({
           className="flex items-center gap-1.5 px-4 py-2 bg-celeste text-white rounded-lg text-sm font-medium hover:bg-celeste/90 transition"
         >
           <Plus className="h-4 w-4" />
-          Agregar
+          {t("clinicWizard.addButton")}
         </button>
       </div>
 
       {form.doctors.length === 0 ? (
         <div className="text-center py-12 border-2 border-dashed border-border rounded-lg">
           <Stethoscope className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
-          <p className="text-muted-foreground">No hay profesionales cargados todavía</p>
+          <p className="text-muted-foreground">{t("clinicWizard.noProfessionals")}</p>
           <button
             onClick={addDoctor}
             className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 bg-celeste/10 text-celeste rounded-lg text-sm font-medium hover:bg-celeste/20 transition"
           >
             <Plus className="h-4 w-4" />
-            Agregar primer profesional
+            {t("clinicWizard.addFirstProfessional")}
           </button>
         </div>
       ) : (
@@ -771,31 +774,33 @@ function StepDoctors({
             <div key={i} className="border border-border rounded-lg p-4 space-y-4 relative">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-muted-foreground">
-                  Profesional #{i + 1}
+                  {t("clinicWizard.professionalNumber")} #{i + 1}
                 </span>
                 <button
                   onClick={() => removeDoctor(i)}
                   className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition"
-                  title="Eliminar"
+                  title={t("clinicWizard.deleteTitle")}
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <Input
-                  label="Nombre completo *"
+                  label={t("clinicWizard.fullNameLabel")}
                   value={doc.name}
                   onChange={(v) => updateDoctor(i, { name: v })}
-                  placeholder="Dr. Martín Ruiz"
+                  placeholder={t("clinicWizard.fullNamePlaceholder")}
                 />
                 <div>
-                  <label className="block text-sm font-medium text-ink mb-1">Especialidad *</label>
+                  <label className="block text-sm font-medium text-ink mb-1">
+                    {t("clinicWizard.specialtyLabel")}
+                  </label>
                   <select
                     value={doc.specialty}
                     onChange={(e) => updateDoctor(i, { specialty: e.target.value })}
                     className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-celeste/50 focus:border-celeste outline-none bg-white"
                   >
-                    <option value="">Seleccionar…</option>
+                    <option value="">{t("clinicWizard.selectOption")}</option>
                     {SPECIALTIES.map((s) => (
                       <option key={s} value={s}>
                         {s}
@@ -804,42 +809,44 @@ function StepDoctors({
                   </select>
                 </div>
                 <Input
-                  label="Matrícula"
+                  label={t("clinicWizard.licenseLabel")}
                   value={doc.matricula}
                   onChange={(v) => updateDoctor(i, { matricula: v })}
-                  placeholder="MN-45892"
+                  placeholder={t("clinicWizard.licensePlaceholder")}
                 />
                 <Input
-                  label="Teléfono"
+                  label={t("clinicWizard.phoneLabel")}
                   value={doc.phone}
                   onChange={(v) => updateDoctor(i, { phone: v })}
-                  placeholder="+5491112345678"
+                  placeholder={t("clinicWizard.doctorPhonePlaceholder")}
                 />
                 <Input
-                  label="Email"
+                  label={t("clinicWizard.emailLabel")}
                   value={doc.email}
                   onChange={(v) => updateDoctor(i, { email: v })}
-                  placeholder="doctor@email.com"
+                  placeholder={t("clinicWizard.doctorEmailPlaceholder")}
                 />
                 <Input
-                  label="Experiencia"
+                  label={t("clinicWizard.experienceLabel")}
                   value={doc.experience}
                   onChange={(v) => updateDoctor(i, { experience: v })}
-                  placeholder="15 años"
+                  placeholder={t("clinicWizard.experiencePlaceholder")}
                 />
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-ink mb-1">Bio</label>
+                  <label className="block text-sm font-medium text-ink mb-1">
+                    {t("clinicWizard.bioLabel")}
+                  </label>
                   <textarea
                     value={doc.bio}
                     onChange={(e) => updateDoctor(i, { bio: e.target.value })}
                     rows={2}
-                    placeholder="Médico clínico con amplia experiencia..."
+                    placeholder={t("clinicWizard.bioPlaceholder")}
                     className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-celeste/50 focus:border-celeste outline-none resize-none"
                   />
                 </div>
                 <div className="flex items-center gap-4 md:col-span-2">
                   <Toggle
-                    label="Teleconsulta"
+                    label={t("clinicWizard.teleconsultation")}
                     checked={doc.teleconsulta}
                     onChange={(v) => updateDoctor(i, { teleconsulta: v })}
                     icon={<Video className="h-3.5 w-3.5" />}
@@ -882,6 +889,7 @@ function StepSettings({
   form: ClinicForm;
   updateForm: (p: Partial<ClinicForm>) => void;
 }) {
+  const { t } = useLocale();
   const toggleWorkingDay = (num: number) => {
     const current = form.workingDays;
     updateForm({
@@ -906,11 +914,13 @@ function StepSettings({
       <section className="space-y-4">
         <h2 className="text-lg font-semibold text-ink flex items-center gap-2">
           <Clock className="h-5 w-5 text-celeste" />
-          Turnos
+          {t("clinicWizard.appointmentsHeading")}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-ink mb-1">Duración del turno</label>
+            <label className="block text-sm font-medium text-ink mb-1">
+              {t("clinicWizard.slotDuration")}
+            </label>
             <select
               value={form.slotDurationMin}
               onChange={(e) => updateForm({ slotDurationMin: Number(e.target.value) })}
@@ -918,19 +928,19 @@ function StepSettings({
             >
               {[15, 20, 30, 45, 60].map((m) => (
                 <option key={m} value={m}>
-                  {m} minutos
+                  {m} {t("clinicWizard.minutesSuffix")}
                 </option>
               ))}
             </select>
           </div>
           <Input
-            label="Máx. días anticipación"
+            label={t("clinicWizard.maxAdvanceDays")}
             value={String(form.maxAdvanceDays)}
             onChange={(v) => updateForm({ maxAdvanceDays: parseInt(v) || 60 })}
             type="number"
           />
           <Input
-            label="Mín. horas anticipación"
+            label={t("clinicWizard.minAdvanceHours")}
             value={String(form.minAdvanceHours)}
             onChange={(v) => updateForm({ minAdvanceHours: parseInt(v) || 2 })}
             type="number"
@@ -938,7 +948,7 @@ function StepSettings({
         </div>
         <div className="flex items-center gap-6">
           <Toggle
-            label="Auto-confirmar turnos"
+            label={t("clinicWizard.autoConfirm")}
             checked={form.autoConfirm}
             onChange={(v) => updateForm({ autoConfirm: v })}
           />
@@ -947,7 +957,7 @@ function StepSettings({
 
       {/* Working days */}
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-ink">Días laborales</h2>
+        <h2 className="text-sm font-semibold text-ink">{t("clinicWizard.workingDaysHeading")}</h2>
         <div className="flex flex-wrap gap-2">
           {DAYS.map((day) => (
             <button
@@ -956,7 +966,7 @@ function StepSettings({
               className={`px-4 py-2 rounded-lg text-sm font-medium border transition
                 ${form.workingDays.includes(day.num) ? "border-celeste bg-celeste/10 text-celeste" : "border-border text-muted-foreground"}`}
             >
-              {day.label.slice(0, 3)}
+              {t(day.tKey).slice(0, 3)}
             </button>
           ))}
         </div>
@@ -964,7 +974,7 @@ function StepSettings({
 
       {/* Break */}
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-ink">Horario de almuerzo / corte</h2>
+        <h2 className="text-sm font-semibold text-ink">{t("clinicWizard.lunchBreakHeading")}</h2>
         <div className="flex items-center gap-3">
           <input
             type="time"
@@ -972,7 +982,7 @@ function StepSettings({
             onChange={(e) => updateForm({ breakStart: e.target.value })}
             className="px-3 py-2 border border-border rounded-lg text-sm focus:ring-1 focus:ring-celeste/50 outline-none"
           />
-          <span className="text-muted-foreground text-sm">a</span>
+          <span className="text-muted-foreground text-sm">{t("clinicWizard.timeTo")}</span>
           <input
             type="time"
             value={form.breakEnd}
@@ -984,7 +994,7 @@ function StepSettings({
 
       {/* Notifications */}
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-ink">Notificaciones</h2>
+        <h2 className="text-sm font-semibold text-ink">{t("clinicWizard.notificationsHeading")}</h2>
         <div className="flex flex-wrap gap-2">
           {[
             { key: "email", label: "Email" },
@@ -1002,7 +1012,7 @@ function StepSettings({
           ))}
         </div>
         <Input
-          label="Recordatorio X horas antes"
+          label={t("clinicWizard.reminderLabel")}
           value={String(form.reminderHoursBefore)}
           onChange={(v) => updateForm({ reminderHoursBefore: parseInt(v) || 24 })}
           type="number"
@@ -1011,25 +1021,31 @@ function StepSettings({
 
       {/* Custom messages */}
       <section className="space-y-4">
-        <h2 className="text-sm font-semibold text-ink">Mensajes personalizados (opcional)</h2>
+        <h2 className="text-sm font-semibold text-ink">
+          {t("clinicWizard.customMessagesHeading")}
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-ink mb-1">Confirmación</label>
+            <label className="block text-sm font-medium text-ink mb-1">
+              {t("clinicWizard.confirmationLabel")}
+            </label>
             <textarea
               value={form.confirmationMessage}
               onChange={(e) => updateForm({ confirmationMessage: e.target.value })}
               rows={2}
-              placeholder="Su turno ha sido confirmado. ¡Lo esperamos!"
+              placeholder={t("clinicWizard.confirmationPlaceholder")}
               className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-celeste/50 focus:border-celeste outline-none resize-none"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-ink mb-1">Cancelación</label>
+            <label className="block text-sm font-medium text-ink mb-1">
+              {t("clinicWizard.cancellationLabel")}
+            </label>
             <textarea
               value={form.cancellationMessage}
               onChange={(e) => updateForm({ cancellationMessage: e.target.value })}
               rows={2}
-              placeholder="Su turno ha sido cancelado. Puede reservar otro en..."
+              placeholder={t("clinicWizard.cancellationPlaceholder")}
               className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-celeste/50 focus:border-celeste outline-none resize-none"
             />
           </div>
@@ -1038,16 +1054,15 @@ function StepSettings({
 
       {/* Availability generation */}
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-ink">Generación de disponibilidad</h2>
+        <h2 className="text-sm font-semibold text-ink">{t("clinicWizard.availabilityHeading")}</h2>
         <Input
-          label="Generar slots para los próximos N días"
+          label={t("clinicWizard.generateSlotsLabel")}
           value={String(form.generateAvailabilityDays)}
           onChange={(v) => updateForm({ generateAvailabilityDays: parseInt(v) || 30 })}
           type="number"
         />
         <p className="text-xs text-muted-foreground">
-          Se crearán slots de {form.slotDurationMin} min para cada profesional según el horario de
-          la clínica
+          {t("clinicWizard.generateSlotsDesc").replace("{min}", String(form.slotDurationMin))}
         </p>
       </section>
     </div>
@@ -1059,31 +1074,46 @@ function StepSettings({
 // ═══════════════════════════════════════════════════════════════
 
 function StepReview({ form }: { form: ClinicForm }) {
+  const { t } = useLocale();
   const activeDays = DAYS.filter((d) => form.operatingHours[d.key] !== null);
 
   return (
     <div className="space-y-6">
       <h2 className="text-lg font-semibold text-ink flex items-center gap-2">
         <CheckCircle2 className="h-5 w-5 text-green-600" />
-        Revisión antes de confirmar
+        {t("clinicWizard.reviewHeading")}
       </h2>
 
       {/* Clinic summary */}
       <div className="bg-muted/30 rounded-lg p-4 space-y-2">
-        <h3 className="font-semibold text-ink text-base">{form.name || "Sin nombre"}</h3>
+        <h3 className="font-semibold text-ink text-base">
+          {form.name || t("clinicWizard.noName")}
+        </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-          <Detail label="CUIT" value={form.cuit} />
-          <Detail label="Plan" value={PLAN_LABELS[form.planTier]} />
-          <Detail label="Teléfono" value={form.phone} />
-          <Detail label="Email" value={form.email} />
-          <Detail label="Dirección" value={form.address} />
-          <Detail label="Ubicación" value={`${form.localidad}, ${form.provincia}`} />
-          <Detail label="Idiomas" value={form.languages.join(", ")} />
-          <Detail label="Visible" value={form.publicVisible ? "Sí" : "No"} />
-          <Detail label="Turnos online" value={form.bookingEnabled ? "Sí" : "No"} />
+          <Detail label={t("clinicWizard.reviewCuit")} value={form.cuit} />
+          <Detail
+            label={t("clinicWizard.reviewPlan")}
+            value={t(PLAN_TKEYS[form.planTier] ?? form.planTier)}
+          />
+          <Detail label={t("clinicWizard.reviewPhone")} value={form.phone} />
+          <Detail label={t("clinicWizard.reviewEmail")} value={form.email} />
+          <Detail label={t("clinicWizard.reviewAddress")} value={form.address} />
+          <Detail
+            label={t("clinicWizard.reviewLocation")}
+            value={`${form.localidad}, ${form.provincia}`}
+          />
+          <Detail label={t("clinicWizard.reviewLanguages")} value={form.languages.join(", ")} />
+          <Detail
+            label={t("clinicWizard.reviewVisible")}
+            value={form.publicVisible ? t("clinicWizard.yes") : t("clinicWizard.no")}
+          />
+          <Detail
+            label={t("clinicWizard.reviewOnlineBooking")}
+            value={form.bookingEnabled ? t("clinicWizard.yes") : t("clinicWizard.no")}
+          />
           {form.acceptsInsurance.length > 0 && (
             <Detail
-              label="Obras sociales"
+              label={t("clinicWizard.reviewInsurance")}
               value={form.acceptsInsurance.join(", ")}
               className="sm:col-span-2"
             />
@@ -1091,12 +1121,12 @@ function StepReview({ form }: { form: ClinicForm }) {
         </div>
         {activeDays.length > 0 && (
           <div className="text-sm pt-2 border-t border-border/50 mt-2">
-            <span className="font-medium text-ink">Horarios: </span>
+            <span className="font-medium text-ink">{t("clinicWizard.scheduleLabel")} </span>
             {activeDays.map((d) => {
               const h = form.operatingHours[d.key]!;
               return (
                 <span key={d.key} className="text-muted-foreground mr-3">
-                  {d.label.slice(0, 3)} {h.open}–{h.close}
+                  {t(d.tKey).slice(0, 3)} {h.open}–{h.close}
                 </span>
               );
             })}
@@ -1107,16 +1137,19 @@ function StepReview({ form }: { form: ClinicForm }) {
       {/* Doctors summary */}
       <div className="space-y-2">
         <h3 className="font-medium text-ink">
-          {form.doctors.length} profesional{form.doctors.length !== 1 ? "es" : ""}
+          {form.doctors.length}{" "}
+          {form.doctors.length !== 1
+            ? t("clinicWizard.professionalsCount")
+            : t("clinicWizard.professionalSingular")}
         </h3>
         {form.doctors.map((doc, i) => (
           <div key={i} className="flex items-center gap-3 bg-muted/20 rounded-lg px-4 py-2">
             <Stethoscope className="h-4 w-4 text-celeste shrink-0" />
             <div className="text-sm">
-              <span className="font-medium text-ink">{doc.name || "Sin nombre"}</span>
+              <span className="font-medium text-ink">{doc.name || t("clinicWizard.noName")}</span>
               <span className="text-muted-foreground">
                 {" "}
-                — {doc.specialty || "Sin especialidad"}
+                — {doc.specialty || t("clinicWizard.noSpecialty")}
               </span>
               {doc.teleconsulta && <Video className="h-3 w-3 text-celeste inline ml-2" />}
             </div>
@@ -1126,15 +1159,33 @@ function StepReview({ form }: { form: ClinicForm }) {
 
       {/* Settings summary */}
       <div className="bg-muted/30 rounded-lg p-4 space-y-2">
-        <h3 className="font-medium text-ink text-sm">Configuración de turnos</h3>
+        <h3 className="font-medium text-ink text-sm">{t("clinicWizard.settingsSummary")}</h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-sm">
-          <Detail label="Duración" value={`${form.slotDurationMin} min`} />
-          <Detail label="Anticipación máx." value={`${form.maxAdvanceDays} días`} />
-          <Detail label="Anticipación mín." value={`${form.minAdvanceHours} horas`} />
-          <Detail label="Auto-confirmar" value={form.autoConfirm ? "Sí" : "No"} />
-          <Detail label="Notificar vía" value={form.notifyVia.join(", ")} />
-          <Detail label="Recordatorio" value={`${form.reminderHoursBefore}h antes`} />
-          <Detail label="Disponibilidad" value={`${form.generateAvailabilityDays} días`} />
+          <Detail
+            label={t("clinicWizard.reviewDuration")}
+            value={`${form.slotDurationMin} ${t("clinicWizard.minSuffix")}`}
+          />
+          <Detail
+            label={t("clinicWizard.reviewMaxAdvance")}
+            value={`${form.maxAdvanceDays} ${t("clinicWizard.daysSuffix")}`}
+          />
+          <Detail
+            label={t("clinicWizard.reviewMinAdvance")}
+            value={`${form.minAdvanceHours} ${t("clinicWizard.hoursSuffix")}`}
+          />
+          <Detail
+            label={t("clinicWizard.reviewAutoConfirm")}
+            value={form.autoConfirm ? t("clinicWizard.yes") : t("clinicWizard.no")}
+          />
+          <Detail label={t("clinicWizard.reviewNotifyVia")} value={form.notifyVia.join(", ")} />
+          <Detail
+            label={t("clinicWizard.reviewReminder")}
+            value={`${form.reminderHoursBefore}${t("clinicWizard.hoursBeforeSuffix")}`}
+          />
+          <Detail
+            label={t("clinicWizard.reviewAvailability")}
+            value={`${form.generateAvailabilityDays} ${t("clinicWizard.daysSuffix")}`}
+          />
         </div>
       </div>
     </div>
@@ -1152,6 +1203,7 @@ function StepSuccess({
   result: { clinicName: string; slug: string; bookingUrl: string; doctorsCreated: number };
   onReset: () => void;
 }) {
+  const { t } = useLocale();
   const fullUrl =
     typeof window !== "undefined"
       ? `${window.location.origin}${result.bookingUrl}`
@@ -1164,23 +1216,26 @@ function StepSuccess({
       </div>
 
       <div>
-        <h2 className="text-xl font-bold text-ink">¡Clínica creada con éxito!</h2>
+        <h2 className="text-xl font-bold text-ink">{t("clinicWizard.successTitle")}</h2>
         <p className="text-muted-foreground mt-1">
-          <span className="font-medium text-ink">{result.clinicName}</span> ya está activa con{" "}
-          {result.doctorsCreated} profesional{result.doctorsCreated !== 1 ? "es" : ""}
+          <span className="font-medium text-ink">{result.clinicName}</span>{" "}
+          {t("clinicWizard.successActiveWith")} {result.doctorsCreated}{" "}
+          {result.doctorsCreated !== 1
+            ? t("clinicWizard.professionalsCount")
+            : t("clinicWizard.professionalSingular")}
         </p>
       </div>
 
       {/* Booking URL */}
       <div className="mx-auto max-w-md bg-muted/30 rounded-lg p-4 space-y-3">
-        <p className="text-sm font-medium text-ink">Link de turnos online</p>
+        <p className="text-sm font-medium text-ink">{t("clinicWizard.bookingLinkTitle")}</p>
         <div className="flex items-center gap-2 bg-white border border-border rounded-lg px-3 py-2">
           <Globe className="h-4 w-4 text-celeste shrink-0" />
           <span className="text-sm text-muted-foreground truncate flex-1">{fullUrl}</span>
           <button
             onClick={() => navigator.clipboard.writeText(fullUrl)}
             className="p-1 hover:bg-muted rounded transition"
-            title="Copiar"
+            title={t("clinicWizard.copyTitle")}
           >
             <Copy className="h-4 w-4 text-muted-foreground" />
           </button>
@@ -1189,7 +1244,7 @@ function StepSuccess({
             target="_blank"
             rel="noopener noreferrer"
             className="p-1 hover:bg-muted rounded transition"
-            title="Abrir"
+            title={t("clinicWizard.openTitle")}
           >
             <ExternalLink className="h-4 w-4 text-muted-foreground" />
           </a>
@@ -1202,13 +1257,13 @@ function StepSuccess({
           className="px-6 py-2.5 bg-celeste text-white rounded-lg text-sm font-medium hover:bg-celeste/90 transition"
         >
           <Plus className="h-4 w-4 inline mr-1.5" />
-          Dar de alta otra clínica
+          {t("clinicWizard.createAnother")}
         </button>
         <a
           href="/dashboard/turnos-online"
           className="px-6 py-2.5 border border-border rounded-lg text-sm font-medium text-ink hover:bg-muted/50 transition"
         >
-          Ir a Turnos Online
+          {t("clinicWizard.goToBooking")}
         </a>
       </div>
     </div>

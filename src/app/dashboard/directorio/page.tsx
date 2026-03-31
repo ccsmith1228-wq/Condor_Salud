@@ -190,7 +190,7 @@ export default function DirectorioPage() {
           onClick={() =>
             !isDemo
               ? showToast(t("toast.directorio.addDoctor"))
-              : showDemo("Agregar nuevo médico al directorio")
+              : showDemo(t("directory.addDoctorDemo"))
           }
           className="px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
         >
@@ -299,7 +299,7 @@ export default function DirectorioPage() {
                 }}
                 className="mt-3 text-sm text-celeste-dark font-medium hover:underline"
               >
-                Limpiar filtros
+                {t("directory.clearFilters")}
               </button>
             </div>
           ) : (
@@ -322,7 +322,9 @@ export default function DirectorioPage() {
                         {renderStars(doc.rating)}
                         <span className="text-xs font-medium text-ink ml-1">{doc.rating}</span>
                       </div>
-                      <p className="text-[10px] text-ink-muted">{doc.reviews} reviews</p>
+                      <p className="text-[10px] text-ink-muted">
+                        {doc.reviews} {t("directory.reviewsCount")}
+                      </p>
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-1.5 mt-3">
@@ -336,7 +338,7 @@ export default function DirectorioPage() {
                     ))}
                     {doc.teleconsulta && (
                       <span className="text-[10px] bg-celeste-pale text-celeste-dark px-2 py-0.5 rounded font-bold">
-                        Teleconsulta
+                        {t("directory.teleconsulta")}
                       </span>
                     )}
                   </div>
@@ -386,27 +388,29 @@ export default function DirectorioPage() {
 
           <div className="bg-white border border-border rounded-lg overflow-hidden">
             <div className="bg-[#F8FAFB] px-5 py-3 border-b border-border flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-ink">Semana del 10/03/2026 — 14/03/2026</h3>
+              <h3 className="text-sm font-semibold text-ink">
+                {t("directory.weekOf")} 10/03/2026 — 14/03/2026
+              </h3>
               <div className="flex gap-2">
                 <button
                   onClick={() =>
                     !isDemo
                       ? showToast(t("toast.directorio.prevWeek"))
-                      : showDemo("Semana anterior")
+                      : showDemo(t("directory.previousWeekDemo"))
                   }
                   className="text-xs text-ink-muted hover:text-ink transition"
                 >
-                  Anterior
+                  {t("directory.previousWeek")}
                 </button>
                 <button
                   onClick={() =>
                     !isDemo
                       ? showToast(t("toast.directorio.nextWeek"))
-                      : showDemo("Semana siguiente")
+                      : showDemo(t("directory.nextWeekDemo"))
                   }
                   className="text-xs text-ink-muted hover:text-ink transition"
                 >
-                  Siguiente
+                  {t("directory.nextWeek")}
                 </button>
               </div>
             </div>
@@ -414,22 +418,22 @@ export default function DirectorioPage() {
               <thead>
                 <tr className="text-xs text-ink-muted">
                   <th scope="col" className="text-left font-medium px-5 py-3">
-                    Médico
+                    {t("directory.doctorHeader")}
                   </th>
                   <th scope="col" className="text-center font-medium px-5 py-3">
-                    Lun 10
+                    {t("directory.dayMon")} 10
                   </th>
                   <th scope="col" className="text-center font-medium px-5 py-3">
-                    Mar 11
+                    {t("directory.dayTue")} 11
                   </th>
                   <th scope="col" className="text-center font-medium px-5 py-3">
-                    Mié 12
+                    {t("directory.dayWed")} 12
                   </th>
                   <th scope="col" className="text-center font-medium px-5 py-3">
-                    Jue 13
+                    {t("directory.dayThu")} 13
                   </th>
                   <th scope="col" className="text-center font-medium px-5 py-3">
-                    Vie 14
+                    {t("directory.dayFri")} 14
                   </th>
                 </tr>
               </thead>
@@ -452,15 +456,19 @@ export default function DirectorioPage() {
                             <button
                               onClick={() =>
                                 !isDemo
-                                  ? showToast(`Ver ${slots} turnos disponibles — ${doc.name}`)
-                                  : showDemo(`Ver ${slots} turnos disponibles — ${doc.name}`)
+                                  ? showToast(
+                                      `${t("directory.viewAvailableSlots")} (${slots}) — ${doc.name}`,
+                                    )
+                                  : showDemo(
+                                      `${t("directory.viewAvailableSlots")} (${slots}) — ${doc.name}`,
+                                    )
                               }
                               className="text-xs font-medium text-success-600 hover:text-success-700 transition"
                             >
-                              {slots} turnos
+                              {slots} {t("directory.slots")}
                             </button>
                           ) : (
-                            <span className="text-xs text-ink-muted">Completo</span>
+                            <span className="text-xs text-ink-muted">{t("directory.full")}</span>
                           )}
                         </td>
                       );
@@ -499,7 +507,9 @@ export default function DirectorioPage() {
                       {renderStars(doc.rating)}
                       <span className="text-xs font-medium text-ink ml-1">{doc.rating}</span>
                     </div>
-                    <p className="text-[10px] text-ink-muted">{doc.reviews} reviews</p>
+                    <p className="text-[10px] text-ink-muted">
+                      {doc.reviews} {t("directory.reviewsCount")}
+                    </p>
                   </div>
                 </button>
               ))}
@@ -529,7 +539,7 @@ export default function DirectorioPage() {
                       {renderStars(selectedDoctor.rating)}
                       <span className="text-sm font-medium text-ink">{selectedDoctor.rating}</span>
                       <span className="text-xs text-ink-muted">
-                        ({selectedDoctor.reviews} reviews verificadas)
+                        ({selectedDoctor.reviews} {t("directory.verifiedReviewsLabel")})
                       </span>
                     </div>
                   </div>
@@ -537,23 +547,27 @@ export default function DirectorioPage() {
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
                   <div>
-                    <p className="text-[10px] text-ink-muted">Experiencia</p>
+                    <p className="text-[10px] text-ink-muted">{t("directory.experienceLabel")}</p>
                     <p className="text-sm font-medium text-ink">{selectedDoctor.experience}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-ink-muted">Idiomas</p>
+                    <p className="text-[10px] text-ink-muted">{t("directory.languagesLabel")}</p>
                     <p className="text-sm font-medium text-ink">
                       {(selectedDoctor.languages || []).join(", ")}
                     </p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-ink-muted">Teleconsulta</p>
+                    <p className="text-[10px] text-ink-muted">{t("directory.teleconsulta")}</p>
                     <p className="text-sm font-medium text-ink">
-                      {selectedDoctor.teleconsulta ? "Disponible" : "No disponible"}
+                      {selectedDoctor.teleconsulta
+                        ? t("directory.teleconsultaAvailable")
+                        : t("directory.teleconsultaNotAvailable")}
                     </p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-ink-muted">Próximo turno</p>
+                    <p className="text-[10px] text-ink-muted">
+                      {t("directory.nextAppointmentLabel")}
+                    </p>
                     <p className="text-sm font-medium text-success-600">
                       {selectedDoctor.nextSlot}
                     </p>
@@ -561,7 +575,9 @@ export default function DirectorioPage() {
                 </div>
 
                 <div className="mt-4">
-                  <p className="text-[10px] text-ink-muted mb-1.5">Financiadores aceptados</p>
+                  <p className="text-[10px] text-ink-muted mb-1.5">
+                    {t("directory.acceptedInsurers")}
+                  </p>
                   <div className="flex flex-wrap gap-1.5">
                     {(selectedDoctor.financiadores || []).map((f: string) => (
                       <span
@@ -584,19 +600,19 @@ export default function DirectorioPage() {
                       name: "Carlos M.",
                       rating: 5,
                       date: "02/03/2026",
-                      text: "Excelente profesional. Muy atento y dedicado. Explica todo con claridad.",
+                      text: t("directory.review1Text"),
                     },
                     {
                       name: "Ana L.",
                       rating: 5,
                       date: "25/02/2026",
-                      text: "La mejor cardióloga que consulté. Muy minuciosa en la revisión.",
+                      text: t("directory.review2Text"),
                     },
                     {
                       name: "Roberto P.",
                       rating: 4,
                       date: "18/02/2026",
-                      text: "Buena atención aunque el turno demoró un poco. Muy profesional.",
+                      text: t("directory.review3Text"),
                     },
                   ].map((review, i) => (
                     <div key={i} className="border-t border-border-light pt-3">
@@ -633,7 +649,7 @@ export default function DirectorioPage() {
                   <RideQuickLinks
                     name={selectedDoctor.name}
                     address={selectedDoctor.address}
-                    label="Ir con:"
+                    label={t("directory.goWith")}
                   />
                 </div>
               </div>
@@ -654,7 +670,7 @@ export default function DirectorioPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs text-ink-muted block mb-1" id="lbl-paciente-sim">
-                  Paciente
+                  {t("directory.patientLabel")}
                 </label>
                 <select
                   aria-labelledby="lbl-paciente-sim"
@@ -667,7 +683,7 @@ export default function DirectorioPage() {
               </div>
               <div>
                 <label className="text-xs text-ink-muted block mb-1" id="lbl-medico-sim">
-                  Médico
+                  {t("directory.doctorLabel")}
                 </label>
                 <select
                   aria-labelledby="lbl-medico-sim"
@@ -683,12 +699,8 @@ export default function DirectorioPage() {
             <button
               onClick={() =>
                 !isDemo
-                  ? showToast(
-                      "Verificación de cobertura: OSDE cubre consulta cardiológica al 80%. Copago estimado: $2.400. Confirmar turno?",
-                    )
-                  : showDemo(
-                      "Verificación de cobertura: OSDE cubre consulta cardiológica al 80%. Copago estimado: $2.400. Confirmar turno?",
-                    )
+                  ? showToast(t("directory.coverageVerificationToast"))
+                  : showDemo(t("directory.coverageVerificationToast"))
               }
               className="mt-4 px-5 py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded hover:bg-celeste transition"
             >
@@ -697,9 +709,8 @@ export default function DirectorioPage() {
           </div>
 
           <div className="border-l-[3px] border-celeste-dark bg-celeste-pale p-4 text-sm text-ink-light">
-            <strong className="text-ink">Verificación automática:</strong> Antes de confirmar el
-            turno, Cóndor Salud cruza los datos del paciente con su financiador para confirmar
-            cobertura, calcular copago y evitar rechazos posteriores.
+            <strong className="text-ink">{t("directory.autoVerification")}:</strong>{" "}
+            {t("directory.autoVerificationDesc")}
           </div>
 
           {/* Verification history */}
@@ -708,19 +719,19 @@ export default function DirectorioPage() {
               <thead>
                 <tr className="bg-[#F8FAFB] text-xs text-ink-muted">
                   <th scope="col" className="text-left font-medium px-5 py-3">
-                    Paciente
+                    {t("directory.patientLabel")}
                   </th>
                   <th scope="col" className="text-left font-medium px-5 py-3">
-                    Médico
+                    {t("directory.doctorLabel")}
                   </th>
                   <th scope="col" className="text-center font-medium px-5 py-3">
-                    Financiador
+                    {t("directory.insurerLabel")}
                   </th>
                   <th scope="col" className="text-center font-medium px-5 py-3">
-                    Cobertura
+                    {t("directory.coverageLabel")}
                   </th>
                   <th scope="col" className="text-center font-medium px-5 py-3">
-                    Verificación
+                    {t("directory.verificationLabel")}
                   </th>
                 </tr>
               </thead>
@@ -775,7 +786,9 @@ export default function DirectorioPage() {
                             : "bg-red-50 text-red-600"
                         }`}
                       >
-                        {v.status}
+                        {v.status === "Aprobado"
+                          ? t("directory.approved")
+                          : t("directory.noCoverage")}
                       </span>
                     </td>
                   </tr>
@@ -798,10 +811,10 @@ export default function DirectorioPage() {
             <select
               value={selectedSymptom}
               onChange={(e) => setSelectedSymptom(e.target.value)}
-              aria-label="Seleccionar síntoma del paciente"
+              aria-label={t("directory.selectSymptomAria")}
               className="w-full sm:w-auto px-4 py-2.5 border border-border rounded text-sm text-ink-light focus:outline-none focus:border-celeste-dark"
             >
-              <option value="">Seleccionar síntoma...</option>
+              <option value="">{t("directory.selectSymptom")}</option>
               {Object.keys(symptomToSpecialty).map((s) => (
                 <option key={s}>{s}</option>
               ))}
@@ -810,7 +823,7 @@ export default function DirectorioPage() {
             {selectedSymptom && (
               <div className="mt-4 space-y-2">
                 <p className="text-xs text-ink-muted">
-                  Especialidades recomendadas:{" "}
+                  {t("directory.recommendedSpecialties")}:{" "}
                   <span className="font-medium text-celeste-dark">
                     {(symptomToSpecialty[selectedSymptom] || []).join(", ")}
                   </span>
@@ -837,7 +850,9 @@ export default function DirectorioPage() {
                     </p>
                     <div className="flex items-center gap-2 mt-1">
                       {renderStars(doc.rating)}
-                      <span className="text-xs text-ink-muted">{doc.reviews} reviews</span>
+                      <span className="text-xs text-ink-muted">
+                        {doc.reviews} {t("directory.reviewsCount")}
+                      </span>
                     </div>
                   </div>
                   <div className="text-right shrink-0">
@@ -846,7 +861,7 @@ export default function DirectorioPage() {
                       onClick={() => router.push("/paciente/turnos")}
                       className="px-4 py-2 text-xs font-semibold bg-celeste-dark text-white rounded hover:bg-celeste transition inline-block text-center"
                     >
-                      Reservar
+                      {t("directory.book")}
                     </button>
                   </div>
                 </div>

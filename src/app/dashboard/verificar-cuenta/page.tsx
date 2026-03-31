@@ -23,26 +23,18 @@ const statusConfig = {
   pending: {
     icon: Clock,
     color: "text-yellow-600 bg-yellow-50 border-yellow-200",
-    label: "En Revisión",
-    description: "Tu solicitud está siendo revisada por nuestro equipo.",
   },
   approved: {
     icon: CheckCircle,
     color: "text-green-600 bg-green-50 border-green-200",
-    label: "Verificado",
-    description: "Tu perfil ha sido verificado exitosamente.",
   },
   rejected: {
     icon: AlertCircle,
     color: "text-red-600 bg-red-50 border-red-200",
-    label: "Rechazado",
-    description: "Tu solicitud fue rechazada. Por favor revisa los motivos e intenta nuevamente.",
   },
   needs_review: {
     icon: AlertCircle,
     color: "text-orange-600 bg-orange-50 border-orange-200",
-    label: "Requiere Corrección",
-    description: "Se necesitan documentos adicionales o correcciones.",
   },
 };
 
@@ -52,7 +44,7 @@ const statusConfig = {
 
 export default function VerificarCuentaPage() {
   const { showToast } = useToast();
-  const { locale } = useLocale();
+  const { t, locale } = useLocale();
   const [verification, setVerification] = useState<VerificationStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -110,7 +102,7 @@ export default function VerificarCuentaPage() {
 
       if (!res.ok) {
         const err = await res.json();
-        showToast(err.error || "Error al enviar", "error");
+        showToast(err.error || t("accountVerification.errorSubmit"), "error");
         return;
       }
 
@@ -132,7 +124,7 @@ export default function VerificarCuentaPage() {
 
       await checkStatus();
     } catch {
-      showToast("Error al enviar la solicitud", "error");
+      showToast(t("accountVerification.errorSubmitRequest"), "error");
     } finally {
       setSubmitting(false);
     }
@@ -158,32 +150,40 @@ export default function VerificarCuentaPage() {
       <div className="max-w-2xl mx-auto px-6 py-12">
         <div className="text-center mb-8">
           <Shield className="w-12 h-12 text-celeste mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-ink">Verificación de Cuenta</h1>
+          <h1 className="text-2xl font-bold text-ink">{t("accountVerification.title")}</h1>
         </div>
 
         <div className={`rounded-xl border p-6 ${cfg.color}`}>
           <div className="flex items-start gap-4">
             <Icon className="w-8 h-8 mt-1 flex-shrink-0" />
             <div>
-              <h2 className="text-xl font-bold">{cfg.label}</h2>
-              <p className="mt-1 opacity-80">{cfg.description}</p>
+              <h2 className="text-xl font-bold">
+                {t(`accountVerification.status.${verification.status}.label`)}
+              </h2>
+              <p className="mt-1 opacity-80">
+                {t(`accountVerification.status.${verification.status}.description`)}
+              </p>
 
               {verification.rejectionReason && (
                 <div className="mt-4 p-3 bg-white/60 rounded-lg">
-                  <p className="text-sm font-medium">Motivo:</p>
+                  <p className="text-sm font-medium">{t("accountVerification.rejectionReason")}</p>
                   <p className="text-sm">{verification.rejectionReason}</p>
                 </div>
               )}
 
               <div className="mt-4 space-y-1 text-sm opacity-70">
                 {verification.matriculaNacional && (
-                  <p>Matrícula Nacional: {verification.matriculaNacional}</p>
+                  <p>
+                    {t("accountVerification.nationalLicense")} {verification.matriculaNacional}
+                  </p>
                 )}
                 {verification.matriculaProvincial && (
-                  <p>Matrícula Provincial: {verification.matriculaProvincial}</p>
+                  <p>
+                    {t("accountVerification.provincialLicense")} {verification.matriculaProvincial}
+                  </p>
                 )}
                 <p>
-                  Enviado:{" "}
+                  {t("accountVerification.submittedAt")}{" "}
                   {new Date(verification.submittedAt).toLocaleDateString(
                     locale === "en" ? "en-US" : "es-AR",
                   )}
@@ -192,7 +192,9 @@ export default function VerificarCuentaPage() {
 
               {verification.documents.length > 0 && (
                 <div className="mt-4">
-                  <p className="text-sm font-medium mb-2">Documentos enviados:</p>
+                  <p className="text-sm font-medium mb-2">
+                    {t("accountVerification.submittedDocuments")}
+                  </p>
                   <div className="space-y-1">
                     {verification.documents.map((doc) => (
                       <div key={doc.id} className="flex items-center gap-2 text-sm">
@@ -214,7 +216,7 @@ export default function VerificarCuentaPage() {
               onClick={() => setVerification(null)}
               className="bg-celeste text-white px-6 py-2 rounded-lg hover:bg-celeste-dark transition"
             >
-              Enviar Nueva Solicitud
+              {t("accountVerification.resubmit")}
             </button>
           </div>
         )}
@@ -228,24 +230,21 @@ export default function VerificarCuentaPage() {
     <div className="max-w-2xl mx-auto px-6 py-12">
       <div className="text-center mb-8">
         <Shield className="w-12 h-12 text-celeste mx-auto mb-4" />
-        <h1 className="text-2xl font-bold text-ink">Verificar tu Cuenta Médica</h1>
-        <p className="mt-2 text-gray-600">
-          La verificación aumenta la confianza de los pacientes y desbloquea funcionalidades premium
-          como recetas digitales y perfil público.
-        </p>
+        <h1 className="text-2xl font-bold text-ink">{t("accountVerification.formTitle")}</h1>
+        <p className="mt-2 text-gray-600">{t("accountVerification.formDescription")}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Matrícula Nacional */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Matrícula Nacional (MN)
+            {t("accountVerification.nationalLicenseLabel")}
           </label>
           <input
             type="text"
             value={matriculaNacional}
             onChange={(e) => setMatriculaNacional(e.target.value)}
-            placeholder="Ej: MN 12345"
+            placeholder={t("accountVerification.nationalLicensePlaceholder")}
             className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-celeste/50 focus:border-celeste"
           />
         </div>
@@ -253,13 +252,13 @@ export default function VerificarCuentaPage() {
         {/* Matrícula Provincial */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Matrícula Provincial (MP)
+            {t("accountVerification.provincialLicenseLabel")}
           </label>
           <input
             type="text"
             value={matriculaProvincial}
             onChange={(e) => setMatriculaProvincial(e.target.value)}
-            placeholder="Ej: MP 6789"
+            placeholder={t("accountVerification.provincialLicensePlaceholder")}
             className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-celeste/50 focus:border-celeste"
           />
         </div>
@@ -267,13 +266,13 @@ export default function VerificarCuentaPage() {
         {/* DNI */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            DNI del Profesional
+            {t("accountVerification.dniLabel")}
           </label>
           <input
             type="text"
             value={dni}
             onChange={(e) => setDni(e.target.value)}
-            placeholder="Ej: 30123456"
+            placeholder={t("accountVerification.dniPlaceholder")}
             className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-celeste/50 focus:border-celeste"
           />
         </div>
@@ -281,11 +280,9 @@ export default function VerificarCuentaPage() {
         {/* Document Upload */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Documentos de Respaldo
+            {t("accountVerification.documentsLabel")}
           </label>
-          <p className="text-xs text-gray-500 mb-2">
-            Foto o scan de tu matrícula profesional y/o DNI. Formatos: JPG, PNG, PDF.
-          </p>
+          <p className="text-xs text-gray-500 mb-2">{t("accountVerification.documentsHelp")}</p>
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-celeste transition">
             <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
             <input
@@ -297,8 +294,10 @@ export default function VerificarCuentaPage() {
               id="doc-upload"
             />
             <label htmlFor="doc-upload" className="cursor-pointer">
-              <span className="text-celeste font-medium">Seleccionar archivos</span>
-              <span className="text-gray-500"> o arrastra aquí</span>
+              <span className="text-celeste font-medium">
+                {t("accountVerification.selectFiles")}
+              </span>
+              <span className="text-gray-500">{t("accountVerification.orDragHere")}</span>
             </label>
             {files.length > 0 && (
               <div className="mt-3 space-y-1">
@@ -314,11 +313,11 @@ export default function VerificarCuentaPage() {
 
         {/* Info box */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
-          <p className="font-medium">¿Qué pasa después?</p>
+          <p className="font-medium">{t("accountVerification.whatHappensNext")}</p>
           <ul className="mt-2 space-y-1 list-disc list-inside">
-            <li>Nuestro equipo revisará tu documentación en 24-48hs hábiles</li>
-            <li>Recibirás una notificación cuando tu cuenta sea verificada</li>
-            <li>El badge de verificación aparecerá en tu perfil público y recetas digitales</li>
+            <li>{t("accountVerification.reviewTimeline")}</li>
+            <li>{t("accountVerification.notificationInfo")}</li>
+            <li>{t("accountVerification.badgeInfo")}</li>
           </ul>
         </div>
 
@@ -330,12 +329,12 @@ export default function VerificarCuentaPage() {
           {submitting ? (
             <>
               <Loader2 className="w-5 h-5 animate-spin" />
-              Enviando...
+              {t("accountVerification.submitting")}
             </>
           ) : (
             <>
               <Shield className="w-5 h-5" />
-              Enviar Solicitud de Verificación
+              {t("accountVerification.submitButton")}
             </>
           )}
         </button>

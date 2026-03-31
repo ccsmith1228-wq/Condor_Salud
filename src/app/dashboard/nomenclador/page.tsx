@@ -13,7 +13,7 @@ import Link from "next/link";
 export default function NomencladorPage() {
   const { showToast } = useToast();
   const { showDemo } = useDemoAction();
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const { exportExcel, isExporting } = useExport();
   const { data: nomenclador = [], isLoading } = useNomencladorEntries();
   const [search, setSearch] = useState("");
@@ -43,7 +43,11 @@ export default function NomencladorPage() {
             <div>
               <h1 className="text-2xl font-bold text-ink">{t("nomenclator.title")}</h1>
               <p className="text-sm text-ink-muted mt-0.5">
-                {t("nomenclator.subtitle")} marzo 2026
+                {t("nomenclator.subtitle")}{" "}
+                {new Date().toLocaleDateString(locale === "en" ? "en-US" : "es-AR", {
+                  month: "long",
+                  year: "numeric",
+                })}
               </p>
             </div>
             <div className="flex gap-2">
@@ -153,10 +157,10 @@ export default function NomencladorPage() {
                     {t("nomenclator.module")}
                   </th>
                   <th scope="col" className="text-right px-5 py-2.5">
-                    Valor SSS
+                    {t("nomenclator.valueSSSHeader")}
                   </th>
                   <th scope="col" className="text-right px-5 py-2.5">
-                    Valor PAMI
+                    {t("nomenclator.valuePAMIHeader")}
                   </th>
                   {comparar && (
                     <th scope="col" className="text-right px-5 py-2.5">

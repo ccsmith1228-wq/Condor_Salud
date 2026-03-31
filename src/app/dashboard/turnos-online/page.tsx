@@ -49,24 +49,24 @@ type StatusFilter = "all" | "pending" | "confirmed" | "cancelled" | "completed" 
 // ─── Status badge helper ─────────────────────────────────────
 
 const STATUS_CONFIG = {
-  pending: { label: "Pendiente", labelEn: "Pending", color: "bg-yellow-100 text-yellow-800" },
-  notified: { label: "Notificada", labelEn: "Notified", color: "bg-blue-100 text-blue-800" },
-  confirmed: { label: "Confirmada", labelEn: "Confirmed", color: "bg-green-100 text-green-800" },
-  cancelled: { label: "Cancelada", labelEn: "Cancelled", color: "bg-red-100 text-red-800" },
-  completed: { label: "Completada", labelEn: "Completed", color: "bg-gray-100 text-gray-700" },
-  no_show: { label: "No asistió", labelEn: "No Show", color: "bg-orange-100 text-orange-800" },
+  pending: { key: "onlineBooking.statusPending", color: "bg-yellow-100 text-yellow-800" },
+  notified: { key: "onlineBooking.statusNotified", color: "bg-blue-100 text-blue-800" },
+  confirmed: { key: "onlineBooking.statusConfirmed", color: "bg-green-100 text-green-800" },
+  cancelled: { key: "onlineBooking.statusCancelled", color: "bg-red-100 text-red-800" },
+  completed: { key: "onlineBooking.statusCompleted", color: "bg-gray-100 text-gray-700" },
+  no_show: { key: "onlineBooking.statusNoShow", color: "bg-orange-100 text-orange-800" },
 } as const;
 
 type StatusKey = keyof typeof STATUS_CONFIG;
 
-function StatusBadge({ status, lang }: { status: string; lang: string }) {
+function StatusBadge({ status, t }: { status: string; t: (key: string) => string }) {
   const key = (status in STATUS_CONFIG ? status : "pending") as StatusKey;
   const cfg = STATUS_CONFIG[key];
   return (
     <span
       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${cfg.color}`}
     >
-      {lang === "en" ? cfg.labelEn : cfg.label}
+      {t(cfg.key)}
     </span>
   );
 }
@@ -75,9 +75,8 @@ function StatusBadge({ status, lang }: { status: string; lang: string }) {
 
 export default function TurnosOnlinePage() {
   const { showToast } = useToast();
-  const { locale } = useLocale();
+  const { t } = useLocale();
   const { user } = useAuth();
-  const lang = locale === "en" ? "en" : "es";
 
   // State
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -129,13 +128,13 @@ export default function TurnosOnlinePage() {
       setBookings(data.bookings || []);
       setTotalPages(data.pagination?.totalPages || 1);
     } catch {
-      showToast(lang === "en" ? "Error loading bookings" : "Error cargando turnos", "error");
+      showToast(t("onlineBooking.errorLoading"), "error");
       setBookings([]);
       setTotalPages(1);
     } finally {
       setLoading(false);
     }
-  }, [clinicSlug, page, statusFilter, dateFilter, lang, showToast]);
+  }, [clinicSlug, page, statusFilter, dateFilter, t, showToast]);
 
   useEffect(() => {
     fetchBookings();
@@ -160,20 +159,17 @@ export default function TurnosOnlinePage() {
         throw new Error(err.error || "Action failed");
       }
 
-      const labels: Record<string, { es: string; en: string }> = {
-        confirm: { es: "Turno confirmado", en: "Booking confirmed" },
-        cancel: { es: "Turno cancelado", en: "Booking cancelled" },
-        complete: { es: "Turno completado", en: "Booking completed" },
-        no_show: { es: "Marcado como no asistió", en: "Marked as no-show" },
+      const labels: Record<string, string> = {
+        confirm: "onlineBooking.toastConfirmed",
+        cancel: "onlineBooking.toastCancelled",
+        complete: "onlineBooking.toastCompleted",
+        no_show: "onlineBooking.toastNoShow",
       };
 
-      showToast(lang === "en" ? labels[action]!.en : labels[action]!.es, "success");
+      showToast(t(labels[action]!), "success");
       fetchBookings();
     } catch (err) {
-      showToast(
-        err instanceof Error ? err.message : lang === "en" ? "Action failed" : "Error en la acción",
-        "error",
-      );
+      showToast(err instanceof Error ? err.message : t("onlineBooking.actionFailed"), "error");
     } finally {
       setActionLoading(null);
     }
@@ -181,43 +177,10 @@ export default function TurnosOnlinePage() {
 
   const copyPublicUrl = () => {
     navigator.clipboard.writeText(publicUrl);
-    showToast(lang === "en" ? "Link copied!" : "¡Enlace copiado!", "success");
+    showToast(t("onlineBooking.linkCopied"), "success");
   };
 
   // ─── Render ──────────────────────────────────────────────
-  const t = {
-    title: lang === "en" ? "Online Bookings" : "Turnos Online",
-    subtitle:
-      lang === "en"
-        ? "Manage bookings from your public page"
-        : "Administrá los turnos de tu página pública",
-    publicPage: lang === "en" ? "Public booking page" : "Página pública de turnos",
-    copyLink: lang === "en" ? "Copy link" : "Copiar enlace",
-    openPage: lang === "en" ? "Open page" : "Abrir página",
-    filters: lang === "en" ? "Filters" : "Filtros",
-    allStatuses: lang === "en" ? "All statuses" : "Todos los estados",
-    date: lang === "en" ? "Date" : "Fecha",
-    refresh: lang === "en" ? "Refresh" : "Actualizar",
-    patient: lang === "en" ? "Patient" : "Paciente",
-    doctor: lang === "en" ? "Doctor" : "Médico",
-    dateTime: lang === "en" ? "Date & Time" : "Fecha y Hora",
-    type: lang === "en" ? "Type" : "Tipo",
-    status: lang === "en" ? "Status" : "Estado",
-    actions: lang === "en" ? "Actions" : "Acciones",
-    confirm: lang === "en" ? "Confirm" : "Confirmar",
-    cancel: lang === "en" ? "Cancel" : "Cancelar",
-    complete: lang === "en" ? "Complete" : "Completar",
-    noShow: lang === "en" ? "No show" : "No asistió",
-    noBookings: lang === "en" ? "No bookings found" : "No hay turnos",
-    noBookingsDesc:
-      lang === "en"
-        ? "Share your booking link to start receiving appointments"
-        : "Compartí tu link de turnos para empezar a recibir reservas",
-    presencial: lang === "en" ? "In-person" : "Presencial",
-    teleconsulta: lang === "en" ? "Teleconsultation" : "Teleconsulta",
-    bookedVia: lang === "en" ? "Booked via" : "Reservado por",
-    page: lang === "en" ? "Page" : "Página",
-  };
 
   return (
     <div className="space-y-6">
@@ -226,9 +189,9 @@ export default function TurnosOnlinePage() {
         <div>
           <h1 className="text-2xl font-bold text-ink flex items-center gap-2">
             <Calendar className="h-6 w-6 text-celeste" />
-            {t.title}
+            {t("onlineBooking.title")}
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">{t.subtitle}</p>
+          <p className="text-sm text-muted-foreground mt-1">{t("onlineBooking.subtitle")}</p>
         </div>
 
         {/* Public URL card */}
@@ -244,7 +207,7 @@ export default function TurnosOnlinePage() {
             <button
               onClick={copyPublicUrl}
               className="p-1 hover:bg-muted rounded transition"
-              title={t.copyLink}
+              title={t("onlineBooking.copyLink")}
             >
               <Copy className="h-3.5 w-3.5 text-muted-foreground" />
             </button>
@@ -253,7 +216,7 @@ export default function TurnosOnlinePage() {
               target="_blank"
               rel="noopener noreferrer"
               className="p-1 hover:bg-muted rounded transition"
-              title={t.openPage}
+              title={t("onlineBooking.openPage")}
             >
               <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
             </a>
@@ -275,22 +238,12 @@ export default function TurnosOnlinePage() {
           }}
           className="text-sm border border-border rounded-md px-3 py-1.5 bg-white focus:ring-2 focus:ring-celeste/50 focus:border-celeste outline-none"
         >
-          <option value="all">{t.allStatuses}</option>
-          <option value="pending">
-            {STATUS_CONFIG.pending[lang === "en" ? "labelEn" : "label"]}
-          </option>
-          <option value="confirmed">
-            {STATUS_CONFIG.confirmed[lang === "en" ? "labelEn" : "label"]}
-          </option>
-          <option value="cancelled">
-            {STATUS_CONFIG.cancelled[lang === "en" ? "labelEn" : "label"]}
-          </option>
-          <option value="completed">
-            {STATUS_CONFIG.completed[lang === "en" ? "labelEn" : "label"]}
-          </option>
-          <option value="no_show">
-            {STATUS_CONFIG.no_show[lang === "en" ? "labelEn" : "label"]}
-          </option>
+          <option value="all">{t("onlineBooking.allStatuses")}</option>
+          <option value="pending">{t(STATUS_CONFIG.pending.key)}</option>
+          <option value="confirmed">{t(STATUS_CONFIG.confirmed.key)}</option>
+          <option value="cancelled">{t(STATUS_CONFIG.cancelled.key)}</option>
+          <option value="completed">{t(STATUS_CONFIG.completed.key)}</option>
+          <option value="no_show">{t(STATUS_CONFIG.no_show.key)}</option>
         </select>
 
         <input
@@ -308,7 +261,7 @@ export default function TurnosOnlinePage() {
           className="ml-auto flex items-center gap-1.5 text-sm text-celeste hover:text-celeste/80 transition"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
-          {t.refresh}
+          {t("action.refresh")}
         </button>
       </div>
 
@@ -324,15 +277,17 @@ export default function TurnosOnlinePage() {
         ) : bookings.length === 0 ? (
           <div className="text-center py-16 px-4">
             <Calendar className="h-12 w-12 text-muted-foreground/40 mx-auto mb-3" />
-            <p className="text-lg font-medium text-ink">{t.noBookings}</p>
-            <p className="text-sm text-muted-foreground mt-1">{t.noBookingsDesc}</p>
+            <p className="text-lg font-medium text-ink">{t("onlineBooking.noBookings")}</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              {t("onlineBooking.noBookingsDesc")}
+            </p>
             {publicUrl && (
               <button
                 onClick={copyPublicUrl}
                 className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-celeste text-white rounded-lg text-sm hover:bg-celeste/90 transition"
               >
                 <Copy className="h-4 w-4" />
-                {t.copyLink}
+                {t("onlineBooking.copyLink")}
               </button>
             )}
           </div>
@@ -344,22 +299,22 @@ export default function TurnosOnlinePage() {
                 <thead className="bg-muted/50 border-b border-border">
                   <tr>
                     <th className="text-left px-4 py-3 font-medium text-muted-foreground">
-                      {t.patient}
+                      {t("label.patient")}
                     </th>
                     <th className="text-left px-4 py-3 font-medium text-muted-foreground">
-                      {t.doctor}
+                      {t("label.doctor")}
                     </th>
                     <th className="text-left px-4 py-3 font-medium text-muted-foreground">
-                      {t.dateTime}
+                      {t("onlineBooking.dateTime")}
                     </th>
                     <th className="text-left px-4 py-3 font-medium text-muted-foreground">
-                      {t.type}
+                      {t("onlineBooking.type")}
                     </th>
                     <th className="text-left px-4 py-3 font-medium text-muted-foreground">
-                      {t.status}
+                      {t("label.status")}
                     </th>
                     <th className="text-right px-4 py-3 font-medium text-muted-foreground">
-                      {t.actions}
+                      {t("onlineBooking.actions")}
                     </th>
                   </tr>
                 </thead>
@@ -408,24 +363,25 @@ export default function TurnosOnlinePage() {
                           ) : (
                             <User className="h-3.5 w-3.5 text-muted-foreground" />
                           )}
-                          {b.tipo === "teleconsulta" ? t.teleconsulta : t.presencial}
+                          {b.tipo === "teleconsulta"
+                            ? t("onlineBooking.teleconsulta")
+                            : t("onlineBooking.presencial")}
                         </span>
                         {b.booked_via && (
                           <div className="text-[10px] text-muted-foreground mt-0.5">
-                            {t.bookedVia}: {b.booked_via}
+                            {t("onlineBooking.bookedVia")}: {b.booked_via}
                           </div>
                         )}
                       </td>
                       {/* Status */}
                       <td className="px-4 py-3">
-                        <StatusBadge status={b.status} lang={lang} />
+                        <StatusBadge status={b.status} t={t} />
                       </td>
                       {/* Actions */}
                       <td className="px-4 py-3 text-right" data-tour="turnos-online-actions">
                         <ActionButtons
                           booking={b}
                           loading={actionLoading === b.id}
-                          lang={lang}
                           t={t}
                           onAction={handleAction}
                         />
@@ -445,7 +401,7 @@ export default function TurnosOnlinePage() {
                       <p className="font-medium text-ink">{b.patient_name}</p>
                       <p className="text-xs text-muted-foreground">{b.specialty}</p>
                     </div>
-                    <StatusBadge status={b.status} lang={lang} />
+                    <StatusBadge status={b.status} t={t} />
                   </div>
                   <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1">
@@ -458,7 +414,9 @@ export default function TurnosOnlinePage() {
                       ) : (
                         <User className="h-3 w-3" />
                       )}
-                      {b.tipo === "teleconsulta" ? t.teleconsulta : t.presencial}
+                      {b.tipo === "teleconsulta"
+                        ? t("onlineBooking.teleconsulta")
+                        : t("onlineBooking.presencial")}
                     </span>
                     {b.patient_phone && (
                       <a
@@ -474,7 +432,6 @@ export default function TurnosOnlinePage() {
                     <ActionButtons
                       booking={b}
                       loading={actionLoading === b.id}
-                      lang={lang}
                       t={t}
                       onAction={handleAction}
                     />
@@ -494,7 +451,7 @@ export default function TurnosOnlinePage() {
                   <ChevronLeft className="h-4 w-4" />
                 </button>
                 <span className="text-sm text-muted-foreground">
-                  {t.page} {page} / {totalPages}
+                  {t("onlineBooking.page")} {page} / {totalPages}
                 </span>
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
@@ -517,14 +474,12 @@ export default function TurnosOnlinePage() {
 function ActionButtons({
   booking,
   loading,
-  lang,
   t,
   onAction,
 }: {
   booking: Booking;
   loading: boolean;
-  lang: string;
-  t: Record<string, string>;
+  t: (key: string) => string;
   onAction: (id: string, action: "confirm" | "cancel" | "complete" | "no_show") => void;
 }) {
   if (loading) {
@@ -544,14 +499,14 @@ function ActionButtons({
             className={`${btnBase} bg-green-50 text-green-700 hover:bg-green-100`}
           >
             <Check className="h-3 w-3" />
-            {t.confirm}
+            {t("action.confirm")}
           </button>
           <button
             onClick={() => onAction(booking.id, "cancel")}
             className={`${btnBase} bg-red-50 text-red-700 hover:bg-red-100`}
           >
             <X className="h-3 w-3" />
-            {t.cancel}
+            {t("action.cancel")}
           </button>
         </div>
       );
@@ -563,14 +518,14 @@ function ActionButtons({
             className={`${btnBase} bg-blue-50 text-blue-700 hover:bg-blue-100`}
           >
             <Check className="h-3 w-3" />
-            {t.complete}
+            {t("onlineBooking.complete")}
           </button>
           <button
             onClick={() => onAction(booking.id, "no_show")}
             className={`${btnBase} bg-orange-50 text-orange-700 hover:bg-orange-100`}
           >
             <X className="h-3 w-3" />
-            {t.noShow}
+            {t("onlineBooking.noShow")}
           </button>
         </div>
       );

@@ -31,13 +31,13 @@ interface Verification {
   }[];
 }
 
-const DOC_TYPE_LABELS: Record<string, string> = {
-  matricula_frente: "Matrícula (Frente)",
-  matricula_dorso: "Matrícula (Dorso)",
-  dni_frente: "DNI (Frente)",
-  dni_dorso: "DNI (Dorso)",
-  titulo: "Título Universitario",
-  otro: "Otro Documento",
+const DOC_TYPE_KEYS: Record<string, string> = {
+  matricula_frente: "verifications.docLicenseFront",
+  matricula_dorso: "verifications.docLicenseBack",
+  dni_frente: "verifications.docDniFront",
+  dni_dorso: "verifications.docDniBack",
+  titulo: "verifications.docDegree",
+  otro: "verifications.docOther",
 };
 
 export default function VerificacionesAdminPage() {
@@ -82,7 +82,11 @@ export default function VerificacionesAdminPage() {
       if (!res.ok) throw new Error();
 
       setVerifications((prev) => prev.filter((v) => v.id !== id));
-      showToast(status === "approved" ? "Médico verificado" : "Verificación rechazada");
+      showToast(
+        status === "approved"
+          ? t("toast.verificaciones.approved")
+          : t("toast.verificaciones.rejected"),
+      );
       setRejectionReason("");
     } catch {
       showToast(t("toast.verificaciones.processError"), "error");
@@ -102,17 +106,15 @@ export default function VerificacionesAdminPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-display font-bold text-ink">Verificación de Médicos</h1>
-        <p className="text-sm text-ink/60 mt-0.5">
-          Revisá la matrícula y DNI de médicos que solicitan verificación
-        </p>
+        <h1 className="text-2xl font-display font-bold text-ink">{t("verifications.title")}</h1>
+        <p className="text-sm text-ink/60 mt-0.5">{t("verifications.subtitle")}</p>
       </div>
 
       {verifications.length === 0 ? (
         <div className="text-center py-16 bg-surface rounded-2xl">
           <Shield className="w-12 h-12 text-ink/20 mx-auto mb-3" />
-          <p className="font-semibold text-ink">No hay verificaciones pendientes</p>
-          <p className="text-sm text-ink/50 mt-1">Todas las solicitudes han sido procesadas</p>
+          <p className="font-semibold text-ink">{t("verifications.noPending")}</p>
+          <p className="text-sm text-ink/50 mt-1">{t("verifications.allProcessed")}</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -159,20 +161,22 @@ export default function VerificacionesAdminPage() {
                     <div className="grid grid-cols-3 gap-4 pt-4">
                       <div>
                         <p className="text-[10px] text-ink/40 uppercase tracking-wider">
-                          Matrícula Nacional
+                          {t("verifications.nationalLicense")}
                         </p>
                         <p className="text-sm font-medium text-ink">{v.matriculaNacional || "—"}</p>
                       </div>
                       <div>
                         <p className="text-[10px] text-ink/40 uppercase tracking-wider">
-                          Matrícula Provincial
+                          {t("verifications.provincialLicense")}
                         </p>
                         <p className="text-sm font-medium text-ink">
                           {v.matriculaProvincial || "—"}
                         </p>
                       </div>
                       <div>
-                        <p className="text-[10px] text-ink/40 uppercase tracking-wider">DNI</p>
+                        <p className="text-[10px] text-ink/40 uppercase tracking-wider">
+                          {t("verifications.dni")}
+                        </p>
                         <p className="text-sm font-medium text-ink">{v.dni || "—"}</p>
                       </div>
                     </div>
@@ -180,7 +184,7 @@ export default function VerificacionesAdminPage() {
                     {/* Documents */}
                     <div>
                       <p className="text-[10px] font-bold text-ink/40 uppercase tracking-wider mb-2">
-                        Documentos Subidos
+                        {t("verifications.uploadedDocs")}
                       </p>
                       <div className="grid grid-cols-2 gap-2">
                         {v.documents.map((doc) => (
@@ -191,7 +195,9 @@ export default function VerificacionesAdminPage() {
                             <FileText className="w-4 h-4 text-celeste shrink-0" />
                             <div className="flex-1 min-w-0">
                               <p className="text-xs font-medium text-ink truncate">
-                                {DOC_TYPE_LABELS[doc.documentType] || doc.documentType}
+                                {DOC_TYPE_KEYS[doc.documentType]
+                                  ? t(DOC_TYPE_KEYS[doc.documentType] as Parameters<typeof t>[0])
+                                  : doc.documentType}
                               </p>
                               <p className="text-[10px] text-ink/40 truncate">{doc.fileName}</p>
                             </div>
@@ -206,13 +212,13 @@ export default function VerificacionesAdminPage() {
                     {/* Rejection reason input */}
                     <div>
                       <label className="text-[10px] text-ink/40 uppercase tracking-wider">
-                        Motivo de rechazo (opcional)
+                        {t("verifications.rejectionLabel")}
                       </label>
                       <input
                         type="text"
                         value={rejectionReason}
                         onChange={(e) => setRejectionReason(e.target.value)}
-                        placeholder="Ej: Matrícula ilegible, DNI no coincide..."
+                        placeholder={t("verifications.rejectionPlaceholder")}
                         className="mt-1 w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-celeste/40"
                       />
                     </div>
@@ -229,7 +235,7 @@ export default function VerificacionesAdminPage() {
                         ) : (
                           <CheckCircle2 className="w-4 h-4" />
                         )}
-                        Aprobar
+                        {t("verifications.approve")}
                       </button>
                       <button
                         onClick={() => handleReview(v.id, "rejected")}
@@ -237,7 +243,7 @@ export default function VerificacionesAdminPage() {
                         className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition disabled:opacity-50"
                       >
                         <XCircle className="w-4 h-4" />
-                        Rechazar
+                        {t("verifications.reject")}
                       </button>
                     </div>
                   </div>

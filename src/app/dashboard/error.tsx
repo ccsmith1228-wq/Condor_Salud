@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import * as Sentry from "@sentry/nextjs";
+import { useLocale } from "@/lib/i18n/context";
 import { Button } from "@/components/ui/Button";
 
 export default function DashboardError({
@@ -11,6 +12,8 @@ export default function DashboardError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const { t } = useLocale();
+
   useEffect(() => {
     Sentry.captureException(error, {
       tags: { boundary: "dashboard" },
@@ -36,16 +39,14 @@ export default function DashboardError({
             />
           </svg>
         </div>
-        <h2 className="text-xl font-bold text-ink mb-2">Error en el módulo</h2>
-        <p className="text-sm text-ink-muted mb-6">
-          Ocurrió un error al cargar esta sección. Podés intentar de nuevo o volver al dashboard.
-        </p>
+        <h2 className="text-xl font-bold text-ink mb-2">{t("error.moduleError")}</h2>
+        <p className="text-sm text-ink-muted mb-6">{t("error.sectionLoadFailed")}</p>
         <div className="flex items-center justify-center gap-3">
           <Button onClick={reset} variant="primary" size="sm">
-            Reintentar
+            {t("action.retry")}
           </Button>
           <Button onClick={() => (window.location.href = "/dashboard")} variant="outline" size="sm">
-            Ir al dashboard
+            {t("action.goToDashboard")}
           </Button>
         </div>
       </div>

@@ -13,18 +13,19 @@ import { useRechazos } from "@/hooks/use-data";
 import { useIsDemo } from "@/lib/auth/context";
 import { Download, Loader2 } from "lucide-react";
 
-const motivoLabels: Record<RechazoMotivo, string> = {
-  codigo_invalido: "Código inválido",
-  afiliado_no_encontrado: "Afiliado no encontrado",
-  vencida: "Factura vencida",
-  duplicada: "Factura duplicada",
-  sin_autorizacion: "Sin autorización previa",
-  datos_incompletos: "Datos incompletos",
-  nomenclador_desactualizado: "Nomenclador desactualizado",
-};
-
 export default function RechazosPage() {
   const { t } = useLocale();
+
+  const motivoLabels: Record<RechazoMotivo, string> = {
+    codigo_invalido: t("rejections.invalidCode"),
+    afiliado_no_encontrado: t("rejections.affiliateNotFound"),
+    vencida: t("rejections.expiredInvoice"),
+    duplicada: t("rejections.duplicateInvoice"),
+    sin_autorizacion: t("rejections.noAuth"),
+    datos_incompletos: t("rejections.incompleteData"),
+    nomenclador_desactualizado: t("rejections.outdatedNomenclator"),
+  };
+
   const { showToast } = useToast();
   const { showDemo } = useDemoAction();
   const isDemo = useIsDemo();
@@ -250,7 +251,7 @@ export default function RechazosPage() {
             <Select
               label={t("billing.insurer")}
               options={[
-                { value: "Todos", label: "Todos" },
+                { value: "Todos", label: t("label.all") },
                 { value: "PAMI", label: "PAMI" },
                 { value: "IOMA", label: "IOMA" },
               ]}
@@ -260,10 +261,10 @@ export default function RechazosPage() {
             <Select
               label={t("label.status")}
               options={[
-                { value: "todos", label: "Todos" },
-                { value: "pendiente", label: "Pendiente" },
-                { value: "reprocesado", label: "Reprocesado" },
-                { value: "descartado", label: "Descartado" },
+                { value: "todos", label: t("label.all") },
+                { value: "pendiente", label: t("status.pending") },
+                { value: "reprocesado", label: t("rejections.reprocessed") },
+                { value: "descartado", label: t("rejections.discarded") },
               ]}
               value={filtroEstado}
               onChange={(e) => setFiltroEstado(e.target.value)}
@@ -377,9 +378,7 @@ export default function RechazosPage() {
         {filtered.length === 0 && (
           <Card>
             <CardContent className="pt-12 pb-12 text-center">
-              <div className="text-sm text-ink-muted">
-                No se encontraron {t("rejections.rejections")} con los filtros seleccionados.
-              </div>
+              <div className="text-sm text-ink-muted">{t("rejections.noResults")}</div>
             </CardContent>
           </Card>
         )}
