@@ -55,8 +55,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Base de datos no configurada" }, { status: 503 });
     }
 
-    const { createClient } = await import("@/lib/supabase/server");
-    const supabase = createClient();
+    // Use service role client — our custom auth (condor_session) doesn't
+    // create Supabase sessions, so the anon-key client is blocked by RLS.
+    const { createClient: createSupa } = await import("@supabase/supabase-js");
+    const supabase = createSupa(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    );
 
     const { data, error } = await supabase
       .from("pacientes")
