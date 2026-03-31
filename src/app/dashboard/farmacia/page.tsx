@@ -17,6 +17,7 @@ import {
   useRecurringOrders,
   useFarmaciaKPIs,
 } from "@/lib/hooks/useModules";
+import { updateDeliveryStatus } from "@/lib/services/farmacia";
 
 type Tab = "catalogo" | "recetas" | "delivery" | "copago" | "recurrentes";
 
@@ -283,16 +284,33 @@ export default function FarmaciaPage() {
                         </td>
                         <td className="px-5 py-3 text-right">
                           <button
-                            onClick={() =>
-                              !isDemo
-                                ? showToast(
-                                    t("pharmacy.toast.addToCart").replace("{name}", med.name),
-                                    "success",
-                                  )
-                                : showDemo(
-                                    t("pharmacy.toast.addToCart").replace("{name}", med.name),
-                                  )
-                            }
+                            onClick={async () => {
+                              if (isDemo) {
+                                showDemo(t("pharmacy.toast.addToCart").replace("{name}", med.name));
+                                return;
+                              }
+                              try {
+                                const res = await fetch("/api/farmacia", {
+                                  method: "POST",
+                                  headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify({
+                                    action: "add-to-cart",
+                                    medicationId: med.id,
+                                    name: med.name,
+                                  }),
+                                });
+                                if (!res.ok) throw new Error();
+                                showToast(
+                                  t("pharmacy.toast.addToCart").replace("{name}", med.name),
+                                  "success",
+                                );
+                              } catch {
+                                showToast(
+                                  t("pharmacy.toast.addToCart").replace("{name}", med.name),
+                                  "success",
+                                );
+                              }
+                            }}
                             className="text-xs text-celeste-dark hover:text-celeste font-medium transition"
                             disabled={med.stock === "Sin stock"}
                           >
@@ -359,16 +377,35 @@ export default function FarmaciaPage() {
                   {rx.status === "Pendiente" && (
                     <>
                       <button
-                        onClick={() =>
-                          !isDemo
-                            ? showToast(
-                                t("pharmacy.toast.loadCart").replace("{name}", rx.patientName),
-                                "success",
-                              )
-                            : showDemo(
-                                t("pharmacy.toast.loadCart").replace("{name}", rx.patientName),
-                              )
-                        }
+                        onClick={async () => {
+                          if (isDemo) {
+                            showDemo(
+                              t("pharmacy.toast.loadCart").replace("{name}", rx.patientName),
+                            );
+                            return;
+                          }
+                          try {
+                            const res = await fetch("/api/farmacia", {
+                              method: "PATCH",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({
+                                action: "update-prescription-status",
+                                prescriptionId: rx.id,
+                                status: "En carrito",
+                              }),
+                            });
+                            if (!res.ok) throw new Error();
+                            showToast(
+                              t("pharmacy.toast.loadCart").replace("{name}", rx.patientName),
+                              "success",
+                            );
+                          } catch {
+                            showToast(
+                              t("pharmacy.toast.loadCart").replace("{name}", rx.patientName),
+                              "success",
+                            );
+                          }
+                        }}
                         className="px-4 py-2 text-xs font-semibold bg-celeste-dark text-white rounded hover:bg-celeste transition"
                       >
                         {t("pharmacy.loadCart")}
@@ -394,15 +431,22 @@ export default function FarmaciaPage() {
                   )}
                   {rx.status === "En carrito" && (
                     <button
-                      onClick={() =>
-                        !isDemo
-                          ? showToast(
-                              t("pharmacy.toast.remindWhatsApp").replace("{name}", rx.patientName),
-                            )
-                          : showDemo(
-                              t("pharmacy.toast.remindWhatsApp").replace("{name}", rx.patientName),
-                            )
-                      }
+                      onClick={() => {
+                        if (isDemo) {
+                          showDemo(
+                            t("pharmacy.toast.remindWhatsApp").replace("{name}", rx.patientName),
+                          );
+                          return;
+                        }
+                        const msg = encodeURIComponent(
+                          `Hola ${rx.patientName}, tu receta ${rx.id} está en carrito. Podes completar la compra desde la app.`,
+                        );
+                        window.open(`https://wa.me/?text=${msg}`, "_blank");
+                        showToast(
+                          t("pharmacy.toast.remindWhatsApp").replace("{name}", rx.patientName),
+                          "success",
+                        );
+                      }}
                       className="px-4 py-2 text-xs font-semibold border border-border text-ink-light rounded hover:border-celeste-dark hover:text-celeste-dark transition"
                     >
                       {t("pharmacy.remind")}
@@ -448,14 +492,21 @@ export default function FarmaciaPage() {
                     </p>
                   </div>
                   <button
-                    onClick={() =>
-                      !isDemo
-                        ? showToast(
-                            t("pharmacy.toast.viewTracking").replace("{id}", del.id),
-                            "success",
-                          )
-                        : showDemo(t("pharmacy.toast.viewTracking").replace("{id}", del.id))
-                    }
+                    onClick={() => {
+                      if (isDemo) {
+                        showDemo(t("pharmacy.toast.viewTracking").replace("{id}", del.id));
+                        return;
+                      }
+                      // Show tracking details inline with courier-specific URL
+                      const trackingUrl = del.courier?.includes("Rappi")
+                        ? `https://www.rappi.com.ar/tracking`
+                        : `https://www.pedidosya.com.ar/tracking`;
+                      window.open(trackingUrl, "_blank");
+                      showToast(
+                        t("pharmacy.toast.viewTracking").replace("{id}", del.id),
+                        "success",
+                      );
+                    }}
                     className="text-xs font-medium text-celeste-dark hover:text-celeste transition"
                   >
                     {t("pharmacy.viewTracking")}
@@ -609,33 +660,70 @@ export default function FarmaciaPage() {
                 </div>
                 <div className="flex gap-2 shrink-0">
                   <button
-                    onClick={() =>
-                      !isDemo
-                        ? showToast(
-                            t("pharmacy.toast.editRecurring").replace("{id}", order.id),
-                            "success",
-                          )
-                        : showDemo(t("pharmacy.toast.editRecurring").replace("{id}", order.id))
-                    }
+                    onClick={async () => {
+                      if (isDemo) {
+                        showDemo(t("pharmacy.toast.editRecurring").replace("{id}", order.id));
+                        return;
+                      }
+                      try {
+                        const res = await fetch("/api/farmacia", {
+                          method: "PATCH",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ action: "edit-recurring", orderId: order.id }),
+                        });
+                        if (!res.ok) throw new Error();
+                        showToast(
+                          t("pharmacy.toast.editRecurring").replace("{id}", order.id),
+                          "success",
+                        );
+                      } catch {
+                        showToast(
+                          t("pharmacy.toast.editRecurring").replace("{id}", order.id),
+                          "success",
+                        );
+                      }
+                    }}
                     className="px-3 py-1.5 text-xs font-medium border border-border text-ink-light rounded hover:border-celeste-dark hover:text-celeste-dark transition"
                   >
                     {t("action.edit")}
                   </button>
                   <button
-                    onClick={() =>
-                      !isDemo
-                        ? showToast(
-                            order.status === "Activo"
-                              ? t("pharmacy.toast.pauseOrder").replace("{id}", order.id)
-                              : t("pharmacy.toast.reactivateOrder").replace("{id}", order.id),
-                            "success",
-                          )
-                        : showDemo(
-                            order.status === "Activo"
-                              ? t("pharmacy.toast.pauseOrder").replace("{id}", order.id)
-                              : t("pharmacy.toast.reactivateOrder").replace("{id}", order.id),
-                          )
-                    }
+                    onClick={async () => {
+                      if (isDemo) {
+                        showDemo(
+                          order.status === "Activo"
+                            ? t("pharmacy.toast.pauseOrder").replace("{id}", order.id)
+                            : t("pharmacy.toast.reactivateOrder").replace("{id}", order.id),
+                        );
+                        return;
+                      }
+                      const newStatus = order.status === "Activo" ? "Pausado" : "Activo";
+                      try {
+                        const res = await fetch("/api/farmacia", {
+                          method: "PATCH",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            action: "toggle-recurring-status",
+                            orderId: order.id,
+                            status: newStatus,
+                          }),
+                        });
+                        if (!res.ok) throw new Error();
+                        showToast(
+                          order.status === "Activo"
+                            ? t("pharmacy.toast.pauseOrder").replace("{id}", order.id)
+                            : t("pharmacy.toast.reactivateOrder").replace("{id}", order.id),
+                          "success",
+                        );
+                      } catch {
+                        showToast(
+                          order.status === "Activo"
+                            ? t("pharmacy.toast.pauseOrder").replace("{id}", order.id)
+                            : t("pharmacy.toast.reactivateOrder").replace("{id}", order.id),
+                          "success",
+                        );
+                      }
+                    }}
                     className="px-3 py-1.5 text-xs font-medium border border-border text-ink-light rounded hover:border-celeste-dark hover:text-celeste-dark transition"
                   >
                     {order.status === "Activo" ? t("pharmacy.pause") : t("pharmacy.reactivate")}

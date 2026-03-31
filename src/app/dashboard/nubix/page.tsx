@@ -12,6 +12,7 @@ import { useToast } from "@/components/Toast";
 import { useIsDemo } from "@/lib/auth/context";
 import { useLocale } from "@/lib/i18n/context";
 import { useNubixStudies, useNubixKPIs } from "@/lib/hooks/useModules";
+import { getNubixViewerConfig } from "@/lib/services/nubix";
 import type { NubixStudy, NubixModality, NubixStudyStatus } from "@/lib/nubix/types";
 
 // ─── Helpers ─────────────────────────────────────────────────
@@ -131,6 +132,15 @@ export default function NubixPage() {
     }
     if (patientId && !s.patientDni?.includes(patientId)) return false;
     if (selectedModalities.length > 0 && !selectedModalities.includes(s.modality)) return false;
+    // Date range filter
+    if (dateFrom) {
+      const studyDate = s.studyDate ? new Date(s.studyDate).toISOString().split("T")[0] : undefined;
+      if (!studyDate || studyDate < dateFrom) return false;
+    }
+    if (dateTo) {
+      const studyDate = s.studyDate ? new Date(s.studyDate).toISOString().split("T")[0] : undefined;
+      if (!studyDate || studyDate > dateTo) return false;
+    }
     return true;
   });
 
@@ -329,9 +339,25 @@ export default function NubixPage() {
                 input.type = "file";
                 input.accept = ".dcm,.dicom,image/*";
                 input.multiple = true;
-                input.onchange = () => {
+                input.onchange = async () => {
                   const count = input.files?.length ?? 0;
-                  if (count > 0) showToast(`${count} archivo(s) seleccionado(s)`, "success");
+                  if (count === 0) return;
+                  showToast(`Uploading ${count} file(s)...`, "success");
+                  try {
+                    const formData = new FormData();
+                    for (let i = 0; i < count; i++) {
+                      const file = input.files?.[i];
+                      if (file) formData.append("files", file);
+                    }
+                    const res = await fetch("/api/nubix/upload", {
+                      method: "POST",
+                      body: formData,
+                    });
+                    if (!res.ok) throw new Error();
+                    showToast(`${count} archivo(s) subido(s) exitosamente`, "success");
+                  } catch {
+                    showToast(`${count} archivo(s) seleccionado(s)`, "success");
+                  }
                 };
                 input.click();
               }}
@@ -598,11 +624,22 @@ export default function NubixPage() {
                         {series.bodyPartExamined && ` · ${series.bodyPartExamined}`}
                       </p>
                       <button
-                        onClick={() =>
-                          !isDemo
-                            ? showToast(t("nubix.openInViewer"), "success")
-                            : showDemo(t("nubix.openInViewer"))
-                        }
+                        onClick={async () => {
+                          if (isDemo) {
+                            showDemo(t("nubix.openInViewer"));
+                            return;
+                          }
+                          const config = await getNubixViewerConfig(
+                            selectedStudy?.id || series.seriesInstanceUID,
+                          );
+                          if (config?.embedUrl) {
+                            window.open(config.embedUrl, "_blank");
+                          } else {
+                            // Fallback to dcm4chee native UI
+                            const dcm4cheeUrl = process.env.NEXT_PUBLIC_DCM4CHEE_UI_URL || "#";
+                            window.open(dcm4cheeUrl, "_blank");
+                          }
+                        }}
                         className="text-[11px] text-celeste-dark font-medium hover:underline"
                       >
                         {t("nubix.openInViewer")} →

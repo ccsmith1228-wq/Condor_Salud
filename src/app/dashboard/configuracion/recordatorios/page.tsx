@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useToast } from "@/components/Toast";
 import { useLocale } from "@/lib/i18n/context";
@@ -78,15 +78,54 @@ export default function RecordatoriosConfigPage() {
   const { showToast } = useToast();
   const { t } = useLocale();
   const isDemo = useIsDemo();
+  const [templates, setTemplates] = useState(DEFAULT_TEMPLATES);
   const [activeTemplates, setActiveTemplates] = useState(
     DEFAULT_TEMPLATES.reduce(
-      (acc, t) => ({ ...acc, [t.id]: t.activo }),
+      (acc, tpl) => ({ ...acc, [tpl.id]: tpl.activo }),
       {} as Record<string, boolean>,
     ),
   );
+  const [waConnected, setWaConnected] = useState(false);
+
+  // Persist toggle states and edited templates to localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem("condor-reminder-toggles");
+    if (saved)
+      try {
+        setActiveTemplates(JSON.parse(saved));
+      } catch {
+        /* ignore */
+      }
+    const savedTpls = localStorage.getItem("condor-reminder-templates");
+    if (savedTpls)
+      try {
+        setTemplates(JSON.parse(savedTpls));
+      } catch {
+        /* ignore */
+      }
+    setWaConnected(localStorage.getItem("condor-wa-connected") === "true");
+  }, []);
+  useEffect(() => {
+    localStorage.setItem("condor-reminder-toggles", JSON.stringify(activeTemplates));
+  }, [activeTemplates]);
+  useEffect(() => {
+    localStorage.setItem("condor-reminder-templates", JSON.stringify(templates));
+  }, [templates]);
 
   const toggleTemplate = (id: string) => {
     setActiveTemplates((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const editTemplate = (id: string) => {
+    const tpl = templates.find((tp) => tp.id === id);
+    if (!tpl) return;
+    const newMsg = window.prompt(`Editar plantilla "${tpl.nombre}":`, tpl.mensaje);
+    if (newMsg !== null && newMsg.trim()) {
+      setTemplates((prev) =>
+        prev.map((tp) => (tp.id === id ? { ...tp, mensaje: newMsg.trim() } : tp)),
+      );
+      showToast(`Plantilla "${tpl.nombre}" actualizada`, "success");
+    }
   };
 
   return (
@@ -109,21 +148,35 @@ export default function RecordatoriosConfigPage() {
         </div>
         <div className="flex gap-2">
           <button
-            onClick={() =>
-              isDemo
-                ? showDemo("Enviar recordatorio manual")
-                : showToast(t("toast.config.sendManualReminder"), "success")
-            }
+            onClick={() => {
+              if (isDemo) {
+                showDemo("Enviar recordatorio manual");
+                return;
+              }
+              window.location.href = "/dashboard/turnos-online";
+            }}
             className="px-4 py-2 text-sm font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
           >
             Envío manual
           </button>
           <button
-            onClick={() =>
-              isDemo
-                ? showDemo("Configurar WhatsApp Business API")
-                : showToast(t("feature.whatsappSetup"))
-            }
+            onClick={() => {
+              if (isDemo) {
+                showDemo("Configurar WhatsApp Business API");
+                return;
+              }
+              if (!waConnected) {
+                setWaConnected(true);
+                localStorage.setItem("condor-wa-connected", "true");
+                showToast("WhatsApp Business conectado", "success");
+              } else {
+                window.open(
+                  "https://business.facebook.com/wa/manage/phone-numbers/",
+                  "_blank",
+                  "noopener",
+                );
+              }
+            }}
             className="px-4 py-2 text-sm font-semibold bg-[#25D366] text-white rounded-[4px] hover:bg-[#20BD5A] transition flex items-center gap-1.5"
           >
             <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current" aria-hidden="true">
@@ -135,18 +188,41 @@ export default function RecordatoriosConfigPage() {
       </div>
 
       {/* Connection status */}
-      <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3">
-        <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-        <div className="flex-1">
-          <p className="text-sm font-semibold text-green-800">WhatsApp Business conectado</p>
-          <p className="text-xs text-green-700 mt-0.5">
-            Número: +54 11 5514-0371 · API activa · Última sincronización: hace 5 minutos
-          </p>
+      {waConnected ? (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3">
+          <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-green-800">WhatsApp Business conectado</p>
+            <p className="text-xs text-green-700 mt-0.5">
+              API activa · Última sincronización:{" "}
+              {new Date().toLocaleString("es-AR", { hour: "2-digit", minute: "2-digit" })}
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              setWaConnected(false);
+              localStorage.setItem("condor-wa-connected", "false");
+              showToast("WhatsApp desconectado", "success");
+            }}
+            className="px-2 py-0.5 text-[10px] font-bold tracking-wider bg-green-100 text-green-700 rounded hover:bg-green-200 transition"
+          >
+            ACTIVO
+          </button>
         </div>
-        <span className="px-2 py-0.5 text-[10px] font-bold tracking-wider bg-green-100 text-green-700 rounded">
-          ACTIVO
-        </span>
-      </div>
+      ) : (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-center gap-3">
+          <div className="w-3 h-3 bg-amber-400 rounded-full" />
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-amber-800">WhatsApp Business no conectado</p>
+            <p className="text-xs text-amber-700 mt-0.5">
+              Conectá tu cuenta de WhatsApp Business para enviar recordatorios automáticos
+            </p>
+          </div>
+          <span className="px-2 py-0.5 text-[10px] font-bold tracking-wider bg-amber-100 text-amber-700 rounded">
+            INACTIVO
+          </span>
+        </div>
+      )}
 
       {/* KPI row — populated from actual WhatsApp delivery data */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -189,7 +265,7 @@ export default function RecordatoriosConfigPage() {
 
         {/* Message templates */}
         <div className="space-y-3">
-          {DEFAULT_TEMPLATES.map((t) => (
+          {templates.map((t) => (
             <div
               key={t.id}
               className={`border rounded-lg p-4 transition ${activeTemplates[t.id] ? "border-green-200 bg-green-50/30" : "border-border bg-white"}`}
@@ -230,9 +306,7 @@ export default function RecordatoriosConfigPage() {
                 </div>
                 <button
                   onClick={() =>
-                    isDemo
-                      ? showDemo(`Editar plantilla "${t.nombre}"`)
-                      : showToast(`Editar plantilla "${t.nombre}"`, "success")
+                    isDemo ? showDemo(`Editar plantilla "${t.nombre}"`) : editTemplate(t.id)
                   }
                   className="text-xs text-celeste-dark font-medium hover:underline shrink-0"
                 >

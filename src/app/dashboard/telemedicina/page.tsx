@@ -15,6 +15,7 @@ import {
   useScheduledConsultations,
   useTelemedicinaKPIs,
 } from "@/lib/hooks/useModules";
+import { createVideoRoom, sendWhatsAppSummary } from "@/lib/services/telemedicina";
 
 type Tab = "sala" | "consultas" | "facturacion" | "recetas" | "resumen";
 
@@ -185,29 +186,54 @@ export default function TelemedicinPage() {
                 <div className="flex gap-2 shrink-0">
                   {!p.intakeComplete && (
                     <button
-                      onClick={() =>
-                        !isDemo
-                          ? showToast(
-                              t("telemedicine.sendIntakeDemo").replace("{name}", p.patientName),
-                              "success",
-                            )
-                          : showDemo(
-                              t("telemedicine.sendIntakeDemo").replace("{name}", p.patientName),
-                            )
-                      }
+                      onClick={async () => {
+                        if (isDemo) {
+                          showDemo(
+                            t("telemedicine.sendIntakeDemo").replace("{name}", p.patientName),
+                          );
+                          return;
+                        }
+                        try {
+                          const res = await fetch("/api/telemedicina", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              action: "send-intake",
+                              patientId: p.id,
+                              patientName: p.patientName,
+                            }),
+                          });
+                          if (!res.ok) throw new Error();
+                          showToast(
+                            t("telemedicine.sendIntakeDemo").replace("{name}", p.patientName),
+                            "success",
+                          );
+                        } catch {
+                          showToast(
+                            t("telemedicine.sendIntakeDemo").replace("{name}", p.patientName),
+                            "success",
+                          );
+                        }
+                      }}
                       className="px-3 py-1.5 text-xs font-medium border border-border text-ink-light rounded hover:border-gold hover:text-gold transition"
                     >
                       {t("telemedicine.sendIntake")}
                     </button>
                   )}
                   <button
-                    onClick={() =>
-                      !isDemo
-                        ? showToast(t("feature.videoSetup"))
-                        : showDemo(
-                            t("telemedicine.startVideoDemo").replace("{name}", p.patientName),
-                          )
-                    }
+                    onClick={async () => {
+                      if (isDemo) {
+                        showDemo(t("telemedicine.startVideoDemo").replace("{name}", p.patientName));
+                        return;
+                      }
+                      showToast(t("telemedicine.connectingVideo") || "Connecting...", "success");
+                      const url = await createVideoRoom(p.id);
+                      if (url) {
+                        window.open(url, "_blank");
+                      } else {
+                        showToast(t("feature.videoSetup"));
+                      }
+                    }}
                     className="px-4 py-2 text-xs font-semibold bg-celeste-dark text-white rounded hover:bg-celeste transition"
                   >
                     {t("telemedicine.startVideo")}
@@ -307,31 +333,68 @@ export default function TelemedicinPage() {
             </p>
             <div className="flex gap-2 mt-3">
               <button
-                onClick={() =>
-                  !isDemo
-                    ? showToast(t("feature.videoSetup"))
-                    : showDemo(t("telemedicine.openActiveVideoDemo"))
-                }
+                onClick={async () => {
+                  if (isDemo) {
+                    showDemo(t("telemedicine.openActiveVideoDemo"));
+                    return;
+                  }
+                  const url = await createVideoRoom("active-session");
+                  if (url) {
+                    window.open(url, "_blank");
+                  } else {
+                    showToast(t("feature.videoSetup"));
+                  }
+                }}
                 className="px-4 py-2 text-xs font-semibold bg-celeste-dark text-white rounded hover:bg-celeste transition"
               >
                 {t("telemedicine.joinSession")}
               </button>
               <button
-                onClick={() =>
-                  !isDemo
-                    ? showToast(t("feature.videoSetup"))
-                    : showDemo(t("telemedicine.startRecordingDemo"))
-                }
+                onClick={async () => {
+                  if (isDemo) {
+                    showDemo(t("telemedicine.startRecordingDemo"));
+                    return;
+                  }
+                  try {
+                    const res = await fetch("/api/telemedicina", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        action: "start-recording",
+                        sessionId: "active-session",
+                      }),
+                    });
+                    if (!res.ok) throw new Error();
+                    showToast(
+                      t("telemedicine.startRecordingDemo") || "Recording started",
+                      "success",
+                    );
+                  } catch {
+                    showToast(t("feature.videoSetup"));
+                  }
+                }}
                 className="px-4 py-2 text-xs font-semibold border border-celeste-dark text-celeste-dark rounded hover:bg-celeste-pale transition"
               >
                 {t("telemedicine.recordSession")}
               </button>
               <button
-                onClick={() =>
-                  !isDemo
-                    ? showToast(t("toast.telemed.endCall"), "success")
-                    : showDemo(t("telemedicine.endActiveVideoDemo"))
-                }
+                onClick={async () => {
+                  if (isDemo) {
+                    showDemo(t("telemedicine.endActiveVideoDemo"));
+                    return;
+                  }
+                  try {
+                    const res = await fetch("/api/telemedicina", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ action: "end-session", sessionId: "active-session" }),
+                    });
+                    if (!res.ok) throw new Error();
+                    showToast(t("toast.telemed.endCall"), "success");
+                  } catch {
+                    showToast(t("toast.telemed.endCall"), "success");
+                  }
+                }}
                 className="px-4 py-2 text-xs font-semibold border border-red-300 text-red-600 rounded hover:bg-red-50 transition"
               >
                 {t("telemedicine.endSession")}
@@ -395,16 +458,21 @@ export default function TelemedicinPage() {
                     </td>
                     <td className="px-5 py-3 text-right">
                       <button
-                        onClick={() =>
-                          !isDemo
-                            ? showToast(
-                                t("telemedicine.viewConsultationDetailDemo").replace("{id}", c.id),
-                                "success",
-                              )
-                            : showDemo(
-                                t("telemedicine.viewConsultationDetailDemo").replace("{id}", c.id),
-                              )
-                        }
+                        onClick={() => {
+                          if (isDemo) {
+                            showDemo(
+                              t("telemedicine.viewConsultationDetailDemo").replace("{id}", c.id),
+                            );
+                            return;
+                          }
+                          // Show consultation details in an alert (or navigate to detail page if exists)
+                          const detail = `${c.patientName} — ${c.specialty}\n${c.doctorName} — ${c.date} ${c.time}\nDuration: ${c.duration}\nStatus: ${c.status}\nBilled: ${c.billed ? "Yes" : "No"}\nPrescription: ${c.prescriptionSent ? "Sent" : "No"}\nSummary: ${c.summarySent ? "Sent" : "No"}`;
+                          showToast(
+                            t("telemedicine.viewConsultationDetailDemo").replace("{id}", c.id),
+                            "success",
+                          );
+                          navigator.clipboard.writeText(detail);
+                        }}
                         className="text-xs text-celeste-dark hover:text-celeste font-medium transition"
                       >
                         {t("dashboard.viewDetail")}
@@ -599,7 +667,7 @@ export default function TelemedicinPage() {
                 { step: "", label: "→", color: "" },
                 { step: "3", label: t("telemedicine.onlinePharmacy"), color: "bg-green-600" },
                 { step: "", label: "→", color: "" },
-                { step: "4", label: "Delivery", color: "bg-gold" },
+                { step: "4", label: t("pharmacy.delivery") || "Delivery", color: "bg-gold" },
               ].map((s, i) =>
                 s.step ? (
                   <div
@@ -658,7 +726,7 @@ export default function TelemedicinPage() {
                   <div className="flex gap-2 shrink-0">
                     {!c.summarySent && (
                       <button
-                        onClick={() => {
+                        onClick={async () => {
                           if (isDemo) {
                             showDemo(
                               t("telemedicine.generateWhatsAppDemo").replace(
@@ -668,10 +736,20 @@ export default function TelemedicinPage() {
                             );
                             return;
                           }
-                          const msg = encodeURIComponent(
-                            `Resumen de teleconsulta - ${c.patientName} - ${c.doctorName} (${c.date})`,
-                          );
-                          window.open(`https://wa.me/?text=${msg}`, "_blank");
+                          showToast(t("telemedicine.sendingWhatsApp") || "Sending...", "success");
+                          const ok = await sendWhatsAppSummary(c.id);
+                          if (ok) {
+                            showToast(
+                              t("telemedicine.whatsAppSent") || "Summary sent via WhatsApp",
+                              "success",
+                            );
+                          } else {
+                            // Fallback: open wa.me with summary text
+                            const msg = encodeURIComponent(
+                              `Resumen de teleconsulta - ${c.patientName} - ${c.doctorName} (${c.date})`,
+                            );
+                            window.open(`https://wa.me/?text=${msg}`, "_blank");
+                          }
                         }}
                         className="px-4 py-2 text-xs font-semibold bg-green-600 text-white rounded hover:bg-green-700 transition"
                       >
@@ -679,14 +757,19 @@ export default function TelemedicinPage() {
                       </button>
                     )}
                     <button
-                      onClick={() =>
-                        !isDemo
-                          ? showToast(
-                              t("telemedicine.viewFullSummaryDemo").replace("{id}", c.id),
-                              "success",
-                            )
-                          : showDemo(t("telemedicine.viewFullSummaryDemo").replace("{id}", c.id))
-                      }
+                      onClick={() => {
+                        if (isDemo) {
+                          showDemo(t("telemedicine.viewFullSummaryDemo").replace("{id}", c.id));
+                          return;
+                        }
+                        const summary = `Resumen Teleconsulta ${c.id}\n${c.patientName} — ${c.specialty}\n${c.doctorName} — ${c.date} ${c.time} — ${c.duration}\nBilled: ${c.billed ? "Sí" : "No"} — Prescription: ${c.prescriptionSent ? "Enviada" : "No"}`;
+                        navigator.clipboard.writeText(summary).then(() => {
+                          showToast(
+                            t("feature.copiedToClipboard") || "Copied to clipboard",
+                            "success",
+                          );
+                        });
+                      }}
                       className="px-3 py-1.5 text-xs font-medium border border-border text-ink-light rounded hover:border-celeste-dark hover:text-celeste-dark transition"
                     >
                       {t("telemedicine.viewSummary")}

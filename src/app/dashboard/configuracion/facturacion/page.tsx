@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useToast } from "@/components/Toast";
 import { useDemoAction } from "@/components/DemoModal";
-import { useIsDemo } from "@/lib/auth/context";
+import { useIsDemo, useAuth } from "@/lib/auth/context";
 import { useLocale } from "@/lib/i18n/context";
 
 export default function FacturacionConfigPage() {
@@ -10,6 +10,7 @@ export default function FacturacionConfigPage() {
   const { showToast } = useToast();
   const isDemo = useIsDemo();
   const { t } = useLocale();
+  const { user } = useAuth();
 
   return (
     <div className="space-y-5">
@@ -286,7 +287,7 @@ export default function FacturacionConfigPage() {
             </div>
             <div>
               <p className="text-xs font-semibold text-ink">Visa •••• 4532</p>
-              <p className="text-[10px] text-ink-muted">Vence 08/2027 · Dr. Martín Rodríguez</p>
+              <p className="text-[10px] text-ink-muted">Vence 08/2027 · {user?.name || "—"}</p>
             </div>
           </div>
           <button

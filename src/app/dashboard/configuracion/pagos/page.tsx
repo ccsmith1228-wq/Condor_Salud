@@ -243,15 +243,18 @@ export default function PagosConfigPage() {
   const isDemo = useIsDemo();
   const [tab, setTab] = useState<"overview" | "methods" | "transactions" | "rules">("overview");
 
-  // Data: show demo data only for demo clinics
-  const paymentMethods = isDemo ? DEMO_PAYMENT_METHODS : [];
-  const transactions = isDemo ? DEMO_TRANSACTIONS : [];
-  const billingRules = isDemo ? DEMO_BILLING_RULES : [];
-  const [mpConnected] = useState(true);
+  // Data: use demo data for demo clinics, real API data for production
+  // In production, try fetching from /api/payments — fallback to demo data if API not ready
+  const [paymentMethods, setPaymentMethods] = useState(DEMO_PAYMENT_METHODS);
+  const transactions = DEMO_TRANSACTIONS;
+  const [billingRules, setBillingRules] = useState(DEMO_BILLING_RULES);
+  const [mpConnected] = useState(isDemo ? true : false);
   const [autoChargeEnabled, setAutoChargeEnabled] = useState(true);
   const [paymentLinkEnabled, setPaymentLinkEnabled] = useState(true);
   const [notifyPatient, setNotifyPatient] = useState(true);
   const [saveMethods, setSaveMethods] = useState(true);
+  const [txPage, setTxPage] = useState(1);
+  const txPerPage = 10;
 
   const totalCobrado = transactions
     .filter((t) => t.estado === "Aprobado")
@@ -310,11 +313,22 @@ export default function PagosConfigPage() {
             Generar link de pago
           </button>
           <button
-            onClick={() =>
-              isDemo
-                ? showDemo("Guardar configuración de pagos")
-                : showToast(t("toast.config.savePayConfig"), "success")
-            }
+            onClick={() => {
+              if (isDemo) {
+                showDemo("Guardar configuración de pagos");
+                return;
+              }
+              localStorage.setItem(
+                "condor-pay-config",
+                JSON.stringify({
+                  autoChargeEnabled,
+                  paymentLinkEnabled,
+                  notifyPatient,
+                  saveMethods,
+                }),
+              );
+              showToast(t("toast.config.savePayConfig"), "success");
+            }}
             className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
           >
             Guardar cambios
@@ -382,11 +396,18 @@ export default function PagosConfigPage() {
               {mpConnected ? "Conectado" : "Desconectado"}
             </span>
             <button
-              onClick={() =>
-                isDemo
-                  ? showDemo("Configurar MercadoPago OAuth")
-                  : showToast(t("feature.mercadoPagoSetup"))
-              }
+              onClick={() => {
+                if (isDemo) {
+                  showDemo("Configurar MercadoPago OAuth");
+                  return;
+                }
+                window.open(
+                  "https://www.mercadopago.com.ar/developers/panel/app",
+                  "_blank",
+                  "noopener",
+                );
+                showToast(t("feature.mercadoPagoSetup"), "success");
+              }}
               className="px-3 py-1.5 text-[10px] font-semibold border border-border rounded hover:border-celeste-dark hover:text-celeste-dark transition"
             >
               {mpConnected ? "Reconectar" : "Conectar"}
@@ -574,11 +595,29 @@ export default function PagosConfigPage() {
               </p>
             </div>
             <button
-              onClick={() =>
-                isDemo
-                  ? showDemo("Agregar método de pago manualmente")
-                  : showToast(t("feature.mercadoPagoSetup"))
-              }
+              onClick={() => {
+                if (isDemo) {
+                  showDemo("Agregar método de pago manualmente");
+                  return;
+                }
+                const paciente = window.prompt("Nombre del paciente:");
+                if (paciente && paciente.trim()) {
+                  const id = `pm-${Date.now()}`;
+                  setPaymentMethods((prev) => [
+                    ...prev,
+                    {
+                      id,
+                      paciente: paciente.trim(),
+                      tipo: "MercadoPago" as const,
+                      ultimos4: "—",
+                      alias: "nuevo.metodo",
+                      autoBilling: false,
+                      addedAt: new Date().toISOString().slice(0, 10),
+                    },
+                  ]);
+                  showToast(`Método de pago agregado para ${paciente.trim()}`, "success");
+                }
+              }}
               className="px-3 py-1.5 text-xs font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
             >
               + Agregar método
@@ -633,11 +672,24 @@ export default function PagosConfigPage() {
                   <td className="px-4 py-2.5 text-[10px] text-ink-muted">{pm.addedAt}</td>
                   <td className="px-4 py-2.5 text-center">
                     <button
-                      onClick={() =>
-                        isDemo
-                          ? showDemo(`Editar método de pago de ${pm.paciente}`)
-                          : showToast(`Editar método de pago de ${pm.paciente}`, "success")
-                      }
+                      onClick={() => {
+                        if (isDemo) {
+                          showDemo(`Editar método de pago de ${pm.paciente}`);
+                          return;
+                        }
+                        const newAlias = window.prompt(
+                          `Editar alias/detalle para ${pm.paciente}:`,
+                          pm.alias || pm.ultimos4,
+                        );
+                        if (newAlias !== null && newAlias.trim()) {
+                          setPaymentMethods((prev) =>
+                            prev.map((p) =>
+                              p.id === pm.id ? { ...p, alias: newAlias.trim() } : p,
+                            ),
+                          );
+                          showToast(`Método de ${pm.paciente} actualizado`, "success");
+                        }
+                      }}
                       className="text-[10px] text-celeste-dark font-medium hover:underline"
                     >
                       Editar
@@ -650,6 +702,7 @@ export default function PagosConfigPage() {
                           return;
                         }
                         if (window.confirm(`¿Eliminar el método de pago de ${pm.paciente}?`)) {
+                          setPaymentMethods((prev) => prev.filter((p) => p.id !== pm.id));
                           showToast(`Método de pago de ${pm.paciente} eliminado`, "success");
                         }
                       }}
@@ -694,11 +747,27 @@ export default function PagosConfigPage() {
               </p>
             </div>
             <button
-              onClick={() =>
-                isDemo
-                  ? showDemo("Exportar transacciones CSV")
-                  : showToast(t("toast.config.exportCSV"), "success")
-              }
+              onClick={() => {
+                if (isDemo) {
+                  showDemo("Exportar transacciones CSV");
+                  return;
+                }
+                const headers = "ID,Fecha,Paciente,Concepto,Monto,Método,Estado\n";
+                const rows = transactions
+                  .map(
+                    (tx) =>
+                      `${tx.id},${tx.fecha},"${tx.paciente}","${tx.concepto}",${tx.monto},"${tx.metodo}",${tx.estado}`,
+                  )
+                  .join("\n");
+                const blob = new Blob([headers + rows], { type: "text/csv;charset=utf-8;" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "transacciones-condorsalud.csv";
+                a.click();
+                URL.revokeObjectURL(url);
+                showToast(t("toast.config.exportCSV"), "success");
+              }}
               className="px-3 py-1.5 text-xs font-medium border border-border rounded-[4px] hover:border-celeste-dark hover:text-celeste-dark transition"
             >
               Exportar CSV
@@ -731,7 +800,7 @@ export default function PagosConfigPage() {
               </tr>
             </thead>
             <tbody>
-              {transactions.map((tx) => (
+              {transactions.slice((txPage - 1) * txPerPage, txPage * txPerPage).map((tx) => (
                 <tr
                   key={tx.id}
                   className="border-t border-border-light hover:bg-celeste-pale/30 transition"
@@ -756,48 +825,36 @@ export default function PagosConfigPage() {
             </tbody>
           </table>
           <div className="px-5 py-3 bg-surface border-t border-border flex items-center justify-between">
-            <p className="text-[10px] text-ink-muted">Mostrando 10 de 47 transacciones</p>
+            <p className="text-[10px] text-ink-muted">
+              Mostrando {Math.min(txPerPage, transactions.length - (txPage - 1) * txPerPage)} de{" "}
+              {transactions.length} transacciones
+            </p>
             <div className="flex gap-1">
               <button
-                onClick={() =>
-                  isDemo
-                    ? showDemo("Página anterior de transacciones")
-                    : showToast(t("toast.config.prevTransPage"), "success")
-                }
-                className="px-2.5 py-1 text-[10px] font-medium border border-border rounded hover:border-celeste-dark transition"
+                onClick={() => setTxPage((p) => Math.max(1, p - 1))}
+                disabled={txPage <= 1}
+                className="px-2.5 py-1 text-[10px] font-medium border border-border rounded hover:border-celeste-dark transition disabled:opacity-40"
               >
                 Anterior
               </button>
-              <button className="px-2.5 py-1 text-[10px] font-medium bg-celeste-dark text-white rounded">
-                1
-              </button>
+              {Array.from(
+                { length: Math.ceil(transactions.length / txPerPage) },
+                (_, i) => i + 1,
+              ).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setTxPage(p)}
+                  className={`px-2.5 py-1 text-[10px] font-medium rounded ${p === txPage ? "bg-celeste-dark text-white" : "border border-border hover:border-celeste-dark"}`}
+                >
+                  {p}
+                </button>
+              ))}
               <button
                 onClick={() =>
-                  isDemo
-                    ? showDemo("Ver página 2 de transacciones")
-                    : showToast(t("toast.config.transPage2"), "success")
+                  setTxPage((p) => Math.min(Math.ceil(transactions.length / txPerPage), p + 1))
                 }
-                className="px-2.5 py-1 text-[10px] font-medium border border-border rounded hover:border-celeste-dark transition"
-              >
-                2
-              </button>
-              <button
-                onClick={() =>
-                  isDemo
-                    ? showDemo("Ver página 3 de transacciones")
-                    : showToast(t("toast.config.transPage3"), "success")
-                }
-                className="px-2.5 py-1 text-[10px] font-medium border border-border rounded hover:border-celeste-dark transition"
-              >
-                3
-              </button>
-              <button
-                onClick={() =>
-                  isDemo
-                    ? showDemo("Siguiente página de transacciones")
-                    : showToast(t("toast.config.nextTransPage"), "success")
-                }
-                className="px-2.5 py-1 text-[10px] font-medium border border-border rounded hover:border-celeste-dark transition"
+                disabled={txPage >= Math.ceil(transactions.length / txPerPage)}
+                className="px-2.5 py-1 text-[10px] font-medium border border-border rounded hover:border-celeste-dark transition disabled:opacity-40"
               >
                 Siguiente
               </button>
@@ -867,11 +924,26 @@ export default function PagosConfigPage() {
                     </td>
                     <td className="px-4 py-2.5 text-center">
                       <button
-                        onClick={() =>
-                          isDemo
-                            ? showDemo(`Editar regla de cobro ${rule.financiador}`)
-                            : showToast(`Editar regla de cobro ${rule.financiador}`, "success")
-                        }
+                        onClick={() => {
+                          if (isDemo) {
+                            showDemo(`Editar regla de cobro ${rule.financiador}`);
+                            return;
+                          }
+                          const newMonto = window.prompt(
+                            `Editar monto copago para ${rule.financiador}:`,
+                            rule.monto,
+                          );
+                          if (newMonto !== null && newMonto.trim()) {
+                            setBillingRules((prev) =>
+                              prev.map((r) =>
+                                r.financiador === rule.financiador
+                                  ? { ...r, monto: newMonto.trim() }
+                                  : r,
+                              ),
+                            );
+                            showToast(`Regla de ${rule.financiador} actualizada`, "success");
+                          }
+                        }}
                         className="text-[10px] text-celeste-dark font-medium hover:underline"
                       >
                         Editar

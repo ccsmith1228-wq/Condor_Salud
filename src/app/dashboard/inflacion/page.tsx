@@ -132,7 +132,11 @@ export default function InflacionPage() {
                 <AlertTriangle className="w-3.5 h-3.5" />
                 {t("inflation.lossPerDay")}
               </div>
-              <div className="text-2xl font-bold text-celeste-dark">0.11%</div>
+              <div className="text-2xl font-bold text-celeste-dark">
+                {totalCobrado > 0
+                  ? `${Math.round((totalPerdida / totalCobrado / (period === "3m" ? 90 : 180)) * 10000) / 100}%`
+                  : "—"}
+              </div>
               <div className="text-xs mt-1 text-ink-muted">
                 {t("inflation.estimatedCurrentValue")}
               </div>

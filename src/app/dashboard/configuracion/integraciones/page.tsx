@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import Link from "next/link";
 import { useToast } from "@/components/Toast";
 import { useDemoAction } from "@/components/DemoModal";
@@ -102,6 +103,18 @@ export default function IntegracionesPage() {
   const { showDemo } = useDemoAction();
   const isDemo = useIsDemo();
   const { t } = useLocale();
+  const [integState, setIntegState] = useState(integracionesData);
+
+  const portalUrls: Record<string, string> = {
+    "INT-01": "https://www.pami.org.ar/prestadores",
+    "INT-02": "https://www.afip.gob.ar/fe/",
+    "INT-03": "https://prestadores.swissmedical.com.ar",
+    "INT-04": "https://www.osde.com.ar/prestadores",
+    "INT-05": "https://www.galeno.com.ar/prestadores",
+    "INT-06": "https://business.facebook.com/wa/manage/phone-numbers/",
+    "INT-07": "https://www.ioma.gba.gob.ar/prestadores",
+    "INT-08": "https://www.medife.com.ar/prestadores",
+  };
 
   // Translated lookup maps resolved inside component
   const statusLabels: Record<string, string> = {
@@ -111,7 +124,7 @@ export default function IntegracionesPage() {
     pending: t("settings.integrations.statusPending"),
   };
 
-  const integraciones = integracionesData.map((d) => ({
+  const integraciones = integState.map((d) => ({
     ...d,
     tipo: t(`settings.integrations.${d.tipoKey}` as Parameters<typeof t>[0]),
     descripcion: t(`settings.integrations.${d.descKey}` as Parameters<typeof t>[0]),
@@ -141,11 +154,17 @@ export default function IntegracionesPage() {
           </p>
         </div>
         <button
-          onClick={() =>
-            isDemo
-              ? showDemo(t("toast.config.newIntegration"))
-              : showToast(t("toast.config.newIntegration"), "success")
-          }
+          onClick={() => {
+            if (isDemo) {
+              showDemo(t("toast.config.newIntegration"));
+              return;
+            }
+            window.open(
+              "mailto:soporte@condorsalud.com?subject=Nueva%20integraci%C3%B3n&body=Necesito%20agregar%20una%20nueva%20integraci%C3%B3n%20para%20mi%20cl%C3%ADnica.",
+              "_blank",
+            );
+            showToast(t("toast.config.newIntegration"), "success");
+          }}
           className="px-4 py-2 text-sm font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
         >
           {t("settings.integrations.newIntegration")}
@@ -247,12 +266,39 @@ export default function IntegracionesPage() {
               <div className="flex flex-col gap-1.5">
                 {int.estado === "connected" && (
                   <button
-                    onClick={() => {
-                      const msg = t("settings.integrations.syncToast").replace(
-                        "{name}",
-                        int.nombre,
-                      );
-                      isDemo ? showDemo(msg) : showToast(msg, "success");
+                    onClick={async () => {
+                      if (isDemo) {
+                        showDemo(
+                          t("settings.integrations.syncToast").replace("{name}", int.nombre),
+                        );
+                        return;
+                      }
+                      try {
+                        await fetch("/api/config", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            action: "sync-integration",
+                            integrationId: int.id,
+                          }),
+                        });
+                        const now = new Date().toLocaleString("es-AR", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        });
+                        setIntegState((prev) =>
+                          prev.map((i) => (i.id === int.id ? { ...i, ultimaSync: now } : i)),
+                        );
+                        showToast(
+                          t("settings.integrations.syncToast").replace("{name}", int.nombre),
+                          "success",
+                        );
+                      } catch {
+                        showToast(`Error sincronizando ${int.nombre}`, "error");
+                      }
                     }}
                     className="px-3 py-1.5 text-xs font-medium border border-border rounded-[4px] text-ink-light hover:border-celeste-dark hover:text-celeste-dark transition"
                   >
@@ -261,12 +307,34 @@ export default function IntegracionesPage() {
                 )}
                 {int.estado === "error" && (
                   <button
-                    onClick={() => {
-                      const msg = t("settings.integrations.retryToast").replace(
-                        "{name}",
-                        int.nombre,
-                      );
-                      isDemo ? showDemo(msg) : showToast(msg, "success");
+                    onClick={async () => {
+                      if (isDemo) {
+                        showDemo(
+                          t("settings.integrations.retryToast").replace("{name}", int.nombre),
+                        );
+                        return;
+                      }
+                      try {
+                        await fetch("/api/config", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            action: "retry-integration",
+                            integrationId: int.id,
+                          }),
+                        });
+                        setIntegState((prev) =>
+                          prev.map((i) =>
+                            i.id === int.id ? { ...i, estado: "pending" as const } : i,
+                          ),
+                        );
+                        showToast(
+                          t("settings.integrations.retryToast").replace("{name}", int.nombre),
+                          "success",
+                        );
+                      } catch {
+                        showToast(`Error reconectando ${int.nombre}`, "error");
+                      }
                     }}
                     className="px-3 py-1.5 text-xs font-semibold bg-red-600 text-white rounded-[4px] hover:bg-red-700 transition"
                   >
@@ -276,11 +344,18 @@ export default function IntegracionesPage() {
                 {(int.estado === "disconnected" || int.estado === "pending") && (
                   <button
                     onClick={() => {
-                      const msg = t("settings.integrations.configureToast").replace(
-                        "{name}",
-                        int.nombre,
+                      if (isDemo) {
+                        showDemo(
+                          t("settings.integrations.configureToast").replace("{name}", int.nombre),
+                        );
+                        return;
+                      }
+                      const url = portalUrls[int.id];
+                      if (url) window.open(url, "_blank", "noopener");
+                      showToast(
+                        t("settings.integrations.configureToast").replace("{name}", int.nombre),
+                        "success",
                       );
-                      isDemo ? showDemo(msg) : showToast(msg, "success");
                     }}
                     className="px-3 py-1.5 text-xs font-semibold bg-celeste-dark text-white rounded-[4px] hover:bg-celeste transition"
                   >
@@ -289,11 +364,17 @@ export default function IntegracionesPage() {
                 )}
                 <button
                   onClick={() => {
-                    const msg = t("settings.integrations.settingsToast").replace(
-                      "{name}",
-                      int.nombre,
-                    );
-                    isDemo ? showDemo(msg) : showToast(msg, "success");
+                    if (isDemo) {
+                      showDemo(
+                        t("settings.integrations.settingsToast").replace("{name}", int.nombre),
+                      );
+                      return;
+                    }
+                    const config = `ID: ${int.id}\nNombre: ${int.nombre}\nEstado: ${int.estadoLabel}\nÚltima sync: ${int.ultimaSync}\nTipo: ${int.tipo}`;
+                    navigator.clipboard
+                      .writeText(config)
+                      .then(() => showToast(`Configuración de ${int.nombre} copiada`, "success"))
+                      .catch(() => showToast(config, "success"));
                   }}
                   className="px-3 py-1.5 text-xs font-medium text-ink-muted hover:text-ink transition"
                 >
