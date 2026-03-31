@@ -294,7 +294,7 @@ export default function VerificarCuentaPage() {
               id="doc-upload"
             />
             <label htmlFor="doc-upload" className="cursor-pointer">
-              <span className="text-celeste-dark font-medium">
+              <span className="text-celeste font-medium">
                 {t("accountVerification.selectFiles")}
               </span>
               <span className="text-gray-500">{t("accountVerification.orDragHere")}</span>

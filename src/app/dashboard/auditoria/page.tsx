@@ -165,11 +165,7 @@ export default function AuditoriaPage() {
       </div>
 
       {/* Search + Filters */}
-      <div
-        className="flex flex-wrap gap-3 items-center"
-        role="search"
-        aria-label={t("audit.searchAndFilter")}
-      >
+      <div className="flex flex-wrap gap-3 items-center">
         <div className="relative">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-ink-300" />
           <input

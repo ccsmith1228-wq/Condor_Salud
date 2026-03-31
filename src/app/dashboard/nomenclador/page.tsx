@@ -119,13 +119,13 @@ export default function NomencladorPage() {
               aria-label={t("nomenclator.searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-80 px-4 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30 transition"
+              className="w-80 px-4 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark transition"
             />
             <select
               value={capFilter}
               onChange={(e) => setCapFilter(e.target.value)}
               aria-label={t("nomenclator.filterByChapter")}
-              className="px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30 transition bg-white text-ink"
+              className="px-3 py-2 text-sm border border-border rounded-[4px] outline-none focus:border-celeste-dark transition bg-white text-ink"
             >
               {capitulos.map((c) => (
                 <option key={c} value={c}>
@@ -141,9 +141,9 @@ export default function NomencladorPage() {
 
           {/* Table */}
           <div className="bg-white border border-border rounded-lg overflow-x-auto">
-            <table className="w-full text-sm min-w-[800px]" aria-label="Nomenclador médico">
+            <table className="w-full text-sm min-w-[800px]">
               <thead>
-                <tr className="bg-surface text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+                <tr className="bg-[#F8FAFB] text-[10px] font-bold tracking-wider text-ink-muted uppercase">
                   <th scope="col" className="text-left px-5 py-2.5">
                     {t("label.code")}
                   </th>
