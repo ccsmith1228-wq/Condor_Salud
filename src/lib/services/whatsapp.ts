@@ -1,12 +1,15 @@
 /**
  * Cóndor Salud — WhatsApp Service Layer
  *
- * Handles all WhatsApp messaging via Twilio:
+ * Handles all WhatsApp messaging via Meta Cloud API (primary)
+ * with Twilio fallback:
  * - Sending messages (text, templates, media)
- * - Processing incoming webhook payloads
+ * - Processing incoming webhook payloads (Meta + Twilio formats)
  * - Conversation threading
  * - Lead auto-creation on first contact
  * - Patient profile generation
+ *
+ * Provider priority: Meta Cloud API → Twilio → dev-mode stub
  */
 
 import { createClient } from "@supabase/supabase-js";
@@ -15,8 +18,13 @@ import { isSupabaseConfigured } from "@/lib/env";
 
 const log = logger.child({ module: "whatsapp" });
 
+// ─── Constants ───────────────────────────────────────────────
+
+const META_GRAPH_API = "https://graph.facebook.com/v21.0";
+
 // ─── Types ───────────────────────────────────────────────────
 
+/** Twilio-format incoming message (form-encoded webhook) */
 export interface IncomingMessage {
   MessageSid: string;
   AccountSid: string;
@@ -28,6 +36,58 @@ export interface IncomingMessage {
   MediaContentType0?: string;
   ProfileName?: string; // WhatsApp display name
   WaId?: string; // WhatsApp ID (phone without prefix)
+}
+
+/** Meta Cloud API webhook payload (JSON) */
+export interface MetaWebhookPayload {
+  object: "whatsapp_business_account";
+  entry: Array<{
+    id: string;
+    changes: Array<{
+      value: {
+        messaging_product: "whatsapp";
+        metadata: {
+          display_phone_number: string;
+          phone_number_id: string;
+        };
+        contacts?: Array<{
+          profile: { name: string };
+          wa_id: string;
+        }>;
+        messages?: Array<{
+          from: string;
+          id: string;
+          timestamp: string;
+          type:
+            | "text"
+            | "image"
+            | "document"
+            | "audio"
+            | "video"
+            | "location"
+            | "interactive"
+            | "button";
+          text?: { body: string };
+          image?: { id: string; mime_type: string; sha256: string; caption?: string };
+          document?: { id: string; mime_type: string; filename: string };
+          audio?: { id: string; mime_type: string };
+        }>;
+        statuses?: Array<{
+          id: string;
+          status: "sent" | "delivered" | "read" | "failed";
+          timestamp: string;
+          recipient_id: string;
+          errors?: Array<{ code: number; title: string }>;
+        }>;
+      };
+      field: "messages";
+    }>;
+  }>;
+}
+
+export interface MetaConfig {
+  phoneNumberId: string;
+  accessToken: string;
 }
 
 export interface SendMessageParams {
@@ -59,7 +119,173 @@ function getServiceClient() {
   return createClient(url, key);
 }
 
-// ─── Twilio Client ───────────────────────────────────────────
+// ─── Meta Cloud API Config ───────────────────────────────────
+
+/**
+ * Returns Meta Cloud API credentials from env vars.
+ * These are the global/system-level credentials.
+ * Per-clinic overrides can live in whatsapp_config table.
+ */
+function getMetaConfig(): MetaConfig | null {
+  const phoneNumberId = process.env.META_WHATSAPP_PHONE_NUMBER_ID;
+  const accessToken = process.env.META_WHATSAPP_ACCESS_TOKEN;
+  if (!phoneNumberId || !accessToken) return null;
+  return { phoneNumberId, accessToken };
+}
+
+/** Verify token used for Meta webhook subscription */
+export function getMetaVerifyToken(): string {
+  return process.env.META_WHATSAPP_VERIFY_TOKEN || "condorsalud-whatsapp-verify-2026";
+}
+
+// ─── Meta Cloud API — Send ───────────────────────────────────
+
+/**
+ * Send a text message via Meta WhatsApp Cloud API.
+ * POST https://graph.facebook.com/v21.0/{phone_number_id}/messages
+ */
+async function sendMetaTextMessage(
+  meta: MetaConfig,
+  to: string,
+  body: string,
+  mediaUrl?: string,
+): Promise<{ messageId: string }> {
+  const phone = normalizePhone(to).replace("+", ""); // Meta wants digits only
+
+  // Text message
+  if (!mediaUrl) {
+    const res = await fetch(`${META_GRAPH_API}/${meta.phoneNumberId}/messages`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${meta.accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        messaging_product: "whatsapp",
+        recipient_type: "individual",
+        to: phone,
+        type: "text",
+        text: { preview_url: false, body },
+      }),
+    });
+
+    if (!res.ok) {
+      const errBody = await res.text();
+      throw new Error(`Meta API ${res.status}: ${errBody}`);
+    }
+
+    const data = await res.json();
+    return { messageId: data.messages?.[0]?.id || `meta-${Date.now()}` };
+  }
+
+  // Image message
+  const res = await fetch(`${META_GRAPH_API}/${meta.phoneNumberId}/messages`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${meta.accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
+      to: phone,
+      type: "image",
+      image: { link: mediaUrl, caption: body || undefined },
+    }),
+  });
+
+  if (!res.ok) {
+    const errBody = await res.text();
+    throw new Error(`Meta API ${res.status}: ${errBody}`);
+  }
+
+  const data = await res.json();
+  return { messageId: data.messages?.[0]?.id || `meta-${Date.now()}` };
+}
+
+/**
+ * Send a template message via Meta Cloud API.
+ * Used for initiating conversations (outside 24-hour window).
+ */
+export async function sendMetaTemplate(params: SendTemplateParams): Promise<{
+  success: boolean;
+  messageId?: string;
+  error?: string;
+}> {
+  const meta = getMetaConfig();
+  if (!meta) return { success: false, error: "Meta Cloud API not configured" };
+
+  const phone = normalizePhone(params.to).replace("+", "");
+
+  const components = Object.entries(params.variables).map(([, value], index) => ({
+    type: "body" as const,
+    parameters: [{ type: "text" as const, text: value }],
+    // Meta expects components indexed by position
+    ...(index === 0 ? {} : {}),
+  }));
+
+  try {
+    const res = await fetch(`${META_GRAPH_API}/${meta.phoneNumberId}/messages`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${meta.accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        messaging_product: "whatsapp",
+        to: phone,
+        type: "template",
+        template: {
+          name: params.templateName,
+          language: { code: "es_AR" },
+          components: components.length > 0 ? components : undefined,
+        },
+      }),
+    });
+
+    if (!res.ok) {
+      const errBody = await res.text();
+      log.error({ status: res.status, body: errBody }, "Meta template send failed");
+      return { success: false, error: errBody };
+    }
+
+    const data = await res.json();
+    const messageId = data.messages?.[0]?.id;
+    log.info({ messageId, template: params.templateName, to: phone }, "Meta template sent");
+    return { success: true, messageId };
+  } catch (err) {
+    log.error({ err }, "Meta template send error");
+    return { success: false, error: String(err) };
+  }
+}
+
+/**
+ * Mark a message as read in Meta Cloud API.
+ * This shows blue check marks to the user.
+ */
+export async function markMetaMessageRead(messageId: string): Promise<void> {
+  const meta = getMetaConfig();
+  if (!meta) return;
+
+  try {
+    await fetch(`${META_GRAPH_API}/${meta.phoneNumberId}/messages`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${meta.accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        messaging_product: "whatsapp",
+        status: "read",
+        message_id: messageId,
+      }),
+    });
+  } catch (err) {
+    log.warn({ err, messageId }, "Failed to mark Meta message as read");
+  }
+}
+
+// ─── Twilio Client (Fallback) ────────────────────────────────
 
 async function getTwilioClient() {
   const sid = process.env.TWILIO_ACCOUNT_SID;
@@ -83,7 +309,156 @@ export function toWhatsAppFormat(phone: string): string {
   return `whatsapp:${clean}`;
 }
 
-// ─── Process Incoming Message ────────────────────────────────
+/** Which provider is configured? Meta takes priority. */
+export function getActiveProvider(): "meta" | "twilio" | "none" {
+  if (getMetaConfig()) return "meta";
+  if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) return "twilio";
+  return "none";
+}
+
+// ─── Process Incoming (Meta Cloud API) ───────────────────────
+
+/**
+ * Entry point for Meta Cloud API webhooks.
+ * Extracts messages from Meta's nested JSON format and routes
+ * them through the same CRM pipeline as Twilio messages.
+ */
+export async function processMetaWebhook(payload: MetaWebhookPayload): Promise<{
+  processed: number;
+  errors: string[];
+}> {
+  const results = { processed: 0, errors: [] as string[] };
+
+  for (const entry of payload.entry) {
+    for (const change of entry.changes) {
+      if (change.field !== "messages") continue;
+      const value = change.value;
+
+      // Handle delivery/read status updates
+      if (value.statuses) {
+        for (const status of value.statuses) {
+          await handleMetaStatusUpdate(status);
+        }
+      }
+
+      // Handle incoming messages
+      if (value.messages && value.contacts) {
+        for (let i = 0; i < value.messages.length; i++) {
+          const msg = value.messages[i]!;
+          const contact = value.contacts[i] ?? value.contacts[0]!;
+
+          // Extract message body based on type
+          let body = "";
+          let mediaUrl: string | undefined;
+          let mediaType: string | undefined;
+
+          switch (msg.type) {
+            case "text":
+              body = msg.text?.body || "";
+              break;
+            case "image":
+              body = msg.image?.caption || "[Imagen]";
+              mediaType = msg.image?.mime_type;
+              // Media URL must be fetched from Meta's media endpoint
+              mediaUrl = msg.image?.id ? `${META_GRAPH_API}/${msg.image.id}` : undefined;
+              break;
+            case "document":
+              body = `[Documento: ${msg.document?.filename || "archivo"}]`;
+              mediaType = msg.document?.mime_type;
+              break;
+            case "audio":
+              body = "[Audio]";
+              mediaType = msg.audio?.mime_type;
+              break;
+            case "interactive":
+            case "button":
+              body = (msg as Record<string, unknown>).interactive
+                ? JSON.stringify((msg as Record<string, unknown>).interactive)
+                : msg.type;
+              break;
+            default:
+              body = `[${msg.type}]`;
+          }
+
+          // Convert to our standard IncomingMessage format
+          const fromPhone = `+${msg.from}`;
+          const toPhone = value.metadata.display_phone_number.startsWith("+")
+            ? value.metadata.display_phone_number
+            : `+${value.metadata.display_phone_number}`;
+
+          const incomingPayload: IncomingMessage = {
+            MessageSid: msg.id, // Meta message ID (wamid.xxx)
+            AccountSid: entry.id, // Business Account ID
+            From: fromPhone,
+            To: toPhone,
+            Body: body,
+            NumMedia: mediaUrl ? "1" : "0",
+            MediaUrl0: mediaUrl,
+            MediaContentType0: mediaType,
+            ProfileName: contact.profile.name,
+            WaId: contact.wa_id,
+          };
+
+          try {
+            const result = await processIncomingMessage(incomingPayload);
+            if (result.success) {
+              results.processed++;
+              // Mark message as read in Meta
+              await markMetaMessageRead(msg.id);
+            } else {
+              results.errors.push(result.error || "Unknown error");
+            }
+          } catch (err) {
+            log.error({ err, msgId: msg.id }, "Error processing Meta webhook message");
+            results.errors.push(String(err));
+          }
+        }
+      }
+    }
+  }
+
+  return results;
+}
+
+/** Update message status from Meta delivery receipts */
+async function handleMetaStatusUpdate(status: {
+  id: string;
+  status: string;
+  timestamp: string;
+  recipient_id: string;
+  errors?: Array<{ code: number; title: string }>;
+}) {
+  if (!isSupabaseConfigured()) return;
+
+  const supabase = getServiceClient();
+
+  // Map Meta status to our status values
+  const statusMap: Record<string, string> = {
+    sent: "sent",
+    delivered: "delivered",
+    read: "read",
+    failed: "failed",
+  };
+
+  const newStatus = statusMap[status.status] || status.status;
+
+  // Update the message by its external ID (stored as twilio_sid for compatibility)
+  const { error } = await supabase
+    .from("messages")
+    .update({
+      status: newStatus,
+      ...(status.errors ? { metadata: { delivery_errors: status.errors } } : {}),
+    })
+    .eq("twilio_sid", status.id);
+
+  if (error) {
+    log.warn({ error, metaId: status.id }, "Failed to update message status from Meta webhook");
+  } else {
+    log.debug({ metaId: status.id, status: newStatus }, "Meta message status updated");
+  }
+}
+
+// ─── Process Incoming Message (Provider-Agnostic) ────────────
 
 /**
  * Main entry point for Twilio webhook.
@@ -328,9 +703,16 @@ async function autoCreatePatient(
 
 // ─── Send Message ────────────────────────────────────────────
 
+// ─── Send Message (Meta → Twilio → Dev Stub) ────────────────
+
+/**
+ * Main send function. Priority: Meta Cloud API → Twilio → dev stub.
+ * Stores outbound message in DB regardless of provider.
+ */
 export async function sendMessage(params: SendMessageParams): Promise<{
   success: boolean;
   twilioSid?: string;
+  messageId?: string;
   error?: string;
 }> {
   if (!isSupabaseConfigured()) {
@@ -339,8 +721,8 @@ export async function sendMessage(params: SendMessageParams): Promise<{
   }
 
   const supabase = getServiceClient();
-  const client = await getTwilioClient();
-  const to = toWhatsAppFormat(params.to);
+  const meta = getMetaConfig();
+  const to = normalizePhone(params.to);
 
   // Get clinic's WhatsApp number
   const { data: config } = await supabase
@@ -353,11 +735,44 @@ export async function sendMessage(params: SendMessageParams): Promise<{
     return { success: false, error: "No WhatsApp config for this clinic" };
   }
 
+  // ── Try Meta Cloud API first ───────────────────────────────
+  if (meta) {
+    try {
+      const { messageId } = await sendMetaTextMessage(meta, to, params.body, params.mediaUrl);
+
+      // Store outbound message
+      if (params.conversationId) {
+        await supabase.from("messages").insert({
+          clinic_id: params.clinicId,
+          conversation_id: params.conversationId,
+          direction: "outbound",
+          sender_type: "staff",
+          sender_id: params.senderId || null,
+          sender_name: params.senderName || "Staff",
+          body: params.body,
+          media_url: params.mediaUrl || null,
+          twilio_sid: messageId, // Reuse column for Meta message ID
+          status: "sent",
+          metadata: { provider: "meta" },
+        });
+      }
+
+      log.info({ messageId, to, provider: "meta" }, "WhatsApp message sent via Meta Cloud API");
+      return { success: true, messageId, twilioSid: messageId };
+    } catch (err) {
+      log.error({ err, to }, "Meta Cloud API send failed — falling back to Twilio");
+      // Fall through to Twilio
+    }
+  }
+
+  // ── Try Twilio fallback ────────────────────────────────────
+  const client = await getTwilioClient();
+  const twilioTo = toWhatsAppFormat(to);
   const from = toWhatsAppFormat(config.whatsapp_number);
 
   if (!client) {
     // Dev mode: log message and store it
-    log.info({ to, body: params.body }, "WhatsApp message (dev mode — not sent via Twilio)");
+    log.info({ to: twilioTo, body: params.body }, "WhatsApp message (dev mode — not sent)");
 
     if (params.conversationId) {
       await supabase.from("messages").insert({
@@ -379,7 +794,7 @@ export async function sendMessage(params: SendMessageParams): Promise<{
   try {
     const twilioMsg = await client.messages.create({
       from,
-      to,
+      to: twilioTo,
       body: params.body,
       ...(params.mediaUrl ? { mediaUrl: [params.mediaUrl] } : {}),
     });
@@ -397,13 +812,17 @@ export async function sendMessage(params: SendMessageParams): Promise<{
         media_url: params.mediaUrl || null,
         twilio_sid: twilioMsg.sid,
         status: "sent",
+        metadata: { provider: "twilio" },
       });
     }
 
-    log.info({ sid: twilioMsg.sid, to }, "WhatsApp message sent");
+    log.info(
+      { sid: twilioMsg.sid, to: twilioTo, provider: "twilio" },
+      "WhatsApp message sent via Twilio",
+    );
     return { success: true, twilioSid: twilioMsg.sid };
   } catch (err) {
-    log.error({ err, to }, "Failed to send WhatsApp message");
+    log.error({ err, to: twilioTo }, "Failed to send WhatsApp message via Twilio");
     return { success: false, error: String(err) };
   }
 }

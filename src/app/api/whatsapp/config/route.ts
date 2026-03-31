@@ -3,6 +3,8 @@
  *
  * GET  /api/whatsapp/config — Read the clinic's WhatsApp settings + templates
  * PUT  /api/whatsapp/config — Upsert config + templates
+ *
+ * Supports both Meta Cloud API and Twilio provider configurations.
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -10,6 +12,7 @@ import { createClient } from "@supabase/supabase-js";
 import { checkRateLimit, sanitizeBody, logger } from "@/lib/security/api-guard";
 import { requireAuth } from "@/lib/security/require-auth";
 import { whatsappConfigPutSchema } from "@/lib/validations/schemas";
+import { getActiveProvider } from "@/lib/services/whatsapp";
 
 function getServiceClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -62,6 +65,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       config: config || null,
       templates: templates || [],
+      provider: getActiveProvider(),
     });
   } catch (err) {
     logger.error({ err, route: "whatsapp/config" }, "Unexpected error");
@@ -110,9 +114,17 @@ export async function PUT(req: NextRequest) {
         business_hours: cfg.business_hours ?? "08:00-20:00",
         out_of_hours_message: cfg.out_of_hours_message ?? null,
         notify_on_new_lead: cfg.notify_on_new_lead ?? true,
-        // Don't overwrite Twilio creds if not provided
+        // Provider credentials — only overwrite if provided
         ...(cfg.twilio_sid !== undefined ? { twilio_sid: cfg.twilio_sid } : {}),
         ...(cfg.twilio_token !== undefined ? { twilio_token: cfg.twilio_token } : {}),
+        // Meta Cloud API fields
+        ...(cfg.meta_phone_number_id !== undefined
+          ? { meta_phone_number_id: cfg.meta_phone_number_id }
+          : {}),
+        ...(cfg.meta_access_token !== undefined
+          ? { meta_access_token: cfg.meta_access_token }
+          : {}),
+        ...(cfg.provider !== undefined ? { provider: cfg.provider } : {}),
       };
 
       const { error: upsertErr } = await supabase
@@ -170,6 +182,7 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({
       config: config || null,
       templates: templates || [],
+      provider: getActiveProvider(),
     });
   } catch (err) {
     logger.error({ err, route: "whatsapp/config" }, "Unexpected error");

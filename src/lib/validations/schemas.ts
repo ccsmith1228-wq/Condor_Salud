@@ -290,8 +290,14 @@ export const whatsappConfigPutSchema = z.object({
       business_hours: z.string().default("08:00-20:00"),
       out_of_hours_message: z.string().nullable().optional(),
       notify_on_new_lead: z.boolean().default(true),
+      // Twilio credentials (legacy/fallback)
       twilio_sid: z.string().optional(),
       twilio_token: z.string().optional(),
+      // Meta Cloud API credentials (preferred)
+      meta_phone_number_id: z.string().optional(),
+      meta_access_token: z.string().optional(),
+      // Provider preference: "meta" | "twilio" | "auto"
+      provider: z.enum(["meta", "twilio", "auto"]).optional(),
     })
     .optional(),
   templates: z.array(whatsappTemplateSchema).optional(),

@@ -1,20 +1,27 @@
 /**
- * Cóndor Salud — Twilio WhatsApp Incoming Webhook
+ * Cóndor Salud — WhatsApp Webhook (Meta Cloud API + Twilio)
  *
  * POST /api/webhooks/whatsapp
+ *   Receives inbound WhatsApp messages from either:
+ *   - Meta Cloud API (JSON, object="whatsapp_business_account")
+ *   - Twilio (form-encoded, with X-Twilio-Signature)
  *
- * Receives inbound WhatsApp messages from Twilio.
+ * GET /api/webhooks/whatsapp
+ *   Meta webhook verification handshake (hub.challenge).
+ *
  * This route is PUBLIC (added to middleware bypass) because
- * Twilio cannot carry session cookies. Authentication is via
- * Twilio request signature validation.
- *
- * Flow:
- *   Twilio POST → validate signature → parse form body →
- *   processIncomingMessage() → return TwiML or 200
+ * neither Meta nor Twilio can carry session cookies.
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { processIncomingMessage, type IncomingMessage } from "@/lib/services/whatsapp";
+import {
+  processIncomingMessage,
+  processMetaWebhook,
+  getMetaVerifyToken,
+  getActiveProvider,
+  type IncomingMessage,
+  type MetaWebhookPayload,
+} from "@/lib/services/whatsapp";
 import { handleBookingReply } from "@/lib/services/whatsapp-booking-confirm";
 import { logger } from "@/lib/logger";
 
@@ -51,118 +58,209 @@ async function validateTwilioSignature(
   }
 }
 
+// ─── Detect Request Format ───────────────────────────────────
+
+function isMetaWebhook(req: NextRequest): boolean {
+  const contentType = req.headers.get("content-type") || "";
+  // Meta sends application/json; Twilio sends application/x-www-form-urlencoded
+  return contentType.includes("application/json");
+}
+
 // ─── POST Handler ────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
   try {
-    // Twilio sends application/x-www-form-urlencoded
-    const formData = await req.formData();
-    const params: Record<string, string> = {};
-    formData.forEach((value, key) => {
-      params[key] = String(value);
-    });
-
-    // Validate Twilio signature
-    const isValid = await validateTwilioSignature(req, params);
-    if (!isValid) {
-      log.warn({ ip: req.headers.get("x-forwarded-for") }, "Invalid Twilio signature — rejected");
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    // ── Route to Meta or Twilio handler based on Content-Type ──
+    if (isMetaWebhook(req)) {
+      return await handleMetaPost(req);
     }
+    return await handleTwilioPost(req);
+  } catch (err) {
+    log.error({ err }, "WhatsApp webhook error");
+    return NextResponse.json({ status: "error" }, { status: 200 });
+  }
+}
 
-    // Extract standard Twilio WhatsApp fields
-    const payload: IncomingMessage = {
-      MessageSid: params.MessageSid || params.SmsSid || "",
-      AccountSid: params.AccountSid || "",
-      From: params.From || "",
-      To: params.To || "",
-      Body: params.Body || "",
-      NumMedia: params.NumMedia || "0",
-      MediaUrl0: params.MediaUrl0,
-      MediaContentType0: params.MediaContentType0,
-      ProfileName: params.ProfileName,
-      WaId: params.WaId,
-    };
+// ─── Meta Cloud API POST Handler ─────────────────────────────
 
-    // Validate required fields
-    if (!payload.From || !payload.To) {
-      log.warn({ params }, "Webhook missing From or To");
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
-    }
+async function handleMetaPost(req: NextRequest) {
+  const body = await req.json();
 
-    log.info(
-      {
-        from: payload.From,
-        to: payload.To,
-        sid: payload.MessageSid,
-        profile: payload.ProfileName,
-      },
-      "WhatsApp webhook received",
-    );
+  // Validate this is a WhatsApp webhook
+  if (body.object !== "whatsapp_business_account") {
+    log.warn({ object: body.object }, "Unexpected Meta webhook object type");
+    return NextResponse.json({ error: "Not a WhatsApp webhook" }, { status: 400 });
+  }
 
-    // ── Intercept booking confirmation keywords ──────────────
-    // If the message is a booking action (CONFIRMAR, CANCELAR, etc.)
-    // handle it here and skip the general CRM flow.
-    try {
-      const bookingHandled = await handleBookingReply(
-        payload.From.replace("whatsapp:", ""),
-        payload.Body,
-      );
-      if (bookingHandled) {
-        log.info(
-          { from: payload.From, body: payload.Body },
-          "WhatsApp message handled as booking reply",
-        );
-        return new NextResponse(`<?xml version="1.0" encoding="UTF-8"?><Response></Response>`, {
-          status: 200,
-          headers: { "Content-Type": "text/xml" },
-        });
+  const payload = body as MetaWebhookPayload;
+
+  log.info(
+    {
+      entries: payload.entry?.length,
+      provider: "meta",
+    },
+    "Meta WhatsApp webhook received",
+  );
+
+  // ── Intercept booking confirmation keywords ──────────────
+  // Check each message for booking-related keywords before CRM
+  for (const entry of payload.entry) {
+    for (const change of entry.changes) {
+      if (change.field !== "messages" || !change.value.messages) continue;
+      for (const msg of change.value.messages) {
+        if (msg.type !== "text" || !msg.text?.body) continue;
+        try {
+          const fromPhone = `+${msg.from}`;
+          const bookingHandled = await handleBookingReply(fromPhone, msg.text.body);
+          if (bookingHandled) {
+            log.info(
+              { from: msg.from, body: msg.text.body },
+              "Meta message handled as booking reply",
+            );
+            // Don't return yet — other messages in the batch may need CRM processing
+          }
+        } catch (bookingErr) {
+          log.warn({ err: bookingErr }, "Booking reply handler error — falling through to CRM");
+        }
       }
-    } catch (bookingErr) {
-      log.warn({ err: bookingErr }, "Booking reply handler error — falling through to CRM");
     }
+  }
 
-    // Process through service layer (general CRM / chatbot)
-    const result = await processIncomingMessage(payload);
+  // Process through service layer
+  const result = await processMetaWebhook(payload);
 
-    if (!result.success) {
-      log.error({ error: result.error }, "processIncomingMessage failed");
-      // Still return 200 to Twilio so it doesn't retry
+  log.info({ processed: result.processed, errors: result.errors.length }, "Meta webhook processed");
+
+  // Meta requires 200 OK response, otherwise it retries
+  return NextResponse.json({ status: "ok" }, { status: 200 });
+}
+
+// ─── Twilio POST Handler ─────────────────────────────────────
+
+async function handleTwilioPost(req: NextRequest) {
+  // Twilio sends application/x-www-form-urlencoded
+  const formData = await req.formData();
+  const params: Record<string, string> = {};
+  formData.forEach((value, key) => {
+    params[key] = String(value);
+  });
+
+  // Validate Twilio signature
+  const isValid = await validateTwilioSignature(req, params);
+  if (!isValid) {
+    log.warn({ ip: req.headers.get("x-forwarded-for") }, "Invalid Twilio signature — rejected");
+    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+  }
+
+  // Extract standard Twilio WhatsApp fields
+  const payload: IncomingMessage = {
+    MessageSid: params.MessageSid || params.SmsSid || "",
+    AccountSid: params.AccountSid || "",
+    From: params.From || "",
+    To: params.To || "",
+    Body: params.Body || "",
+    NumMedia: params.NumMedia || "0",
+    MediaUrl0: params.MediaUrl0,
+    MediaContentType0: params.MediaContentType0,
+    ProfileName: params.ProfileName,
+    WaId: params.WaId,
+  };
+
+  // Validate required fields
+  if (!payload.From || !payload.To) {
+    log.warn({ params }, "Webhook missing From or To");
+    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+  }
+
+  log.info(
+    {
+      from: payload.From,
+      to: payload.To,
+      sid: payload.MessageSid,
+      profile: payload.ProfileName,
+      provider: "twilio",
+    },
+    "Twilio WhatsApp webhook received",
+  );
+
+  // ── Intercept booking confirmation keywords ──────────────
+  try {
+    const bookingHandled = await handleBookingReply(
+      payload.From.replace("whatsapp:", ""),
+      payload.Body,
+    );
+    if (bookingHandled) {
+      log.info(
+        { from: payload.From, body: payload.Body },
+        "WhatsApp message handled as booking reply",
+      );
       return new NextResponse(`<?xml version="1.0" encoding="UTF-8"?><Response></Response>`, {
         status: 200,
         headers: { "Content-Type": "text/xml" },
       });
     }
+  } catch (bookingErr) {
+    log.warn({ err: bookingErr }, "Booking reply handler error — falling through to CRM");
+  }
 
-    log.info(
-      {
-        leadId: result.leadId,
-        conversationId: result.conversationId,
-        isNew: result.isNewLead,
-      },
-      "WhatsApp message processed",
-    );
+  // Process through service layer (general CRM / chatbot)
+  const result = await processIncomingMessage(payload);
 
-    // Return empty TwiML — auto-reply is handled in service layer via API
-    return new NextResponse(`<?xml version="1.0" encoding="UTF-8"?><Response></Response>`, {
-      status: 200,
-      headers: { "Content-Type": "text/xml" },
-    });
-  } catch (err) {
-    log.error({ err }, "WhatsApp webhook error");
-    // Return 200 even on error to prevent Twilio retry storms
+  if (!result.success) {
+    log.error({ error: result.error }, "processIncomingMessage failed");
     return new NextResponse(`<?xml version="1.0" encoding="UTF-8"?><Response></Response>`, {
       status: 200,
       headers: { "Content-Type": "text/xml" },
     });
   }
+
+  log.info(
+    {
+      leadId: result.leadId,
+      conversationId: result.conversationId,
+      isNew: result.isNewLead,
+    },
+    "WhatsApp message processed",
+  );
+
+  // Return empty TwiML — auto-reply is handled in service layer via API
+  return new NextResponse(`<?xml version="1.0" encoding="UTF-8"?><Response></Response>`, {
+    status: 200,
+    headers: { "Content-Type": "text/xml" },
+  });
 }
 
-// ─── GET Handler (Twilio health check) ───────────────────────
+// ─── GET Handler (Meta Verification + Health Check) ──────────
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+
+  // ── Meta Webhook Verification Handshake ─────────────────
+  const mode = searchParams.get("hub.mode");
+  const token = searchParams.get("hub.verify_token");
+  const challenge = searchParams.get("hub.challenge");
+
+  if (mode === "subscribe" && token && challenge) {
+    const verifyToken = getMetaVerifyToken();
+
+    if (token === verifyToken) {
+      log.info("Meta webhook verification successful");
+      // Must return the challenge as plain text with 200
+      return new NextResponse(challenge, {
+        status: 200,
+        headers: { "Content-Type": "text/plain" },
+      });
+    }
+
+    log.warn({ token }, "Meta webhook verification failed — token mismatch");
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  // ── Health check ────────────────────────────────────────
   return NextResponse.json({
     status: "ok",
     service: "whatsapp-webhook",
+    provider: getActiveProvider(),
     timestamp: new Date().toISOString(),
   });
 }
