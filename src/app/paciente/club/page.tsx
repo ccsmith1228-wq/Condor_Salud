@@ -24,10 +24,12 @@ import {
   Mail,
   Lock,
   User,
+  Wallet,
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
 import { useLocale } from "@/lib/i18n/context";
 import { CLUB_SALUD_PLANS } from "@/lib/plan-config";
+import ClubMemberCard from "@/components/ClubMemberCard";
 import type { ClubPlan, ClubMembership } from "@/lib/types";
 
 /** Resolve patient ID from patient-auth localStorage, fallback chain */
@@ -46,6 +48,20 @@ function getStoredPatientId(): string | null {
     /* ignore parse errors */
   }
   return null;
+}
+
+/** Resolve patient name from patient-auth localStorage */
+function getStoredPatientName(): string {
+  try {
+    const raw = localStorage.getItem("condor_patient_data");
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed?.name) return parsed.name;
+    }
+  } catch {
+    /* ignore */
+  }
+  return "";
 }
 
 /* ── Plan card icon mapping ──────────────────────────────── */
@@ -82,10 +98,13 @@ export default function ClubPage() {
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState("");
   const [patientId, setPatientId] = useState<string | null>(null);
+  const [patientName, setPatientName] = useState("");
+  const [walletLoading, setWalletLoading] = useState<"apple" | "google" | null>(null);
 
   useEffect(() => {
     const stored = getStoredPatientId();
     setPatientId(stored);
+    setPatientName(getStoredPatientName());
     // Inline fetch to avoid stale-closure lint issue
     (async () => {
       try {
@@ -177,6 +196,7 @@ export default function ClubPage() {
       localStorage.setItem("condor_patient_refresh", data.refreshToken);
       localStorage.setItem("condor_patient_data", JSON.stringify(data.patient));
       setPatientId(data.patient.id);
+      setPatientName(data.patient.name || "");
       setShowAuthPrompt(false);
       showToast(isEn ? `Welcome, ${data.patient.name}!` : `¡Bienvenido/a, ${data.patient.name}!`);
       // Refresh membership status with new patient ID
@@ -267,8 +287,8 @@ export default function ClubPage() {
         </h1>
         <p className="text-ink/60 mt-2 max-w-lg mx-auto">
           {isEn
-            ? "Get teleconsults, medical visits, and unlock priority access to Cora."
-            : "Obtené teleconsultas, visitas médicas y acceso prioritario a Cora."}
+            ? "Access Cóndor's own doctor network — teleconsults, in-person visits, your virtual member card, and priority Cora AI."
+            : "Accedé a la red propia de médicos Cóndor — teleconsultas, visitas presenciales, tu credencial digital y Cora IA prioritaria."}
         </p>
       </div>
 
@@ -321,6 +341,117 @@ export default function ClubPage() {
               )}
             </div>
           )}
+        </div>
+      )}
+
+      {/* ─── Virtual Member Card + Wallet ─── */}
+      {membership && membership.memberId && (
+        <div className="space-y-4">
+          <h2 className="text-xl font-display font-bold text-ink">
+            {isEn ? "Your Digital Member Card" : "Tu Credencial Digital"}
+          </h2>
+
+          <div className="flex flex-col sm:flex-row gap-6 items-start">
+            {/* Card */}
+            <ClubMemberCard
+              memberId={membership.memberId}
+              memberName={patientName}
+              planSlug={membership.plan?.slug || "basico"}
+              planName={(isEn ? membership.plan?.nameEn : membership.plan?.nameEs) || "Club Salud"}
+              startedAt={membership.startedAt}
+              expiresAt={membership.expiresAt}
+            />
+
+            {/* Wallet buttons */}
+            <div className="flex flex-col gap-3 sm:pt-2 w-full sm:w-auto">
+              <p className="text-xs text-ink/50 mb-1">
+                {isEn
+                  ? "Add to your phone wallet for easy access"
+                  : "Agregala a tu billetera digital para acceso rápido"}
+              </p>
+
+              {/* Apple Wallet */}
+              <button
+                onClick={async () => {
+                  setWalletLoading("apple");
+                  try {
+                    const res = await fetch(`/api/club/card/apple?memberId=${membership.memberId}`);
+                    const data = await res.json();
+                    if (res.status === 501) {
+                      showToast(
+                        isEn
+                          ? "Apple Wallet will be available soon"
+                          : "Apple Wallet estará disponible pronto",
+                      );
+                    } else if (res.ok) {
+                      // When implemented, trigger download of .pkpass
+                      showToast(isEn ? "Pass downloaded!" : "¡Pase descargado!");
+                    } else {
+                      showToast(data.error || "Error");
+                    }
+                  } catch {
+                    showToast(isEn ? "Connection error" : "Error de conexión");
+                  } finally {
+                    setWalletLoading(null);
+                  }
+                }}
+                disabled={walletLoading !== null}
+                className="flex items-center gap-2.5 bg-ink text-white px-5 py-3 rounded-xl hover:bg-ink/90 transition disabled:opacity-50 text-sm font-semibold"
+              >
+                {walletLoading === "apple" ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
+                  </svg>
+                )}
+                {isEn ? "Add to Apple Wallet" : "Agregar a Apple Wallet"}
+              </button>
+
+              {/* Google Wallet */}
+              <button
+                onClick={async () => {
+                  setWalletLoading("google");
+                  try {
+                    const res = await fetch(
+                      `/api/club/card/google?memberId=${membership.memberId}`,
+                    );
+                    const data = await res.json();
+                    if (res.status === 501) {
+                      showToast(
+                        isEn
+                          ? "Google Wallet will be available soon"
+                          : "Google Wallet estará disponible pronto",
+                      );
+                    } else if (res.ok && data.saveUrl) {
+                      window.open(data.saveUrl, "_blank");
+                    } else {
+                      showToast(data.error || "Error");
+                    }
+                  } catch {
+                    showToast(isEn ? "Connection error" : "Error de conexión");
+                  } finally {
+                    setWalletLoading(null);
+                  }
+                }}
+                disabled={walletLoading !== null}
+                className="flex items-center gap-2.5 bg-white border border-border text-ink px-5 py-3 rounded-xl hover:bg-surface transition disabled:opacity-50 text-sm font-semibold"
+              >
+                {walletLoading === "google" ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Wallet className="w-5 h-5 text-celeste" />
+                )}
+                {isEn ? "Add to Google Wallet" : "Agregar a Google Wallet"}
+              </button>
+
+              <p className="text-[10px] text-ink/40 max-w-[220px]">
+                {isEn
+                  ? "Present your card at any Cóndor network clinic to access your benefits."
+                  : "Presentá tu credencial en cualquier centro de la red Cóndor para acceder a tus beneficios."}
+              </p>
+            </div>
+          </div>
         </div>
       )}
 

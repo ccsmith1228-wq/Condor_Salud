@@ -129,8 +129,8 @@ export default function HealthClubPage() {
             </h1>
             <p className="text-lg md:text-xl text-ink-light max-w-2xl mb-8 leading-relaxed">
               {isEn
-                ? "Join Cóndor Club Salud and get teleconsultas, medical visits, medication delivery, and 24/7 AI health assistance — all in one membership."
-                : "Unite al Cóndor Club Salud y accedé a teleconsultas, visitas médicas, delivery de medicamentos y asistencia de salud con IA 24/7 — todo en una membresía."}
+                ? "Join Cóndor Club Salud and access our own network of verified doctors across Argentina — teleconsultas, in-person visits, medication delivery, and 24/7 AI health assistance, all in one membership."
+                : "Unite al Cóndor Club Salud y accedé a nuestra propia red de médicos verificados en toda Argentina — teleconsultas, visitas presenciales, delivery de medicamentos y asistencia de salud con IA 24/7, todo en una membresía."}
             </p>
             <div className="flex flex-wrap gap-3">
               <a
@@ -166,8 +166,8 @@ export default function HealthClubPage() {
             </h2>
             <p className="text-base text-ink-light max-w-2xl mb-10">
               {isEn
-                ? "Cóndor Club Salud gives you and your family access to healthcare tools that save you time — every month."
-                : "El Cóndor Club Salud te da a vos y a tu familia acceso a herramientas de salud que te ahorran tiempo — todos los meses."}
+                ? "Cóndor Club Salud gives you and your family access to our own network of doctors and healthcare tools — every month, everywhere in Argentina."
+                : "El Cóndor Club Salud te da a vos y a tu familia acceso a nuestra propia red de médicos y herramientas de salud — todos los meses, en toda Argentina."}
             </p>
 
             <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8">
@@ -185,8 +185,8 @@ export default function HealthClubPage() {
                 title={isEn ? "Teleconsultas" : "Teleconsultas"}
                 desc={
                   isEn
-                    ? "HD video consultations with doctors from home. No waiting rooms, no travel."
-                    : "Consultas por video HD con médicos desde tu casa. Sin salas de espera, sin viajes."
+                    ? "HD video consultations with Cóndor network doctors from home. No waiting rooms, no travel."
+                    : "Consultas por video HD con médicos de la red Cóndor desde tu casa. Sin salas de espera, sin viajes."
                 }
               />
               <Benefit
@@ -218,11 +218,11 @@ export default function HealthClubPage() {
               />
               <Benefit
                 icon={Stethoscope}
-                title={isEn ? "Doctor Directory" : "Directorio Médico"}
+                title={isEn ? "Cóndor Doctor Network" : "Red Médica Cóndor"}
                 desc={
                   isEn
-                    ? "Find verified doctors near you, sorted by specialty, insurance, and ratings."
-                    : "Encontrá médicos verificados cerca tuyo, ordenados por especialidad, cobertura y calificaciones."
+                    ? "Access our growing network of verified doctors across Argentina, sorted by specialty, insurance, and ratings."
+                    : "Accedé a nuestra red creciente de médicos verificados en toda Argentina, ordenados por especialidad, cobertura y calificaciones."
                 }
               />
             </div>

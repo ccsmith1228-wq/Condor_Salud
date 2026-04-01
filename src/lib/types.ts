@@ -447,6 +447,7 @@ export type ClubMembershipStatus = "active" | "paused" | "cancelled" | "expired"
 
 export interface ClubMembership {
   id: string;
+  memberId: string; // Unique member ID, e.g. "CS-240001"
   patientId: string;
   planId: string;
   plan?: ClubPlan;
