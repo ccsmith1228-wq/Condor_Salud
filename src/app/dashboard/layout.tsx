@@ -11,6 +11,11 @@ import { DemoModalProvider } from "@/components/DemoModal";
 // Lazy-load non-critical UI that is not above the fold
 const WhatsAppFloat = dynamic(() => import("@/components/WhatsAppFloat"), { ssr: false });
 const Chatbot = dynamic(() => import("@/components/Chatbot"), { ssr: false });
+const ReceptionistOnboarding = dynamic(
+  () =>
+    import("@/components/receptionist-tour").then((m) => ({ default: m.ReceptionistOnboarding })),
+  { ssr: false },
+);
 
 import { SWRProvider } from "@/lib/swr";
 import { useAuth, useIsDemo } from "@/lib/auth/context";
@@ -389,6 +394,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         key={item.href}
                         href={item.href}
                         aria-current={active ? "page" : undefined}
+                        data-tour={`nav-${item.href.replace("/dashboard/", "").replace("/dashboard", "panel") || "panel"}`}
                         className={`flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] transition ${
                           active
                             ? "bg-celeste-50 text-celeste-dark font-semibold"
@@ -441,6 +447,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {user?.role === "recepcion" && (
             <div className="mt-2 px-3">
               <button
+                data-tour="tour-guide-btn"
                 onClick={() => window.dispatchEvent(new CustomEvent("trigger-tour"))}
                 className="flex items-center gap-2 px-3 py-2 text-[11px] font-medium text-ink-muted hover:text-celeste-dark hover:bg-celeste-pale rounded-lg transition w-full text-left"
               >
@@ -569,6 +576,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </ToastProvider>
           </SWRProvider>
         </main>
+        {user?.role === "recepcion" && <ReceptionistOnboarding />}
         <WhatsAppFloat />
         <Chatbot />
       </div>
