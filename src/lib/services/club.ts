@@ -1,6 +1,12 @@
 // ─── Cóndor Club Salud Service ───────────────────────────────
 // Patient membership management with teleconsultas and medical benefits.
 // Plans: Básico ($9,000), Plus ($24,500), Familiar ($90,000).
+// ──────────────────────────────────────────────────────────────
+// NOTE: Uses SUPABASE_SERVICE_ROLE_KEY for all DB access because
+// Condor Salud uses custom `condor_session` cookie auth, NOT
+// Supabase Auth. The anon-key client from @/lib/supabase/server
+// cannot pass RLS policies for INSERT/UPDATE operations.
+// ──────────────────────────────────────────────────────────────
 
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { logger } from "@/lib/logger";
@@ -11,8 +17,11 @@ import type { ClubPlan, ClubMembership, PrescriptionFee } from "@/lib/types";
 
 async function getSupabase(): Promise<SupabaseClient> {
   if (!isSupabaseConfigured()) throw new Error("Supabase not configured");
-  const { createClient } = await import("@/lib/supabase/server");
-  return createClient() as unknown as SupabaseClient;
+  const { createClient } = await import("@supabase/supabase-js");
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  );
 }
 
 // ─── Club Plans ──────────────────────────────────────────────

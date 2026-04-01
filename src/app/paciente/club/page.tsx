@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
 import { useLocale } from "@/lib/i18n/context";
+import { CLUB_SALUD_PLANS } from "@/lib/plan-config";
 import type { ClubPlan, ClubMembership } from "@/lib/types";
 
 /* ── Plan card icon mapping ──────────────────────────────── */
@@ -67,54 +68,24 @@ export default function ClubPage() {
       setPlans(data.plans || []);
       setMembership(data.membership || null);
     } catch {
-      // Fallback demo plans
-      setPlans([
-        {
-          id: "1",
-          slug: "basico",
-          nameEs: "Club Básico",
-          nameEn: "Basic Club",
-          priceArs: 9000,
-          priceUsd: 0,
-          prescriptionDiscount: 0,
-          maxTeleconsultas: 1,
-          includesDelivery: false,
-          includesCoraPriority: false,
-          includesRecordsRequest: true,
+      // Fallback demo plans from canonical config
+      setPlans(
+        CLUB_SALUD_PLANS.map((p, i) => ({
+          id: String(i + 1),
+          slug: p.slug,
+          nameEs: p.nameEs,
+          nameEn: p.nameEn,
+          priceArs: p.priceArs,
+          priceUsd: p.priceUsd,
+          prescriptionDiscount: p.prescriptionDiscount,
+          maxTeleconsultas: p.maxTeleconsultas,
+          includesDelivery: p.includesDelivery,
+          includesCoraPriority: p.includesCoraPriority,
+          includesRecordsRequest: p.includesRecordsRequest,
           active: true,
-          sortOrder: 1,
-        },
-        {
-          id: "2",
-          slug: "plus",
-          nameEs: "Club Plus",
-          nameEn: "Plus Club",
-          priceArs: 24500,
-          priceUsd: 0,
-          prescriptionDiscount: 0,
-          maxTeleconsultas: 3,
-          includesDelivery: true,
-          includesCoraPriority: true,
-          includesRecordsRequest: true,
-          active: true,
-          sortOrder: 2,
-        },
-        {
-          id: "3",
-          slug: "familiar",
-          nameEs: "Club Familiar",
-          nameEn: "Family Club",
-          priceArs: 90000,
-          priceUsd: 0,
-          prescriptionDiscount: 0,
-          maxTeleconsultas: 999,
-          includesDelivery: true,
-          includesCoraPriority: true,
-          includesRecordsRequest: true,
-          active: true,
-          sortOrder: 3,
-        },
-      ]);
+          sortOrder: p.sortOrder,
+        })),
+      );
     } finally {
       setLoading(false);
     }

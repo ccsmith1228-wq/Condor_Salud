@@ -5,6 +5,7 @@ import { useLocale } from "@/lib/i18n/context";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
+import { CLUB_SALUD_PLANS, NON_MEMBER_PRESCRIPTION_FEE, formatClubPrice } from "@/lib/plan-config";
 import {
   ArrowRight,
   Bot,
@@ -31,7 +32,19 @@ import {
    Logged-in patient management at /paciente/club
    ═══════════════════════════════════════════════════════════════ */
 
-/* ─── Plan data ───────────────────────────────────────────── */
+/* ─── Plan data (from canonical config) ───────────────────── */
+const PLAN_ICONS: Record<string, React.ElementType> = {
+  basico: Star,
+  plus: Crown,
+  familiar: Shield,
+};
+
+const PLAN_ACCENTS: Record<string, { accent: string; border: string }> = {
+  basico: { accent: "text-celeste-dark", border: "border-celeste/40" },
+  plus: { accent: "text-gold-dark", border: "border-gold/60" },
+  familiar: { accent: "text-celeste-dark", border: "border-celeste-dark/50" },
+};
+
 interface PlanInfo {
   slug: string;
   icon: React.ElementType;
@@ -46,99 +59,19 @@ interface PlanInfo {
   featuresEn: string[];
 }
 
-const PLANS: PlanInfo[] = [
-  {
-    slug: "basico",
-    icon: Star,
-    nameEs: "Club Básico",
-    nameEn: "Basic Club",
-    priceArs: "9.000",
-    priceUsd: "",
-    accent: "text-celeste-dark",
-    border: "border-celeste/40",
-    featuresEs: [
-      "Plan de Bienvenida (chequeo medico)",
-      "1 teleconsulta por mes",
-      "Acceso a Cora (chatbot IA)",
-      "Historia clínica digital",
-      "Seguimiento de salud",
-      "Solicitar historia clínica de médicos externos",
-    ],
-    featuresEn: [
-      "Welcome Plan (medical screening)",
-      "1 teleconsult per month",
-      "Access to Cora (AI chatbot)",
-      "Digital health record",
-      "Health tracking",
-      "Request records from out-of-network doctors",
-    ],
-  },
-  {
-    slug: "plus",
-    icon: Crown,
-    nameEs: "Club Plus",
-    nameEn: "Plus Club",
-    priceArs: "24.500",
-    priceUsd: "",
-    accent: "text-gold-dark",
-    border: "border-gold/60",
-    badge: "Popular",
-    featuresEs: [
-      "Plan de Bienvenida (chequeo medico)",
-      "3 teleconsultas por mes",
-      "Delivery de medicamentos",
-      "Prioridad con Cora IA",
-      "Historia clínica digital",
-      "Seguimiento de salud con recordatorios",
-      "Solicitar historia clínica de médicos externos",
-    ],
-    featuresEn: [
-      "Welcome Plan (medical screening)",
-      "3 teleconsults per month",
-      "Medication delivery",
-      "Priority Cora AI access",
-      "Digital health record",
-      "Health tracking with reminders",
-      "Request records from out-of-network doctors",
-    ],
-  },
-  {
-    slug: "familiar",
-    icon: Shield,
-    nameEs: "Club Familiar",
-    nameEn: "Family Club",
-    priceArs: "90.000",
-    priceUsd: "",
-    accent: "text-celeste-dark",
-    border: "border-celeste-dark/50",
-    featuresEs: [
-      "Plan de Bienvenida (chequeo medico)",
-      "Teleconsultas ilimitadas",
-      "Delivery de medicamentos incluido",
-      "Prioridad con Cora IA",
-      "Chequeo anual completo",
-      "Consultas de cardiología",
-      "Visitas a médico clínico ilimitadas",
-      "Cobertura para grupo familiar",
-      "Seguimiento de salud con recordatorios",
-      "Solicitar historia clínica de médicos externos",
-      "Soporte prioritario",
-    ],
-    featuresEn: [
-      "Welcome Plan (medical screening)",
-      "Unlimited teleconsultations",
-      "Medication delivery included",
-      "Priority Cora AI access",
-      "Annual comprehensive checkup",
-      "Cardiology consultations",
-      "Unlimited general practitioner visits",
-      "Family group coverage",
-      "Health tracking with reminders",
-      "Request records from out-of-network doctors",
-      "Priority support",
-    ],
-  },
-];
+const PLANS: PlanInfo[] = CLUB_SALUD_PLANS.map((p) => ({
+  slug: p.slug,
+  icon: PLAN_ICONS[p.slug] || Star,
+  nameEs: p.nameEs,
+  nameEn: p.nameEn,
+  priceArs: formatClubPrice(p.priceArs),
+  priceUsd: p.priceUsd ? String(p.priceUsd) : "",
+  accent: PLAN_ACCENTS[p.slug]?.accent || "text-celeste-dark",
+  border: PLAN_ACCENTS[p.slug]?.border || "border-celeste/40",
+  badge: p.popular ? "Popular" : undefined,
+  featuresEs: p.featuresEs,
+  featuresEn: p.featuresEn,
+}));
 
 /* ─── Benefit card ────────────────────────────────────────── */
 function Benefit({
@@ -465,12 +398,14 @@ export default function HealthClubPage() {
                 {isEn ? (
                   <>
                     <strong className="text-ink">Not a member?</strong> You can still request
-                    prescriptions for a one-time fee of $2,000 ARS per prescription.
+                    prescriptions for a one-time fee of $
+                    {formatClubPrice(NON_MEMBER_PRESCRIPTION_FEE)} ARS per prescription.
                   </>
                 ) : (
                   <>
                     <strong className="text-ink">¿No sos miembro?</strong> Igualmente podés pedir
-                    recetas por un cargo único de $2.000 ARS por receta.
+                    recetas por un cargo único de ${formatClubPrice(NON_MEMBER_PRESCRIPTION_FEE)}{" "}
+                    ARS por receta.
                   </>
                 )}
               </p>

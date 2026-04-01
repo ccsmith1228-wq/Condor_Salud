@@ -494,6 +494,144 @@ export function formatARS(amount: number): string {
   return formatCurrency(amount);
 }
 
+// ─── Club Salud Membership Plans (B2C) ──────────────────────
+// Patient-facing Club Salud tiers.  Single source of truth for
+// Básico / Plus / Familiar pricing used by:
+//   /club (marketing), /paciente/club (portal), investor deck.
+
+export interface ClubSaludPlanDef {
+  slug: "basico" | "plus" | "familiar";
+  nameEs: string;
+  nameEn: string;
+  priceArs: number;
+  priceUsd: number;
+  maxTeleconsultas: number;
+  includesDelivery: boolean;
+  includesCoraPriority: boolean;
+  includesRecordsRequest: boolean;
+  prescriptionDiscount: number;
+  sortOrder: number;
+  popular?: boolean;
+  featuresEs: string[];
+  featuresEn: string[];
+}
+
+export const CLUB_SALUD_PLANS: ClubSaludPlanDef[] = [
+  {
+    slug: "basico",
+    nameEs: "Club Básico",
+    nameEn: "Basic Club",
+    priceArs: 9_000,
+    priceUsd: 0,
+    maxTeleconsultas: 1,
+    includesDelivery: false,
+    includesCoraPriority: false,
+    includesRecordsRequest: true,
+    prescriptionDiscount: 0,
+    sortOrder: 1,
+    featuresEs: [
+      "Plan de Bienvenida (chequeo médico)",
+      "1 teleconsulta por mes",
+      "Acceso a Cora (chatbot IA)",
+      "Historia clínica digital",
+      "Seguimiento de salud",
+      "Solicitar historia clínica de médicos externos",
+    ],
+    featuresEn: [
+      "Welcome Plan (medical screening)",
+      "1 teleconsult per month",
+      "Access to Cora (AI chatbot)",
+      "Digital health record",
+      "Health tracking",
+      "Request records from out-of-network doctors",
+    ],
+  },
+  {
+    slug: "plus",
+    nameEs: "Club Plus",
+    nameEn: "Plus Club",
+    priceArs: 24_500,
+    priceUsd: 0,
+    maxTeleconsultas: 3,
+    includesDelivery: true,
+    includesCoraPriority: true,
+    includesRecordsRequest: true,
+    prescriptionDiscount: 0,
+    sortOrder: 2,
+    popular: true,
+    featuresEs: [
+      "Plan de Bienvenida (chequeo médico)",
+      "3 teleconsultas por mes",
+      "Delivery de medicamentos",
+      "Prioridad con Cora IA",
+      "Historia clínica digital",
+      "Seguimiento de salud con recordatorios",
+      "Solicitar historia clínica de médicos externos",
+    ],
+    featuresEn: [
+      "Welcome Plan (medical screening)",
+      "3 teleconsults per month",
+      "Medication delivery",
+      "Priority Cora AI access",
+      "Digital health record",
+      "Health tracking with reminders",
+      "Request records from out-of-network doctors",
+    ],
+  },
+  {
+    slug: "familiar",
+    nameEs: "Club Familiar",
+    nameEn: "Family Club",
+    priceArs: 90_000,
+    priceUsd: 0,
+    maxTeleconsultas: 999,
+    includesDelivery: true,
+    includesCoraPriority: true,
+    includesRecordsRequest: true,
+    prescriptionDiscount: 0,
+    sortOrder: 3,
+    featuresEs: [
+      "Plan de Bienvenida (chequeo médico)",
+      "Teleconsultas ilimitadas",
+      "Delivery de medicamentos incluido",
+      "Prioridad con Cora IA",
+      "Chequeo anual completo",
+      "Consultas de cardiología",
+      "Visitas a médico clínico ilimitadas",
+      "Cobertura para grupo familiar",
+      "Seguimiento de salud con recordatorios",
+      "Solicitar historia clínica de médicos externos",
+      "Soporte prioritario",
+    ],
+    featuresEn: [
+      "Welcome Plan (medical screening)",
+      "Unlimited teleconsultations",
+      "Medication delivery included",
+      "Priority Cora AI access",
+      "Annual comprehensive checkup",
+      "Cardiology consultations",
+      "Unlimited general practitioner visits",
+      "Family group coverage",
+      "Health tracking with reminders",
+      "Request records from out-of-network doctors",
+      "Priority support",
+    ],
+  },
+];
+
+/** Non-member prescription fee (ARS) */
+export const NON_MEMBER_PRESCRIPTION_FEE = 2_000;
+
+/** Get a Club Salud plan by slug */
+export function getClubSaludPlan(slug: string): ClubSaludPlanDef | undefined {
+  return CLUB_SALUD_PLANS.find((p) => p.slug === slug);
+}
+
+/** Format Club Salud price for display (e.g. "9.000") */
+export function formatClubPrice(amount: number): string {
+  return amount.toLocaleString("es-AR");
+}
+
 // ─── Seat-Based Plan Definitions ─────────────────────────────
 // Per-doctor plans for the seat billing model.
 // Coexists with the clinic module system above.
