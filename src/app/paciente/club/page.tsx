@@ -20,10 +20,6 @@ import {
   ArrowRight,
   Heart,
   ClipboardCheck,
-  X,
-  Mail,
-  Lock,
-  User,
   Wallet,
 } from "lucide-react";
 import { useToast } from "@/components/Toast";
@@ -91,12 +87,6 @@ export default function ClubPage() {
   const [plans, setPlans] = useState<ClubPlan[]>([]);
   const [membership, setMembership] = useState<ClubMembership | null>(null);
   const [loading, setLoading] = useState(true);
-  const [joining, setJoining] = useState<string | null>(null);
-  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
-  const [authMode, setAuthMode] = useState<"login" | "register">("register");
-  const [authForm, setAuthForm] = useState({ email: "", password: "", name: "" });
-  const [authLoading, setAuthLoading] = useState(false);
-  const [authError, setAuthError] = useState("");
   const [patientId, setPatientId] = useState<string | null>(null);
   const [patientName, setPatientName] = useState("");
   const [walletLoading, setWalletLoading] = useState<"apple" | "google" | null>(null);
@@ -172,63 +162,6 @@ export default function ClubPage() {
       );
     } finally {
       setLoading(false);
-    }
-  }
-
-  async function handleAuth() {
-    setAuthLoading(true);
-    setAuthError("");
-    try {
-      const endpoint = authMode === "login" ? "/api/patients/login" : "/api/patients/register";
-      const body =
-        authMode === "login"
-          ? { email: authForm.email, password: authForm.password }
-          : { email: authForm.email, password: authForm.password, name: authForm.name };
-      const res = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Error");
-      // Save session (same keys as PatientAuthProvider)
-      localStorage.setItem("condor_patient_token", data.token);
-      localStorage.setItem("condor_patient_refresh", data.refreshToken);
-      localStorage.setItem("condor_patient_data", JSON.stringify(data.patient));
-      setPatientId(data.patient.id);
-      setPatientName(data.patient.name || "");
-      setShowAuthPrompt(false);
-      showToast(isEn ? `Welcome, ${data.patient.name}!` : `¡Bienvenido/a, ${data.patient.name}!`);
-      // Refresh membership status with new patient ID
-      fetchStatus(data.patient.id);
-    } catch (err) {
-      setAuthError(err instanceof Error ? err.message : "Error");
-    } finally {
-      setAuthLoading(false);
-    }
-  }
-
-  async function handleJoin(plan: ClubPlan) {
-    // Require authentication before joining
-    if (!patientId) {
-      setShowAuthPrompt(true);
-      return;
-    }
-    setJoining(plan.slug);
-    try {
-      const res = await fetch("/api/club/join", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ patientId: patientId, planSlug: plan.slug }),
-      });
-      if (!res.ok) throw new Error("Join failed");
-      const data = await res.json();
-      setMembership(data.membership);
-      showToast(isEn ? `Welcome to ${plan.nameEn}!` : `¡Bienvenido al ${plan.nameEs}!`);
-    } catch {
-      showToast(isEn ? "Could not join. Try again." : "No se pudo unir. Intentá de nuevo.");
-    } finally {
-      setJoining(null);
     }
   }
 
@@ -632,24 +565,17 @@ export default function ClubPage() {
                   {isEn ? "Current Plan" : "Plan Actual"}
                 </div>
               ) : (
-                <button
-                  onClick={() => handleJoin(plan)}
-                  disabled={joining !== null}
+                <Link
+                  href={`/paciente/club/registro?plan=${plan.slug}`}
                   className={`w-full py-2.5 text-sm font-semibold rounded-lg transition flex items-center justify-center gap-2 ${
                     plan.slug === "plus"
                       ? "bg-gold hover:bg-gold/90 text-ink"
                       : "bg-celeste-dark hover:bg-celeste-700 text-white"
-                  } disabled:opacity-50`}
+                  }`}
                 >
-                  {joining === plan.slug ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <>
-                      {isEn ? "Join Now" : "Unirme"}
-                      <ChevronRight className="w-4 h-4" />
-                    </>
-                  )}
-                </button>
+                  {isEn ? "Join Now" : "Unirme"}
+                  <ChevronRight className="w-4 h-4" />
+                </Link>
               )}
             </div>
           );
@@ -732,139 +658,6 @@ export default function ClubPage() {
           </details>
         ))}
       </div>
-
-      {/* ─── Auth Prompt Modal ─── */}
-      {showAuthPrompt && (
-        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 relative animate-chatOpen">
-            <button
-              onClick={() => {
-                setShowAuthPrompt(false);
-                setAuthError("");
-              }}
-              className="absolute top-3 right-3 p-1 text-ink-muted hover:text-ink transition"
-              aria-label="Close"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-celeste-100 flex items-center justify-center">
-                <Heart className="w-5 h-5 text-celeste-dark" />
-              </div>
-              <div>
-                <h2 className="text-lg font-display font-bold text-ink">
-                  {isEn ? "Join Club Salud" : "Unite al Club Salud"}
-                </h2>
-                <p className="text-xs text-ink-muted">
-                  {isEn
-                    ? "Create an account or log in to subscribe"
-                    : "Creá una cuenta o iniciá sesión para suscribirte"}
-                </p>
-              </div>
-            </div>
-
-            {/* Tab toggle */}
-            <div className="flex gap-1 bg-surface rounded-lg p-1 mb-4">
-              <button
-                onClick={() => {
-                  setAuthMode("register");
-                  setAuthError("");
-                }}
-                className={`flex-1 py-2 text-xs font-semibold rounded-md transition ${
-                  authMode === "register"
-                    ? "bg-white text-ink shadow-sm"
-                    : "text-ink-muted hover:text-ink"
-                }`}
-              >
-                {isEn ? "Sign Up" : "Registrarse"}
-              </button>
-              <button
-                onClick={() => {
-                  setAuthMode("login");
-                  setAuthError("");
-                }}
-                className={`flex-1 py-2 text-xs font-semibold rounded-md transition ${
-                  authMode === "login"
-                    ? "bg-white text-ink shadow-sm"
-                    : "text-ink-muted hover:text-ink"
-                }`}
-              >
-                {isEn ? "Log In" : "Iniciar Sesión"}
-              </button>
-            </div>
-
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleAuth();
-              }}
-              className="space-y-3"
-            >
-              {authMode === "register" && (
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-300" />
-                  <input
-                    type="text"
-                    value={authForm.name}
-                    onChange={(e) => setAuthForm((f) => ({ ...f, name: e.target.value }))}
-                    placeholder={isEn ? "Full name" : "Nombre completo"}
-                    required
-                    className="w-full pl-10 pr-4 py-2.5 border border-border rounded-xl text-sm focus:outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste/20"
-                  />
-                </div>
-              )}
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-300" />
-                <input
-                  type="email"
-                  value={authForm.email}
-                  onChange={(e) => setAuthForm((f) => ({ ...f, email: e.target.value }))}
-                  placeholder={isEn ? "Email" : "Email"}
-                  required
-                  className="w-full pl-10 pr-4 py-2.5 border border-border rounded-xl text-sm focus:outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste/20"
-                />
-              </div>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-300" />
-                <input
-                  type="password"
-                  value={authForm.password}
-                  onChange={(e) => setAuthForm((f) => ({ ...f, password: e.target.value }))}
-                  placeholder={isEn ? "Password (6+ chars)" : "Contraseña (6+ caracteres)"}
-                  required
-                  minLength={6}
-                  className="w-full pl-10 pr-4 py-2.5 border border-border rounded-xl text-sm focus:outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste/20"
-                />
-              </div>
-
-              {authError && (
-                <p className="text-xs text-red-600 bg-red-50 rounded-lg px-3 py-2">{authError}</p>
-              )}
-
-              <button
-                type="submit"
-                disabled={authLoading}
-                className="w-full py-2.5 bg-celeste-dark text-white text-sm font-semibold rounded-xl hover:bg-celeste-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                {authLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : authMode === "register" ? (
-                  isEn ? (
-                    "Create Account & Join"
-                  ) : (
-                    "Crear Cuenta y Unirme"
-                  )
-                ) : isEn ? (
-                  "Log In & Join"
-                ) : (
-                  "Iniciar Sesión y Unirme"
-                )}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

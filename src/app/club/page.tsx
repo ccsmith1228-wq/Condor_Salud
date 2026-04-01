@@ -133,12 +133,12 @@ export default function HealthClubPage() {
                 : "Unite al Cóndor Club Salud y accedé a nuestra propia red de médicos verificados en toda Argentina — teleconsultas, visitas presenciales, delivery de medicamentos y asistencia de salud con IA 24/7, todo en una membresía."}
             </p>
             <div className="flex flex-wrap gap-3">
-              <a
-                href="#planes"
+              <Link
+                href="/paciente/club/registro?plan=plus"
                 className="inline-flex items-center gap-2 bg-celeste-dark text-white px-6 py-3 rounded-full text-sm font-semibold hover:bg-celeste-700 transition-colors shadow-sm"
               >
-                {isEn ? "See Plans" : "Ver Planes"} <ArrowRight className="w-4 h-4" />
-              </a>
+                {isEn ? "Sign Up Now" : "Registrate Ahora"} <ArrowRight className="w-4 h-4" />
+              </Link>
               <Link
                 href="/paciente/club"
                 className="inline-flex items-center gap-2 border border-celeste-dark text-celeste-dark px-6 py-3 rounded-full text-sm font-semibold hover:bg-celeste-pale transition-colors"
@@ -378,7 +378,7 @@ export default function HealthClubPage() {
                       ))}
                     </ul>
                     <Link
-                      href="/paciente/club"
+                      href={`/paciente/club/registro?plan=${plan.slug}`}
                       className={`block text-center py-2.5 rounded-full text-sm font-semibold transition-colors ${
                         plan.slug === "plus"
                           ? "bg-gold text-white hover:bg-gold-dark"
@@ -483,7 +483,7 @@ export default function HealthClubPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link
-                href="/paciente/club"
+                href="/paciente/club/registro?plan=plus"
                 className="inline-flex items-center justify-center gap-2 bg-white text-celeste-dark px-6 py-3 rounded-full font-bold text-sm hover:bg-white/90 transition-colors"
               >
                 {isEn ? "Get Started" : "Empezar"} <ArrowRight className="w-4 h-4" />
