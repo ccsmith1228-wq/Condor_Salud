@@ -13,6 +13,7 @@ concurrency:
 
 env:
   NODE_VERSION: "22"
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
   NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
   NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder-key-for-ci"
 
