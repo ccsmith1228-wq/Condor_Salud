@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.21.0] — 2026-04-03
+
+### Added
+
+- **Patient self-service portal** — New `/reservar/[slug]/turno/[bookingId]` page where patients can verify identity (email), view booking details, cancel with optional reason, and reschedule to a new date/time. Full cancel & reschedule flows with conflict checking, WhatsApp + email notifications, and bilingual (ES/EN) support.
+- **Patient bookings API** — New `GET/PATCH /api/clinics/[slug]/patient-bookings/[bookingId]` endpoint for patient self-service. Supports lookup by email/phone verification, cancel with notifications, and reschedule with slot conflict detection. Includes demo fallback for testing.
+- **WhatsApp 2-hour reminder cron** — New `/api/cron/reminders-2h` Vercel cron (runs every 2 hours) sends appointment reminders 2–4 hours before confirmed bookings. Uses Meta WhatsApp templates with free-form fallback. Tracks `reminder_2h_sent_at` to avoid duplicates.
+- **SEO & Open Graph for booking pages** — New `/reservar/[slug]/layout.tsx` with `generateMetadata()` fetching clinic name, address, doctor count, and specialties from Supabase. Full Open Graph (`og:image`, `og:title`, `og:description`), Twitter cards, and JSON-LD structured data (`MedicalClinic` + `ReserveAction` schema.org).
+- **Migration 020** — `supabase/migrations/020_reminder_columns.sql` adds `reminder_sent_at` and `reminder_2h_sent_at` columns to `clinic_bookings` with partial indexes for efficient cron lookups.
+- **E2E tests for per-doctor booking flow** — Rewrote `e2e/booking.spec.ts` with tests for clinic header, search, specialty filters, doctor cards, date/time selection, full happy-path booking, public API endpoints, and patient portal verification flow.
+- **"Manage my appointment" link** — Booking confirmation page now shows a direct link to the patient self-service portal with auto-verified email.
+
+### Changed
+
+- **`sendBookingReminder()`** — Now accepts `templateName` parameter and attempts Meta WhatsApp template delivery first, falling back to free-form messaging if templates aren't configured.
+- **`sendMetaTemplate()`** — Fixed Meta Graph API component structure: body parameters now correctly grouped into a single `body` component array. Added configurable `language` parameter (was hardcoded `es_AR`).
+- **`vercel.json`** — Added `reminders-2h` cron schedule (`0 */2 * * *`).
+- **Public route strict null fix** — Fixed TypeScript strict null check in `/api/clinics/[slug]/public` schedule grouping.
+
 ## [0.20.0] — 2026-03-23
 
 ### Added

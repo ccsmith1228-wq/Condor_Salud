@@ -106,6 +106,8 @@ export interface SendTemplateParams {
   variables: Record<string, string>;
   clinicId: string;
   conversationId?: string;
+  /** BCP-47 language code for template, e.g. "es_AR" or "en_US" */
+  language?: string;
 }
 
 // ─── Supabase Admin Client (service_role for webhook) ────────
@@ -217,12 +219,14 @@ export async function sendMetaTemplate(params: SendTemplateParams): Promise<{
 
   const phone = normalizePhone(params.to).replace("+", "");
 
-  const components = Object.entries(params.variables).map(([, value], index) => ({
-    type: "body" as const,
-    parameters: [{ type: "text" as const, text: value }],
-    // Meta expects components indexed by position
-    ...(index === 0 ? {} : {}),
+  // Meta API requires all body parameters in a single "body" component.
+  const bodyParams = Object.values(params.variables).map((value) => ({
+    type: "text" as const,
+    text: value,
   }));
+
+  const components =
+    bodyParams.length > 0 ? [{ type: "body" as const, parameters: bodyParams }] : undefined;
 
   try {
     const res = await fetch(`${META_GRAPH_API}/${meta.phoneNumberId}/messages`, {
@@ -237,8 +241,8 @@ export async function sendMetaTemplate(params: SendTemplateParams): Promise<{
         type: "template",
         template: {
           name: params.templateName,
-          language: { code: "es_AR" },
-          components: components.length > 0 ? components : undefined,
+          language: { code: params.language || "es_AR" },
+          components,
         },
       }),
     });

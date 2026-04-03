@@ -5,7 +5,7 @@
 // Integrates with existing email.ts and whatsapp.ts services.
 
 import { sendEmail } from "@/lib/services/email";
-import { sendMessage } from "@/lib/services/whatsapp";
+import { sendMessage, sendMetaTemplate } from "@/lib/services/whatsapp";
 import { isSupabaseConfigured } from "@/lib/env";
 import { createClientLogger } from "@/lib/logger";
 
@@ -346,7 +346,9 @@ export async function notifyPatientCancellation(
 
 // ─── Send Reminder (24h before) ──────────────────────────────
 
-export async function sendBookingReminder(input: BookingNotifyInput): Promise<NotifyResult> {
+export async function sendBookingReminder(
+  input: BookingNotifyInput & { templateName?: string },
+): Promise<NotifyResult> {
   const result: NotifyResult = { emailSent: false, whatsappSent: false, errors: [] };
   const isEnglish = input.patientLanguage === "en";
 
@@ -357,25 +359,40 @@ export async function sendBookingReminder(input: BookingNotifyInput): Promise<No
   });
 
   if (input.patientPhone) {
-    const body = isEnglish
-      ? `⏰ *Reminder: Appointment Tomorrow*\n\n` +
-        `Dr. ${input.doctorName}\n` +
-        `${dateFormatted} at ${input.hora}\n` +
-        `${input.clinicName}\n\n` +
-        `Reply CANCEL to cancel.`
-      : `⏰ *Recordatorio: Turno Mañana*\n\n` +
-        `Dr. ${input.doctorName}\n` +
-        `${dateFormatted} a las ${input.hora}\n` +
-        `${input.clinicName}\n\n` +
-        `Responder CANCELAR para cancelar.`;
-
+    // Try Meta template first (required for proactive messages outside 24h window)
+    const tplName = input.templateName || "reminder-24h";
     try {
-      const waResult = await sendMessage({
+      const tplResult = await sendMetaTemplate({
         to: input.patientPhone,
-        body,
+        templateName: tplName,
+        variables: {
+          "1": input.patientName,
+          "2": `Dr. ${input.doctorName}`,
+          "3": dateFormatted,
+          "4": input.hora,
+          "5": input.clinicName,
+        },
         clinicId: input.clinicId || "",
+        language: isEnglish ? "en_US" : "es_AR",
       });
-      result.whatsappSent = waResult.success;
+      result.whatsappSent = tplResult.success;
+
+      // Fall back to free-form if template fails (e.g. Meta not configured)
+      if (!tplResult.success) {
+        log.warn(
+          { tpl: tplName, err: tplResult.error },
+          "Template send failed — falling back to free-form",
+        );
+        const body = isEnglish
+          ? `⏰ *Reminder: Appointment Tomorrow*\n\nDr. ${input.doctorName}\n${dateFormatted} at ${input.hora}\n${input.clinicName}\n\nReply CANCEL to cancel.`
+          : `⏰ *Recordatorio: Turno Mañana*\n\nDr. ${input.doctorName}\n${dateFormatted} a las ${input.hora}\n${input.clinicName}\n\nResponder CANCELAR para cancelar.`;
+        const waResult = await sendMessage({
+          to: input.patientPhone,
+          body,
+          clinicId: input.clinicId || "",
+        });
+        result.whatsappSent = waResult.success;
+      }
     } catch {
       result.errors.push("Reminder WhatsApp failed");
     }

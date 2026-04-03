@@ -840,7 +840,13 @@ export default function PublicBookingPage() {
               <p className="text-[11px] text-ink-muted mt-2">ID: {bookingResult.id}</p>
             </div>
 
-            <div className="mt-8">
+            <div className="mt-6 flex flex-col items-center gap-3">
+              <a
+                href={`/reservar/${slug}/turno/${bookingResult.id}${form.email ? `?email=${encodeURIComponent(form.email)}` : ""}`}
+                className="px-6 py-2.5 text-sm font-semibold text-white bg-celeste-dark hover:bg-celeste rounded-lg transition"
+              >
+                {t("Gestionar mi turno", "Manage my appointment")}
+              </a>
               <button
                 onClick={() => {
                   setStep("doctor");

@@ -82,11 +82,12 @@ export async function GET(_req: NextRequest, { params }: { params: { slug: strin
             const dow = d.getDay(); // 0=Sun..6=Sat
             const t = String(row.time_slot).slice(0, 5);
             if (!grouped[row.doctor_id]) grouped[row.doctor_id] = {};
-            if (!grouped[row.doctor_id][dow]) {
-              grouped[row.doctor_id][dow] = { min: t, max: t };
+            const docGroup = grouped[row.doctor_id]!;
+            if (!docGroup[dow]) {
+              docGroup[dow] = { min: t, max: t };
             } else {
-              if (t < grouped[row.doctor_id][dow].min) grouped[row.doctor_id][dow].min = t;
-              if (t > grouped[row.doctor_id][dow].max) grouped[row.doctor_id][dow].max = t;
+              if (t < docGroup[dow]!.min) docGroup[dow]!.min = t;
+              if (t > docGroup[dow]!.max) docGroup[dow]!.max = t;
             }
           }
           for (const [docId, days] of Object.entries(grouped)) {
