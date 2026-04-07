@@ -43,9 +43,19 @@ const serverSchema = z.object({
   SENTRY_ORG: z.string().optional(),
   SENTRY_PROJECT: z.string().optional(),
 
-  // ── PAMI API ────────────────────────────────────────────────
+  // ── PAMI Prestadores API ─────────────────────────────────────
+  PAMI_PRESTADOR_USER: z.string().optional(),
+  PAMI_PRESTADOR_PASS: z.string().optional(),
+  PAMI_PRESTADOR_CUIT: z.string().optional(),
+  PAMI_BASE_URL: z.string().url().optional(),
+  // Legacy (kept for backward compatibility)
   PAMI_API_URL: z.string().url().optional(),
   PAMI_API_TOKEN: z.string().optional(),
+
+  // ── SISA / PUCO (Coverage Verification) ─────────────────────
+  SISA_USER: z.string().optional(),
+  SISA_PASSWORD: z.string().optional(),
+  SISA_BASE_URL: z.string().url().optional(),
 
   // ── AFIP WSFEV1 ─────────────────────────────────────────────
   AFIP_CERT_PATH: z.string().optional(),
