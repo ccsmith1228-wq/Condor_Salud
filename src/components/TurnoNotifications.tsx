@@ -192,7 +192,7 @@ export function PatientSlideCard({ notification, onClose }: PatientCardProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex justify-end bg-black/20 backdrop-blur-[2px]"
+      className="fixed inset-0 z-[60] flex justify-end bg-black/20 backdrop-blur-[2px]"
       onClick={handleBackdrop}
     >
       <div

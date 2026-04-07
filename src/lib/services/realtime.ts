@@ -291,6 +291,7 @@ export interface TurnoNotification {
 
 interface TurnoRow {
   id: string;
+  clinic_id: string;
   hora: string;
   fecha: string;
   paciente: string;
@@ -304,6 +305,8 @@ interface TurnoRow {
 }
 
 interface UseTurnoNotificationsOptions {
+  /** Set false to skip subscription entirely (e.g. for non-doctor roles) */
+  enabled?: boolean;
   /** Filter to only show turnos for this professional name or ID */
   profesionalFilter?: string;
   /** How many minutes before an appointment to fire "upcoming" */
@@ -322,7 +325,12 @@ export function useRealtimeTurnoNotifications(options: UseTurnoNotificationsOpti
   closePatient: () => void;
   isConnected: boolean;
 } {
-  const { profesionalFilter, upcomingThresholdMin = 10, maxNotifications = 20 } = options;
+  const {
+    enabled = true,
+    profesionalFilter,
+    upcomingThresholdMin = 10,
+    maxNotifications = 20,
+  } = options;
   const [notifications, setNotifications] = useState<TurnoNotification[]>([]);
   const [activePatient, setActivePatient] = useState<TurnoNotification | null>(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -337,16 +345,30 @@ export function useRealtimeTurnoNotifications(options: UseTurnoNotificationsOpti
       if (!isSupabaseConfigured()) return notif;
       try {
         const supabase = createClient();
-        // Try matching by name (partial match on first word)
-        const firstName = notif.paciente.split(" ")[0];
-        if (!firstName || firstName.length < 2) return notif;
+        const patientName = notif.paciente?.trim();
+        if (!patientName || patientName.length < 2) return notif;
 
-        const { data } = await supabase
+        // Try exact name match first (most reliable)
+        let { data } = await supabase
           .from("pacientes")
           .select("id, nombre, dni, financiador, plan, telefono, email, ultima_visita")
-          .ilike("nombre", `%${firstName}%`)
+          .ilike("nombre", patientName)
           .limit(1)
           .single();
+
+        // Fall back to first-name partial match
+        if (!data) {
+          const firstName = patientName.split(" ")[0];
+          if (firstName && firstName.length >= 2) {
+            const res = await supabase
+              .from("pacientes")
+              .select("id, nombre, dni, financiador, plan, telefono, email, ultima_visita")
+              .ilike("nombre", `${firstName}%`)
+              .limit(1)
+              .single();
+            data = res.data;
+          }
+        }
 
         if (data) {
           return {
@@ -392,7 +414,7 @@ export function useRealtimeTurnoNotifications(options: UseTurnoNotificationsOpti
 
   // Subscribe to realtime turno changes
   useEffect(() => {
-    if (!isSupabaseConfigured()) return;
+    if (!enabled || !isSupabaseConfigured()) return;
 
     const supabase = createClient();
 
@@ -407,11 +429,7 @@ export function useRealtimeTurnoNotifications(options: UseTurnoNotificationsOpti
           const row = payload.new as unknown as TurnoRow;
 
           // Filter by professional if specified
-          if (
-            profesionalFilter &&
-            row.profesional !== profesionalFilter &&
-            row.profesional !== profesionalFilter
-          ) {
+          if (profesionalFilter && row.profesional !== profesionalFilter) {
             return;
           }
 
@@ -476,11 +494,11 @@ export function useRealtimeTurnoNotifications(options: UseTurnoNotificationsOpti
       channel.unsubscribe();
       channelRef.current = null;
     };
-  }, [profesionalFilter, addNotification]);
+  }, [enabled, profesionalFilter, addNotification]);
 
   // Upcoming appointment checker — runs every 60s
   useEffect(() => {
-    if (!isSupabaseConfigured()) return;
+    if (!enabled || !isSupabaseConfigured()) return;
 
     async function checkUpcoming() {
       try {
@@ -541,7 +559,7 @@ export function useRealtimeTurnoNotifications(options: UseTurnoNotificationsOpti
       clearInterval(interval);
       timers.forEach(clearTimeout);
     };
-  }, [profesionalFilter, upcomingThresholdMin, addNotification]);
+  }, [enabled, profesionalFilter, upcomingThresholdMin, addNotification]);
 
   const dismiss = useCallback((id: string) => {
     setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, dismissed: true } : n)));

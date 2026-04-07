@@ -44,11 +44,7 @@ import {
 } from "@/hooks/use-data";
 import { useWhatsAppConfig } from "@/lib/hooks/useCRM";
 import { useRealtimeTurnoNotifications } from "@/lib/services/realtime";
-import {
-  NotificationToastList,
-  PatientSlideCard,
-  TurnoNotificationBadge,
-} from "@/components/TurnoNotifications";
+import { NotificationToastList, PatientSlideCard } from "@/components/TurnoNotifications";
 
 // ─── Quick-link definitions (UI config — not mock data) ──────
 
@@ -160,8 +156,8 @@ export default function DashboardPage() {
     dismissAll: dismissAllNotifs,
     showPatient,
     closePatient,
-    isConnected: realtimeConnected,
   } = useRealtimeTurnoNotifications({
+    enabled: showNotifications,
     profesionalFilter: user?.role === "medico" ? user.name : undefined,
     upcomingThresholdMin: 15,
   });
