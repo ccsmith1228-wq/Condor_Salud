@@ -309,6 +309,13 @@ const DOCTORS = [
 // ─── Doctor → Day/Time schedule (from website) ───────────────
 
 const SCHEDULE = {
+  "Dr. Francisco Lopez": [
+    { day: 1, start: "10:00", end: "17:00" }, // Mon
+    { day: 2, start: "10:00", end: "17:00" }, // Tue
+    { day: 3, start: "10:00", end: "17:00" }, // Wed
+    { day: 4, start: "10:00", end: "17:00" }, // Thu
+    { day: 5, start: "10:00", end: "17:00" }, // Fri — 15-min slots
+  ],
   "Dr. Vargas Freddy": [{ day: 1, start: "14:30", end: "16:30" }],
   "Dr. Gustavo Delgadillo": [
     { day: 2, start: "10:00", end: "12:00" },
