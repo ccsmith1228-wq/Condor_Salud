@@ -281,6 +281,12 @@ interface AvailabilitySlot {
   time_slot: string;
 }
 
+/** Parse "HH:MM" → total minutes */
+function toMinutes(t: string): number {
+  const [h, m] = t.split(":").map(Number);
+  return (h ?? 0) * 60 + (m ?? 0);
+}
+
 /**
  * Fetches doctor_availability rows for the next 14 days and derives
  * a compact weekly schedule (day + start + end) per doctor.
@@ -290,7 +296,13 @@ async function fetchDoctorSchedules(
 ): Promise<Record<string, DoctorScheduleEntry[]>> {
   const result: Record<string, DoctorScheduleEntry[]> = {};
   try {
-    const sb = await getSupabase();
+    // Use service-role client — doctor_availability has RLS policies only
+    // for 'authenticated', and the browser anon client authenticates as 'anon',
+    // which would return zero rows.
+    const { getServiceClientSafe } = await import("@/lib/supabase/service");
+    const sb = getServiceClientSafe();
+    if (!sb) return result;
+
     const today = new Date();
     const future = new Date(today);
     future.setDate(future.getDate() + 14);
@@ -329,10 +341,22 @@ async function fetchDoctorSchedules(
         if (unique.length === 0) continue;
         const first = unique[0] ?? "00:00";
         const last = unique[unique.length - 1] ?? first;
+
+        // Infer slot duration from gap between first two slots (default 15 min).
+        // Add it to the last slot to get the actual end time.
+        let slotMin = 15;
+        if (unique.length >= 2) {
+          const t0 = toMinutes(unique[0] ?? "00:00");
+          const t1 = toMinutes(unique[1] ?? "00:15");
+          if (t1 > t0) slotMin = t1 - t0;
+        }
+        const endMin = toMinutes(last) + slotMin;
+        const endTime = `${String(Math.floor(endMin / 60)).padStart(2, "0")}:${String(endMin % 60).padStart(2, "0")}`;
+
         entries.push({
           day,
           start: first.slice(0, 5),
-          end: last.slice(0, 5),
+          end: endTime,
         });
       }
       entries.sort((a, b) => a.day - b.day);
