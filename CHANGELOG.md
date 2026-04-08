@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.1] — 2026-04-08
+
+### Added
+
+- **WhatsApp reminders for internal turnos** — The daily cron (`/api/cron/reminders`) now includes a third pass querying the `turnos` table for tomorrow's confirmed/pending turnos. Resolves patient `telefono` and `email` from the `pacientes` table, then sends WhatsApp template reminders (Meta `reminder-24h` template with free-form fallback) and email reminders via `clinic-notifications.sendBookingReminder()`. Previously only `appointments` and `clinic_bookings` received reminders.
+- **Migration 006 helper** — `scripts/apply-migration-006.mjs` assists with applying the WhatsApp CRM migration to Supabase.
+
+### Changed
+
+- **Cron `maxDuration` raised to 60s** — Accommodates three reminder passes (appointments → turnos → clinic_bookings).
+
 ## [0.21.1] — 2026-04-04
 
 ### Fixed

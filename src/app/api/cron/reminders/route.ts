@@ -1,6 +1,8 @@
 // ─── GET /api/cron/reminders — Vercel Cron: 24h booking reminders ──
 // Runs daily at 10:00 UTC (07:00 ART).
-// Queries appointments happening tomorrow, sends email + push.
+// Pass 1: `appointments` table → email + push
+// Pass 2: `turnos` table → WhatsApp (Meta template) + email via clinic-notifications
+// Pass 3: `clinic_bookings` table → WhatsApp (Meta template) + email via clinic-notifications
 //
 // vercel.json → crons: [{ path: "/api/cron/reminders", schedule: "0 10 * * *" }]
 
@@ -8,7 +10,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
-export const maxDuration = 30; // seconds
+export const maxDuration = 60; // seconds — 3 passes: appointments + turnos + clinic_bookings
 
 /**
  * Vercel Cron sends a GET request.
@@ -122,6 +124,94 @@ export async function GET(req: NextRequest) {
 
     logger.info({ total: appointments.length, emailsSent, pushesSent }, "Cron reminders completed");
 
+    // ── Internal Turnos — WhatsApp + Email reminders ──────
+    // Queries the `turnos` table for confirmed turnos tomorrow,
+    // resolves patient phone/email from `pacientes`, and sends
+    // WhatsApp template reminders via clinic-notifications.
+    let turnoRemindersSent = 0;
+    try {
+      const { data: turnos } = await sb
+        .from("turnos")
+        .select(
+          "id, clinic_id, paciente, paciente_id, profesional, profesional_id, fecha, hora, tipo, estado",
+        )
+        .eq("fecha", tomorrowStr)
+        .in("estado", ["confirmado", "pendiente"]);
+
+      if (turnos && turnos.length > 0) {
+        const { sendBookingReminder: sendTurnoReminder } =
+          await import("@/lib/services/clinic-notifications");
+
+        for (const turno of turnos) {
+          try {
+            // Resolve patient phone & email from pacientes table
+            let patientPhone = "";
+            let patientEmail = "";
+            let patientName = turno.paciente || "Paciente";
+            if (turno.paciente_id) {
+              const { data: paciente } = await sb
+                .from("pacientes")
+                .select("nombre, telefono, email")
+                .eq("id", turno.paciente_id)
+                .maybeSingle();
+              if (paciente) {
+                patientPhone = paciente.telefono || "";
+                patientEmail = paciente.email || "";
+                patientName = paciente.nombre || patientName;
+              }
+            }
+
+            // Skip if no contact info at all
+            if (!patientPhone && !patientEmail) continue;
+
+            // Resolve clinic name
+            let clinicName = "Clínica";
+            let clinicAddress = "";
+            let clinicPhone = "";
+            if (turno.clinic_id) {
+              const { data: clinic } = await sb
+                .from("clinics")
+                .select("name, address, phone")
+                .eq("id", turno.clinic_id)
+                .maybeSingle();
+              if (clinic) {
+                clinicName = clinic.name || clinicName;
+                clinicAddress = clinic.address || "";
+                clinicPhone = clinic.phone || "";
+              }
+            }
+
+            await sendTurnoReminder({
+              bookingId: turno.id,
+              clinicId: turno.clinic_id,
+              clinicName,
+              clinicAddress,
+              clinicPhone,
+              doctorName: turno.profesional || "Profesional",
+              patientName,
+              patientEmail,
+              patientPhone,
+              patientLanguage: "es",
+              fecha: turno.fecha,
+              hora: turno.hora,
+              specialty: turno.tipo || "",
+              tipo: "presencial",
+              templateName: "reminder-24h",
+            });
+
+            turnoRemindersSent++;
+          } catch (tErr) {
+            logger.warn(
+              { err: tErr, turnoId: turno.id },
+              "Cron: turno WhatsApp/email reminder failed",
+            );
+          }
+        }
+      }
+    } catch (trnErr) {
+      logger.warn({ err: trnErr }, "Cron: turnos reminder pass failed (table may not exist yet)");
+    }
+
     // ── Clinic Bookings (public booking system) ────────────
     // Also send reminders for clinic_bookings from the public booking flow
     let clinicRemindersSent = 0;
@@ -191,6 +281,7 @@ export async function GET(req: NextRequest) {
       total: appointments.length,
       emailsSent,
       pushesSent,
+      turnoRemindersSent,
       clinicRemindersSent,
       date: tomorrowStr,
     });
