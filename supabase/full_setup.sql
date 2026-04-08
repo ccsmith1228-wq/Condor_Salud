@@ -1405,6 +1405,242 @@ DO $$ BEGIN
   ALTER PUBLICATION supabase_realtime ADD TABLE public.inflacion_mensual;
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
+
+-- =============================================================================
+-- 006: WhatsApp CRM — Leads, Conversations & Marketing
+-- Auto-created during onboarding (seedDefaultWhatsApp).
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS public.whatsapp_config (
+  id            UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  clinic_id     UUID NOT NULL REFERENCES public.clinics(id) ON DELETE CASCADE,
+  whatsapp_number TEXT NOT NULL,
+  display_name  TEXT NOT NULL DEFAULT '',
+  twilio_sid    TEXT,
+  twilio_token  TEXT,
+  welcome_message TEXT DEFAULT '¡Hola! Gracias por comunicarte con nosotros. Un miembro de nuestro equipo te responderá a la brevedad. ¿En qué podemos ayudarte?',
+  auto_reply    BOOLEAN DEFAULT true,
+  business_hours TEXT DEFAULT '08:00-20:00',
+  out_of_hours_message TEXT DEFAULT 'Nuestro horario de atención es de 8:00 a 20:00. Te responderemos a primera hora.',
+  notify_on_new_lead BOOLEAN DEFAULT true,
+  created_at    TIMESTAMPTZ DEFAULT now(),
+  updated_at    TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(clinic_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_whatsapp_config_clinic ON public.whatsapp_config(clinic_id);
+CREATE INDEX IF NOT EXISTS idx_whatsapp_config_number ON public.whatsapp_config(whatsapp_number);
+
+CREATE TABLE IF NOT EXISTS public.leads (
+  id            UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  clinic_id     UUID NOT NULL REFERENCES public.clinics(id) ON DELETE CASCADE,
+  nombre        TEXT,
+  telefono      TEXT NOT NULL,
+  email         TEXT,
+  dni           TEXT,
+  financiador   TEXT,
+  motivo        TEXT,
+  fuente        TEXT NOT NULL DEFAULT 'whatsapp'
+    CHECK (fuente IN ('whatsapp', 'web', 'referido', 'landing', 'chatbot', 'manual')),
+  estado        TEXT NOT NULL DEFAULT 'nuevo'
+    CHECK (estado IN ('nuevo', 'contactado', 'interesado', 'turno_agendado', 'convertido', 'perdido')),
+  assigned_to   UUID REFERENCES public.profiles(id),
+  paciente_id   UUID REFERENCES public.pacientes(id),
+  tags          TEXT[] DEFAULT '{}',
+  notas         TEXT,
+  last_message_at TIMESTAMPTZ,
+  first_contact_at TIMESTAMPTZ DEFAULT now(),
+  converted_at  TIMESTAMPTZ,
+  created_at    TIMESTAMPTZ DEFAULT now(),
+  updated_at    TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(clinic_id, telefono)
+);
+
+CREATE INDEX IF NOT EXISTS idx_leads_clinic ON public.leads(clinic_id);
+CREATE INDEX IF NOT EXISTS idx_leads_estado ON public.leads(estado);
+CREATE INDEX IF NOT EXISTS idx_leads_telefono ON public.leads(telefono);
+CREATE INDEX IF NOT EXISTS idx_leads_paciente ON public.leads(paciente_id);
+CREATE INDEX IF NOT EXISTS idx_leads_assigned ON public.leads(assigned_to);
+CREATE INDEX IF NOT EXISTS idx_leads_last_msg ON public.leads(last_message_at DESC);
+
+CREATE TABLE IF NOT EXISTS public.conversations (
+  id            UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  clinic_id     UUID NOT NULL REFERENCES public.clinics(id) ON DELETE CASCADE,
+  lead_id       UUID REFERENCES public.leads(id) ON DELETE SET NULL,
+  paciente_id   UUID REFERENCES public.pacientes(id) ON DELETE SET NULL,
+  channel       TEXT NOT NULL DEFAULT 'whatsapp'
+    CHECK (channel IN ('whatsapp', 'web_chat', 'email', 'telefono')),
+  status        TEXT NOT NULL DEFAULT 'open'
+    CHECK (status IN ('open', 'pending', 'resolved', 'archived')),
+  subject       TEXT,
+  assigned_to   UUID REFERENCES public.profiles(id),
+  unread_count  INTEGER DEFAULT 0,
+  last_message_at TIMESTAMPTZ DEFAULT now(),
+  created_at    TIMESTAMPTZ DEFAULT now(),
+  updated_at    TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_conversations_clinic ON public.conversations(clinic_id);
+CREATE INDEX IF NOT EXISTS idx_conversations_lead ON public.conversations(lead_id);
+CREATE INDEX IF NOT EXISTS idx_conversations_paciente ON public.conversations(paciente_id);
+CREATE INDEX IF NOT EXISTS idx_conversations_status ON public.conversations(status);
+CREATE INDEX IF NOT EXISTS idx_conversations_last_msg ON public.conversations(last_message_at DESC);
+
+CREATE TABLE IF NOT EXISTS public.messages (
+  id              UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  clinic_id       UUID NOT NULL REFERENCES public.clinics(id) ON DELETE CASCADE,
+  conversation_id UUID NOT NULL REFERENCES public.conversations(id) ON DELETE CASCADE,
+  direction       TEXT NOT NULL CHECK (direction IN ('inbound', 'outbound')),
+  sender_type     TEXT NOT NULL CHECK (sender_type IN ('patient', 'lead', 'staff', 'system', 'bot')),
+  sender_id       UUID,
+  sender_name     TEXT,
+  body            TEXT NOT NULL,
+  media_url       TEXT,
+  media_type      TEXT,
+  twilio_sid      TEXT,
+  status          TEXT NOT NULL DEFAULT 'sent'
+    CHECK (status IN ('queued', 'sent', 'delivered', 'read', 'failed')),
+  error_message   TEXT,
+  metadata        JSONB DEFAULT '{}',
+  created_at      TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_messages_conversation ON public.messages(conversation_id);
+CREATE INDEX IF NOT EXISTS idx_messages_clinic ON public.messages(clinic_id);
+CREATE INDEX IF NOT EXISTS idx_messages_created ON public.messages(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_messages_twilio_sid ON public.messages(twilio_sid);
+
+CREATE TABLE IF NOT EXISTS public.whatsapp_templates (
+  id            UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  clinic_id     UUID NOT NULL REFERENCES public.clinics(id) ON DELETE CASCADE,
+  name          TEXT NOT NULL,
+  category      TEXT NOT NULL DEFAULT 'utility'
+    CHECK (category IN ('utility', 'marketing', 'authentication')),
+  language      TEXT NOT NULL DEFAULT 'es_AR',
+  body_template TEXT NOT NULL,
+  variables     TEXT[] DEFAULT '{}',
+  header_text   TEXT,
+  footer_text   TEXT,
+  active        BOOLEAN DEFAULT true,
+  approved      BOOLEAN DEFAULT false,
+  created_at    TIMESTAMPTZ DEFAULT now(),
+  updated_at    TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(clinic_id, name)
+);
+
+CREATE INDEX IF NOT EXISTS idx_whatsapp_templates_clinic ON public.whatsapp_templates(clinic_id);
+
+CREATE TABLE IF NOT EXISTS public.marketing_campaigns (
+  id              UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  clinic_id       UUID NOT NULL REFERENCES public.clinics(id) ON DELETE CASCADE,
+  name            TEXT NOT NULL,
+  description     TEXT,
+  template_id     UUID REFERENCES public.whatsapp_templates(id),
+  audience_filter JSONB DEFAULT '{}',
+  audience_count  INTEGER DEFAULT 0,
+  status          TEXT NOT NULL DEFAULT 'draft'
+    CHECK (status IN ('draft', 'scheduled', 'sending', 'sent', 'cancelled')),
+  scheduled_at    TIMESTAMPTZ,
+  sent_at         TIMESTAMPTZ,
+  stats           JSONB DEFAULT '{"sent": 0, "delivered": 0, "read": 0, "replied": 0, "failed": 0}',
+  created_by      UUID REFERENCES public.profiles(id),
+  created_at      TIMESTAMPTZ DEFAULT now(),
+  updated_at      TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_campaigns_clinic ON public.marketing_campaigns(clinic_id);
+CREATE INDEX IF NOT EXISTS idx_campaigns_status ON public.marketing_campaigns(status);
+
+CREATE TABLE IF NOT EXISTS public.campaign_recipients (
+  id            UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  campaign_id   UUID NOT NULL REFERENCES public.marketing_campaigns(id) ON DELETE CASCADE,
+  paciente_id   UUID REFERENCES public.pacientes(id),
+  lead_id       UUID REFERENCES public.leads(id),
+  telefono      TEXT NOT NULL,
+  status        TEXT NOT NULL DEFAULT 'pending'
+    CHECK (status IN ('pending', 'sent', 'delivered', 'read', 'replied', 'failed', 'opted_out')),
+  twilio_sid    TEXT,
+  sent_at       TIMESTAMPTZ,
+  delivered_at  TIMESTAMPTZ,
+  read_at       TIMESTAMPTZ,
+  replied_at    TIMESTAMPTZ,
+  error_message TEXT,
+  created_at    TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_recipients_campaign ON public.campaign_recipients(campaign_id);
+CREATE INDEX IF NOT EXISTS idx_recipients_telefono ON public.campaign_recipients(telefono);
+
+-- WhatsApp CRM — RLS
+ALTER TABLE public.whatsapp_config ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.leads ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.conversations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.whatsapp_templates ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.marketing_campaigns ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.campaign_recipients ENABLE ROW LEVEL SECURITY;
+
+DO $$
+DECLARE
+  tbl TEXT;
+BEGIN
+  FOR tbl IN SELECT unnest(ARRAY[
+    'whatsapp_config', 'leads', 'conversations', 'messages',
+    'whatsapp_templates', 'marketing_campaigns'
+  ])
+  LOOP
+    BEGIN
+      EXECUTE format(
+        'CREATE POLICY "Clinic isolation: %I" ON public.%I
+         FOR ALL TO authenticated
+         USING (clinic_id = public.get_clinic_id())
+         WITH CHECK (clinic_id = public.get_clinic_id())',
+        tbl, tbl
+      );
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
+  END LOOP;
+END $$;
+
+DO $$ BEGIN
+  CREATE POLICY "Clinic isolation: campaign_recipients" ON public.campaign_recipients
+    FOR ALL TO authenticated
+    USING (campaign_id IN (SELECT id FROM public.marketing_campaigns WHERE clinic_id = public.get_clinic_id()))
+    WITH CHECK (campaign_id IN (SELECT id FROM public.marketing_campaigns WHERE clinic_id = public.get_clinic_id()));
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN CREATE POLICY "Service role bypass: leads" ON public.leads FOR ALL TO service_role USING (true) WITH CHECK (true); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN CREATE POLICY "Service role bypass: conversations" ON public.conversations FOR ALL TO service_role USING (true) WITH CHECK (true); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN CREATE POLICY "Service role bypass: messages" ON public.messages FOR ALL TO service_role USING (true) WITH CHECK (true); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN CREATE POLICY "Service role bypass: whatsapp_config" ON public.whatsapp_config FOR ALL TO service_role USING (true) WITH CHECK (true); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+-- WhatsApp CRM — auto-update triggers
+DO $$
+DECLARE
+  tbl TEXT;
+BEGIN
+  FOR tbl IN SELECT unnest(ARRAY[
+    'whatsapp_config', 'leads', 'conversations',
+    'whatsapp_templates', 'marketing_campaigns'
+  ])
+  LOOP
+    BEGIN
+      EXECUTE format(
+        'CREATE TRIGGER set_updated_at BEFORE UPDATE ON public.%I
+         FOR EACH ROW EXECUTE FUNCTION public.set_updated_at()',
+        tbl
+      );
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
+  END LOOP;
+END $$;
+
+-- WhatsApp CRM — Realtime
+DO $$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE public.leads; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE public.conversations; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE public.messages; EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
 -- =============================================================================
 -- Cóndor Salud — Chatbot Feature Tables
 -- Depends on: 002_core_schema.sql (clinics, profiles, pacientes)

@@ -13,6 +13,7 @@ import { checkRateLimit, sanitizeBody, logger } from "@/lib/security/api-guard";
 import { requireAuth } from "@/lib/security/require-auth";
 import { whatsappConfigPutSchema } from "@/lib/validations/schemas";
 import { getActiveProvider } from "@/lib/services/whatsapp";
+import { ensureWhatsAppConfig } from "@/lib/services/onboarding";
 
 function getServiceClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -37,6 +38,10 @@ export async function GET(req: NextRequest) {
     }
 
     const supabase = getServiceClient();
+
+    // Auto-provision: create default config + templates if this clinic
+    // was onboarded before WhatsApp tables existed (lazy initialization)
+    await ensureWhatsAppConfig(clinicId);
 
     // Fetch config
     const { data: config, error: cfgErr } = await supabase

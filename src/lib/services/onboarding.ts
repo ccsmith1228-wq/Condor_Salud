@@ -35,7 +35,13 @@ export interface OnboardingResult {
   error?: string;
 }
 
+/**
+ * Server-side WhatsApp config + template seeding using service_role client.
+ * No client-side fetch — no cookie/auth race condition.
+ * Idempotent: safe to call multiple times (uses upsert).
+ */
 async function seedDefaultWhatsApp(
+  clinicId: string,
   clinic: {
     name: string;
     slug?: string | null;
@@ -44,9 +50,16 @@ async function seedDefaultWhatsApp(
   },
   input: ClinicOnboardingInput,
 ) {
+  const { createClient } = await import("@supabase/supabase-js");
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return; // Silently skip if no service key
+
+  const sb = createClient(url, key);
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://condorsalud.com";
   const bookingUrl = clinic.slug ? `${baseUrl}/reservar/${clinic.slug}` : undefined;
-  const payload = buildDefaultWhatsAppSetup({
+
+  const { config, templates } = buildDefaultWhatsAppSetup({
     clinicName: clinic.name,
     whatsappNumber: input.whatsappNumber,
     clinicPhone: input.telefono ?? clinic.phone,
@@ -54,15 +67,91 @@ async function seedDefaultWhatsApp(
     bookingUrl,
   });
 
-  const res = await fetch("/api/whatsapp/config", {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
+  // Upsert whatsapp_config (one row per clinic)
+  await sb.from("whatsapp_config").upsert(
+    {
+      clinic_id: clinicId,
+      ...config,
+    },
+    { onConflict: "clinic_id" },
+  );
 
-  if (!res.ok) {
-    const data = (await res.json().catch(() => null)) as { error?: string } | null;
-    throw new Error(data?.error || "No se pudo configurar WhatsApp");
+  // Upsert templates (7 default templates per clinic)
+  for (const tpl of templates) {
+    await sb.from("whatsapp_templates").upsert(
+      {
+        clinic_id: clinicId,
+        name: tpl.name,
+        category: tpl.category,
+        language: tpl.language,
+        body_template: tpl.body_template,
+        variables: tpl.variables,
+        header_text: tpl.header_text,
+        active: tpl.active,
+        approved: false, // Pending Meta approval
+      },
+      { onConflict: "clinic_id,name" },
+    );
+  }
+}
+
+/**
+ * Auto-provision WhatsApp config for a clinic if it doesn't exist yet.
+ * Called lazily on first dashboard access or first API call.
+ * Handles clinics that were onboarded before migration 006 existed.
+ */
+export async function ensureWhatsAppConfig(
+  clinicId: string,
+  clinicName?: string,
+): Promise<boolean> {
+  if (!isSupabaseConfigured()) return false;
+
+  try {
+    const { createClient } = await import("@supabase/supabase-js");
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+    const sb = createClient(url, key);
+
+    // Check if config already exists
+    const { data: existing } = await sb
+      .from("whatsapp_config")
+      .select("id")
+      .eq("clinic_id", clinicId)
+      .maybeSingle();
+
+    if (existing) return true; // Already provisioned
+
+    // Fetch clinic details for the defaults
+    const { data: clinic } = await sb
+      .from("clinics")
+      .select("name, slug, phone, address")
+      .eq("id", clinicId)
+      .maybeSingle();
+
+    if (!clinic) return false;
+
+    const name = clinicName || ((clinic as DBRow).name as string);
+    const slug = ((clinic as DBRow).slug as string | null) ?? null;
+    const phone = ((clinic as DBRow).phone as string | null) ?? null;
+    const address = ((clinic as DBRow).address as string | null) ?? null;
+
+    await seedDefaultWhatsApp(
+      clinicId,
+      { name, slug, phone, address },
+      {
+        nombre: name,
+        telefono: phone ?? undefined,
+        direccion: address ?? undefined,
+        doctorNombre: "",
+        doctorMatricula: "",
+        planTier: "profesional" as PlanTier,
+      },
+    );
+
+    return true;
+  } catch (err) {
+    console.error("[ensureWhatsAppConfig] auto-provision failed (tables may not exist)", err);
+    return false;
   }
 }
 
@@ -167,6 +256,7 @@ export async function completeOnboarding(input: ClinicOnboardingInput): Promise<
       if (clinicData) {
         try {
           await seedDefaultWhatsApp(
+            clinicId,
             {
               name: (clinicData as DBRow).name as string,
               slug: ((clinicData as DBRow).slug as string | null | undefined) ?? null,

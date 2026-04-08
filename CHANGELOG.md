@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.2] — 2026-04-08
+
+### Changed
+
+- **Zero-config WhatsApp for new clinics** — Rewrote `seedDefaultWhatsApp()` to use server-side Supabase inserts (service_role) instead of a fragile client-side `fetch("/api/whatsapp/config")`. Eliminates auth race condition during onboarding and cookie dependency. Now directly upserts `whatsapp_config` + 7 default templates per clinic.
+- **Lazy auto-provisioning** — New `ensureWhatsAppConfig()` function auto-creates WhatsApp config + templates on first dashboard access for clinics onboarded before migration 006 existed. Called from `GET /api/whatsapp/config`.
+- **Migration 006 in full_setup.sql** — WhatsApp CRM tables (whatsapp_config, leads, conversations, messages, whatsapp_templates, marketing_campaigns, campaign_recipients) are now part of `full_setup.sql` so new deployments always have them.
+
 ## [0.23.1] — 2026-04-08
 
 ### Added
