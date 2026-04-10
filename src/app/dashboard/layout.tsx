@@ -56,6 +56,7 @@ import {
   ScanLine,
   CirclePlus,
   DollarSign,
+  Receipt,
 } from "lucide-react";
 
 const navIcons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -90,6 +91,7 @@ const navIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   "/dashboard/mi-perfil-publico": FileHeart,
   "/dashboard/moderacion-resenas": MessageSquareWarning,
   "/dashboard/nubix": ScanLine,
+  "/dashboard/cobros": Receipt,
   "/dashboard/alta-clinica": CirclePlus,
 };
 
@@ -108,6 +110,7 @@ const navSections = [
       { label: "Disponibilidad", href: "/dashboard/disponibilidad", tKey: "nav.availability" },
       { label: "Turnos Online", href: "/dashboard/turnos-online", tKey: "nav.onlineBookings" },
       { label: "Precios", href: "/dashboard/precios", tKey: "nav.pricing" },
+      { label: "Cobros", href: "/dashboard/cobros", tKey: "nav.billing" },
       { label: "Verificacion", href: "/dashboard/verificacion", tKey: "nav.verification" },
       { label: "Inventario", href: "/dashboard/inventario", tKey: "nav.inventory" },
     ],
@@ -210,6 +213,7 @@ const ROUTE_MODULE_MAP: Record<string, ModuleId> = {
   "/dashboard/disponibilidad": "agenda",
   "/dashboard/turnos-online": "agenda",
   "/dashboard/precios": "agenda",
+  "/dashboard/cobros": "agenda",
   "/dashboard/recetas": "recetas-digitales",
   "/dashboard/recetas/nueva": "recetas-digitales",
   "/dashboard/verificaciones": "verificacion-medica",
@@ -229,7 +233,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   // Routes hidden for specific clinics
   const CLINIC_HIDDEN_ROUTES: Record<string, string[]> = {
-    "Centro Médico Roca": ["/dashboard/farmacia", "/dashboard/telemedicina"],
+    "Centro Médico Roca": [
+      "/dashboard/farmacia",
+      "/dashboard/telemedicina",
+      "/dashboard/directorio",
+    ],
   };
 
   const isNavVisible = (href: string): boolean => {

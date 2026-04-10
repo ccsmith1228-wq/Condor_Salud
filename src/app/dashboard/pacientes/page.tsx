@@ -21,6 +21,7 @@ import { useLocale } from "@/lib/i18n/context";
 import { usePacientes, useTurnos } from "@/hooks/use-data";
 import type { Lead, LeadEstado, Conversation } from "@/lib/types";
 import { analytics } from "@/lib/analytics";
+import { bodySystems, severityLabels, frequencyOptions } from "@/lib/services/triage";
 
 // ─── Patient display type ───────────────────────────────────
 interface PacienteDisplay {
@@ -921,6 +922,9 @@ function PacientesTabView({
                                 </div>
                               )}
                             </div>
+
+                            {/* ── Receipt / Billing History ── */}
+                            <PatientReceiptHistory patientId={p.id} locale={locale} />
                           </div>
                         </td>
                       </tr>
@@ -1370,6 +1374,142 @@ function ConversationThread({ conversation }: { conversation: Conversation }) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// PATIENT RECEIPT HISTORY (inside expanded row)
+// ═══════════════════════════════════════════════════════════════
+
+function PatientReceiptHistory({ patientId, locale }: { patientId: string; locale: string }) {
+  const [receipts, setReceipts] = useState<
+    {
+      id: string;
+      receipt_number: string;
+      status: string;
+      total: number;
+      discount: number;
+      payment_method: string | null;
+      created_at: string;
+      receipt_items: {
+        id: string;
+        service_name: string;
+        unit_price: number;
+        quantity: number;
+        subtotal: number;
+      }[];
+    }[]
+  >([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`/api/receipts?patient_id=${patientId}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (!cancelled) setReceipts(data.receipts || []);
+        }
+      } catch {
+        /* silent */
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [patientId]);
+
+  if (loading) {
+    return (
+      <div>
+        <h4 className="text-xs font-bold text-ink-muted uppercase tracking-wider mb-2">
+          {locale === "en" ? "Billing History" : "Historial de Cobros"}
+        </h4>
+        <p className="text-xs text-ink-muted italic py-2">
+          {locale === "en" ? "Loading..." : "Cargando..."}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <h4 className="text-xs font-bold text-ink-muted uppercase tracking-wider mb-2">
+        {locale === "en" ? "Billing History" : "Historial de Cobros"}
+      </h4>
+      {receipts.length === 0 ? (
+        <p className="text-xs text-ink-muted italic py-2">
+          {locale === "en" ? "No receipts" : "Sin comprobantes"}
+        </p>
+      ) : (
+        <div className="bg-white border border-border rounded-lg overflow-hidden">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="bg-surface text-[9px] font-bold tracking-wider text-ink-muted uppercase">
+                <th className="text-left px-4 py-2">
+                  {locale === "en" ? "Receipt" : "Comprobante"}
+                </th>
+                <th className="text-left px-4 py-2">{locale === "en" ? "Date" : "Fecha"}</th>
+                <th className="text-left px-4 py-2">{locale === "en" ? "Items" : "Servicios"}</th>
+                <th className="text-left px-4 py-2">{locale === "en" ? "Payment" : "Pago"}</th>
+                <th className="text-right px-4 py-2">Total</th>
+                <th className="text-center px-4 py-2">{locale === "en" ? "Status" : "Estado"}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {receipts.map((r) => (
+                <tr
+                  key={r.id}
+                  className="border-t border-border-light hover:bg-celeste-pale/20 transition"
+                >
+                  <td className="px-4 py-2 font-mono font-semibold text-ink">{r.receipt_number}</td>
+                  <td className="px-4 py-2 text-ink-light">
+                    {new Date(r.created_at).toLocaleDateString("es-AR")}
+                  </td>
+                  <td
+                    className="px-4 py-2 text-ink-muted max-w-[200px] truncate"
+                    title={(r.receipt_items || []).map((i) => i.service_name).join(", ")}
+                  >
+                    {(r.receipt_items || []).map((i) => i.service_name).join(", ") || "--"}
+                  </td>
+                  <td className="px-4 py-2 text-ink-light capitalize">
+                    {r.payment_method?.replace("_", " ") || "--"}
+                  </td>
+                  <td className="px-4 py-2 text-right font-bold text-ink tabular-nums">
+                    {new Intl.NumberFormat("es-AR", {
+                      style: "currency",
+                      currency: "ARS",
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    }).format(r.total)}
+                  </td>
+                  <td className="px-4 py-2 text-center">
+                    <span
+                      className={`text-[9px] font-bold px-2 py-0.5 rounded capitalize ${
+                        r.status === "completed"
+                          ? "bg-green-50 text-green-700"
+                          : r.status === "voided"
+                            ? "bg-red-50 text-red-600"
+                            : "bg-amber-50 text-amber-700"
+                      }`}
+                    >
+                      {r.status === "completed"
+                        ? "Completado"
+                        : r.status === "voided"
+                          ? "Anulado"
+                          : "Borrador"}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
 // ADD PATIENT MODAL
 // ═══════════════════════════════════════════════════════════════
 
@@ -1387,7 +1527,7 @@ const INSURANCE_OPTIONS = [
 ];
 
 function AddPatientModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const { showToast } = useToast();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [saving, setSaving] = useState(false);
@@ -1402,6 +1542,20 @@ function AddPatientModal({ onClose, onCreated }: { onClose: () => void; onCreate
   const [financiador, setFinanciador] = useState("");
   const [plan, setPlan] = useState("");
   const [notas, setNotas] = useState("");
+
+  // Triage / intake state
+  const [showTriage, setShowTriage] = useState(false);
+  const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
+  const [severity, setSeverity] = useState(1);
+  const [frequency, setFrequency] = useState("");
+  const [triageDuration, setTriageDuration] = useState("");
+  const [triageTriggers, setTriageTriggers] = useState("");
+
+  const toggleSymptom = (symptom: string) => {
+    setSelectedSymptoms((prev) =>
+      prev.includes(symptom) ? prev.filter((s) => s !== symptom) : [...prev, symptom],
+    );
+  };
 
   // Open the dialog on mount
   useEffect(() => {
@@ -1427,6 +1581,20 @@ function AddPatientModal({ onClose, onCreated }: { onClose: () => void; onCreate
 
     setSaving(true);
     try {
+      // Build structured triage notes if any symptoms were selected
+      let combinedNotes = notas.trim();
+      if (selectedSymptoms.length > 0) {
+        const triageParts: string[] = [];
+        triageParts.push(`[TRIAGE INTAKE]`);
+        triageParts.push(`Sintomas: ${selectedSymptoms.join(", ")}`);
+        if (severity > 1) triageParts.push(`Severidad: ${severity}/10`);
+        if (frequency) triageParts.push(`Frecuencia: ${frequency}`);
+        if (triageDuration.trim()) triageParts.push(`Duracion: ${triageDuration.trim()}`);
+        if (triageTriggers.trim()) triageParts.push(`Desencadenantes: ${triageTriggers.trim()}`);
+        const triageBlock = triageParts.join(" | ");
+        combinedNotes = combinedNotes ? `${combinedNotes}\n${triageBlock}` : triageBlock;
+      }
+
       const res = await fetch("/api/dashboard/patients", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -1439,7 +1607,7 @@ function AddPatientModal({ onClose, onCreated }: { onClose: () => void; onCreate
           direccion: direccion.trim() || undefined,
           financiador: financiador || undefined,
           plan: plan.trim() || undefined,
-          notas: notas.trim() || undefined,
+          notas: combinedNotes || undefined,
         }),
       });
 
@@ -1463,7 +1631,7 @@ function AddPatientModal({ onClose, onCreated }: { onClose: () => void; onCreate
       ref={dialogRef}
       onClick={handleDialogClick}
       onClose={onClose}
-      className="fixed inset-0 z-50 m-auto w-full max-w-lg rounded-xl border border-border bg-white p-0 shadow-2xl backdrop:bg-black/40"
+      className="fixed inset-0 z-50 m-auto w-full max-w-2xl rounded-xl border border-border bg-white p-0 shadow-2xl backdrop:bg-black/40 max-h-[90vh] overflow-y-auto"
     >
       <form onSubmit={handleSubmit} className="p-6 space-y-5">
         {/* Header */}
@@ -1614,21 +1782,149 @@ function AddPatientModal({ onClose, onCreated }: { onClose: () => void; onCreate
               className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-celeste-dark/30"
             />
           </div>
+        </div>
 
-          {/* Notas */}
-          <div className="sm:col-span-2">
-            <label htmlFor="ap-notas" className="block text-xs font-medium text-ink-muted mb-1">
-              {t("patients.fieldNotas")}
-            </label>
-            <textarea
-              id="ap-notas"
-              rows={2}
-              value={notas}
-              onChange={(e) => setNotas(e.target.value)}
-              placeholder={t("patients.fieldNotasPlaceholder")}
-              className="w-full px-3 py-2 border border-border rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-celeste-dark/30"
-            />
-          </div>
+        {/* ── Triage / Intake Checklist ── */}
+        <div className="border border-border rounded-xl overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setShowTriage(!showTriage)}
+            className="w-full flex items-center justify-between px-4 py-3 bg-surface/50 hover:bg-surface transition"
+          >
+            <span className="text-xs font-bold text-ink uppercase tracking-wider">
+              {locale === "en"
+                ? "Intake Triage Checklist"
+                : "Checklist de Triage / Motivo de Consulta"}
+            </span>
+            <svg
+              className={`w-4 h-4 text-ink-muted transition-transform ${showTriage ? "rotate-180" : ""}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          {showTriage && (
+            <div className="p-4 space-y-4">
+              {/* Body Systems Symptoms */}
+              <div>
+                <p className="text-[10px] font-bold text-ink-muted uppercase tracking-wider mb-2">
+                  {locale === "en" ? "Symptoms by Body System" : "Sintomas por Sistema Corporal"}
+                </p>
+                <div className="space-y-3 max-h-[30vh] overflow-y-auto pr-1">
+                  {Object.entries(bodySystems).map(([system, symptoms]) => (
+                    <div key={system}>
+                      <p className="text-xs font-semibold text-ink mb-1">{system}</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {symptoms.map((symptom) => {
+                          const isActive = selectedSymptoms.includes(symptom);
+                          return (
+                            <button
+                              key={symptom}
+                              type="button"
+                              onClick={() => toggleSymptom(symptom)}
+                              className={`text-[10px] px-2 py-1 rounded border transition ${
+                                isActive
+                                  ? "bg-celeste-dark text-white border-celeste-dark"
+                                  : "bg-white text-ink/60 border-border hover:border-ink/30"
+                              }`}
+                            >
+                              {symptom}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {selectedSymptoms.length > 0 && (
+                  <p className="text-[10px] text-celeste-dark font-medium mt-2">
+                    {selectedSymptoms.length} {locale === "en" ? "selected" : "seleccionado(s)"}
+                  </p>
+                )}
+              </div>
+
+              {/* Severity + Frequency */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[10px] font-medium text-ink-muted mb-1">
+                    {locale === "en" ? "Severity" : "Severidad"}: {severity}/10
+                    {severityLabels[severity] ? ` (${severityLabels[severity]})` : ""}
+                  </label>
+                  <input
+                    type="range"
+                    min={1}
+                    max={10}
+                    value={severity}
+                    onChange={(e) => setSeverity(Number(e.target.value))}
+                    className="w-full accent-celeste-dark"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-medium text-ink-muted mb-1">
+                    {locale === "en" ? "Frequency" : "Frecuencia"}
+                  </label>
+                  <select
+                    value={frequency}
+                    onChange={(e) => setFrequency(e.target.value)}
+                    className="w-full px-2 py-1.5 border border-border rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-celeste-dark/30"
+                  >
+                    <option value="">--</option>
+                    {frequencyOptions.map((f) => (
+                      <option key={f} value={f}>
+                        {f}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Duration + Triggers */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[10px] font-medium text-ink-muted mb-1">
+                    {locale === "en" ? "Duration" : "Duracion"}
+                  </label>
+                  <input
+                    type="text"
+                    value={triageDuration}
+                    onChange={(e) => setTriageDuration(e.target.value)}
+                    placeholder={locale === "en" ? "e.g. 3 days" : "ej. 3 dias"}
+                    className="w-full px-2 py-1.5 border border-border rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-celeste-dark/30"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-medium text-ink-muted mb-1">
+                    {locale === "en" ? "Triggers" : "Desencadenantes"}
+                  </label>
+                  <input
+                    type="text"
+                    value={triageTriggers}
+                    onChange={(e) => setTriageTriggers(e.target.value)}
+                    placeholder={locale === "en" ? "e.g. after eating" : "ej. al caminar, al comer"}
+                    className="w-full px-2 py-1.5 border border-border rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-celeste-dark/30"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Notas */}
+        <div>
+          <label htmlFor="ap-notas" className="block text-xs font-medium text-ink-muted mb-1">
+            {t("patients.fieldNotas")}
+          </label>
+          <textarea
+            id="ap-notas"
+            rows={2}
+            value={notas}
+            onChange={(e) => setNotas(e.target.value)}
+            placeholder={t("patients.fieldNotasPlaceholder")}
+            className="w-full px-3 py-2 border border-border rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-celeste-dark/30"
+          />
         </div>
 
         {/* Actions */}

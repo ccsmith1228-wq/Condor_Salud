@@ -64,13 +64,13 @@ const EMPTY_FORM: ServiceForm = {
 };
 
 const CATEGORIES = [
-  { value: "consulta", label: "Consulta", icon: "🩺" },
-  { value: "estudio", label: "Estudio / Práctica", icon: "📊" },
-  { value: "laboratorio", label: "Laboratorio", icon: "🔬" },
-  { value: "rehabilitacion", label: "Rehabilitación", icon: "💪" },
-  { value: "cirugia", label: "Cirugía", icon: "🏥" },
-  { value: "internacion", label: "Internación", icon: "🛏️" },
-  { value: "otro", label: "Otro", icon: "📋" },
+  { value: "consulta", label: "Consulta" },
+  { value: "estudio", label: "Estudio / Practica" },
+  { value: "laboratorio", label: "Laboratorio" },
+  { value: "rehabilitacion", label: "Rehabilitacion" },
+  { value: "cirugia", label: "Cirugia" },
+  { value: "internacion", label: "Internacion" },
+  { value: "otro", label: "Otro" },
 ];
 
 function formatPrice(price: number, currency: string) {
@@ -356,7 +356,7 @@ export default function PreciosPage() {
           <option value="all">{locale === "en" ? "All categories" : "Todas las categorías"}</option>
           {CATEGORIES.map((c) => (
             <option key={c.value} value={c.value}>
-              {c.icon} {c.label}
+              {c.label}
             </option>
           ))}
         </select>
@@ -426,7 +426,7 @@ export default function PreciosPage() {
               >
                 {CATEGORIES.map((c) => (
                   <option key={c.value} value={c.value}>
-                    {c.icon} {c.label}
+                    {c.label}
                   </option>
                 ))}
               </select>
@@ -626,7 +626,6 @@ export default function PreciosPage() {
                   ) : (
                     <ChevronRight className="w-4 h-4 text-ink/40" />
                   )}
-                  <span className="text-base">{catDef?.icon ?? "📋"}</span>
                   <span className="text-sm font-bold text-ink">{catDef?.label ?? category}</span>
                   <span className="text-[10px] font-bold text-ink/40 bg-white px-2 py-0.5 rounded-full">
                     {svcs.length}
