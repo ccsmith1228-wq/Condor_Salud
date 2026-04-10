@@ -77,7 +77,8 @@ export async function POST(req: NextRequest) {
   if ("error" in auth) return auth.error;
 
   const body = await req.json();
-  const { name, description, category, price, currency, duration_min, active } = body;
+  const { name, description, category, price, ef_price, currency, duration_min, notes, active } =
+    body;
 
   if (!name?.trim()) return NextResponse.json({ error: "Name is required" }, { status: 400 });
 
@@ -90,8 +91,10 @@ export async function POST(req: NextRequest) {
       description: description?.trim() || null,
       category: category || "consulta",
       price: Number(price) || 0,
+      ef_price: ef_price != null ? Number(ef_price) : null,
       currency: currency || "ARS",
       duration_min: duration_min ? Number(duration_min) : null,
+      notes: notes?.trim() || null,
       active: active !== false,
     })
     .select()
@@ -121,9 +124,12 @@ export async function PATCH(req: NextRequest) {
   if (updates.description !== undefined) allowed.description = updates.description?.trim() || null;
   if (updates.category !== undefined) allowed.category = updates.category;
   if (updates.price !== undefined) allowed.price = Number(updates.price) || 0;
+  if (updates.ef_price !== undefined)
+    allowed.ef_price = updates.ef_price != null ? Number(updates.ef_price) : null;
   if (updates.currency !== undefined) allowed.currency = updates.currency;
   if (updates.duration_min !== undefined)
     allowed.duration_min = updates.duration_min ? Number(updates.duration_min) : null;
+  if (updates.notes !== undefined) allowed.notes = updates.notes?.trim() || null;
   if (updates.active !== undefined) allowed.active = Boolean(updates.active);
 
   const sb = getServiceClient();
