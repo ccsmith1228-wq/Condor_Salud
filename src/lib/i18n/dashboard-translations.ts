@@ -634,6 +634,12 @@ export const dashboardTranslations: DashTranslation = {
     en: "Enter the patient name",
   },
   "schedule.errorCreating": { es: "Error al crear turno", en: "Error creating appointment" },
+  "schedule.additionalObservations": {
+    es: "Observaciones, alergias, etc.",
+    en: "Observations, allergies, etc.",
+  },
+  "schedule.loading": { es: "Cargando...", en: "Loading..." },
+  "schedule.cancelAppointment": { es: "Cancelar turno", en: "Cancel appointment" },
 
   // ─── Inventario ────────────────────────────────────────────
   "inventory.title": { es: "Inventario", en: "Inventory" },

@@ -280,11 +280,25 @@ export async function createTurno(
     const { createClient } = await import("@/lib/supabase/client");
     const sb = createClient();
 
-    // Get clinic_id from the logged-in user's profile
+    // Get clinic_id: prefer profiles table (authoritative), fall back to user_metadata
     const {
       data: { user },
     } = await sb.auth.getUser();
-    const clinicId = user?.user_metadata?.clinic_id ?? "demo-clinic";
+    let clinicId = user?.user_metadata?.clinic_id;
+    if (!clinicId && user?.id) {
+      const { data: profile } = await sb
+        .from("profiles")
+        .select("clinic_id")
+        .eq("id", user.id)
+        .single();
+      clinicId = profile?.clinic_id;
+    }
+    if (!clinicId) {
+      return {
+        success: false,
+        error: "No se pudo determinar la clínica. Cerrá sesión y volvé a ingresar.",
+      };
+    }
 
     // Resolve paciente_id if not already provided
     let pacienteId = input.pacienteId ?? null;
