@@ -29,7 +29,7 @@ const CLINIC = {
   name: "Centro Médico Roca",
   slug: "centro-medico-roca",
   cuit: "20-95140905-8",
-  plan_tier: "plus",
+  plan_tier: "enterprise",
   sedes: 2,
   provincia: "CABA",
   localidad: "Caballito",

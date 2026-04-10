@@ -22,7 +22,7 @@ import { useAuth, useIsDemo } from "@/lib/auth/context";
 import { canAccessRoute } from "@/lib/auth/rbac";
 import { usePlanSafe } from "@/lib/plan-context";
 import { useLocale } from "@/lib/i18n/context";
-import type { ModuleId } from "@/lib/plan-config";
+import type { ModuleId, PresetId } from "@/lib/plan-config";
 import {
   LayoutDashboard,
   Users,
@@ -256,6 +256,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (!moduleId) return true; // Unknown routes always visible
     return plan.isModuleSelected(moduleId);
   };
+
+  // Auto-apply clinic plan preset when localStorage has no plan
+  // This fixes staff accounts on fresh browsers (e.g. receptionist Chromebooks)
+  // that would otherwise see "Plan personalizado" with only base modules.
+  const { activePreset, applyPreset } = plan;
+  useEffect(() => {
+    if (isLoading || !user?.planTier) return;
+    if (activePreset) return; // Already has a preset from localStorage
+    const tierToPreset: Record<string, PresetId> = {
+      starter: "basic",
+      growth: "plus",
+      scale: "plus",
+      enterprise: "enterprise",
+    };
+    const presetId = tierToPreset[user.planTier];
+    if (presetId) {
+      applyPreset(presetId);
+    }
+  }, [isLoading, user?.planTier, activePreset, applyPreset]);
 
   // Redirect to login if not authenticated (after loading)
   useEffect(() => {

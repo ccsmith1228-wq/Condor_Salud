@@ -18,6 +18,8 @@ export interface User {
   isDemo: boolean;
   /** True when the clinic has finished onboarding */
   onboardingComplete: boolean;
+  /** Clinic plan tier from DB (starter/growth/scale/enterprise) — used to auto-apply plan preset */
+  planTier?: string;
 }
 
 interface AuthState {
@@ -393,7 +395,9 @@ async function resolveProfile(supabase, authUser): Promise<User> {
   try {
     const { data: profile } = await supabase
       .from("profiles")
-      .select("role, full_name, avatar_url, clinic_id, clinics(name, demo, onboarding_completed)")
+      .select(
+        "role, full_name, avatar_url, clinic_id, clinics(name, demo, onboarding_completed, plan_tier)",
+      )
       .eq("id", authUser.id)
       .single();
 
@@ -408,6 +412,7 @@ async function resolveProfile(supabase, authUser): Promise<User> {
         avatarUrl: profile.avatar_url || authUser.user_metadata?.avatar_url,
         isDemo: profile.clinics?.demo ?? false,
         onboardingComplete: profile.clinics?.onboarding_completed ?? false,
+        planTier: profile.clinics?.plan_tier ?? undefined,
       };
     }
   } catch {

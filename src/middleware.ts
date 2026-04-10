@@ -179,9 +179,14 @@ export async function middleware(request: NextRequest) {
       }
 
       // ── Gate 2: Email verification required for dashboard ──
+      // Staff roles (recepcion, medico, facturacion) are created by clinic admin
+      // and do NOT need to verify their email — skip this gate for them.
       if (user && isDashboard) {
+        const userRole = user.user_metadata?.role as string | undefined;
+        const staffRoles = ["recepcion", "medico", "facturacion"];
+        const isStaff = staffRoles.includes(userRole ?? "");
         const emailConfirmed = user.email_confirmed_at != null;
-        if (!emailConfirmed && pathname !== AUTH_VERIFY_ROUTE) {
+        if (!emailConfirmed && !isStaff && pathname !== AUTH_VERIFY_ROUTE) {
           // Allow access to /auth/verificar-email even while on dashboard routes
           const r = NextResponse.redirect(new URL(AUTH_VERIFY_ROUTE, request.url));
           r.headers.set("Content-Security-Policy", cspHeader);
