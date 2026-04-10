@@ -1,299 +1,511 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useLocale } from "@/lib/i18n/context";
-import {
-  Calendar,
-  Clock,
-  Plus,
-  Trash2,
-  Save,
-  ChevronLeft,
-  ChevronRight,
-  Loader2,
-} from "lucide-react";
+import { useDoctors } from "@/lib/hooks/useModules";
+import { formatDoctorSchedule } from "@/lib/services/directorio";
+import { Calendar, Clock, ChevronLeft, ChevronRight, Users } from "lucide-react";
 
 // ── Types ────────────────────────────────────────────────────
-interface AvailabilitySlot {
-  id: string;
-  doctor_id: string;
-  date: string;
-  time_slot: string;
-  booked: boolean;
-  patient_id: string | null;
-}
 
-interface Doctor {
+type Profesional = {
   id: string;
-  name: string;
-  specialty: string;
-}
+  nombre: string;
+  especialidad: string;
+  color: string;
+  /** Compact schedule text, e.g. "Lun 14:30–16:30 · Jue 10:00–12:00" */
+  horario: string;
+};
 
-// ── Time slot options ────────────────────────────────────────
-const ALL_TIME_SLOTS = [
-  "08:00",
-  "08:30",
-  "09:00",
-  "09:30",
-  "10:00",
-  "10:30",
-  "11:00",
-  "11:30",
-  "12:00",
-  "12:30",
-  "13:00",
-  "13:30",
-  "14:00",
-  "14:30",
-  "15:00",
-  "15:30",
-  "16:00",
-  "16:30",
-  "17:00",
-  "17:30",
-  "18:00",
-  "18:30",
-  "19:00",
-  "19:30",
+type ScheduleBlock = {
+  profId: string;
+  dayIdx: number;
+  startMin: number;
+  endMin: number;
+  note?: string;
+};
+
+type LanedBlock = ScheduleBlock & { lane: number; totalLanes: number };
+
+// ── Color Palettes ───────────────────────────────────────────
+
+const profColors = [
+  "bg-blue-100 text-blue-700",
+  "bg-green-100 text-green-700",
+  "bg-purple-100 text-purple-700",
+  "bg-amber-100 text-amber-700",
+  "bg-pink-100 text-pink-700",
+  "bg-teal-100 text-teal-700",
+  "bg-indigo-100 text-indigo-700",
+  "bg-red-100 text-red-700",
+  "bg-cyan-100 text-cyan-700",
+  "bg-orange-100 text-orange-700",
 ];
 
-const DAYS_OF_WEEK_ES = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
-const DAYS_OF_WEEK_EN = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const blockPalette = [
+  { bg: "bg-blue-50", border: "border-l-blue-500", text: "text-blue-800", accent: "bg-blue-500" },
+  {
+    bg: "bg-green-50",
+    border: "border-l-green-500",
+    text: "text-green-800",
+    accent: "bg-green-500",
+  },
+  {
+    bg: "bg-purple-50",
+    border: "border-l-purple-500",
+    text: "text-purple-800",
+    accent: "bg-purple-500",
+  },
+  {
+    bg: "bg-amber-50",
+    border: "border-l-amber-500",
+    text: "text-amber-800",
+    accent: "bg-amber-500",
+  },
+  { bg: "bg-pink-50", border: "border-l-pink-500", text: "text-pink-800", accent: "bg-pink-500" },
+  { bg: "bg-teal-50", border: "border-l-teal-500", text: "text-teal-800", accent: "bg-teal-500" },
+  {
+    bg: "bg-indigo-50",
+    border: "border-l-indigo-500",
+    text: "text-indigo-800",
+    accent: "bg-indigo-500",
+  },
+  { bg: "bg-red-50", border: "border-l-red-500", text: "text-red-800", accent: "bg-red-500" },
+  { bg: "bg-cyan-50", border: "border-l-cyan-500", text: "text-cyan-800", accent: "bg-cyan-500" },
+  {
+    bg: "bg-orange-50",
+    border: "border-l-orange-500",
+    text: "text-orange-800",
+    accent: "bg-orange-500",
+  },
+];
+
+// ── Centro Médico Roca — full doctor roster (fallback) ───────
+// Source: create-doctor-accounts.mjs (Mar 2026) + Francisco script
+
+const CMR_DOCTORS: Profesional[] = [
+  {
+    id: "cmr-francisco",
+    nombre: "Dr. Francisco Lopez",
+    especialidad: "Director Médico",
+    color: profColors[0]!,
+    horario: "Lun–Vie 10:00–17:00",
+  },
+  {
+    id: "cmr-vargas",
+    nombre: "Dr. Vargas Freddy",
+    especialidad: "Cirugía Dental",
+    color: profColors[1]!,
+    horario: "Lun 14:30–15:30",
+  },
+  {
+    id: "cmr-angela",
+    nombre: "Dra. Angela María González",
+    especialidad: "Gastroenterología",
+    color: profColors[2]!,
+    horario: "Lun 10:00–12:00",
+  },
+  {
+    id: "cmr-nigro",
+    nombre: "Dra. Clara Nigro",
+    especialidad: "Neurología",
+    color: profColors[3]!,
+    horario: "Lun 15:00–16:00",
+  },
+  {
+    id: "cmr-delgadillo",
+    nombre: "Dr. Gustavo Delgadillo",
+    especialidad: "Ecografía",
+    color: profColors[4]!,
+    horario: "Mar 10:00–12:00 · Jue 14:00–15:45",
+  },
+  {
+    id: "cmr-taboada",
+    nombre: "Dra. Yessica Taboada",
+    especialidad: "Odontología",
+    color: profColors[5]!,
+    horario: "Mar 14:00–17:00",
+  },
+  {
+    id: "cmr-rivero",
+    nombre: "Dr. Richard Rivero",
+    especialidad: "Traumatología",
+    color: profColors[6]!,
+    horario: "Mar 17:00–18:00",
+  },
+  {
+    id: "cmr-gibilbank",
+    nombre: "Dra. Martha Gibilbank",
+    especialidad: "Oftalmología",
+    color: profColors[7]!,
+    horario: "Mar 15:00–16:00",
+  },
+  {
+    id: "cmr-legal",
+    nombre: "Dra. Norma Legal",
+    especialidad: "Hematología",
+    color: profColors[8]!,
+    horario: "Mar 15:00–16:00 · Jue 16:00–17:00",
+  },
+  {
+    id: "cmr-rios",
+    nombre: "Dra. Mariana Ríos",
+    especialidad: "Terapia Alternativa",
+    color: profColors[9]!,
+    horario: "1 vez al mes (ella avisa)",
+  },
+  {
+    id: "cmr-acevedo",
+    nombre: "Lic. Cristina Acevedo",
+    especialidad: "Mamografía / Kinesiología",
+    color: profColors[0]!,
+    horario: "Mar 09:00–12:00 · Jue 09:00–12:00",
+  },
+  {
+    id: "cmr-vargasl",
+    nombre: "Dr. Rogelio Vargas Lopez",
+    especialidad: "Urología",
+    color: profColors[1]!,
+    horario: "Mié 11:30–12:30",
+  },
+  {
+    id: "cmr-urbieta",
+    nombre: "Dra. Alicia Urbieta",
+    especialidad: "Alergista",
+    color: profColors[2]!,
+    horario: "Mié 14:00–15:00 (cada 15 días)",
+  },
+  {
+    id: "cmr-espinoza",
+    nombre: "Dra. Sikiu Espinoza",
+    especialidad: "Odontología",
+    color: profColors[3]!,
+    horario: "Mié 14:00–17:00 · Vie 14:00–17:00",
+  },
+  {
+    id: "cmr-angelotti",
+    nombre: "Dra. Liliana Angelotti",
+    especialidad: "Endocrinología",
+    color: profColors[4]!,
+    horario: "Jue 10:00–12:00 (cada 15 días)",
+  },
+  {
+    id: "cmr-dalpiaz",
+    nombre: "Dr. Juan Manuel Dalpiaz",
+    especialidad: "Cirugía General",
+    color: profColors[5]!,
+    horario: "Jue 11:00–12:00",
+  },
+  {
+    id: "cmr-lezcano",
+    nombre: "Dr. Adrián Lezcano",
+    especialidad: "Infectología",
+    color: profColors[6]!,
+    horario: "Jue 13:00–14:00",
+  },
+  {
+    id: "cmr-jimenez",
+    nombre: "Dra. Susana Jiménez",
+    especialidad: "Dermatología",
+    color: profColors[7]!,
+    horario: "Jue 15:00–16:00 (cada 15 días)",
+  },
+  {
+    id: "cmr-lagos",
+    nombre: "Dr. Carlos Lagos",
+    especialidad: "Flebología",
+    color: profColors[8]!,
+    horario: "Jue 17:00–18:00",
+  },
+  {
+    id: "cmr-heit",
+    nombre: "Téc. Esteban Heit",
+    especialidad: "Radiografía",
+    color: profColors[9]!,
+    horario: "Lun–Vie 13:30–15:00",
+  },
+  {
+    id: "cmr-baied",
+    nombre: "Dra. María del Carmen Baied",
+    especialidad: "Reumatología",
+    color: profColors[0]!,
+    horario: "Vie 09:30–10:30",
+  },
+  {
+    id: "cmr-gutierrez",
+    nombre: "Dra. Irene Gutiérrez",
+    especialidad: "Diabetología",
+    color: profColors[1]!,
+    horario: "Vie 09:00–10:00",
+  },
+  {
+    id: "cmr-abdala",
+    nombre: "Dra. Alicia Abdala",
+    especialidad: "Gastroenterología",
+    color: profColors[2]!,
+    horario: "Vie 12:30–14:00",
+  },
+  {
+    id: "cmr-asz",
+    nombre: "Dr. José Asz",
+    especialidad: "Oftalmología",
+    color: profColors[3]!,
+    horario: "Vie 13:30–14:30 (cada 15 días)",
+  },
+  {
+    id: "cmr-diccea",
+    nombre: "Dr. Carlos Diccea",
+    especialidad: "Ginecología",
+    color: profColors[4]!,
+    horario: "Vie 14:00–15:00",
+  },
+  {
+    id: "cmr-molina",
+    nombre: "Lic. Oscar Molina",
+    especialidad: "Psicología",
+    color: profColors[5]!,
+    horario: "Confirmar horario",
+  },
+  {
+    id: "cmr-tottereaus",
+    nombre: "Dr. Julián Tottereaus",
+    especialidad: "Neumonología",
+    color: profColors[6]!,
+    horario: "Vie 15:00–16:00 (1 vez al mes)",
+  },
+];
+
+// ── Day constants ────────────────────────────────────────────
+
+const DAYS_ES = ["Lun", "Mar", "Mié", "Jue", "Vie"];
+const DAYS_EN = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+const DAY_MAP: Record<string, number> = { Lun: 0, Mar: 1, Mié: 2, Jue: 3, Vie: 4 };
 
 // ── Helpers ──────────────────────────────────────────────────
-function getWeekDates(
-  offset: number,
-  locale?: string,
-): { label: string; date: string; dayName: string }[] {
+
+function timeToMin(t: string): number {
+  const [h, m] = t.split(":").map(Number);
+  return (h ?? 0) * 60 + (m ?? 0);
+}
+
+function minToTime(min: number): string {
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+
+/** Parse "Lun 14:30–15:30" or "Lun–Vie 10:00–17:00" horario strings into blocks */
+function parseHorario(horario: string, profId: string): ScheduleBlock[] {
+  if (!horario || horario === "Confirmar horario" || horario.includes("ella avisa")) return [];
+
+  const blocks: ScheduleBlock[] = [];
+  const parts = horario.split(" · ");
+
+  for (const part of parts) {
+    let note: string | undefined;
+    let cleanPart = part;
+
+    // Extract notes like "(cada 15 días)" or "(1 vez al mes)"
+    const noteMatch = part.match(/\(([^)]+)\)/);
+    if (noteMatch) {
+      note = noteMatch[1];
+      cleanPart = part.replace(/\s*\([^)]+\)/, "").trim();
+    }
+
+    // Day range: "Lun–Vie 10:00–17:00"
+    const rangeMatch = cleanPart.match(/^(\w+)–(\w+)\s+(\d{2}:\d{2})–(\d{2}:\d{2})/);
+    if (rangeMatch) {
+      const startDay = DAY_MAP[rangeMatch[1]!];
+      const endDay = DAY_MAP[rangeMatch[2]!];
+      if (startDay !== undefined && endDay !== undefined) {
+        for (let d = startDay; d <= endDay; d++) {
+          blocks.push({
+            profId,
+            dayIdx: d,
+            startMin: timeToMin(rangeMatch[3]!),
+            endMin: timeToMin(rangeMatch[4]!),
+            note,
+          });
+        }
+      }
+      continue;
+    }
+
+    // Single day: "Mar 14:00–17:00"
+    const singleMatch = cleanPart.match(/^(\w+)\s+(\d{2}:\d{2})–(\d{2}:\d{2})/);
+    if (singleMatch) {
+      const dayIdx = DAY_MAP[singleMatch[1]!];
+      if (dayIdx !== undefined) {
+        blocks.push({
+          profId,
+          dayIdx,
+          startMin: timeToMin(singleMatch[2]!),
+          endMin: timeToMin(singleMatch[3]!),
+          note,
+        });
+      }
+    }
+  }
+
+  return blocks;
+}
+
+/** Greedy lane assignment for overlapping blocks within a single day */
+function assignLanes(blocks: ScheduleBlock[]): LanedBlock[] {
+  if (blocks.length === 0) return [];
+  const sorted = [...blocks].sort((a, b) => a.startMin - b.startMin || a.endMin - b.endMin);
+  const laneEnds: number[] = [];
+  const result: LanedBlock[] = [];
+
+  for (const block of sorted) {
+    let lane = -1;
+    for (let i = 0; i < laneEnds.length; i++) {
+      if (laneEnds[i]! <= block.startMin) {
+        lane = i;
+        break;
+      }
+    }
+    if (lane === -1) {
+      lane = laneEnds.length;
+      laneEnds.push(0);
+    }
+    laneEnds[lane] = block.endMin;
+    result.push({ ...block, lane, totalLanes: 0 });
+  }
+
+  const totalLanes = laneEnds.length;
+  return result.map((b) => ({ ...b, totalLanes }));
+}
+
+function getWeekDates(offset: number) {
   const today = new Date();
   const monday = new Date(today);
-  monday.setDate(today.getDate() - today.getDay() + 1 + offset * 7);
-  const days = locale === "en" ? DAYS_OF_WEEK_EN : DAYS_OF_WEEK_ES;
-
-  return Array.from({ length: 6 }, (_, i) => {
+  monday.setDate(today.getDate() - ((today.getDay() + 6) % 7) + offset * 7);
+  return Array.from({ length: 5 }, (_, i) => {
     const d = new Date(monday);
     d.setDate(monday.getDate() + i);
     return {
-      label: `${d.getDate()}/${d.getMonth() + 1}`,
-      date: d.toISOString().split("T")[0] ?? "",
-      dayName: days[i] ?? days[0] ?? "",
+      date: d.toISOString().split("T")[0]!,
+      dayNum: d.getDate(),
+      monthNum: d.getMonth() + 1,
     };
   });
 }
 
-function formatWeekRange(dates: { date: string }[]): string {
-  if (dates.length === 0) return "";
-  const start = dates[0]?.date ?? "";
-  const end = dates[dates.length - 1]?.date ?? "";
-  return `${start} — ${end}`;
-}
+// ── Grid constants ───────────────────────────────────────────
 
-// No hardcoded demo doctors – real data comes from /api/doctors
+const START_HOUR = 9;
+const END_HOUR = 18;
+const TOTAL_HOURS = END_HOUR - START_HOUR;
+const HOUR_PX = 64;
+const TOTAL_PX = TOTAL_HOURS * HOUR_PX;
+const PX_PER_MIN = HOUR_PX / 60;
+const START_MIN = START_HOUR * 60;
 
-// NOTE: No hardcoded slots. Real data comes from /api/availability.
-// New clinics start with an empty grid until slots are created.
+// ── Component ────────────────────────────────────────────────
 
 export default function DisponibilidadPage() {
   const { t, locale } = useLocale();
+  const { data: apiDoctors = [] } = useDoctors();
   const [weekOffset, setWeekOffset] = useState(0);
-  const [selectedDoctor, setSelectedDoctor] = useState<string>("");
-  const [doctors, setDoctors] = useState<Doctor[]>([]);
-  const [slots, setSlots] = useState<AvailabilitySlot[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [profFilter, setProfFilter] = useState("");
+  const [hoveredProf, setHoveredProf] = useState("");
 
-  // Pending changes: date → Set<time_slot> to add
-  const [pendingAdds, setPendingAdds] = useState<Map<string, Set<string>>>(new Map());
-  const [pendingDeletes, setPendingDeletes] = useState<Set<string>>(new Set());
+  const localeDays = locale === "en" ? DAYS_EN : DAYS_ES;
+  const weekDates = useMemo(() => getWeekDates(weekOffset), [weekOffset]);
 
-  const weekDates = getWeekDates(weekOffset, locale);
-  const weekStart = weekDates[0]?.date ?? "";
-
-  // ── Fetch doctors ──────────────────────────────────────────
-  useEffect(() => {
-    async function loadDoctors() {
-      try {
-        const res = await fetch("/api/doctors?active=true");
-        if (res.ok) {
-          const data = await res.json();
-          if (data.doctors?.length) {
-            setDoctors(data.doctors);
-            if (!selectedDoctor) setSelectedDoctor(data.doctors[0].id);
-          }
-        }
-      } catch {
-        // Real API unavailable — leave empty
-      } finally {
-        setLoading(false);
-      }
+  // ── Build profesionales (same merge logic as agenda) ───────
+  const profesionales = useMemo(() => {
+    const fromApi: Profesional[] = apiDoctors.map((d, i) => ({
+      id: d.id,
+      nombre: d.name,
+      especialidad: d.specialty,
+      color: profColors[i % profColors.length]!,
+      horario: formatDoctorSchedule(d.schedule),
+    }));
+    if (fromApi.length > 0) {
+      const apiNames = new Set(fromApi.map((p) => p.nombre.toLowerCase()));
+      const missing = CMR_DOCTORS.filter((c) => !apiNames.has(c.nombre.toLowerCase()));
+      return [...fromApi, ...missing];
     }
-    loadDoctors();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    return CMR_DOCTORS;
+  }, [apiDoctors]);
 
-  // ── Fetch availability ─────────────────────────────────────
-  const fetchSlots = useCallback(async () => {
-    if (!selectedDoctor) return;
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({ doctorId: selectedDoctor, weekStart });
-      const res = await fetch(`/api/availability?${params}`);
-      if (res.ok) {
-        const data = await res.json();
-        setSlots(data.slots?.length ? data.slots : []);
-      } else {
-        setSlots([]);
-      }
-    } catch {
-      setSlots([]);
-    } finally {
-      setLoading(false);
+  // Color index map: profId → palette index
+  const profColorMap = useMemo(() => {
+    const map: Record<string, number> = {};
+    profesionales.forEach((p, i) => {
+      map[p.id] = i % blockPalette.length;
+    });
+    return map;
+  }, [profesionales]);
+
+  // ── Parse all schedules ────────────────────────────────────
+  const allBlocks = useMemo(
+    () => profesionales.flatMap((p) => parseHorario(p.horario, p.id)),
+    [profesionales],
+  );
+
+  const visibleBlocks = profFilter ? allBlocks.filter((b) => b.profId === profFilter) : allBlocks;
+
+  // Lane assignment per day
+  const lanedBlocksByDay = useMemo(() => {
+    const byDay: Record<number, LanedBlock[]> = {};
+    for (let d = 0; d < 5; d++) {
+      byDay[d] = assignLanes(visibleBlocks.filter((b) => b.dayIdx === d));
     }
-  }, [selectedDoctor, weekStart]);
+    return byDay;
+  }, [visibleBlocks]);
 
-  useEffect(() => {
-    fetchSlots();
-    setPendingAdds(new Map());
-    setPendingDeletes(new Set());
-  }, [fetchSlots]);
+  // ── KPIs ───────────────────────────────────────────────────
+  const totalDoctors = profesionales.length;
+  const todayDayIdx = (new Date().getDay() + 6) % 7;
+  const doctorsToday = new Set(
+    allBlocks.filter((b) => b.dayIdx === todayDayIdx).map((b) => b.profId),
+  ).size;
+  const specialties = new Set(profesionales.map((p) => p.especialidad)).size;
 
-  // ── Toggle a slot ──────────────────────────────────────────
-  const toggleSlot = (date: string, time: string) => {
-    const existing = slots.find((s) => s.date === date && s.time_slot === time);
+  // Doctors who have schedule blocks (used for filter pills)
+  const scheduledProfs = useMemo(
+    () => profesionales.filter((p) => parseHorario(p.horario, p.id).length > 0),
+    [profesionales],
+  );
+  // Doctors without defined schedule
+  const noScheduleProfs = useMemo(
+    () => profesionales.filter((p) => parseHorario(p.horario, p.id).length === 0),
+    [profesionales],
+  );
 
-    if (existing) {
-      // If booked, can't remove
-      if (existing.booked) return;
-      // Toggle delete
-      setPendingDeletes((prev) => {
-        const next = new Set(prev);
-        if (next.has(existing.id)) next.delete(existing.id);
-        else next.add(existing.id);
-        return next;
-      });
-    } else {
-      // Toggle add
-      setPendingAdds((prev) => {
-        const next = new Map(prev);
-        const set = new Set(next.get(date) || []);
-        if (set.has(time)) set.delete(time);
-        else set.add(time);
-        if (set.size === 0) next.delete(date);
-        else next.set(date, set);
-        return next;
-      });
-    }
-  };
+  // ── Current time indicator ─────────────────────────────────
+  const now = new Date();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
 
-  // ── Get slot state ─────────────────────────────────────────
-  const getSlotState = (date: string, time: string) => {
-    const existing = slots.find((s) => s.date === date && s.time_slot === time);
-    if (existing) {
-      if (existing.booked) return "booked";
-      if (pendingDeletes.has(existing.id)) return "pending-delete";
-      return "available";
-    }
-    const adds = pendingAdds.get(date);
-    if (adds?.has(time)) return "pending-add";
-    return "empty";
-  };
-
-  // ── Save changes ───────────────────────────────────────────
-  const saveChanges = async () => {
-    setSaving(true);
-    try {
-      // Process adds
-      const addEntries = Array.from(pendingAdds.entries());
-      for (let i = 0; i < addEntries.length; i++) {
-        const [date, times] = addEntries[i]!;
-        await fetch("/api/availability", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            doctorId: selectedDoctor,
-            date,
-            timeSlots: Array.from(times),
-          }),
-        });
-      }
-
-      // Process deletes
-      const deleteIds = Array.from(pendingDeletes);
-      for (let i = 0; i < deleteIds.length; i++) {
-        await fetch("/api/availability", {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ slotId: deleteIds[i] }),
-        });
-      }
-
-      setPendingAdds(new Map());
-      setPendingDeletes(new Set());
-      await fetchSlots();
-      setToast({ message: t("availability.saved"), type: "success" });
-    } catch {
-      setToast({ message: t("availability.errorSaving"), type: "error" });
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const hasChanges = pendingAdds.size > 0 || pendingDeletes.size > 0;
-
-  // ── Auto-dismiss toast ─────────────────────────────────────
-  useEffect(() => {
-    if (!toast) return;
-    const timer = setTimeout(() => setToast(null), 3000);
-    return () => clearTimeout(timer);
-  }, [toast]);
+  // Half-hour time labels
+  const timeLabels: string[] = [];
+  for (let h = START_HOUR; h < END_HOUR; h++) {
+    timeLabels.push(`${String(h).padStart(2, "0")}:00`);
+    timeLabels.push(`${String(h).padStart(2, "0")}:30`);
+  }
 
   // ── Render ─────────────────────────────────────────────────
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-5">
+      {/* ─── Header ───────────────────────────────────────── */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-ink flex items-center gap-2">
             <Calendar className="h-6 w-6 text-celeste-dark" />
             {t("availability.title")}
           </h1>
-          <p className="text-sm text-ink/60 mt-1">{t("availability.subtitleManage")}</p>
+          <p className="text-sm text-ink/60 mt-1">
+            {locale === "en"
+              ? "Weekly availability overview for all professionals"
+              : "Vista semanal de disponibilidad de todos los profesionales"}
+          </p>
         </div>
 
-        {hasChanges && (
-          <button
-            onClick={saveChanges}
-            disabled={saving}
-            className="flex items-center gap-2 rounded-[4px] bg-celeste-dark px-4 py-2 text-sm font-medium text-white hover:bg-celeste-dark/90 disabled:opacity-50 transition-colors"
-            data-tour="disponibilidad-save"
-          >
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            {t("availability.saveChanges")}
-          </button>
-        )}
-      </div>
-
-      {/* Doctor selector + week nav */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white rounded-[4px] border border-ink/10 p-4">
-        <div className="flex items-center gap-3" data-tour="disponibilidad-doctor-select">
-          <label className="text-sm font-medium text-ink/70">
-            {t("availability.professional")}
-          </label>
-          <select
-            value={selectedDoctor}
-            onChange={(e) => setSelectedDoctor(e.target.value)}
-            className="rounded-[4px] border border-ink/20 bg-white px-3 py-2 text-sm text-ink focus:border-celeste-dark focus:ring-1 focus:ring-celeste-dark"
-          >
-            <option value="">{t("availability.select")}</option>
-            {doctors.map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.name} — {d.specialty}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="flex items-center gap-2" data-tour="disponibilidad-week-nav">
+        {/* Week navigation */}
+        <div className="flex items-center gap-2">
           <button
             onClick={() => setWeekOffset((p) => p - 1)}
             className="rounded-[4px] border border-ink/20 p-2 hover:bg-ink/5 transition-colors"
@@ -301,8 +513,9 @@ export default function DisponibilidadPage() {
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
-          <span className="text-sm font-medium text-ink min-w-[180px] text-center">
-            {formatWeekRange(weekDates)}
+          <span className="text-sm font-medium text-ink min-w-[160px] text-center">
+            {weekDates[0]?.dayNum}/{weekDates[0]?.monthNum} — {weekDates[4]?.dayNum}/
+            {weekDates[4]?.monthNum}
           </span>
           <button
             onClick={() => setWeekOffset((p) => p + 1)}
@@ -314,7 +527,7 @@ export default function DisponibilidadPage() {
           {weekOffset !== 0 && (
             <button
               onClick={() => setWeekOffset(0)}
-              className="ml-2 text-xs text-celeste-dark hover:underline"
+              className="ml-2 text-xs text-celeste-dark hover:underline font-medium"
             >
               {t("availability.today")}
             </button>
@@ -322,132 +535,310 @@ export default function DisponibilidadPage() {
         </div>
       </div>
 
-      {/* Toast */}
-      {toast && (
-        <div
-          className={`fixed bottom-4 right-4 z-50 rounded-[4px] px-4 py-3 text-sm font-medium text-white shadow-lg transition-all ${
-            toast.type === "success" ? "bg-green-600" : "bg-red-600"
+      {/* ─── KPI Row ──────────────────────────────────────── */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="bg-white border border-border rounded-lg p-4 border-l-[3px] border-l-celeste">
+          <p className="text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+            <Users className="w-3 h-3 inline mr-1" />
+            {locale === "en" ? "Total Professionals" : "Total Profesionales"}
+          </p>
+          <p className="text-xl font-bold text-ink mt-1">{totalDoctors}</p>
+        </div>
+        <div className="bg-white border border-border rounded-lg p-4 border-l-[3px] border-l-green-400">
+          <p className="text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+            <Clock className="w-3 h-3 inline mr-1" />
+            {locale === "en" ? "Available Today" : "Disponibles Hoy"}
+          </p>
+          <p className="text-xl font-bold text-ink mt-1">{doctorsToday}</p>
+        </div>
+        <div className="bg-white border border-border rounded-lg p-4 border-l-[3px] border-l-purple-400">
+          <p className="text-[10px] font-bold tracking-wider text-ink-muted uppercase">
+            {locale === "en" ? "Specialties" : "Especialidades"}
+          </p>
+          <p className="text-xl font-bold text-ink mt-1">{specialties}</p>
+        </div>
+      </div>
+
+      {/* ─── Professional filter pills ────────────────────── */}
+      <div className="flex flex-wrap gap-2 items-center">
+        <span className="text-xs font-bold text-ink-muted uppercase tracking-wider">
+          {t("availability.professional")}
+        </span>
+        <button
+          onClick={() => setProfFilter("")}
+          className={`px-3 py-1.5 text-xs rounded-[4px] transition ${
+            !profFilter
+              ? "bg-ink text-white"
+              : "border border-border text-ink-light hover:border-ink"
           }`}
         >
-          {toast.message}
-        </div>
-      )}
+          {locale === "en" ? "All" : "Todos"}
+        </button>
+        {scheduledProfs.map((p) => (
+          <button
+            key={p.id}
+            onClick={() => setProfFilter(profFilter === p.id ? "" : p.id)}
+            title={`${p.especialidad} — ${p.horario}`}
+            className={`px-3 py-1.5 text-xs rounded-[4px] border transition ${
+              profFilter === p.id
+                ? `${p.color} font-semibold`
+                : "border-border text-ink-light hover:border-ink"
+            }`}
+          >
+            {p.nombre.split(" ").slice(0, 2).join(" ")}
+            <span className="ml-1 opacity-60 hidden sm:inline">
+              <Clock className="inline w-3 h-3 -mt-px" />
+            </span>
+          </button>
+        ))}
+      </div>
 
-      {/* Grid */}
-      {!selectedDoctor ? (
-        <div className="flex items-center justify-center rounded-[4px] border border-dashed border-ink/20 bg-white p-12">
-          <p className="text-ink/50 text-sm">{t("availability.selectPrompt")}</p>
-        </div>
-      ) : loading ? (
-        <div className="flex items-center justify-center rounded-[4px] border border-ink/10 bg-white p-12">
-          <Loader2 className="h-6 w-6 animate-spin text-celeste-dark" />
-        </div>
-      ) : (
+      {/* Selected professional schedule banner */}
+      {profFilter &&
+        (() => {
+          const prof = profesionales.find((p) => p.id === profFilter);
+          if (!prof?.horario) return null;
+          return (
+            <div className="flex items-center gap-2 px-4 py-2 bg-celeste-pale/40 border border-celeste-light rounded-lg text-sm">
+              <Clock className="w-4 h-4 text-celeste-dark flex-shrink-0" />
+              <span className="font-semibold text-ink">{prof.nombre}</span>
+              <span className="text-ink-muted">—</span>
+              <span className="text-ink-light">{prof.especialidad}</span>
+              <span className="text-ink-muted">·</span>
+              <span className="text-ink-light">{prof.horario}</span>
+            </div>
+          );
+        })()}
+
+      {/* ─── Enterprise Week Grid ─────────────────────────── */}
+      <div className="bg-white border border-border rounded-lg overflow-hidden">
+        {/* Day header row */}
         <div
-          className="overflow-x-auto rounded-[4px] border border-ink/10 bg-white"
-          data-tour="disponibilidad-grid"
+          className="grid border-b border-border"
+          style={{ gridTemplateColumns: "56px repeat(5, 1fr)" }}
         >
-          <table className="w-full border-collapse text-sm" aria-label="Disponibilidad horaria">
-            <thead>
-              <tr className="bg-ink/5">
-                <th className="border-b border-ink/10 p-2 text-left font-medium text-ink/60 w-20">
-                  <Clock className="h-4 w-4 inline mr-1" />
-                  {t("availability.hour")}
-                </th>
-                {weekDates.map((d) => (
-                  <th
-                    key={d.date}
-                    className="border-b border-ink/10 p-2 text-center font-medium text-ink/80 min-w-[100px]"
+          <div className="bg-surface px-2 py-3 text-center">
+            <span className="text-[9px] font-bold tracking-widest text-ink-muted uppercase">
+              {locale === "en" ? "Time" : "Hora"}
+            </span>
+          </div>
+          {localeDays.map((day, i) => {
+            const isToday = i === todayDayIdx && weekOffset === 0;
+            return (
+              <div
+                key={day}
+                className={`px-2 py-2 text-center border-l border-border ${
+                  isToday ? "bg-celeste-pale/40" : "bg-surface"
+                }`}
+              >
+                <div
+                  className={`text-[10px] font-bold tracking-wider uppercase ${
+                    isToday ? "text-celeste-dark" : "text-ink-muted"
+                  }`}
+                >
+                  {day}
+                </div>
+                <div
+                  className={`text-lg font-bold leading-tight ${
+                    isToday ? "text-celeste-dark" : "text-ink"
+                  }`}
+                >
+                  {weekDates[i]?.dayNum}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Scrollable schedule body */}
+        <div className="overflow-y-auto" style={{ maxHeight: "calc(100vh - 420px)" }}>
+          <div className="grid" style={{ gridTemplateColumns: "56px repeat(5, 1fr)" }}>
+            {/* Time gutter */}
+            <div className="relative" style={{ height: `${TOTAL_PX}px` }}>
+              {timeLabels.map((label) => {
+                const [hh, mm] = label.split(":").map(Number);
+                const offset = ((hh ?? START_HOUR) - START_HOUR) * HOUR_PX + (mm ?? 0) * PX_PER_MIN;
+                const isHour = (mm ?? 0) === 0;
+                return (
+                  <div
+                    key={label}
+                    className={`absolute right-0 left-0 pr-2 text-right ${
+                      isHour
+                        ? "text-[10px] font-semibold text-ink-muted"
+                        : "text-[9px] text-ink-muted/50"
+                    }`}
+                    style={{ top: `${offset - 6}px` }}
                   >
-                    <div>{d.dayName}</div>
-                    <div className="text-xs text-ink/50">{d.label}</div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {ALL_TIME_SLOTS.map((time) => (
-                <tr key={time} className="hover:bg-ink/[0.02]">
-                  <td className="border-b border-ink/5 p-2 text-ink/60 font-mono text-xs">
-                    {time}
-                  </td>
-                  {weekDates.map((d) => {
-                    const state = getSlotState(d.date, time);
+                    {label}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Day columns */}
+            {localeDays.map((_, di) => {
+              const isToday = di === todayDayIdx && weekOffset === 0;
+              const dayBlocks = lanedBlocksByDay[di] ?? [];
+
+              return (
+                <div
+                  key={di}
+                  className={`relative border-l border-border ${isToday ? "bg-celeste-pale/10" : ""}`}
+                  style={{ height: `${TOTAL_PX}px` }}
+                >
+                  {/* Horizontal grid lines */}
+                  {timeLabels.map((label) => {
+                    const [hh, mm] = label.split(":").map(Number);
+                    const offset =
+                      ((hh ?? START_HOUR) - START_HOUR) * HOUR_PX + (mm ?? 0) * PX_PER_MIN;
+                    const isHour = (mm ?? 0) === 0;
                     return (
-                      <td
-                        key={`${d.date}-${time}`}
-                        className="border-b border-ink/5 p-1 text-center"
-                      >
-                        <button
-                          onClick={() => toggleSlot(d.date, time)}
-                          disabled={state === "booked"}
-                          className={`w-full rounded-[4px] px-2 py-1.5 text-xs font-medium transition-all ${
-                            state === "booked"
-                              ? "bg-red-100 text-red-700 cursor-not-allowed"
-                              : state === "available"
-                                ? "bg-green-100 text-green-700 hover:bg-green-200"
-                                : state === "pending-add"
-                                  ? "bg-celeste-dark/20 text-celeste-dark border-2 border-dashed border-celeste-dark"
-                                  : state === "pending-delete"
-                                    ? "bg-red-50 text-red-500 line-through border-2 border-dashed border-red-400"
-                                    : "bg-ink/5 text-ink/30 hover:bg-celeste-dark/10 hover:text-celeste-dark"
-                          }`}
-                          title={
-                            state === "booked"
-                              ? t("availability.bookedTooltip")
-                              : state === "available"
-                                ? t("availability.availableTooltip")
-                                : state === "pending-add"
-                                  ? t("availability.pendingAddTooltip")
-                                  : state === "pending-delete"
-                                    ? t("availability.pendingDeleteTooltip")
-                                    : t("availability.emptyTooltip")
-                          }
-                        >
-                          {state === "booked" ? (
-                            t("availability.booked")
-                          ) : state === "available" ? (
-                            t("availability.available")
-                          ) : state === "pending-add" ? (
-                            <span className="flex items-center justify-center gap-1">
-                              <Plus className="h-3 w-3" /> {t("availability.add")}
-                            </span>
-                          ) : state === "pending-delete" ? (
-                            <span className="flex items-center justify-center gap-1">
-                              <Trash2 className="h-3 w-3" /> {t("availability.remove")}
-                            </span>
-                          ) : (
-                            "—"
-                          )}
-                        </button>
-                      </td>
+                      <div
+                        key={label}
+                        className={`absolute left-0 right-0 ${
+                          isHour
+                            ? "border-t border-border"
+                            : "border-t border-border-light/50 border-dashed"
+                        }`}
+                        style={{ top: `${offset}px` }}
+                      />
                     );
                   })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+
+                  {/* Current time indicator */}
+                  {isToday && nowMin >= START_MIN && nowMin <= END_HOUR * 60 && (
+                    <div
+                      className="absolute left-0 right-0 z-20 pointer-events-none"
+                      style={{ top: `${(nowMin - START_MIN) * PX_PER_MIN}px` }}
+                    >
+                      <div className="flex items-center">
+                        <div className="w-2.5 h-2.5 rounded-full bg-red-500 -ml-1.5 shadow-sm" />
+                        <div className="flex-1 border-t-2 border-red-500" />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ── Schedule blocks ── */}
+                  {dayBlocks.map((block, bi) => {
+                    const prof = profesionales.find((p) => p.id === block.profId);
+                    if (!prof) return null;
+
+                    const colorIdx = profColorMap[block.profId] ?? 0;
+                    const colors = blockPalette[colorIdx]!;
+                    const topPx = (block.startMin - START_MIN) * PX_PER_MIN;
+                    const heightPx = (block.endMin - block.startMin) * PX_PER_MIN;
+                    const leftPct = (block.lane / block.totalLanes) * 100;
+                    const widthPct = (1 / block.totalLanes) * 100;
+
+                    const isHighlighted = !hoveredProf || hoveredProf === block.profId;
+
+                    return (
+                      <div
+                        key={`${block.profId}-${bi}`}
+                        className={`absolute rounded-r-md border-l-[3px] ${colors.border} ${colors.bg} ${colors.text} overflow-hidden cursor-pointer transition-all hover:shadow-md hover:z-10 ${
+                          isHighlighted ? "opacity-100" : "opacity-40"
+                        }`}
+                        style={{
+                          top: `${topPx + 1}px`,
+                          height: `${heightPx - 2}px`,
+                          left: `${leftPct}%`,
+                          width: `calc(${widthPct}% - 2px)`,
+                          marginLeft: "1px",
+                        }}
+                        onMouseEnter={() => setHoveredProf(block.profId)}
+                        onMouseLeave={() => setHoveredProf("")}
+                        onClick={() =>
+                          setProfFilter(profFilter === block.profId ? "" : block.profId)
+                        }
+                        title={`${prof.nombre}\n${prof.especialidad}\n${minToTime(block.startMin)}–${minToTime(block.endMin)}${block.note ? `\n${block.note}` : ""}`}
+                      >
+                        <div className="p-1 h-full flex flex-col">
+                          <span className="text-[9px] font-bold leading-tight truncate">
+                            {prof.nombre
+                              .replace(/^(Dr\.|Dra\.|Lic\.|Téc\.)\s*/, "")
+                              .split(" ")
+                              .slice(0, 2)
+                              .join(" ")}
+                          </span>
+                          {heightPx >= 50 && (
+                            <span className="text-[8px] opacity-70 truncate leading-tight">
+                              {prof.especialidad}
+                            </span>
+                          )}
+                          {heightPx >= 64 && (
+                            <span className="text-[8px] opacity-60 mt-auto">
+                              {minToTime(block.startMin)}–{minToTime(block.endMin)}
+                            </span>
+                          )}
+                          {block.note && heightPx >= 80 && (
+                            <span className="text-[7px] italic opacity-50 truncate">
+                              {block.note}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* ─── Professionals without defined schedule ───────── */}
+      {noScheduleProfs.length > 0 && (
+        <div className="bg-amber-50/50 border border-amber-200 rounded-lg p-4">
+          <p className="text-xs font-bold text-amber-700 uppercase tracking-wider mb-2">
+            {locale === "en" ? "Schedule to be confirmed" : "Horario por confirmar"}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {noScheduleProfs.map((p) => (
+              <span
+                key={p.id}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-amber-200 rounded-[4px] text-xs text-amber-800"
+              >
+                <span className="font-medium">{p.nombre}</span>
+                <span className="text-amber-600">— {p.especialidad}</span>
+                {p.horario && p.horario !== "Confirmar horario" && (
+                  <span className="italic text-amber-500 text-[10px]">({p.horario})</span>
+                )}
+              </span>
+            ))}
+          </div>
         </div>
       )}
 
-      {/* Legend */}
-      <div className="flex flex-wrap items-center gap-4 text-xs text-ink/60">
-        <span className="flex items-center gap-1.5">
-          <span className="inline-block h-3 w-3 rounded bg-green-100 border border-green-300" />
-          {t("availability.legendAvailable")}
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="inline-block h-3 w-3 rounded bg-red-100 border border-red-300" />
-          {t("availability.legendBooked")}
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="inline-block h-3 w-3 rounded bg-celeste-dark/20 border border-celeste-dark border-dashed" />
-          {t("availability.legendPendingAdd")}
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="inline-block h-3 w-3 rounded bg-red-50 border border-red-400 border-dashed" />
-          {t("availability.legendPendingDelete")}
-        </span>
+      {/* ─── Legend ────────────────────────────────────────── */}
+      <div className="bg-white border border-border rounded-lg p-4">
+        <p className="text-[10px] font-bold text-ink-muted uppercase tracking-wider mb-3">
+          {locale === "en" ? "Legend — Click to filter" : "Leyenda — Click para filtrar"}
+        </p>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-2">
+          {scheduledProfs
+            .filter((p) => !profFilter || p.id === profFilter)
+            .map((p) => {
+              const colorIdx = profColorMap[p.id] ?? 0;
+              const colors = blockPalette[colorIdx]!;
+              return (
+                <div
+                  key={p.id}
+                  className="flex items-center gap-1.5 text-xs cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => setProfFilter(profFilter === p.id ? "" : p.id)}
+                >
+                  <span
+                    className={`inline-block w-3 h-3 rounded-sm border-l-[3px] ${colors.border} ${colors.bg} flex-shrink-0`}
+                  />
+                  <span className="font-medium text-ink truncate">
+                    {p.nombre.split(" ").slice(0, 2).join(" ")}
+                  </span>
+                  <span className="text-ink-muted truncate hidden sm:inline">
+                    ({p.especialidad})
+                  </span>
+                </div>
+              );
+            })}
+        </div>
       </div>
     </div>
   );
