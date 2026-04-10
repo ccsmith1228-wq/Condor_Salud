@@ -58,12 +58,8 @@ function useGoogleCalendarEvents() {
 
 // ─── Config ──────────────────────────────────────────────────
 
-const diasSemana = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+const diasSemana = ["Lun", "Mar", "Mié", "Jue", "Vie"];
 const horas = [
-  "08:00",
-  "08:30",
-  "09:00",
-  "09:30",
   "10:00",
   "10:30",
   "11:00",
@@ -71,6 +67,7 @@ const horas = [
   "12:00",
   "12:30",
   "13:00",
+  "13:30",
   "14:00",
   "14:30",
   "15:00",
@@ -167,7 +164,7 @@ export default function AgendaPage() {
     [doctors],
   );
 
-  const localeDays = locale === "en" ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] : diasSemana;
+  const localeDays = locale === "en" ? ["Mon", "Tue", "Wed", "Thu", "Fri"] : diasSemana;
   const [vista, setVista] = useState<"semana" | "lista">("semana");
   const [profFilter, setProfFilter] = useState("");
   const [showNewModal, setShowNewModal] = useState(false);
@@ -208,7 +205,7 @@ export default function AgendaPage() {
   const lunes = new Date(hoy);
   lunes.setDate(hoy.getDate() - ((hoy.getDay() + 6) % 7));
 
-  // ISO date strings for each column (Mon–Sat): YYYY-MM-DD
+  // ISO date strings for each column (Mon–Fri): YYYY-MM-DD
   const isoFechas = localeDays.map((_, i) => {
     const d = new Date(lunes);
     d.setDate(lunes.getDate() + i);
@@ -558,9 +555,9 @@ export default function AgendaPage() {
         vista === "semana" &&
         (() => {
           // ── Constants ──
-          const START_HOUR = 7;
-          const END_HOUR = 21;
-          const TOTAL_HOURS = END_HOUR - START_HOUR; // 14
+          const START_HOUR = 10;
+          const END_HOUR = 17;
+          const TOTAL_HOURS = END_HOUR - START_HOUR; // 7
           const HOUR_PX = 64; // height per hour
           const TOTAL_PX = TOTAL_HOURS * HOUR_PX; // 896px
           const PX_PER_MIN = HOUR_PX / 60;
@@ -622,7 +619,7 @@ export default function AgendaPage() {
               {/* Day header row */}
               <div
                 className="grid border-b border-border"
-                style={{ gridTemplateColumns: "56px repeat(6, 1fr)" }}
+                style={{ gridTemplateColumns: "56px repeat(5, 1fr)" }}
               >
                 <div className="bg-surface px-2 py-3 text-center">
                   <span className="text-[9px] font-bold tracking-widest text-ink-muted uppercase">
@@ -654,7 +651,7 @@ export default function AgendaPage() {
 
               {/* Scrollable schedule body */}
               <div className="overflow-y-auto" style={{ maxHeight: "calc(100vh - 340px)" }}>
-                <div className="grid" style={{ gridTemplateColumns: "56px repeat(6, 1fr)" }}>
+                <div className="grid" style={{ gridTemplateColumns: "56px repeat(5, 1fr)" }}>
                   {/* Time gutter + grid lines + appointment columns */}
                   <div className="relative" style={{ height: `${TOTAL_PX}px` }}>
                     {/* Time labels */}

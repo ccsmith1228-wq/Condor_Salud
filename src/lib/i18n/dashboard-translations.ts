@@ -181,6 +181,10 @@ export const dashboardTranslations: DashTranslation = {
   "label.onCall": { es: "De guardia", en: "On call" },
   "label.full": { es: "Completo", en: "Full" },
   "label.storage": { es: "Almacenamiento", en: "Storage" },
+  "label.week": { es: "Semana", en: "Week" },
+  "label.list": { es: "Lista", en: "List" },
+  "label.attended": { es: "Atendidos", en: "Attended" },
+  "label.optional": { es: "Opcional", en: "Optional" },
 
   // ─── Sidebar navigation ────────────────────────────────────
   "nav.clinicManagement": { es: "GESTIÓN CLÍNICA", en: "CLINICAL MANAGEMENT" },
