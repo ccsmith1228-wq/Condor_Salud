@@ -227,11 +227,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const isDemo = useIsDemo();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Routes hidden for specific clinics
+  const CLINIC_HIDDEN_ROUTES: Record<string, string[]> = {
+    "Centro Médico Roca": ["/dashboard/farmacia", "/dashboard/telemedicina"],
+  };
+
   const isNavVisible = (href: string): boolean => {
     // Always show: dashboard home
     if (href === "/dashboard") return true;
     // While user is loading, only show the home link (avoid flash of full sidebar)
     if (isLoading || !user?.role) return false;
+    // Clinic-specific hidden routes (e.g. CMR doesn't use farmacia/telemedicina)
+    const hidden = CLINIC_HIDDEN_ROUTES[user.clinicName ?? ""];
+    if (hidden?.includes(href)) return false;
     // Role-based access check
     if (!canAccessRoute(user.role, href)) return false;
     // Recetas: only admin + medico can prescribe

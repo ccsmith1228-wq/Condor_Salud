@@ -328,7 +328,7 @@ export function useRealtimeTurnoNotifications(options: UseTurnoNotificationsOpti
   const {
     enabled = true,
     profesionalFilter,
-    upcomingThresholdMin = 10,
+    upcomingThresholdMin = 5,
     maxNotifications = 20,
   } = options;
   const [notifications, setNotifications] = useState<TurnoNotification[]>([]);

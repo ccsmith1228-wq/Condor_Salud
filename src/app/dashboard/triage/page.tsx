@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Pagination } from "@/components/ui/Pagination";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -10,6 +10,7 @@ import { useToast } from "@/components/Toast";
 import { useIsDemo } from "@/lib/auth/context";
 import { useLocale } from "@/lib/i18n/context";
 import { useTriages, useTriageKPIs } from "@/lib/hooks/useModules";
+import { usePacientes } from "@/hooks/use-data";
 import {
   bodySystems,
   severityLabels,
@@ -37,6 +38,56 @@ export default function TriagePage() {
   const [selectedICD, setSelectedICD] = useState<string[]>([]);
   const [treatmentPlan, setTreatmentPlan] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+
+  // ─── Patient selector ───────────────────────────────────────
+  const [patientSearch, setPatientSearch] = useState("");
+  const [selectedPatient, setSelectedPatient] = useState<{
+    id: string;
+    nombre: string;
+    apellido: string;
+    dni: string;
+    financiador: string;
+    plan?: string;
+    edad?: number;
+    telefono?: string;
+    email?: string;
+  } | null>(null);
+  const [showPatientDropdown, setShowPatientDropdown] = useState(false);
+  const patientInputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const { data: pacientes = [] } = usePacientes();
+  const filteredPacientes = useMemo(() => {
+    if (!patientSearch || patientSearch.length < 2) return [];
+    const q = patientSearch.toLowerCase();
+    return pacientes
+      .filter(
+        (p: any) =>
+          `${p.nombre} ${p.apellido}`.toLowerCase().includes(q) ||
+          (p.dni && p.dni.toLowerCase().includes(q)),
+      )
+      .slice(0, 8);
+  }, [pacientes, patientSearch]);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node) &&
+        patientInputRef.current &&
+        !patientInputRef.current.contains(e.target as Node)
+      ) {
+        setShowPatientDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const patientDisplayName = selectedPatient
+    ? `${selectedPatient.nombre} ${selectedPatient.apellido}`
+    : "Paciente";
 
   // ─── SWR data hooks ─────────────────────────────────────────
   const { data: triages = [] } = useTriages();
@@ -145,6 +196,8 @@ export default function TriagePage() {
             setClinicalNotes("");
             setSelectedICD([]);
             setTreatmentPlan("");
+            setSelectedPatient(null);
+            setPatientSearch("");
             setTab("sintomas");
             showToast(t("toast.triage.newTriage"), "success");
           }}
@@ -152,6 +205,131 @@ export default function TriagePage() {
         >
           {t("triage.newTriage")}
         </button>
+      </div>
+
+      {/* ─── Patient Selector ─── */}
+      <div className="bg-white border border-border rounded-lg p-5">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <div className="flex-1 relative">
+            <label className="text-xs font-bold text-ink-muted uppercase tracking-wider block mb-1.5">
+              {t("triage.selectPatient") ?? "Paciente para Triaje"}
+            </label>
+            {selectedPatient ? (
+              <div className="flex items-center gap-3 bg-celeste-pale/30 border border-celeste-dark/20 rounded-lg p-3">
+                <div className="w-9 h-9 bg-celeste-dark text-white rounded-full flex items-center justify-center text-sm font-bold">
+                  {selectedPatient.nombre[0]}
+                  {selectedPatient.apellido[0]}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-ink">
+                    {selectedPatient.apellido}, {selectedPatient.nombre}
+                  </p>
+                  <p className="text-[10px] text-ink-muted">
+                    DNI {selectedPatient.dni} · {selectedPatient.financiador}
+                    {selectedPatient.edad ? ` · ${selectedPatient.edad} años` : ""}
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setSelectedPatient(null);
+                    setPatientSearch("");
+                  }}
+                  className="text-xs text-ink-muted hover:text-red-500 transition font-medium px-2 py-1 rounded hover:bg-red-50"
+                >
+                  ✕
+                </button>
+              </div>
+            ) : (
+              <div className="relative">
+                <input
+                  ref={patientInputRef}
+                  type="text"
+                  placeholder={
+                    t("triage.searchPatientPlaceholder") ?? "Buscar paciente por nombre o DNI..."
+                  }
+                  value={patientSearch}
+                  onChange={(e) => {
+                    setPatientSearch(e.target.value);
+                    setShowPatientDropdown(true);
+                  }}
+                  onFocus={() => setShowPatientDropdown(true)}
+                  className="w-full px-4 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:border-celeste-dark focus:ring-2 focus:ring-celeste-dark/30"
+                />
+                {showPatientDropdown && filteredPacientes.length > 0 && (
+                  <div
+                    ref={dropdownRef}
+                    className="absolute z-50 top-full left-0 right-0 mt-1 bg-white border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                  >
+                    {filteredPacientes.map((p: any) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedPatient({
+                            id: p.id,
+                            nombre: p.nombre,
+                            apellido: p.apellido,
+                            dni: p.dni || "",
+                            financiador: p.financiador || "Particular",
+                            plan: p.plan,
+                            edad: p.edad,
+                            telefono: p.telefono,
+                            email: p.email,
+                          });
+                          setPatientSearch("");
+                          setShowPatientDropdown(false);
+                        }}
+                        className="w-full text-left px-4 py-2.5 hover:bg-celeste-pale/30 transition flex items-center gap-3"
+                      >
+                        <div className="w-7 h-7 bg-surface text-ink-muted rounded-full flex items-center justify-center text-[10px] font-bold">
+                          {p.nombre?.[0] ?? ""}
+                          {p.apellido?.[0] ?? ""}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-ink">
+                            {p.apellido}, {p.nombre}
+                          </p>
+                          <p className="text-[10px] text-ink-muted">
+                            DNI {p.dni} · {p.financiador || "Particular"}
+                          </p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Selected patient detail card */}
+          {selectedPatient && (
+            <div className="grid grid-cols-2 gap-3 sm:w-80">
+              <div className="bg-surface rounded-lg p-2.5">
+                <p className="text-[9px] font-bold text-ink-muted uppercase">Obra Social</p>
+                <p className="text-xs font-semibold text-ink mt-0.5">
+                  {selectedPatient.financiador}
+                </p>
+                {selectedPatient.plan && (
+                  <p className="text-[9px] text-ink-muted">Plan: {selectedPatient.plan}</p>
+                )}
+              </div>
+              <div className="bg-surface rounded-lg p-2.5">
+                <p className="text-[9px] font-bold text-ink-muted uppercase">Contacto</p>
+                <p className="text-[10px] text-ink mt-0.5">{selectedPatient.telefono || "—"}</p>
+                {selectedPatient.email && (
+                  <p className="text-[9px] text-ink-muted truncate">{selectedPatient.email}</p>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+        {!selectedPatient && (
+          <p className="text-[10px] text-amber-600 mt-2 flex items-center gap-1">
+            <span>⚠</span>{" "}
+            {t("triage.selectPatientWarning") ??
+              "Seleccioná un paciente para vincular este triaje a su historial clínico"}
+          </p>
+        )}
       </div>
 
       {/* KPIs */}
@@ -366,7 +544,8 @@ export default function TriagePage() {
                       body: JSON.stringify({
                         action: "create-triage",
                         data: {
-                          patientName: "Paciente",
+                          patientId: selectedPatient?.id ?? null,
+                          patientName: patientDisplayName,
                           symptoms: selectedSymptoms,
                           severity,
                           frequency,
@@ -460,8 +639,9 @@ export default function TriagePage() {
                     body: JSON.stringify({
                       action: "save-clinical-note",
                       data: {
+                        patientId: selectedPatient?.id ?? null,
                         doctorName: "",
-                        patientName: "Paciente",
+                        patientName: patientDisplayName,
                         icd10Codes: [],
                         notes: freeNotes,
                         treatmentPlan: "",
@@ -499,6 +679,34 @@ export default function TriagePage() {
                 {t("triage.preConsultation")}
               </span>
             </div>
+
+            {/* Patient info banner */}
+            {selectedPatient ? (
+              <div className="flex items-center gap-3 bg-celeste-pale/20 border border-celeste-dark/10 rounded-lg p-3 mb-4">
+                <div className="w-10 h-10 bg-celeste-dark text-white rounded-full flex items-center justify-center text-sm font-bold">
+                  {selectedPatient.nombre[0]}
+                  {selectedPatient.apellido[0]}
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-ink">
+                    {selectedPatient.apellido}, {selectedPatient.nombre}
+                  </p>
+                  <p className="text-[10px] text-ink-muted">
+                    DNI {selectedPatient.dni} · {selectedPatient.financiador}
+                    {selectedPatient.plan && selectedPatient.plan !== "—"
+                      ? ` — Plan ${selectedPatient.plan}`
+                      : ""}
+                    {selectedPatient.edad ? ` · ${selectedPatient.edad} años` : ""}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4 text-xs text-amber-700">
+                ⚠{" "}
+                {t("triage.noPatientSelected") ??
+                  "Ningún paciente seleccionado. Seleccioná un paciente arriba para vincular este triaje."}
+              </div>
+            )}
 
             <div className="space-y-4">
               <div>

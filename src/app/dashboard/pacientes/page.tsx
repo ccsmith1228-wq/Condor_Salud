@@ -336,6 +336,7 @@ export default function PacientesPage() {
           setFiltroFinanciador={setFiltroFinanciador}
           filtroEstado={filtroEstado}
           setFiltroEstado={setFiltroEstado}
+          allTurnos={allTurnos ?? []}
         />
       )}
 
@@ -552,6 +553,7 @@ function PacientesTabView({
   setFiltroFinanciador,
   filtroEstado,
   setFiltroEstado,
+  allTurnos,
 }: {
   pacientes: PacienteDisplay[];
   filtered: PacienteDisplay[];
@@ -561,9 +563,63 @@ function PacientesTabView({
   setFiltroFinanciador: (v: string) => void;
   filtroEstado: string;
   setFiltroEstado: (v: string) => void;
+  allTurnos: {
+    id: string;
+    fecha?: string;
+    hora: string;
+    paciente: string;
+    pacienteId?: string;
+    tipo: string;
+    financiador: string;
+    profesional: string;
+    profesionalId?: string;
+    estado: string;
+    notas?: string;
+    durationMin?: number;
+  }[];
 }) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const [currentPage, setCurrentPage] = useState(1);
+  const [expandedPatient, setExpandedPatient] = useState<string | null>(null);
+
+  // Build patient → turnos lookup for medical history
+  const patientTurnosMap = useMemo(() => {
+    const map = new Map<string, typeof allTurnos>();
+    for (const turno of allTurnos) {
+      const key = turno.pacienteId ?? turno.paciente;
+      if (!key) continue;
+      const list = map.get(key) ?? [];
+      list.push(turno);
+      map.set(key, list);
+    }
+    return map;
+  }, [allTurnos]);
+
+  const getPatientTurnos = (p: PacienteDisplay) => {
+    const byId = patientTurnosMap.get(p.id) ?? [];
+    const byName = patientTurnosMap.get(`${p.nombre} ${p.apellido}`.trim()) ?? [];
+    // Deduplicate by turno id
+    const seen = new Set<string>();
+    const merged = [];
+    for (const t of [...byId, ...byName]) {
+      if (!seen.has(t.id)) {
+        seen.add(t.id);
+        merged.push(t);
+      }
+    }
+    return merged.sort((a, b) => {
+      const da = a.fecha ?? "";
+      const db = b.fecha ?? "";
+      return db.localeCompare(da) || b.hora.localeCompare(a.hora);
+    });
+  };
+
+  const estadoColors: Record<string, string> = {
+    confirmado: "bg-green-50 text-green-700",
+    pendiente: "bg-amber-50 text-amber-700",
+    atendido: "bg-gray-100 text-gray-600",
+    cancelado: "bg-red-50 text-red-600",
+  };
 
   const PAGE_SIZE = 25;
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
@@ -668,48 +724,210 @@ function PacientesTabView({
               </tr>
             </thead>
             <tbody>
-              {paginatedFiltered.map((p) => (
-                <tr
-                  key={p.id}
-                  className="border-t border-border-light hover:bg-celeste-pale/30 transition"
-                >
-                  <td className="px-5 py-3 font-semibold text-ink">
-                    {p.apellido}, {p.nombre}
-                  </td>
-                  <td className="px-5 py-3 text-ink-light font-mono text-xs">{p.dni}</td>
-                  <td className="px-5 py-3 text-ink-light">{p.financiador}</td>
-                  <td className="px-5 py-3 text-center text-ink-light">{p.edad}</td>
-                  <td className="px-5 py-3 text-ink-light">{p.ultimaVisita}</td>
-                  <td className="px-5 py-3 text-center">
-                    {p.turnos > 0 ? (
-                      <span className="bg-celeste-pale text-celeste-dark text-[10px] font-bold px-2 py-0.5 rounded">
-                        {p.turnos}
-                      </span>
-                    ) : (
-                      <span className="text-ink-muted text-xs">—</span>
-                    )}
-                  </td>
-                  <td className="px-5 py-3 text-center">
-                    <StatusBadge
-                      variant={p.estado}
-                      label={
-                        p.estado === "activo"
-                          ? t("patients.statusActive")
-                          : t("patients.statusInactive")
-                      }
-                    />
-                  </td>
-                  <td className="px-5 py-3 text-center">
-                    <Link
-                      href={`/dashboard/pacientes/${p.id}`}
-                      className="text-[10px] text-celeste-dark font-medium hover:underline"
-                      aria-label={`${t("patients.viewRecord")} - ${p.apellido}, ${p.nombre}`}
+              {paginatedFiltered.map((p) => {
+                const isExpanded = expandedPatient === p.id;
+                const pTurnos = getPatientTurnos(p);
+                return (
+                  <>
+                    <tr
+                      key={p.id}
+                      className={`border-t border-border-light hover:bg-celeste-pale/30 transition cursor-pointer ${isExpanded ? "bg-celeste-pale/20" : ""}`}
+                      onClick={() => setExpandedPatient(isExpanded ? null : p.id)}
                     >
-                      {t("patients.viewRecord")}
-                    </Link>
-                  </td>
-                </tr>
-              ))}
+                      <td className="px-5 py-3 font-semibold text-ink">
+                        <div className="flex items-center gap-2">
+                          <svg
+                            className={`w-3 h-3 text-ink-muted transition-transform ${isExpanded ? "rotate-90" : ""}`}
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                          </svg>
+                          {p.apellido}, {p.nombre}
+                        </div>
+                      </td>
+                      <td className="px-5 py-3 text-ink-light font-mono text-xs">{p.dni}</td>
+                      <td className="px-5 py-3 text-ink-light">{p.financiador}</td>
+                      <td className="px-5 py-3 text-center text-ink-light">{p.edad}</td>
+                      <td className="px-5 py-3 text-ink-light">{p.ultimaVisita}</td>
+                      <td className="px-5 py-3 text-center">
+                        {p.turnos > 0 ? (
+                          <span className="bg-celeste-pale text-celeste-dark text-[10px] font-bold px-2 py-0.5 rounded">
+                            {p.turnos}
+                          </span>
+                        ) : (
+                          <span className="text-ink-muted text-xs">—</span>
+                        )}
+                      </td>
+                      <td className="px-5 py-3 text-center">
+                        <StatusBadge
+                          variant={p.estado}
+                          label={
+                            p.estado === "activo"
+                              ? t("patients.statusActive")
+                              : t("patients.statusInactive")
+                          }
+                        />
+                      </td>
+                      <td className="px-5 py-3 text-center" onClick={(e) => e.stopPropagation()}>
+                        <Link
+                          href={`/dashboard/pacientes/${p.id}`}
+                          className="text-[10px] text-celeste-dark font-medium hover:underline"
+                          aria-label={`${t("patients.viewRecord")} - ${p.apellido}, ${p.nombre}`}
+                        >
+                          {t("patients.viewRecord")}
+                        </Link>
+                      </td>
+                    </tr>
+                    {/* ── Expanded: Medical History & Previous Appointments ── */}
+                    {isExpanded && (
+                      <tr key={`${p.id}-detail`}>
+                        <td colSpan={8} className="px-5 py-0 bg-surface/50">
+                          <div className="py-4 space-y-4">
+                            {/* Patient Summary Card */}
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                              <div className="bg-white border border-border rounded-lg p-3">
+                                <p className="text-[9px] font-bold text-ink-muted uppercase tracking-wider">
+                                  {locale === "en" ? "Insurance" : "Obra Social"}
+                                </p>
+                                <p className="text-sm font-semibold text-ink mt-0.5">
+                                  {p.financiador}
+                                </p>
+                                {p.plan !== "—" && (
+                                  <p className="text-[10px] text-ink-muted">
+                                    {locale === "en" ? "Plan" : "Plan"}: {p.plan}
+                                  </p>
+                                )}
+                              </div>
+                              <div className="bg-white border border-border rounded-lg p-3">
+                                <p className="text-[9px] font-bold text-ink-muted uppercase tracking-wider">
+                                  {locale === "en" ? "Contact" : "Contacto"}
+                                </p>
+                                <p className="text-xs text-ink mt-0.5">{p.telefono}</p>
+                                {p.email && (
+                                  <p className="text-[10px] text-ink-muted truncate">{p.email}</p>
+                                )}
+                              </div>
+                              <div className="bg-white border border-border rounded-lg p-3">
+                                <p className="text-[9px] font-bold text-ink-muted uppercase tracking-wider">
+                                  {locale === "en" ? "Total Appointments" : "Total Turnos"}
+                                </p>
+                                <p className="text-lg font-bold text-celeste-dark mt-0.5">
+                                  {pTurnos.length}
+                                </p>
+                              </div>
+                              <div className="bg-white border border-border rounded-lg p-3">
+                                <p className="text-[9px] font-bold text-ink-muted uppercase tracking-wider">
+                                  {locale === "en" ? "Last Visit" : "Última Visita"}
+                                </p>
+                                <p className="text-sm font-semibold text-ink mt-0.5">
+                                  {p.ultimaVisita}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Previous Appointments Table */}
+                            <div>
+                              <h4 className="text-xs font-bold text-ink-muted uppercase tracking-wider mb-2">
+                                {locale === "en" ? "Appointment History" : "Historial de Turnos"}
+                              </h4>
+                              {pTurnos.length === 0 ? (
+                                <p className="text-xs text-ink-muted italic py-3">
+                                  {locale === "en"
+                                    ? "No previous appointments"
+                                    : "Sin turnos previos"}
+                                </p>
+                              ) : (
+                                <div className="bg-white border border-border rounded-lg overflow-hidden">
+                                  <table className="w-full text-xs">
+                                    <thead>
+                                      <tr className="bg-surface text-[9px] font-bold tracking-wider text-ink-muted uppercase">
+                                        <th className="text-left px-4 py-2">
+                                          {locale === "en" ? "Date" : "Fecha"}
+                                        </th>
+                                        <th className="text-left px-4 py-2">
+                                          {locale === "en" ? "Time" : "Hora"}
+                                        </th>
+                                        <th className="text-left px-4 py-2">
+                                          {locale === "en" ? "Type" : "Tipo"}
+                                        </th>
+                                        <th className="text-left px-4 py-2">
+                                          {locale === "en" ? "Doctor" : "Profesional"}
+                                        </th>
+                                        <th className="text-left px-4 py-2">
+                                          {locale === "en" ? "Insurance" : "Obra Social"}
+                                        </th>
+                                        <th className="text-center px-4 py-2">
+                                          {locale === "en" ? "Status" : "Estado"}
+                                        </th>
+                                        {pTurnos.some((t) => t.notas) && (
+                                          <th className="text-left px-4 py-2">
+                                            {locale === "en" ? "Notes" : "Notas"}
+                                          </th>
+                                        )}
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {pTurnos.slice(0, 15).map((turno) => (
+                                        <tr
+                                          key={turno.id}
+                                          className="border-t border-border-light hover:bg-celeste-pale/20 transition"
+                                        >
+                                          <td className="px-4 py-2 font-mono text-ink-light">
+                                            {turno.fecha ?? "—"}
+                                          </td>
+                                          <td className="px-4 py-2 font-mono text-ink-light">
+                                            {turno.hora}
+                                          </td>
+                                          <td className="px-4 py-2">
+                                            <span className="bg-surface px-2 py-0.5 rounded text-ink-light font-medium">
+                                              {turno.tipo}
+                                            </span>
+                                          </td>
+                                          <td className="px-4 py-2 text-ink-light">
+                                            {turno.profesional}
+                                          </td>
+                                          <td className="px-4 py-2 text-ink-light">
+                                            {turno.financiador}
+                                          </td>
+                                          <td className="px-4 py-2 text-center">
+                                            <span
+                                              className={`text-[9px] font-bold px-2 py-0.5 rounded capitalize ${estadoColors[turno.estado] ?? "bg-gray-100 text-gray-600"}`}
+                                            >
+                                              {turno.estado}
+                                            </span>
+                                          </td>
+                                          {pTurnos.some((t) => t.notas) && (
+                                            <td
+                                              className="px-4 py-2 text-ink-muted max-w-[150px] truncate"
+                                              title={turno.notas ?? ""}
+                                            >
+                                              {turno.notas ?? "—"}
+                                            </td>
+                                          )}
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                  {pTurnos.length > 15 && (
+                                    <div className="px-4 py-2 text-[10px] text-ink-muted bg-surface border-t border-border">
+                                      {locale === "en"
+                                        ? `Showing 15 of ${pTurnos.length} appointments`
+                                        : `Mostrando 15 de ${pTurnos.length} turnos`}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </>
+                );
+              })}
               {filtered.length === 0 && (
                 <tr>
                   <td colSpan={8} className="px-5 py-12 text-center text-sm text-ink-muted">

@@ -344,6 +344,23 @@ export async function createTurno(
       .eq("date", input.fecha)
       .eq("time_slot", input.hora);
 
+    // ── Notify the assigned doctor ─────────────────────────
+    // Insert an alert so the doctor (and dashboard) gets a real-time notification
+    // via Supabase Realtime on the `alertas` table.
+    try {
+      await sb.from("alertas").insert({
+        clinic_id: clinicId,
+        tipo: "turno",
+        titulo: `Nuevo turno: ${input.paciente}`,
+        detalle: `${input.fecha} ${input.hora} — ${input.tipo} — ${input.financiador} — Dr. ${input.profesional}`,
+        fecha: new Date().toISOString(),
+        acento: "celeste",
+        read: false,
+      });
+    } catch {
+      // Non-critical — turno was already created successfully
+    }
+
     return {
       success: true,
       turno: {
