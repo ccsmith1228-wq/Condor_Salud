@@ -103,7 +103,7 @@ export async function getAvailableSlots(
     const { data: bookedTurnos } = await sb
       .from("turnos")
       .select("hora, estado")
-      .eq("profesional", doctorId)
+      .eq("profesional_id", doctorId)
       .eq("fecha", date)
       .neq("estado", "cancelado");
 
@@ -187,18 +187,33 @@ export async function checkConflict(
   fecha: string,
   hora: string,
   excludeTurnoId?: string,
+  clinicId?: string,
 ): Promise<ConflictResult> {
   if (isSupabaseConfigured()) {
     const { createClient } = await import("@/lib/supabase/client");
     const sb = createClient();
 
+    // Try matching by profesional_id first (UUID), fall back to profesional (name)
     let query = sb
       .from("turnos")
       .select("*")
-      .eq("profesional_id", profesionalId)
       .eq("fecha", fecha)
       .eq("hora", hora)
       .neq("estado", "cancelado");
+
+    // UUID pattern check — if it looks like a UUID, query profesional_id
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      profesionalId,
+    );
+    if (isUUID) {
+      query = query.eq("profesional_id", profesionalId);
+    } else {
+      query = query.eq("profesional", profesionalId);
+    }
+
+    if (clinicId) {
+      query = query.eq("clinic_id", clinicId);
+    }
 
     if (excludeTurnoId) {
       query = query.neq("id", excludeTurnoId);
@@ -266,16 +281,6 @@ export async function checkPatientConflict(
 export async function createTurno(
   input: CreateTurnoInput,
 ): Promise<{ success: boolean; turno?: Turno; error?: string }> {
-  // 1. Check for conflicts
-  const conflict = await checkConflict(
-    input.profesionalId ?? input.profesional,
-    input.fecha,
-    input.hora,
-  );
-  if (conflict.hasConflict) {
-    return { success: false, error: conflict.message };
-  }
-
   if (isSupabaseConfigured()) {
     const { createClient } = await import("@/lib/supabase/client");
     const sb = createClient();
@@ -296,8 +301,20 @@ export async function createTurno(
     if (!clinicId) {
       return {
         success: false,
-        error: "No se pudo determinar la clínica. Cerrá sesión y volvé a ingresar.",
+        error: "No se pudo determinar la clinica. Cerra sesion y volve a ingresar.",
       };
+    }
+
+    // 1. Check for conflicts (scoped to clinic)
+    const conflict = await checkConflict(
+      input.profesionalId ?? input.profesional,
+      input.fecha,
+      input.hora,
+      undefined,
+      clinicId,
+    );
+    if (conflict.hasConflict) {
+      return { success: false, error: conflict.message };
     }
 
     // Resolve paciente_id if not already provided

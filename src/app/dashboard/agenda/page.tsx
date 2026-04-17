@@ -60,6 +60,10 @@ function useGoogleCalendarEvents() {
 
 const diasSemana = ["Lun", "Mar", "Mié", "Jue", "Vie"];
 const horas = [
+  "08:00",
+  "08:30",
+  "09:00",
+  "09:30",
   "10:00",
   "10:30",
   "11:00",
@@ -500,7 +504,7 @@ export default function AgendaPage() {
         <div>
           <h1 className="text-2xl font-bold text-ink">{t("nav.appointments")}</h1>
           <p className="text-sm text-ink-muted mt-0.5">
-            {t("schedule.weekOfRange")} {fechasDias[0]} {t("schedule.to")} {fechasDias[5]}
+            {t("schedule.weekOfRange")} {fechasDias[0]} {t("schedule.to")} {fechasDias[4]}
           </p>
         </div>
         <div className="flex gap-2">
@@ -1088,8 +1092,9 @@ function NewTurnoModal({
       .catch(() => {});
   }, []);
 
+  const today = new Date().toISOString().slice(0, 10);
   const [form, setForm] = useState<CreateTurnoInput>({
-    fecha: new Date().toISOString().slice(0, 10),
+    fecha: today,
     hora: "09:00",
     paciente: "",
     tipo: "Consulta",
@@ -1302,6 +1307,7 @@ function NewTurnoModal({
               <input
                 type="date"
                 value={form.fecha}
+                min={today}
                 onChange={(e) => setForm({ ...form, fecha: e.target.value })}
                 className="w-full px-3 py-2 border border-border rounded-[4px] text-sm focus:outline-none focus:ring-2 focus:ring-celeste-200 focus:border-celeste-dark"
               />

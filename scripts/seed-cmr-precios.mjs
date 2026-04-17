@@ -76,17 +76,7 @@ const SERVICES = [
 async function main() {
   console.log("💰 Seeding CMR service pricing...\n");
 
-  // 1. Apply migration (add ef_price + notes columns if missing)
-  console.log("📦 Ensuring ef_price + notes columns exist...");
-  await sb.rpc("exec_sql", {
-    sql: `
-      ALTER TABLE clinic_services ADD COLUMN IF NOT EXISTS ef_price NUMERIC(12, 2);
-      ALTER TABLE clinic_services ADD COLUMN IF NOT EXISTS notes TEXT;
-    `,
-  }).catch(() => {
-    // RPC might not exist; try direct SQL via raw query
-    console.log("   (rpc not available, columns may already exist)");
-  });
+  // 1. Columns already exist from migration 023 — skip rpc call
 
   // 2. Clear existing services for this clinic (fresh seed)
   const { error: delErr } = await sb
