@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useMemo } from "react";
+import Link from "next/link";
 import { useToast } from "@/components/Toast";
 import { RequirePermission } from "@/components/RequirePermission";
 import { useExport } from "@/lib/services/export";
@@ -372,6 +373,9 @@ export default function AgendaPage() {
   const [profFilter, setProfFilter] = useState("");
   const [showNewModal, setShowNewModal] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [selectedTurno, setSelectedTurno] = useState<{ turno: Turno; x: number; y: number } | null>(
+    null,
+  );
 
   // Merge Google Calendar events as virtual turnos
   const gCalTurnos: Turno[] = gCalEvents.map((e) => {
@@ -944,9 +948,16 @@ export default function AgendaPage() {
                                 height: `${blockHeight - 2}px`,
                                 right: "4px",
                                 marginLeft: overlapShift > 0 ? `${overlapShift}px` : undefined,
-                                zIndex: 10 + ti,
+                                zIndex: selectedTurno?.turno.id === turno.id ? 50 : 10 + ti,
                               }}
-                              title={`${turno.hora} — ${turno.paciente}\n${turno.profesional} · ${turno.tipo}\n${turno.financiador} · ${turno.estado}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedTurno(
+                                  selectedTurno?.turno.id === turno.id
+                                    ? null
+                                    : { turno, x: e.clientX, y: e.clientY },
+                                );
+                              }}
                             >
                               <div className="flex items-center gap-1 leading-tight">
                                 <span className="font-bold text-[10px] truncate">
@@ -1021,6 +1032,104 @@ export default function AgendaPage() {
           profesionales={profesionales}
           pacientes={pacientes ?? []}
         />
+      )}
+
+      {/* Appointment detail popover */}
+      {selectedTurno && (
+        <>
+          {/* Backdrop to close */}
+          <div className="fixed inset-0 z-40" onClick={() => setSelectedTurno(null)} />
+          <div
+            className="fixed z-50 w-72 bg-white border border-border rounded-lg shadow-xl p-4 space-y-3"
+            style={{
+              top: Math.min(selectedTurno.y, window.innerHeight - 320),
+              left: Math.min(selectedTurno.x, window.innerWidth - 300),
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-bold text-ink truncate">
+                {selectedTurno.turno.paciente}
+              </h4>
+              <button
+                onClick={() => setSelectedTurno(null)}
+                className="p-0.5 text-ink-muted hover:text-ink"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="space-y-1.5 text-xs">
+              <div className="flex justify-between">
+                <span className="text-ink-muted">Fecha / Hora</span>
+                <span className="text-ink font-medium">
+                  {selectedTurno.turno.fecha} {selectedTurno.turno.hora}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-ink-muted">Profesional</span>
+                <span className="text-ink font-medium truncate ml-2">
+                  {selectedTurno.turno.profesional}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-ink-muted">Motivo / Tipo</span>
+                <span className="text-ink font-semibold">{selectedTurno.turno.tipo}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-ink-muted">Financiador</span>
+                <span className="text-ink">{selectedTurno.turno.financiador || "\u2014"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-ink-muted">Estado</span>
+                <span
+                  className={`px-1.5 py-0.5 text-[10px] font-bold rounded capitalize ${estadoColor[selectedTurno.turno.estado] ?? "bg-gray-50 text-gray-500"}`}
+                >
+                  {selectedTurno.turno.estado}
+                </span>
+              </div>
+              {selectedTurno.turno.durationMin && (
+                <div className="flex justify-between">
+                  <span className="text-ink-muted">Duracion</span>
+                  <span className="text-ink">{selectedTurno.turno.durationMin} min</span>
+                </div>
+              )}
+              {selectedTurno.turno.notas && (
+                <div className="pt-1 border-t border-border">
+                  <span className="text-ink-muted">Notas:</span>
+                  <p className="text-ink mt-0.5">{selectedTurno.turno.notas}</p>
+                </div>
+              )}
+            </div>
+            {selectedTurno.turno.pacienteId && (
+              <Link
+                href={`/dashboard/pacientes/${selectedTurno.turno.pacienteId}`}
+                className="flex items-center gap-1.5 w-full px-3 py-2 text-xs font-semibold text-celeste-dark bg-celeste-pale/40 hover:bg-celeste-pale rounded-[4px] transition justify-center"
+                onClick={() => setSelectedTurno(null)}
+              >
+                <UserRound className="w-3.5 h-3.5" />
+                Ver historial del paciente
+              </Link>
+            )}
+            {!selectedTurno.turno.pacienteId &&
+              pacientes &&
+              (() => {
+                const match = (pacientes ?? []).find(
+                  (p: Paciente) =>
+                    p.nombre?.toLowerCase() === selectedTurno.turno.paciente?.toLowerCase(),
+                );
+                if (!match) return null;
+                return (
+                  <Link
+                    href={`/dashboard/pacientes/${match.id}`}
+                    className="flex items-center gap-1.5 w-full px-3 py-2 text-xs font-semibold text-celeste-dark bg-celeste-pale/40 hover:bg-celeste-pale rounded-[4px] transition justify-center"
+                    onClick={() => setSelectedTurno(null)}
+                  >
+                    <UserRound className="w-3.5 h-3.5" />
+                    Ver historial del paciente
+                  </Link>
+                );
+              })()}
+          </div>
+        </>
       )}
 
       <ConfirmDialog

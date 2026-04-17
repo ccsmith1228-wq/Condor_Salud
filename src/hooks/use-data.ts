@@ -96,6 +96,8 @@ export function useTurnos() {
   return useSWR("turnos", () => getTurnos(), {
     revalidateOnFocus: true, // Schedule changes frequently
     dedupingInterval: 5000,
+    refreshInterval: 30000, // Poll every 30s so appointments never go stale on idle screens
+    revalidateOnReconnect: true,
   });
 }
 
