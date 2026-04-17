@@ -23,6 +23,8 @@ import {
   type MetaWebhookPayload,
 } from "@/lib/services/whatsapp";
 import { handleBookingReply } from "@/lib/services/whatsapp-booking-confirm";
+import { handleBookingFlow } from "@/lib/services/whatsapp-booking-flow";
+import { sendMessage } from "@/lib/services/whatsapp";
 import { logger } from "@/lib/logger";
 
 const log = logger.child({ route: "webhooks/whatsapp" });
@@ -126,6 +128,52 @@ async function handleMetaPost(req: NextRequest) {
     }
   }
 
+  // ── Intercept booking flow (appointment scheduling via WhatsApp) ──
+  for (const entry of payload.entry) {
+    for (const change of entry.changes) {
+      if (change.field !== "messages" || !change.value.messages) continue;
+      const toPhone = change.value.metadata?.display_phone_number;
+      for (const msg of change.value.messages) {
+        if (msg.type !== "text" || !msg.text?.body) continue;
+        try {
+          const fromPhone = `+${msg.from}`;
+          // Resolve clinic by WhatsApp number
+          const { createClient } = await import("@supabase/supabase-js");
+          const sbTemp = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY!,
+          );
+          const normalTo = toPhone ? `+${toPhone.replace(/\D/g, "")}` : "";
+          const { data: waConfig } = await sbTemp
+            .from("whatsapp_config")
+            .select("clinic_id")
+            .or(`whatsapp_number.eq.${normalTo},whatsapp_number.eq.${toPhone}`)
+            .limit(1)
+            .maybeSingle();
+
+          if (waConfig?.clinic_id) {
+            const flowResult = await handleBookingFlow(
+              fromPhone,
+              msg.text.body,
+              waConfig.clinic_id,
+            );
+            if (flowResult.handled && flowResult.reply) {
+              await sendMessage({
+                to: fromPhone,
+                body: flowResult.reply,
+                clinicId: waConfig.clinic_id,
+              });
+              log.info({ from: msg.from }, "Meta message handled by booking flow");
+            }
+            if (flowResult.handled) continue;
+          }
+        } catch (flowErr) {
+          log.warn({ err: flowErr }, "Booking flow error — falling through to CRM");
+        }
+      }
+    }
+  }
+
   // Process through service layer
   const result = await processMetaWebhook(payload);
 
@@ -201,6 +249,41 @@ async function handleTwilioPost(req: NextRequest) {
     }
   } catch (bookingErr) {
     log.warn({ err: bookingErr }, "Booking reply handler error — falling through to CRM");
+  }
+
+  // ── Intercept booking flow (appointment scheduling via WhatsApp) ──
+  try {
+    const normalFrom = payload.From.replace("whatsapp:", "");
+    const normalTo = payload.To.replace("whatsapp:", "");
+    const { createClient } = await import("@supabase/supabase-js");
+    const sbTemp = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    );
+    const { data: waConfig } = await sbTemp
+      .from("whatsapp_config")
+      .select("clinic_id")
+      .or(`whatsapp_number.eq.${normalTo},whatsapp_number.eq.+${normalTo.replace(/\D/g, "")}`)
+      .limit(1)
+      .maybeSingle();
+
+    if (waConfig?.clinic_id) {
+      const flowResult = await handleBookingFlow(normalFrom, payload.Body, waConfig.clinic_id);
+      if (flowResult.handled && flowResult.reply) {
+        await sendMessage({
+          to: normalFrom,
+          body: flowResult.reply,
+          clinicId: waConfig.clinic_id,
+        });
+        log.info({ from: normalFrom }, "Twilio message handled by booking flow");
+        return new NextResponse(`<?xml version="1.0" encoding="UTF-8"?><Response></Response>`, {
+          status: 200,
+          headers: { "Content-Type": "text/xml" },
+        });
+      }
+    }
+  } catch (flowErr) {
+    log.warn({ err: flowErr }, "Booking flow error — falling through to CRM");
   }
 
   // Process through service layer (general CRM / chatbot)
