@@ -58,10 +58,6 @@ export interface AvailabilityConfig {
 
 const DEFAULT_SLOT_DURATION = 30; // minutes
 const DEFAULT_SLOTS = [
-  "08:00",
-  "08:30",
-  "09:00",
-  "09:30",
   "10:00",
   "10:30",
   "11:00",
@@ -69,6 +65,7 @@ const DEFAULT_SLOTS = [
   "12:00",
   "12:30",
   "13:00",
+  "13:30",
   "14:00",
   "14:30",
   "15:00",

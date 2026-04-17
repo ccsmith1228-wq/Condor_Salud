@@ -60,10 +60,6 @@ function useGoogleCalendarEvents() {
 
 const diasSemana = ["Lun", "Mar", "Mié", "Jue", "Vie"];
 const horas = [
-  "08:00",
-  "08:30",
-  "09:00",
-  "09:30",
   "10:00",
   "10:30",
   "11:00",
@@ -1095,7 +1091,7 @@ function NewTurnoModal({
   const today = new Date().toISOString().slice(0, 10);
   const [form, setForm] = useState<CreateTurnoInput>({
     fecha: today,
-    hora: "09:00",
+    hora: "10:00",
     paciente: "",
     tipo: "Consulta",
     financiador: "PAMI",
