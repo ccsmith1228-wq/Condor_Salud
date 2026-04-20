@@ -274,7 +274,15 @@ END $$;
 -- 9. AUTO-UPDATE TRIGGERS
 -- ═══════════════════════════════════════════════════════════════
 
--- Reuse the set_updated_at() trigger function from 002_core_schema.sql
+-- Create or reuse the update_updated_at() trigger function
+CREATE OR REPLACE FUNCTION public.update_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 DO $$
 DECLARE
   tbl TEXT;
@@ -287,7 +295,7 @@ BEGIN
     BEGIN
       EXECUTE format(
         'CREATE TRIGGER set_updated_at BEFORE UPDATE ON public.%I
-         FOR EACH ROW EXECUTE FUNCTION public.set_updated_at()',
+         FOR EACH ROW EXECUTE FUNCTION public.update_updated_at()',
         tbl
       );
     EXCEPTION WHEN duplicate_object THEN NULL;
